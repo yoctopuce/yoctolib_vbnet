@@ -141,9 +141,6 @@
     <Compile Include="..\..\Sources\yocto_voltage.vb">
       <Link>API\yocto_voltage.vb</Link>
     </Compile>
-    <Compile Include="..\..\Sources\yocto_vsource.vb">
-      <Link>API\yocto_vsource.vb</Link>
-    </Compile>
     <Compile Include="ApplicationEvents.vb" />
     <Compile Include="Form1.vb">
       <SubType>Form</SubType>

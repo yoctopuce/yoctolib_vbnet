@@ -140,9 +140,6 @@
     <Compile Include="..\..\Sources\yocto_voltage.vb">
       <Link>yocto\yocto_voltage.vb</Link>
     </Compile>
-    <Compile Include="..\..\Sources\yocto_vsource.vb">
-      <Link>yocto\yocto_vsource.vb</Link>
-    </Compile>
     <Compile Include="..\..\Sources\yocto_carbondioxide.vb">
       <Link>yocto\yocto_carbondioxide.vb</Link>
     </Compile>

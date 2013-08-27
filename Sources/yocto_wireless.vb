@@ -1,39 +1,39 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 9921 2013-02-20 09:39:16Z seb $
+'* $Id: yocto_wireless.vb 12337 2013-08-14 15:22:22Z mvuilleu $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
 '* - - - - - - - - - License information: - - - - - - - - - 
 '*
-'* Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
+'*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
-'* 1) If you have obtained this file from www.yoctopuce.com,
-'*    Yoctopuce Sarl licenses to you (hereafter Licensee) the
-'*    right to use, modify, copy, and integrate this source file
-'*    into your own solution for the sole purpose of interfacing
-'*    a Yoctopuce product with Licensee's solution.
+'*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
+'*  non-exclusive license to use, modify, copy and integrate this
+'*  file into your software for the sole purpose of interfacing 
+'*  with Yoctopuce products. 
 '*
-'*    The use of this file and all relationship between Yoctopuce 
-'*    and Licensee are governed by Yoctopuce General Terms and 
-'*    Conditions.
+'*  You may reproduce and distribute copies of this file in 
+'*  source or object form, as long as the sole purpose of this
+'*  code is to interface with Yoctopuce products. You must retain 
+'*  this notice in the distributed source file.
 '*
-'*    THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*    WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*    WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
-'*    FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
-'*    EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*    INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
-'*    COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*    SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
-'*    LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
-'*    CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
-'*    BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
-'*    WARRANTY, OR OTHERWISE.
+'*  You should refer to Yoctopuce General Terms and Conditions
+'*  for additional information regarding your rights and 
+'*  obligations.
 '*
-'* 2) If your intent is not to interface with Yoctopuce products,
-'*    you are not entitled to use, read or create any derived
-'*    material from this source file.
+'*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
+'*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
+'*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
+'*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
+'*  WARRANTY, OR OTHERWISE.
 '*
 '*********************************************************************/
 
@@ -45,7 +45,7 @@ Imports System.Text
 
 Module yocto_wireless
 
-  REM --- (YWireless definitions)
+  REM --- (generated code: YWireless definitions)
 
   Public Delegate Sub UpdateCallback(ByVal func As YWireless, ByVal value As String)
 
@@ -66,9 +66,63 @@ Module yocto_wireless
   Public Const Y_WLANCONFIG_INVALID As String = YAPI.INVALID_STRING
 
 
-  REM --- (end of YWireless definitions)
+  REM --- (end of generated code: YWireless definitions)
 
-  REM --- (YWireless implementation)
+  REM--- (generated code: YWlanRecord implementation)
+
+
+  Public Class YWlanRecord
+
+
+
+    public function get_ssid() as string
+        Return Me._ssid
+     end function
+
+    public function get_channel() as integer
+        Return Me._channel
+     end function
+
+    public function get_security() as string
+        Return Me._sec
+     end function
+
+    public function get_linkQuality() as integer
+        Return Me._rssi
+     end function
+
+
+
+    REM --- (end of generated code: YWlanRecord implementation)
+
+    Protected _ssid As String
+    Protected _channel As Integer
+    Protected _sec As String
+    Protected _rssi As Integer
+
+    Public Sub New(ByVal data As String)
+      Dim p As TJsonParser
+      Dim node As Nullable(Of TJSONRECORD)
+      p = New TJsonParser(data, False)
+      node = p.GetChildNode(Nothing, "ssid")
+      Me._ssid = node.Value.svalue
+      node = p.GetChildNode(Nothing, "sec")
+      Me._sec = node.Value.svalue
+      node = p.GetChildNode(Nothing, "channel")
+      Me._channel = node.Value.ivalue
+      node = p.GetChildNode(Nothing, "rssi")
+      Me._rssi = node.Value.ivalue
+    End Sub
+
+
+  End Class
+
+  
+
+
+
+
+  REM --- (generated code: YWireless implementation)
 
   Private _WirelessCache As New Hashtable()
   Private _callback As UpdateCallback
@@ -393,7 +447,7 @@ Module yocto_wireless
     '''   wireless network, without using an access point.
     ''' <para>
     '''   If a security key is specified,
-    '''   the network will be protected by WEP128, since WPA is not standardized for
+    '''   the network is protected by WEP128, since WPA is not standardized for
     '''   ad-hoc networks.
     '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
     ''' </para>
@@ -420,6 +474,39 @@ Module yocto_wireless
       rest_val = "ADHOC:"+ssid+"\\"+securityKey
       Return _setAttr("wlanConfig", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns a list of YWlanRecord objects which describe detected Wireless networks.
+    ''' <para>
+    '''   This list is not updated when the module is already connected to an acces point (infrastructure mode).
+    '''   To force an update of this list, <c>adhocNetwork()</c> must be called to disconnect
+    '''   the module from the current network. The returned list must be unallocated by caller,
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a list of <c>YWlanRecord</c> objects, containing the SSID, channel,
+    '''   link quality and the type of security of the wireless network.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty list.
+    ''' </para>
+    '''/
+    public function get_detectedWlans() as List(of YWlanRecord)
+        dim  json as byte()
+        dim  list as string()
+        dim  res as List(of YWlanRecord) = new List(of YWlanRecord)()
+        json = Me._download("wlan.json?by=name")
+        list = Me._json_get_array(json)
+        dim i_i as integer
+for i_i=0 to list.Count-1
+res.Add(new YWlanRecord(list(i_i)))
+next i_i
+
+        Return res
+     end function
+
 
     '''*
     ''' <summary>
@@ -567,11 +654,11 @@ Module yocto_wireless
       Return YWireless.FindWireless(serial + "." + funcId)
     End Function
 
-    REM --- (end of YWireless implementation)
+    REM --- (end of generated code: YWireless implementation)
 
   End Class
 
-  REM --- (Wireless functions)
+  REM --- (generated code: Wireless functions)
 
   '''*
   ''' <summary>
@@ -641,6 +728,6 @@ Module yocto_wireless
   End Sub
 
 
-  REM --- (end of Wireless functions)
+  REM --- (end of generated code: Wireless functions)
 
 End Module

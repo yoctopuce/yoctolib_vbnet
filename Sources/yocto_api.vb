@@ -1,39 +1,39 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 10793 2013-03-28 14:27:39Z mvuilleu $
+'* $Id: yocto_api.vb 12326 2013-08-13 15:52:20Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
 '* - - - - - - - - - License information: - - - - - - - - - 
 '*
-'* Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
+'*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
-'* 1) If you have obtained this file from www.yoctopuce.com,
-'*    Yoctopuce Sarl licenses to you (hereafter Licensee) the
-'*    right to use, modify, copy, and integrate this source file
-'*    into your own solution for the sole purpose of interfacing
-'*    a Yoctopuce product with Licensee's solution.
+'*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
+'*  non-exclusive license to use, modify, copy and integrate this
+'*  file into your software for the sole purpose of interfacing 
+'*  with Yoctopuce products. 
 '*
-'*    The use of this file and all relationship between Yoctopuce 
-'*    and Licensee are governed by Yoctopuce General Terms and 
-'*    Conditions.
+'*  You may reproduce and distribute copies of this file in 
+'*  source or object form, as long as the sole purpose of this
+'*  code is to interface with Yoctopuce products. You must retain 
+'*  this notice in the distributed source file.
 '*
-'*    THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*    WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*    WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
-'*    FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
-'*    EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*    INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
-'*    COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*    SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
-'*    LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
-'*    CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
-'*    BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
-'*    WARRANTY, OR OTHERWISE.
+'*  You should refer to Yoctopuce General Terms and Conditions
+'*  for additional information regarding your rights and 
+'*  obligations.
 '*
-'* 2) If your intent is not to interface with Yoctopuce products,
-'*    you are not entitled to use, read or create any derived
-'*    material from this source file.
+'*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
+'*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
+'*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
+'*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
+'*  WARRANTY, OR OTHERWISE.
 '*
 '/********************************************************************/
 
@@ -576,7 +576,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR = "1.01"
   Public Const YOCTO_API_VERSION_BCD = &H101
-  Public Const YOCTO_API_BUILD_NO = "11167"
+  Public Const YOCTO_API_BUILD_NO = "12553"
 
   Public Const YOCTO_DEFAULT_PORT = 4444
   Public Const YOCTO_VENDORID = &H24E0
@@ -641,6 +641,7 @@ Module yocto_api
     Public Const DETECT_NET As Integer = 2
     Public Const DETECT_ALL As Integer = DETECT_USB Or DETECT_NET
 
+    REM --- (generated code: return codes)
     REM Yoctopuce error codes, also used by default as function return value
     Public Const SUCCESS = 0                    REM everything worked allright
     Public Const NOT_INITIALIZED = -1           REM call yInitAPI() first !
@@ -654,8 +655,10 @@ Module yocto_api
     Public Const NO_MORE_DATA = -9              REM there is no more data to read from
     Public Const EXHAUSTED = -10                REM you have run out of a limited ressource, check the documentation
     Public Const DOUBLE_ACCES = -11             REM you have two process that try to acces to the same device
+    Public Const UNAUTHORIZED = -12             REM unauthorized access to password-protected device
+    Public Const RTC_NOT_READY = -13            REM real-time clock has not been initialized (or time was lost)
 
-
+  REM --- (end of generated code: return codes)
 
     REM calibration handlers
     Private Shared _CalibHandlers As New Dictionary(Of String, yCalibrationHandler)
@@ -1487,10 +1490,10 @@ Module yocto_api
     <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=YOCTO_FIRMWARE_LEN)> Public firmware As String
     Dim beacon As yu8
   End Structure
-
+  Public Const YIOHDL_SIZE = 8
   <StructLayout(LayoutKind.Sequential, pack:=1, CharSet:=CharSet.Ansi)> _
   Public Structure YIOHDL
-    <MarshalAs(UnmanagedType.U1, SizeConst:=8)> Public raw As yu8
+    <MarshalAs(UnmanagedType.U1, SizeConst:=YIOHDL_SIZE)> Public raw As yu8
   End Structure
 
   Enum yDEVICE_PROP
@@ -1551,6 +1554,7 @@ Module yocto_api
   Public Const YAPI_EXHAUSTED = -10                REM you have run out of a limited ressource, check the documentation
   Public Const YAPI_DOUBLE_ACCES = -11             REM you have two process that try to acces to the same device
   Public Const YAPI_UNAUTHORIZED = -12             REM unauthorized access to password-protected device
+  Public Const YAPI_RTC_NOT_READY = -13            REM real-time clock has not been initialized (or time was lost)
 
   Public Const Y_PRODUCTNAME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SERIALNUMBER_INVALID As String = YAPI.INVALID_STRING
@@ -3495,6 +3499,27 @@ Module yocto_api
     '''/
     public function get_icon2d() as byte()
         Return Me._download("icon2d.png")
+        
+     end function
+
+    '''*
+    ''' <summary>
+    '''   Returns a string with last logs of the module.
+    ''' <para>
+    '''   This method return only
+    '''   logs that are still in the module.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with last logs of the module.
+    ''' </returns>
+    '''/
+    public function get_lastLogs() as string
+        dim  content as byte()
+        content = Me._download("logs.txt")
+        Return YAPI.DefaultEncoding.GetString(content)
         
      end function
 

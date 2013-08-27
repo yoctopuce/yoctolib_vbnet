@@ -1,39 +1,39 @@
 '*********************************************************************
 '*
-'* $Id: yocto_hubport.vb 9921 2013-02-20 09:39:16Z seb $
+'* $Id: yocto_hubport.vb 12337 2013-08-14 15:22:22Z mvuilleu $
 '*
 '* Implements yFindHubPort(), the high-level API for HubPort functions
 '*
 '* - - - - - - - - - License information: - - - - - - - - - 
 '*
-'* Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
+'*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
-'* 1) If you have obtained this file from www.yoctopuce.com,
-'*    Yoctopuce Sarl licenses to you (hereafter Licensee) the
-'*    right to use, modify, copy, and integrate this source file
-'*    into your own solution for the sole purpose of interfacing
-'*    a Yoctopuce product with Licensee's solution.
+'*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
+'*  non-exclusive license to use, modify, copy and integrate this
+'*  file into your software for the sole purpose of interfacing 
+'*  with Yoctopuce products. 
 '*
-'*    The use of this file and all relationship between Yoctopuce 
-'*    and Licensee are governed by Yoctopuce General Terms and 
-'*    Conditions.
+'*  You may reproduce and distribute copies of this file in 
+'*  source or object form, as long as the sole purpose of this
+'*  code is to interface with Yoctopuce products. You must retain 
+'*  this notice in the distributed source file.
 '*
-'*    THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*    WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*    WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
-'*    FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
-'*    EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*    INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
-'*    COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*    SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
-'*    LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
-'*    CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
-'*    BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
-'*    WARRANTY, OR OTHERWISE.
+'*  You should refer to Yoctopuce General Terms and Conditions
+'*  for additional information regarding your rights and 
+'*  obligations.
 '*
-'* 2) If your intent is not to interface with Yoctopuce products,
-'*    you are not entitled to use, read or create any derived
-'*    material from this source file.
+'*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
+'*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
+'*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
+'*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
+'*  WARRANTY, OR OTHERWISE.
 '*
 '*********************************************************************/
 
@@ -45,6 +45,9 @@ Imports System.Text
 
 Module yocto_hubport
 
+  REM --- (return codes)
+  REM --- (end of return codes)
+  
   REM --- (YHubPort definitions)
 
   Public Delegate Sub UpdateCallback(ByVal func As YHubPort, ByVal value As String)
@@ -57,8 +60,10 @@ Module yocto_hubport
   Public Const Y_ENABLED_INVALID = -1
 
   Public Const Y_PORTSTATE_OFF = 0
-  Public Const Y_PORTSTATE_ON = 1
-  Public Const Y_PORTSTATE_RUN = 2
+  Public Const Y_PORTSTATE_OVRLD = 1
+  Public Const Y_PORTSTATE_ON = 2
+  Public Const Y_PORTSTATE_RUN = 3
+  Public Const Y_PORTSTATE_PROG = 4
   Public Const Y_PORTSTATE_INVALID = -1
 
   Public Const Y_BAUDRATE_INVALID As Integer = YAPI.INVALID_UNSIGNED
@@ -80,8 +85,10 @@ Module yocto_hubport
     Public Const ENABLED_INVALID = -1
 
     Public Const PORTSTATE_OFF = 0
-    Public Const PORTSTATE_ON = 1
-    Public Const PORTSTATE_RUN = 2
+    Public Const PORTSTATE_OVRLD = 1
+    Public Const PORTSTATE_ON = 2
+    Public Const PORTSTATE_RUN = 3
+    Public Const PORTSTATE_PROG = 4
     Public Const PORTSTATE_INVALID = -1
 
     Public Const BAUDRATE_INVALID As Integer = YAPI.INVALID_UNSIGNED
@@ -232,7 +239,7 @@ Module yocto_hubport
     '''   Changes the activation of the Yocto-hub port.
     ''' <para>
     '''   If the port is enabled, the
-    '''   *      connected module will be powered. Otherwise, port power will be shut down.
+    '''   *      connected module is powered. Otherwise, port power is shut down.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -264,8 +271,8 @@ Module yocto_hubport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_PORTSTATE_OFF</c>, <c>Y_PORTSTATE_ON</c> and <c>Y_PORTSTATE_RUN</c>
-    '''   corresponding to the current state of the Yocto-hub port
+    '''   a value among <c>Y_PORTSTATE_OFF</c>, <c>Y_PORTSTATE_OVRLD</c>, <c>Y_PORTSTATE_ON</c>,
+    '''   <c>Y_PORTSTATE_RUN</c> and <c>Y_PORTSTATE_PROG</c> corresponding to the current state of the Yocto-hub port
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_PORTSTATE_INVALID</c>.
@@ -285,7 +292,7 @@ Module yocto_hubport
     '''   Returns the current baud rate used by this Yocto-hub port, in kbps.
     ''' <para>
     '''   The default value is 1000 kbps, but a slower rate may be used if communication
-    '''   problems are hit.
+    '''   problems are encountered.
     ''' </para>
     ''' <para>
     ''' </para>

@@ -1,39 +1,39 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 11112 2013-04-16 14:51:20Z mvuilleu $
+'* $Id: yocto_temperature.vb 12324 2013-08-13 15:10:31Z mvuilleu $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
 '* - - - - - - - - - License information: - - - - - - - - - 
 '*
-'* Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
+'*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
-'* 1) If you have obtained this file from www.yoctopuce.com,
-'*    Yoctopuce Sarl licenses to you (hereafter Licensee) the
-'*    right to use, modify, copy, and integrate this source file
-'*    into your own solution for the sole purpose of interfacing
-'*    a Yoctopuce product with Licensee's solution.
+'*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
+'*  non-exclusive license to use, modify, copy and integrate this
+'*  file into your software for the sole purpose of interfacing 
+'*  with Yoctopuce products. 
 '*
-'*    The use of this file and all relationship between Yoctopuce 
-'*    and Licensee are governed by Yoctopuce General Terms and 
-'*    Conditions.
+'*  You may reproduce and distribute copies of this file in 
+'*  source or object form, as long as the sole purpose of this
+'*  code is to interface with Yoctopuce products. You must retain 
+'*  this notice in the distributed source file.
 '*
-'*    THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*    WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*    WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
-'*    FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
-'*    EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*    INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
-'*    COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*    SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
-'*    LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
-'*    CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
-'*    BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
-'*    WARRANTY, OR OTHERWISE.
+'*  You should refer to Yoctopuce General Terms and Conditions
+'*  for additional information regarding your rights and 
+'*  obligations.
 '*
-'* 2) If your intent is not to interface with Yoctopuce products,
-'*    you are not entitled to use, read or create any derived
-'*    material from this source file.
+'*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
+'*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
+'*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
+'*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
+'*  WARRANTY, OR OTHERWISE.
 '*
 '*********************************************************************/
 
@@ -45,6 +45,9 @@ Imports System.Text
 
 Module yocto_temperature
 
+  REM --- (return codes)
+  REM --- (end of return codes)
+  
   REM --- (YTemperature definitions)
 
   Public Delegate Sub UpdateCallback(ByVal func As YTemperature, ByVal value As String)
@@ -57,8 +60,8 @@ Module yocto_temperature
   Public Const Y_LOWESTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_HIGHESTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_CURRENTRAWVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_SENSORTYPE_DIGITAL = 0
   Public Const Y_SENSORTYPE_TYPE_K = 1
   Public Const Y_SENSORTYPE_TYPE_E = 2
@@ -67,6 +70,9 @@ Module yocto_temperature
   Public Const Y_SENSORTYPE_TYPE_R = 5
   Public Const Y_SENSORTYPE_TYPE_S = 6
   Public Const Y_SENSORTYPE_TYPE_T = 7
+  Public Const Y_SENSORTYPE_PT100_4WIRES = 8
+  Public Const Y_SENSORTYPE_PT100_3WIRES = 9
+  Public Const Y_SENSORTYPE_PT100_2WIRES = 10
   Public Const Y_SENSORTYPE_INVALID = -1
 
 
@@ -95,8 +101,8 @@ Module yocto_temperature
     Public Const LOWESTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const HIGHESTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const CURRENTRAWVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
+    Public Const RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const SENSORTYPE_DIGITAL = 0
     Public Const SENSORTYPE_TYPE_K = 1
     Public Const SENSORTYPE_TYPE_E = 2
@@ -105,6 +111,9 @@ Module yocto_temperature
     Public Const SENSORTYPE_TYPE_R = 5
     Public Const SENSORTYPE_TYPE_S = 6
     Public Const SENSORTYPE_TYPE_T = 7
+    Public Const SENSORTYPE_PT100_4WIRES = 8
+    Public Const SENSORTYPE_PT100_3WIRES = 9
+    Public Const SENSORTYPE_PT100_2WIRES = 10
     Public Const SENSORTYPE_INVALID = -1
 
 
@@ -115,8 +124,8 @@ Module yocto_temperature
     Protected _lowestValue As Double
     Protected _highestValue As Double
     Protected _currentRawValue As Double
-    Protected _resolution As Double
     Protected _calibrationParam As String
+    Protected _resolution As Double
     Protected _sensorType As Long
     Protected _calibrationOffset As Long
 
@@ -129,8 +138,8 @@ Module yocto_temperature
       _lowestValue = Y_LOWESTVALUE_INVALID
       _highestValue = Y_HIGHESTVALUE_INVALID
       _currentRawValue = Y_CURRENTRAWVALUE_INVALID
-      _resolution = Y_RESOLUTION_INVALID
       _calibrationParam = Y_CALIBRATIONPARAM_INVALID
+      _resolution = Y_RESOLUTION_INVALID
       _sensorType = Y_SENSORTYPE_INVALID
       _calibrationOffset = -32767
     End Sub
@@ -157,10 +166,10 @@ Module yocto_temperature
           _highestValue = Math.Round(member.ivalue/6553.6) / 10
         ElseIf (member.name = "currentRawValue") Then
           _currentRawValue = member.ivalue/65536.0
-        ElseIf (member.name = "resolution") Then
-          _resolution = 1.0 / Math.Round(65536.0/member.ivalue)
         ElseIf (member.name = "calibrationParam") Then
           _calibrationParam = member.svalue
+        ElseIf (member.name = "resolution") Then
+          If (member.ivalue > 100) Then _resolution = 1.0 / Math.Round(65536.0/member.ivalue) Else _resolution = 0.001 / Math.Round(67.0/member.ivalue)
         ElseIf (member.name = "sensorType") Then
           _sensorType = CLng(member.ivalue)
         End If
@@ -423,38 +432,6 @@ Module yocto_temperature
       Return _currentRawValue
     End Function
 
-    Public Function set_resolution(ByVal newval As Double) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(Math.Round(newval*65536.0)))
-      Return _setAttr("resolution", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the resolution of the measured values.
-    ''' <para>
-    '''   The resolution corresponds to the numerical precision
-    '''   of the values, which is not always the same as the actual precision of the sensor.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a floating point number corresponding to the resolution of the measured values
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RESOLUTION_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_resolution() As Double
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_RESOLUTION_INVALID
-        End If
-      End If
-      Return _resolution
-    End Function
-
     Public Function get_calibrationParam() As String
       If (_cacheExpiration <= YAPI.GetTickCount()) Then
         If (YISERR(load(YAPI.DefaultCacheValidity))) Then
@@ -478,7 +455,7 @@ Module yocto_temperature
     '''   It is possible
     '''   to configure up to five correction points. Correction points must be provided
     '''   in ascending order, and be in the range of the sensor. The device will automatically
-    '''   perform a lineat interpolatation of the error correction between specified
+    '''   perform a linear interpolation of the error correction between specified
     '''   points. Remember to call the <c>saveToFlash()</c> method of the module if the
     '''   modification must be kept.
     ''' </para>
@@ -518,7 +495,33 @@ Module yocto_temperature
 
     '''*
     ''' <summary>
-    '''   Returns the tempeture sensor type.
+    '''   Returns the resolution of the measured values.
+    ''' <para>
+    '''   The resolution corresponds to the numerical precision
+    '''   of the values, which is not always the same as the actual precision of the sensor.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the resolution of the measured values
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_RESOLUTION_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_resolution() As Double
+      If (_cacheExpiration <= YAPI.GetTickCount()) Then
+        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
+          Return Y_RESOLUTION_INVALID
+        End If
+      End If
+      Return _resolution
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the temperature sensor type.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -527,7 +530,9 @@ Module yocto_temperature
     ''' <returns>
     '''   a value among <c>Y_SENSORTYPE_DIGITAL</c>, <c>Y_SENSORTYPE_TYPE_K</c>, <c>Y_SENSORTYPE_TYPE_E</c>,
     '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
-    '''   <c>Y_SENSORTYPE_TYPE_S</c> and <c>Y_SENSORTYPE_TYPE_T</c> corresponding to the tempeture sensor type
+    '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
+    '''   <c>Y_SENSORTYPE_PT100_3WIRES</c> and <c>Y_SENSORTYPE_PT100_2WIRES</c> corresponding to the
+    '''   temperature sensor type
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_SENSORTYPE_INVALID</c>.
@@ -547,7 +552,7 @@ Module yocto_temperature
     '''   Modify the temperature sensor type.
     ''' <para>
     '''   This function is used to
-    '''   to define the type of thermo couple (K,E...) used with the device.
+    '''   to define the type of thermocouple (K,E...) used with the device.
     '''   This will have no effect if module is using a digital sensor.
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the
     '''   modification must be kept.
@@ -558,7 +563,8 @@ Module yocto_temperature
     ''' <param name="newval">
     '''   a value among <c>Y_SENSORTYPE_DIGITAL</c>, <c>Y_SENSORTYPE_TYPE_K</c>, <c>Y_SENSORTYPE_TYPE_E</c>,
     '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
-    '''   <c>Y_SENSORTYPE_TYPE_S</c> and <c>Y_SENSORTYPE_TYPE_T</c>
+    '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
+    '''   <c>Y_SENSORTYPE_PT100_3WIRES</c> and <c>Y_SENSORTYPE_PT100_2WIRES</c>
     ''' </param>
     ''' <para>
     ''' </para>

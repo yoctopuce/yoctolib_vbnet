@@ -37,6 +37,10 @@ Module Module1
       Else
         Console.WriteLine("OFF")
       End If
+      Console.WriteLine("upTime:       " + Str(m.get_upTime() / 1000) + " sec")
+      Console.WriteLine("USB current:  " + Str(m.get_usbCurrent()) + " mA")
+      Console.WriteLine("Logs:")
+      Console.WriteLine(m.get_lastLogs())
     Else
       Console.WriteLine(argv(1) + " not connected (check identification and USB cable)")
     End If
