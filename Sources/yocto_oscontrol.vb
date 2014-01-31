@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_oscontrol.vb 12337 2013-08-14 15:22:22Z mvuilleu $
+'* $Id: yocto_oscontrol.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindOsControl(), the high-level API for OsControl functions
 '*
@@ -45,25 +45,16 @@ Imports System.Text
 
 Module yocto_oscontrol
 
-  REM --- (return codes)
-  REM --- (end of return codes)
-  
-  REM --- (YOsControl definitions)
+    REM --- (YOsControl return codes)
+    REM --- (end of YOsControl return codes)
+  REM --- (YOsControl globals)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YOsControl, ByVal value As String)
+  Public Const Y_SHUTDOWNCOUNTDOWN_INVALID As Integer = YAPI.INVALID_UINT
+  Public Delegate Sub YOsControlValueCallback(ByVal func As YOsControl, ByVal value As String)
+  Public Delegate Sub YOsControlTimedReportCallback(ByVal func As YOsControl, ByVal measure As YMeasure)
+  REM --- (end of YOsControl globals)
 
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_SHUTDOWNCOUNTDOWN_INVALID As Integer = YAPI.INVALID_UNSIGNED
-
-
-  REM --- (end of YOsControl definitions)
-
-  REM --- (YOsControl implementation)
-
-  Private _OsControlCache As New Hashtable()
-  Private _callback As UpdateCallback
+  REM --- (YOsControl class start)
 
   '''*
   ''' <summary>
@@ -76,118 +67,39 @@ Module yocto_oscontrol
   '''/
   Public Class YOsControl
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-    Public Const SHUTDOWNCOUNTDOWN_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    REM --- (end of YOsControl class start)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _shutdownCountdown As Long
+    REM --- (YOsControl definitions)
+    Public Const SHUTDOWNCOUNTDOWN_INVALID As Integer = YAPI.INVALID_UINT
+    REM --- (end of YOsControl definitions)
+
+    REM --- (YOsControl attributes declaration)
+    Protected _shutdownCountdown As Integer
+    Protected _valueCallbackOsControl As YOsControlValueCallback
+    REM --- (end of YOsControl attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("OsControl", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _shutdownCountdown = Y_SHUTDOWNCOUNTDOWN_INVALID
+      MyBase.New(func)
+      _classname = "OsControl"
+      REM --- (YOsControl attributes initialization)
+      _shutdownCountdown = SHUTDOWNCOUNTDOWN_INVALID
+      _valueCallbackOsControl = Nothing
+      REM --- (end of YOsControl attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+  REM --- (YOsControl private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "shutdownCountdown") Then
+        _shutdownCountdown = CInt(member.ivalue)
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "shutdownCountdown") Then
-          _shutdownCountdown = CLng(member.ivalue)
-        End If
-      Next i
-      Return 0
+      Return MyBase._parseAttr(member)
     End Function
 
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the OS control, corresponding to the network name of the module.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the OS control, corresponding to the network name of the module
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
-      End If
-      Return _logicalName
-    End Function
+    REM --- (end of YOsControl private methods declaration)
 
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the OS control.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the OS control
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the OS control (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the OS control (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
-      End If
-      Return _advertisedValue
-    End Function
-
+    REM --- (YOsControl public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the remaining number of seconds before the OS shutdown, or zero when no
@@ -206,99 +118,20 @@ Module yocto_oscontrol
     ''' </para>
     '''/
     Public Function get_shutdownCountdown() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_SHUTDOWNCOUNTDOWN_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return SHUTDOWNCOUNTDOWN_INVALID
         End If
       End If
-      Return CType(_shutdownCountdown,Integer)
+      Return Me._shutdownCountdown
     End Function
+
 
     Public Function set_shutdownCountdown(ByVal newval As Integer) As Integer
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("shutdownCountdown", rest_val)
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Schedules an OS shutdown after a given number of seconds.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="secBeforeShutDown">
-    '''   number of seconds before shutdown
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function shutdown(ByVal secBeforeShutDown As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(secBeforeShutDown))
-      Return _setAttr("shutdownCountdown", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of OS control started using <c>yFirstOsControl()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YOsControl</c> object, corresponding to
-    '''   OS control currently online, or a <c>null</c> pointer
-    '''   if there are no more OS control to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextOsControl() as YOsControl
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindOsControl(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
-
     '''*
     ''' <summary>
     '''   Retrieves OS control for a given identifier.
@@ -341,14 +174,103 @@ Module yocto_oscontrol
     '''   a <c>YOsControl</c> object allowing you to drive the OS control.
     ''' </returns>
     '''/
-    Public Shared Function FindOsControl(ByVal func As String) As YOsControl
-      Dim res As YOsControl
-      If (_OsControlCache.ContainsKey(func)) Then
-        Return CType(_OsControlCache(func), YOsControl)
+    Public Shared Function FindOsControl(func As String) As YOsControl
+      Dim obj As YOsControl
+      obj = CType(YFunction._FindFromCache("OsControl", func), YOsControl)
+      If ((obj Is Nothing)) Then
+        obj = New YOsControl(func)
+        YFunction._AddToCache("OsControl", func, obj)
       End If
-      res = New YOsControl(func)
-      _OsControlCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YOsControlValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackOsControl = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackOsControl Is Nothing)) Then
+        Me._valueCallbackOsControl(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Schedules an OS shutdown after a given number of seconds.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="secBeforeShutDown">
+    '''   number of seconds before shutdown
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function shutdown(secBeforeShutDown As Integer) As Integer
+      Return Me.set_shutdownCountdown(secBeforeShutDown)
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of OS control started using <c>yFirstOsControl()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YOsControl</c> object, corresponding to
+    '''   OS control currently online, or a <c>null</c> pointer
+    '''   if there are no more OS control to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextOsControl() As YOsControl
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YOsControl.FindOsControl(hwid)
     End Function
 
     '''*
@@ -392,7 +314,7 @@ Module yocto_oscontrol
       Return YOsControl.FindOsControl(serial + "." + funcId)
     End Function
 
-    REM --- (end of YOsControl implementation)
+    REM --- (end of YOsControl public methods declaration)
 
   End Class
 
@@ -461,9 +383,6 @@ Module yocto_oscontrol
   Public Function yFirstOsControl() As YOsControl
     Return YOsControl.FirstOsControl()
   End Function
-
-  Private Sub _OsControlCleanup()
-  End Sub
 
 
   REM --- (end of OsControl functions)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 12326 2013-08-13 15:52:20Z mvuilleu $
+'* $Id: yocto_display.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -47,42 +47,7 @@ Module yocto_display
 
   Public Const Y_NB_MAX_DISPLAY_LAYER = 10
 
-  REM --- (generated code: YDisplay definitions)
-
-  Public Delegate Sub UpdateCallback(ByVal func As YDisplay, ByVal value As String)
-
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_POWERSTATE_OFF = 0
-  Public Const Y_POWERSTATE_ON = 1
-  Public Const Y_POWERSTATE_INVALID = -1
-
-  Public Const Y_STARTUPSEQ_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_ORIENTATION_LEFT = 0
-  Public Const Y_ORIENTATION_UP = 1
-  Public Const Y_ORIENTATION_RIGHT = 2
-  Public Const Y_ORIENTATION_DOWN = 3
-  Public Const Y_ORIENTATION_INVALID = -1
-
-  Public Const Y_DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_DISPLAYTYPE_MONO = 0
-  Public Const Y_DISPLAYTYPE_GRAY = 1
-  Public Const Y_DISPLAYTYPE_RGB = 2
-  Public Const Y_DISPLAYTYPE_INVALID = -1
-
-  Public Const Y_LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_LAYERCOUNT_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
-
-
-  REM --- (end of generated code: YDisplay definitions)
-
-  REM --- (generated code: YDisplayLayer definitions)
-
+  REM --- (generated code: YDisplayLayer globals)
 
  Public Enum   Y_ALIGN
   TOP_LEFT = 0
@@ -103,9 +68,36 @@ Module yocto_display
   BOTTOM_RIGHT = 15
 end enum
 
+  REM --- (end of generated code: YDisplayLayer globals)
+  REM --- (generated code: YDisplay globals)
 
+  Public Const Y_ENABLED_FALSE = 0
+  Public Const Y_ENABLED_TRUE = 1
+  Public Const Y_ENABLED_INVALID = -1
 
-  REM --- (end of generated code: YDisplayLayer definitions)
+  Public Const Y_STARTUPSEQ_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_ORIENTATION_LEFT = 0
+  Public Const Y_ORIENTATION_UP = 1
+  Public Const Y_ORIENTATION_RIGHT = 2
+  Public Const Y_ORIENTATION_DOWN = 3
+  Public Const Y_ORIENTATION_INVALID = -1
+
+  Public Const Y_DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_DISPLAYTYPE_MONO = 0
+  Public Const Y_DISPLAYTYPE_GRAY = 1
+  Public Const Y_DISPLAYTYPE_RGB = 2
+  Public Const Y_DISPLAYTYPE_INVALID = -1
+
+  Public Const Y_LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_LAYERCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
+  Public Delegate Sub YDisplayValueCallback(ByVal func As YDisplay, ByVal value As String)
+  Public Delegate Sub YDisplayTimedReportCallback(ByVal func As YDisplay, ByVal measure As YMeasure)
+  REM --- (end of generated code: YDisplay globals)
+
 
   Private Function yapiBoolToStr(b As Boolean) As String
     If b Then Return "1" Else Return "0"
@@ -120,24 +112,34 @@ end enum
     Return res
   End Function
 
-  REM --- (generated code: YDisplayLayer implementation)
-
+  REM --- (generated code: YDisplayLayer class start)
 
   '''*
   ''' <summary>
   '''   A DisplayLayer is an image layer containing objects to display
-  '''   (bitmaps, text, etc.
+  '''   (bitmaps, text, etc.).
   ''' <para>
-  '''   ). The content is displayed only when
+  '''   The content is displayed only when
   '''   the layer is active on the screen (and not masked by other
   '''   overlapping layers).
   ''' </para>
   ''' </summary>
   '''/
   Public Class YDisplayLayer
+    REM --- (end of generated code: YDisplayLayer class start)
+
+    REM --- (generated code: YDisplayLayer definitions)
+    REM --- (end of generated code: YDisplayLayer definitions)
+
+    REM --- (generated code: YDisplayLayer attributes declaration)
+    REM --- (end of generated code: YDisplayLayer attributes declaration)
 
 
+    REM --- (generated code: YDisplayLayer private methods declaration)
 
+    REM --- (end of generated code: YDisplayLayer private methods declaration)
+
+    REM --- (generated code: YDisplayLayer public methods declaration)
     '''*
     ''' <summary>
     '''   Reverts the layer to its initial state (fully transparent, default settings).
@@ -154,11 +156,10 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function reset() as integer
-        Me._hidden = False
-        Return Me.command_flush("X")
-        
-     end function
+    Public Overridable Function reset() As Integer
+      Me._hidden = False
+      Return Me.command_flush("X")
+    End Function
 
     '''*
     ''' <summary>
@@ -176,9 +177,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function clear() as integer
-        Return Me.command_flush("x")
-     end function
+    Public Overridable Function clear() As Integer
+      Return Me.command_flush("x")
+    End Function
 
     '''*
     ''' <summary>
@@ -200,9 +201,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function selectColorPen(color as integer) as integer
-        Return Me.command_push("c"+yapiIntToHex(color,06))
-     end function
+    Public Overridable Function selectColorPen(color As Integer) As Integer
+      Return Me.command_push("c" + yapiIntToHex(color,06))
+    End Function
 
     '''*
     ''' <summary>
@@ -226,9 +227,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function selectGrayPen(graylevel as integer) as integer
-        Return Me.command_push("g"+ Convert.ToString(graylevel))
-     end function
+    Public Overridable Function selectGrayPen(graylevel As Integer) As Integer
+      Return Me.command_push("g" + Convert.ToString(graylevel))
+    End Function
 
     '''*
     ''' <summary>
@@ -247,9 +248,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function selectEraser() as integer
-        Return Me.command_push("e")
-     end function
+    Public Overridable Function selectEraser() As Integer
+      Return Me.command_push("e")
+    End Function
 
     '''*
     ''' <summary>
@@ -274,9 +275,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function setAntialiasingMode(mode as boolean) as integer
-        Return Me.command_push("a"+yapiBoolToStr(mode))
-     end function
+    Public Overridable Function setAntialiasingMode(mode As Boolean) As Integer
+      Return Me.command_push("a" + yapiBoolToStr(mode))
+    End Function
 
     '''*
     ''' <summary>
@@ -297,9 +298,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function drawPixel(x as integer, y as integer) as integer
-        Return Me.command_flush("P"+ Convert.ToString(x)+","+ Convert.ToString(y))
-     end function
+    Public Overridable Function drawPixel(x As Integer, y As Integer) As Integer
+      Return Me.command_flush("P" + Convert.ToString(x) + "," + Convert.ToString(y))
+    End Function
 
     '''*
     ''' <summary>
@@ -326,9 +327,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function drawRect(x1 as integer, y1 as integer, x2 as integer, y2 as integer) as integer
-        Return Me.command_flush("R"+ Convert.ToString(x1)+","+ Convert.ToString(y1)+","+ Convert.ToString(x2)+","+ Convert.ToString(y2))
-     end function
+    Public Overridable Function drawRect(x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer) As Integer
+      Return Me.command_flush("R" + Convert.ToString(x1) + "," + Convert.ToString(y1) + "," + Convert.ToString(x2) + "," + Convert.ToString(y2))
+    End Function
 
     '''*
     ''' <summary>
@@ -355,9 +356,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function drawBar(x1 as integer, y1 as integer, x2 as integer, y2 as integer) as integer
-        Return Me.command_flush("B"+ Convert.ToString(x1)+","+ Convert.ToString(y1)+","+ Convert.ToString(x2)+","+ Convert.ToString(y2))
-     end function
+    Public Overridable Function drawBar(x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer) As Integer
+      Return Me.command_flush("B" + Convert.ToString(x1) + "," + Convert.ToString(y1) + "," + Convert.ToString(x2) + "," + Convert.ToString(y2))
+    End Function
 
     '''*
     ''' <summary>
@@ -381,9 +382,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function drawCircle(x as integer, y as integer, r as integer) as integer
-        Return Me.command_flush("C"+ Convert.ToString(x)+","+ Convert.ToString(y)+","+ Convert.ToString(r))
-     end function
+    Public Overridable Function drawCircle(x As Integer, y As Integer, r As Integer) As Integer
+      Return Me.command_flush("C" + Convert.ToString(x) + "," + Convert.ToString(y) + "," + Convert.ToString(r))
+    End Function
 
     '''*
     ''' <summary>
@@ -407,9 +408,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function drawDisc(x as integer, y as integer, r as integer) as integer
-        Return Me.command_flush("D"+ Convert.ToString(x)+","+ Convert.ToString(y)+","+ Convert.ToString(r))
-     end function
+    Public Overridable Function drawDisc(x As Integer, y As Integer, r As Integer) As Integer
+      Return Me.command_flush("D" + Convert.ToString(x) + "," + Convert.ToString(y) + "," + Convert.ToString(r))
+    End Function
 
     '''*
     ''' <summary>
@@ -432,9 +433,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function selectFont(fontname as string) as integer
-        Return Me.command_push("&"+fontname+""+Chr(27))
-     end function
+    Public Overridable Function selectFont(fontname As String) As Integer
+      Return Me.command_push("&" + fontname + "" + Chr(27))
+    End Function
 
     '''*
     ''' <summary>
@@ -446,10 +447,10 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <param name="x">
-    '''   the distance from left of layer to the text ancor point, in pixels
+    '''   the distance from left of layer to the text anchor point, in pixels
     ''' </param>
     ''' <param name="y">
-    '''   the distance from top of layer to the text ancor point, in pixels
+    '''   the distance from top of layer to the text anchor point, in pixels
     ''' </param>
     ''' <param name="anchor">
     '''   the text anchor point, chosen among the <c>Y_ALIGN</c> enumeration:
@@ -472,9 +473,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function drawText(x as integer, y as integer, anchor as Y_ALIGN, text as string) as integer
-        Return Me.command_flush("T"+ Convert.ToString(x)+","+ Convert.ToString(y)+","+Convert.ToString(anchor)+","+text+""+Chr(27))
-     end function
+    Public Overridable Function drawText(x As Integer, y As Integer, anchor As Y_ALIGN, text As String) As Integer
+      Return Me.command_flush("T" + Convert.ToString(x) + "," + Convert.ToString(y) + "," + Convert.ToString(anchor) + "," + text + "" + Chr(27))
+    End Function
 
     '''*
     ''' <summary>
@@ -502,10 +503,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function drawImage(x as integer, y as integer, imagename as string) as integer
-        Return Me.command_flush("*"+ Convert.ToString(x)+","+ Convert.ToString(y)+","+imagename+""+Chr(27))
-        
-     end function
+    Public Overridable Function drawImage(x As Integer, y As Integer, imagename As String) As Integer
+      Return Me.command_flush("*" + Convert.ToString(x) + "," + Convert.ToString(y) + "," + imagename + "" + Chr(27))
+    End Function
 
     '''*
     ''' <summary>
@@ -543,12 +543,11 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function drawBitmap(x as integer, y as integer, w as integer, bitmap as byte(), bgcol as integer) as integer
-        dim  destname as string
-        destname = "layer"+ Convert.ToString(Me._id)+":"+ Convert.ToString(w)+","+ Convert.ToString(bgcol)+"@"+ Convert.ToString(x)+","+ Convert.ToString(y)
-        Return Me._display.upload(destname,bitmap)
-        
-     end function
+    Public Overridable Function drawBitmap(x As Integer, y As Integer, w As Integer, bitmap As Byte(), bgcol As Integer) As Integer
+      Dim destname As String
+      destname = "layer" + Convert.ToString(Me._id) + ":" + Convert.ToString(w) + "," + Convert.ToString(bgcol) + "@" + Convert.ToString(x) + "," + Convert.ToString(y)
+      Return Me._display.upload(destname,bitmap)
+    End Function
 
     '''*
     ''' <summary>
@@ -569,9 +568,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function moveTo(x as integer, y as integer) as integer
-        Return Me.command_push("@"+ Convert.ToString(x)+","+ Convert.ToString(y))
-     end function
+    Public Overridable Function moveTo(x As Integer, y As Integer) As Integer
+      Return Me.command_push("@" + Convert.ToString(x) + "," + Convert.ToString(y))
+    End Function
 
     '''*
     ''' <summary>
@@ -594,9 +593,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function lineTo(x as integer, y as integer) as integer
-        Return Me.command_flush("-"+ Convert.ToString(x)+","+ Convert.ToString(y))
-     end function
+    Public Overridable Function lineTo(x As Integer, y As Integer) As Integer
+      Return Me.command_flush("-" + Convert.ToString(x) + "," + Convert.ToString(y))
+    End Function
 
     '''*
     ''' <summary>
@@ -618,9 +617,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function consoleOut(text as string) as integer
-        Return Me.command_flush("!"+text+""+Chr(27))
-     end function
+    Public Overridable Function consoleOut(text As String) As Integer
+      Return Me.command_flush("!" + text + "" + Chr(27))
+    End Function
 
     '''*
     ''' <summary>
@@ -647,10 +646,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function setConsoleMargins(x1 as integer, y1 as integer, x2 as integer, y2 as integer) as integer
-        Return Me.command_push("m"+ Convert.ToString(x1)+","+ Convert.ToString(y1)+","+ Convert.ToString(x2)+","+ Convert.ToString(y2))
-        
-     end function
+    Public Overridable Function setConsoleMargins(x1 As Integer, y1 As Integer, x2 As Integer, y2 As Integer) As Integer
+      Return Me.command_push("m" + Convert.ToString(x1) + "," + Convert.ToString(y1) + "," + Convert.ToString(x2) + "," + Convert.ToString(y2))
+    End Function
 
     '''*
     ''' <summary>
@@ -670,10 +668,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function setConsoleBackground(bgcol as integer) as integer
-        Return Me.command_push("b"+ Convert.ToString(bgcol))
-        
-     end function
+    Public Overridable Function setConsoleBackground(bgcol As Integer) As Integer
+      Return Me.command_push("b" + Convert.ToString(bgcol))
+    End Function
 
     '''*
     ''' <summary>
@@ -692,10 +689,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function setConsoleWordWrap(wordwrap as boolean) as integer
-        Return Me.command_push("w"+yapiBoolToStr(wordwrap))
-        
-     end function
+    Public Overridable Function setConsoleWordWrap(wordwrap As Boolean) As Integer
+      Return Me.command_push("w" + yapiBoolToStr(wordwrap))
+    End Function
 
     '''*
     ''' <summary>
@@ -711,9 +707,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function clearConsole() as integer
-        Return Me.command_flush("^")
-     end function
+    Public Overridable Function clearConsole() As Integer
+      Return Me.command_flush("^")
+    End Function
 
     '''*
     ''' <summary>
@@ -740,10 +736,9 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function setLayerPosition(x as integer, y as integer, scrollTime as integer) as integer
-        Return Me.command_flush("#"+ Convert.ToString(x)+","+ Convert.ToString(y)+","+ Convert.ToString(scrollTime))
-        
-     end function
+    Public Overridable Function setLayerPosition(x As Integer, y As Integer, scrollTime As Integer) As Integer
+      Return Me.command_flush("#" + Convert.ToString(x) + "," + Convert.ToString(y) + "," + Convert.ToString(scrollTime))
+    End Function
 
     '''*
     ''' <summary>
@@ -762,12 +757,11 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function hide() as integer
-        Me.command_push("h")
-        Me._hidden = True
-        Return Me.flush_now()
-        
-     end function
+    Public Overridable Function hide() As Integer
+      Me.command_push("h")
+      Me._hidden = True
+      Return Me.flush_now()
+    End Function
 
     '''*
     ''' <summary>
@@ -783,11 +777,10 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    public function unhide() as integer
-        Me._hidden = False
-        Return Me.command_flush("s")
-        
-     end function
+    Public Overridable Function unhide() As Integer
+      Me._hidden = False
+      Return Me.command_flush("s")
+    End Function
 
     '''*
     ''' <summary>
@@ -800,9 +793,9 @@ end enum
     '''   an <c>YDisplay</c> object
     ''' </returns>
     '''/
-    public function get_display() as YDisplay
-        Return Me._display
-     end function
+    Public Overridable Function get_display() As YDisplay
+      Return Me._display
+    End Function
 
     '''*
     ''' <summary>
@@ -817,10 +810,9 @@ end enum
     '''   On failure, throws an exception or returns Y_DISPLAYWIDTH_INVALID.
     ''' </para>
     '''/
-    public function get_displayWidth() as integer
-        Return Me._display.get_displayWidth()
-        
-     end function
+    Public Overridable Function get_displayWidth() As Integer
+      Return Me._display.get_displayWidth()
+    End Function
 
     '''*
     ''' <summary>
@@ -835,10 +827,9 @@ end enum
     '''   On failure, throws an exception or returns Y_DISPLAYHEIGHT_INVALID.
     ''' </para>
     '''/
-    public function get_displayHeight() as integer
-        Return Me._display.get_displayHeight()
-        
-     end function
+    Public Overridable Function get_displayHeight() As Integer
+      Return Me._display.get_displayHeight()
+    End Function
 
     '''*
     ''' <summary>
@@ -853,10 +844,9 @@ end enum
     '''   On failure, throws an exception or returns Y_LAYERWIDTH_INVALID.
     ''' </para>
     '''/
-    public function get_layerWidth() as integer
-        Return Me._display.get_layerWidth()
-        
-     end function
+    Public Overridable Function get_layerWidth() As Integer
+      Return Me._display.get_layerWidth()
+    End Function
 
     '''*
     ''' <summary>
@@ -871,19 +861,18 @@ end enum
     '''   On failure, throws an exception or returns Y_LAYERHEIGHT_INVALID.
     ''' </para>
     '''/
-    public function get_layerHeight() as integer
-        Return Me._display.get_layerHeight()
-        
-     end function
+    Public Overridable Function get_layerHeight() As Integer
+      Return Me._display.get_layerHeight()
+    End Function
 
-    public function resetHiddenFlag() as integer
-        Me._hidden = False
-        Return YAPI.SUCCESS
-     end function
-
+    Public Overridable Function resetHiddenFlag() As Integer
+      Me._hidden = False
+      Return YAPI.SUCCESS
+    End Function
 
 
-    REM --- (end of generated code: YDisplayLayer implementation)
+
+    REM --- (end of generated code: YDisplayLayer public methods declaration)
 
     Private _cmdbuff As String = ""
     Private _display As YDisplay = Nothing
@@ -920,19 +909,15 @@ end enum
     End Sub
 
   End Class
-
-  REM --- (generated code: YDisplayLayer functions)
-
-  Private Sub _DisplayLayerCleanup()
-  End Sub
+  
+  REM --- (generated code: DisplayLayer functions)
 
 
-  REM --- (end of generated code: YDisplayLayer functions)
+  REM --- (end of generated code: DisplayLayer functions)
 
-  REM --- (generated code: YDisplay implementation)
 
-  Private _DisplayCache As New Hashtable()
-  Private _callback As UpdateCallback
+
+  REM --- (generated code: YDisplay class start)
 
   '''*
   ''' <summary>
@@ -948,203 +933,150 @@ end enum
   '''/
   Public Class YDisplay
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-    Public Const POWERSTATE_OFF = 0
-    Public Const POWERSTATE_ON = 1
-    Public Const POWERSTATE_INVALID = -1
+    REM --- (end of generated code: YDisplay class start)
+
+    REM --- (generated code: YDisplay definitions)
+    Public Const ENABLED_FALSE = 0
+    Public Const ENABLED_TRUE = 1
+    Public Const ENABLED_INVALID = -1
 
     Public Const STARTUPSEQ_INVALID As String = YAPI.INVALID_STRING
-    Public Const BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ORIENTATION_LEFT = 0
     Public Const ORIENTATION_UP = 1
     Public Const ORIENTATION_RIGHT = 2
     Public Const ORIENTATION_DOWN = 3
     Public Const ORIENTATION_INVALID = -1
 
-    Public Const DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DISPLAYTYPE_MONO = 0
     Public Const DISPLAYTYPE_GRAY = 1
     Public Const DISPLAYTYPE_RGB = 2
     Public Const DISPLAYTYPE_INVALID = -1
 
-    Public Const LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const LAYERCOUNT_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const LAYERCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of generated code: YDisplay definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _powerState As Long
+    REM --- (generated code: YDisplay attributes declaration)
+    Protected _enabled As Integer
     Protected _startupSeq As String
-    Protected _brightness As Long
-    Protected _orientation As Long
-    Protected _displayWidth As Long
-    Protected _displayHeight As Long
-    Protected _displayType As Long
-    Protected _layerWidth As Long
-    Protected _layerHeight As Long
-    Protected _layerCount As Long
+    Protected _brightness As Integer
+    Protected _orientation As Integer
+    Protected _displayWidth As Integer
+    Protected _displayHeight As Integer
+    Protected _displayType As Integer
+    Protected _layerWidth As Integer
+    Protected _layerHeight As Integer
+    Protected _layerCount As Integer
     Protected _command As String
+    Protected _valueCallbackDisplay As YDisplayValueCallback
+    REM --- (end of generated code: YDisplay attributes declaration)
+
+    Protected _allDisplayLayers() As YDisplayLayer = Nothing
+    Protected _recording As Boolean
+    Protected _sequence As String
 
     Public Sub New(ByVal func As String)
-      MyBase.new("Display", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _powerState = Y_POWERSTATE_INVALID
-      _startupSeq = Y_STARTUPSEQ_INVALID
-      _brightness = Y_BRIGHTNESS_INVALID
-      _orientation = Y_ORIENTATION_INVALID
-      _displayWidth = Y_DISPLAYWIDTH_INVALID
-      _displayHeight = Y_DISPLAYHEIGHT_INVALID
-      _displayType = Y_DISPLAYTYPE_INVALID
-      _layerWidth = Y_LAYERWIDTH_INVALID
-      _layerHeight = Y_LAYERHEIGHT_INVALID
-      _layerCount = Y_LAYERCOUNT_INVALID
-      _command = Y_COMMAND_INVALID
+      MyBase.new(func)
+      _className = "Display"
+      REM --- (generated code: YDisplay attributes initialization)
+      _enabled = ENABLED_INVALID
+      _startupSeq = STARTUPSEQ_INVALID
+      _brightness = BRIGHTNESS_INVALID
+      _orientation = ORIENTATION_INVALID
+      _displayWidth = DISPLAYWIDTH_INVALID
+      _displayHeight = DISPLAYHEIGHT_INVALID
+      _displayType = DISPLAYTYPE_INVALID
+      _layerWidth = LAYERWIDTH_INVALID
+      _layerHeight = LAYERHEIGHT_INVALID
+      _layerCount = LAYERCOUNT_INVALID
+      _command = COMMAND_INVALID
+      _valueCallbackDisplay = Nothing
+      REM --- (end of generated code: YDisplay attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+    REM --- (generated code: YDisplay private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "enabled") Then
+        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "powerState") Then
-          If (member.ivalue > 0) Then _powerState = 1 Else _powerState = 0
-        ElseIf (member.name = "startupSeq") Then
-          _startupSeq = member.svalue
-        ElseIf (member.name = "brightness") Then
-          _brightness = CLng(member.ivalue)
-        ElseIf (member.name = "orientation") Then
-          _orientation = CLng(member.ivalue)
-        ElseIf (member.name = "displayWidth") Then
-          _displayWidth = CLng(member.ivalue)
-        ElseIf (member.name = "displayHeight") Then
-          _displayHeight = CLng(member.ivalue)
-        ElseIf (member.name = "displayType") Then
-          _displayType = CLng(member.ivalue)
-        ElseIf (member.name = "layerWidth") Then
-          _layerWidth = CLng(member.ivalue)
-        ElseIf (member.name = "layerHeight") Then
-          _layerHeight = CLng(member.ivalue)
-        ElseIf (member.name = "layerCount") Then
-          _layerCount = CLng(member.ivalue)
-        ElseIf (member.name = "command") Then
-          _command = member.svalue
-        End If
-      Next i
-      Return 0
+      If (member.name = "startupSeq") Then
+        _startupSeq = member.svalue
+        Return 1
+      End If
+      If (member.name = "brightness") Then
+        _brightness = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "orientation") Then
+        _orientation = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "displayWidth") Then
+        _displayWidth = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "displayHeight") Then
+        _displayHeight = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "displayType") Then
+        _displayType = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "layerWidth") Then
+        _layerWidth = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "layerHeight") Then
+        _layerHeight = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "layerCount") Then
+        _layerCount = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "command") Then
+        _command = member.svalue
+        Return 1
+      End If
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of generated code: YDisplay private methods declaration)
+
+    REM --- (generated code: YDisplay public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the logical name of the display.
+    '''   Returns true if the screen is powered, false otherwise.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the logical name of the display
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to true if the screen is powered,
+    '''   false otherwise
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_ENABLED_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
+    Public Function get_enabled() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return ENABLED_INVALID
         End If
       End If
-      Return _logicalName
+      Return Me._enabled
     End Function
 
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the display.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the display
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the display (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the display (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
-      End If
-      Return _advertisedValue
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the power state of the display.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   either <c>Y_POWERSTATE_OFF</c> or <c>Y_POWERSTATE_ON</c>, according to the power state of the display
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_POWERSTATE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_powerState() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_POWERSTATE_INVALID
-        End If
-      End If
-      Return CType(_powerState,Integer)
-    End Function
 
     '''*
     ''' <summary>
@@ -1155,7 +1087,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_POWERSTATE_OFF</c> or <c>Y_POWERSTATE_ON</c>, according to the power state of the display
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the power state of the display
     ''' </param>
     ''' <para>
     ''' </para>
@@ -1166,12 +1098,11 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_powerState(ByVal newval As Integer) As Integer
+    Public Function set_enabled(ByVal newval As Integer) As Integer
       Dim rest_val As String
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
-      Return _setAttr("powerState", rest_val)
+      Return _setAttr("enabled", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the name of the sequence to play when the displayed is powered on.
@@ -1188,13 +1119,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_startupSeq() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_STARTUPSEQ_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return STARTUPSEQ_INVALID
         End If
       End If
-      Return _startupSeq
+      Return Me._startupSeq
     End Function
+
 
     '''*
     ''' <summary>
@@ -1223,7 +1155,6 @@ end enum
       rest_val = newval
       Return _setAttr("startupSeq", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the luminosity of the  module informative leds (from 0 to 100).
@@ -1240,13 +1171,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_brightness() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_BRIGHTNESS_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return BRIGHTNESS_INVALID
         End If
       End If
-      Return CType(_brightness,Integer)
+      Return Me._brightness
     End Function
+
 
     '''*
     ''' <summary>
@@ -1276,7 +1208,6 @@ end enum
       rest_val = Ltrim(Str(newval))
       Return _setAttr("brightness", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the currently selected display orientation.
@@ -1294,13 +1225,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_orientation() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ORIENTATION_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return ORIENTATION_INVALID
         End If
       End If
-      Return CType(_orientation,Integer)
+      Return Me._orientation
     End Function
+
 
     '''*
     ''' <summary>
@@ -1330,7 +1262,6 @@ end enum
       rest_val = Ltrim(Str(newval))
       Return _setAttr("orientation", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the display width, in pixels.
@@ -1347,12 +1278,12 @@ end enum
     ''' </para>
     '''/
     Public Function get_displayWidth() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_DISPLAYWIDTH_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return DISPLAYWIDTH_INVALID
         End If
       End If
-      Return CType(_displayWidth,Integer)
+      Return Me._displayWidth
     End Function
 
     '''*
@@ -1371,12 +1302,12 @@ end enum
     ''' </para>
     '''/
     Public Function get_displayHeight() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_DISPLAYHEIGHT_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return DISPLAYHEIGHT_INVALID
         End If
       End If
-      Return CType(_displayHeight,Integer)
+      Return Me._displayHeight
     End Function
 
     '''*
@@ -1396,12 +1327,12 @@ end enum
     ''' </para>
     '''/
     Public Function get_displayType() As Integer
-      If (_displayType = Y_DISPLAYTYPE_INVALID) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_DISPLAYTYPE_INVALID
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return DISPLAYTYPE_INVALID
         End If
       End If
-      Return CType(_displayType,Integer)
+      Return Me._displayType
     End Function
 
     '''*
@@ -1420,12 +1351,12 @@ end enum
     ''' </para>
     '''/
     Public Function get_layerWidth() As Integer
-      If (_layerWidth = Y_LAYERWIDTH_INVALID) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LAYERWIDTH_INVALID
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LAYERWIDTH_INVALID
         End If
       End If
-      Return CType(_layerWidth,Integer)
+      Return Me._layerWidth
     End Function
 
     '''*
@@ -1444,12 +1375,12 @@ end enum
     ''' </para>
     '''/
     Public Function get_layerHeight() As Integer
-      If (_layerHeight = Y_LAYERHEIGHT_INVALID) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LAYERHEIGHT_INVALID
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LAYERHEIGHT_INVALID
         End If
       End If
-      Return CType(_layerHeight,Integer)
+      Return Me._layerHeight
     End Function
 
     '''*
@@ -1468,337 +1399,29 @@ end enum
     ''' </para>
     '''/
     Public Function get_layerCount() As Integer
-      If (_layerCount = Y_LAYERCOUNT_INVALID) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LAYERCOUNT_INVALID
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LAYERCOUNT_INVALID
         End If
       End If
-      Return CType(_layerCount,Integer)
+      Return Me._layerCount
     End Function
 
     Public Function get_command() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_COMMAND_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return COMMAND_INVALID
         End If
       End If
-      Return _command
+      Return Me._command
     End Function
+
 
     Public Function set_command(ByVal newval As String) As Integer
       Dim rest_val As String
       rest_val = newval
       Return _setAttr("command", rest_val)
     End Function
-    '''*
-    ''' <summary>
-    '''   Clears the display screen and resets all display layers to their default state.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function resetAll() as integer
-        Me.flushLayers()
-        Me.resetHiddenLayerFlags()
-        Return Me.sendCommand("Z")
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Smoothly changes the brightness of the screen to produce a fade-in or fade-out
-    '''   effect.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="brightness">
-    '''   the new screen brightness
-    ''' </param>
-    ''' <param name="duration">
-    '''   duration of the brightness transition, in milliseconds.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function fade(brightness as integer, duration as integer) as integer
-        Me.flushLayers()
-        Return Me.sendCommand("+"+ Convert.ToString(brightness)+","+ Convert.ToString(duration))
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Starts to record all display commands into a sequence, for later replay.
-    ''' <para>
-    '''   The name used to store the sequence is specified when calling
-    '''   <c>saveSequence()</c>, once the recording is complete.
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function newSequence() as integer
-        Me.flushLayers()
-        Me._sequence = ""
-        Me._recording = True
-        Return YAPI.SUCCESS
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Stops recording display commands and saves the sequence into the specified
-    '''   file on the display internal memory.
-    ''' <para>
-    '''   The sequence can be later replayed
-    '''   using <c>playSequence()</c>.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="sequenceName">
-    '''   the name of the newly created sequence
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function saveSequence(sequenceName as string) as integer
-        Me.flushLayers()
-        Me._recording = False
-        Me._upload(sequenceName, Me._sequence)
-        REM //We need to use YPRINTF("") for Objective-C
-        Me._sequence = ""
-        Return YAPI.SUCCESS
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Replays a display sequence previously recorded using
-    '''   <c>newSequence()</c> and <c>saveSequence()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="sequenceName">
-    '''   the name of the newly created sequence
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function playSequence(sequenceName as string) as integer
-        Me.flushLayers()
-        Return Me.sendCommand("S"+sequenceName)
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Waits for a specified delay (in milliseconds) before playing next
-    '''   commands in current sequence.
-    ''' <para>
-    '''   This method can be used while
-    '''   recording a display sequence, to insert a timed wait in the sequence
-    '''   (without any immediate effect). It can also be used dynamically while
-    '''   playing a pre-recorded sequence, to suspend or resume the execution of
-    '''   the sequence. To cancel a delay, call the same method with a zero delay.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="delay_ms">
-    '''   the duration to wait, in milliseconds
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function pauseSequence(delay_ms as integer) as integer
-        Me.flushLayers()
-        Return Me.sendCommand("W"+ Convert.ToString(delay_ms))
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Stops immediately any ongoing sequence replay.
-    ''' <para>
-    '''   The display is left as is.
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function stopSequence() as integer
-        Me.flushLayers()
-        Return Me.sendCommand("S")
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Uploads an arbitrary file (for instance a GIF file) to the display, to the
-    '''   specified full path name.
-    ''' <para>
-    '''   If a file already exists with the same path name,
-    '''   its content is overwritten.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="pathname">
-    '''   path and name of the new file to create
-    ''' </param>
-    ''' <param name="content">
-    '''   binary buffer with the content to set
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function upload(pathname as string, content as byte()) as integer
-        Return Me._upload(pathname,content)
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Copies the whole content of a layer to another layer.
-    ''' <para>
-    '''   The color and transparency
-    '''   of all the pixels from the destination layer are set to match the source pixels.
-    '''   This method only affects the displayed content, but does not change any
-    '''   property of the layer object.
-    '''   Note that layer 0 has no transparency support (it is always completely opaque).
-    ''' </para>
-    ''' </summary>
-    ''' <param name="srcLayerId">
-    '''   the identifier of the source layer (a number in range 0..layerCount-1)
-    ''' </param>
-    ''' <param name="dstLayerId">
-    '''   the identifier of the destination layer (a number in range 0..layerCount-1)
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function copyLayerContent(srcLayerId as integer, dstLayerId as integer) as integer
-        Me.flushLayers()
-        Return Me.sendCommand("o"+ Convert.ToString(srcLayerId)+","+ Convert.ToString(dstLayerId))
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Swaps the whole content of two layers.
-    ''' <para>
-    '''   The color and transparency of all the pixels from
-    '''   the two layers are swapped. This method only affects the displayed content, but does
-    '''   not change any property of the layer objects. In particular, the visibility of each
-    '''   layer stays unchanged. When used between onae hidden layer and a visible layer,
-    '''   this method makes it possible to easily implement double-buffering.
-    '''   Note that layer 0 has no transparency support (it is always completely opaque).
-    ''' </para>
-    ''' </summary>
-    ''' <param name="layerIdA">
-    '''   the first layer (a number in range 0..layerCount-1)
-    ''' </param>
-    ''' <param name="layerIdB">
-    '''   the second layer (a number in range 0..layerCount-1)
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function swapLayerContent(layerIdA as integer, layerIdB as integer) as integer
-        Me.flushLayers()
-        Return Me.sendCommand("E"+ Convert.ToString(layerIdA)+","+ Convert.ToString(layerIdB))
-        
-     end function
-
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of displays started using <c>yFirstDisplay()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YDisplay</c> object, corresponding to
-    '''   a display currently online, or a <c>null</c> pointer
-    '''   if there are no more displays to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextDisplay() as YDisplay
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindDisplay(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
-
     '''*
     ''' <summary>
     '''   Retrieves a display for a given identifier.
@@ -1841,14 +1464,330 @@ end enum
     '''   a <c>YDisplay</c> object allowing you to drive the display.
     ''' </returns>
     '''/
-    Public Shared Function FindDisplay(ByVal func As String) As YDisplay
-      Dim res As YDisplay
-      If (_DisplayCache.ContainsKey(func)) Then
-        Return CType(_DisplayCache(func), YDisplay)
+    Public Shared Function FindDisplay(func As String) As YDisplay
+      Dim obj As YDisplay
+      obj = CType(YFunction._FindFromCache("Display", func), YDisplay)
+      If ((obj Is Nothing)) Then
+        obj = New YDisplay(func)
+        YFunction._AddToCache("Display", func, obj)
       End If
-      res = New YDisplay(func)
-      _DisplayCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YDisplayValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackDisplay = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackDisplay Is Nothing)) Then
+        Me._valueCallbackDisplay(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Clears the display screen and resets all display layers to their default state.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function resetAll() As Integer
+      Me.flushLayers()
+      Me.resetHiddenLayerFlags()
+      Return Me.sendCommand("Z")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Smoothly changes the brightness of the screen to produce a fade-in or fade-out
+    '''   effect.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="brightness">
+    '''   the new screen brightness
+    ''' </param>
+    ''' <param name="duration">
+    '''   duration of the brightness transition, in milliseconds.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function fade(brightness As Integer, duration As Integer) As Integer
+      Me.flushLayers()
+      Return Me.sendCommand("+" + Convert.ToString(brightness) + "," + Convert.ToString(duration))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Starts to record all display commands into a sequence, for later replay.
+    ''' <para>
+    '''   The name used to store the sequence is specified when calling
+    '''   <c>saveSequence()</c>, once the recording is complete.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function newSequence() As Integer
+      Me.flushLayers()
+      Me._sequence = ""
+      Me._recording = True
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Stops recording display commands and saves the sequence into the specified
+    '''   file on the display internal memory.
+    ''' <para>
+    '''   The sequence can be later replayed
+    '''   using <c>playSequence()</c>.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="sequenceName">
+    '''   the name of the newly created sequence
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function saveSequence(sequenceName As String) As Integer
+      Me.flushLayers()
+      Me._recording = False
+      Me._upload(sequenceName, YAPI.DefaultEncoding.GetBytes(Me._sequence))
+      REM //We need to use YPRINTF("") for Objective-C
+      Me._sequence = ""
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Replays a display sequence previously recorded using
+    '''   <c>newSequence()</c> and <c>saveSequence()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="sequenceName">
+    '''   the name of the newly created sequence
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function playSequence(sequenceName As String) As Integer
+      Me.flushLayers()
+      Return Me.sendCommand("S" + sequenceName)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Waits for a specified delay (in milliseconds) before playing next
+    '''   commands in current sequence.
+    ''' <para>
+    '''   This method can be used while
+    '''   recording a display sequence, to insert a timed wait in the sequence
+    '''   (without any immediate effect). It can also be used dynamically while
+    '''   playing a pre-recorded sequence, to suspend or resume the execution of
+    '''   the sequence. To cancel a delay, call the same method with a zero delay.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="delay_ms">
+    '''   the duration to wait, in milliseconds
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function pauseSequence(delay_ms As Integer) As Integer
+      Me.flushLayers()
+      Return Me.sendCommand("W" + Convert.ToString(delay_ms))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Stops immediately any ongoing sequence replay.
+    ''' <para>
+    '''   The display is left as is.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function stopSequence() As Integer
+      Me.flushLayers()
+      Return Me.sendCommand("S")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Uploads an arbitrary file (for instance a GIF file) to the display, to the
+    '''   specified full path name.
+    ''' <para>
+    '''   If a file already exists with the same path name,
+    '''   its content is overwritten.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="pathname">
+    '''   path and name of the new file to create
+    ''' </param>
+    ''' <param name="content">
+    '''   binary buffer with the content to set
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function upload(pathname As String, content As Byte()) As Integer
+      Return Me._upload(pathname, content)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Copies the whole content of a layer to another layer.
+    ''' <para>
+    '''   The color and transparency
+    '''   of all the pixels from the destination layer are set to match the source pixels.
+    '''   This method only affects the displayed content, but does not change any
+    '''   property of the layer object.
+    '''   Note that layer 0 has no transparency support (it is always completely opaque).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="srcLayerId">
+    '''   the identifier of the source layer (a number in range 0..layerCount-1)
+    ''' </param>
+    ''' <param name="dstLayerId">
+    '''   the identifier of the destination layer (a number in range 0..layerCount-1)
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function copyLayerContent(srcLayerId As Integer, dstLayerId As Integer) As Integer
+      Me.flushLayers()
+      Return Me.sendCommand("o" + Convert.ToString(srcLayerId) + "," + Convert.ToString(dstLayerId))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Swaps the whole content of two layers.
+    ''' <para>
+    '''   The color and transparency of all the pixels from
+    '''   the two layers are swapped. This method only affects the displayed content, but does
+    '''   not change any property of the layer objects. In particular, the visibility of each
+    '''   layer stays unchanged. When used between onae hidden layer and a visible layer,
+    '''   this method makes it possible to easily implement double-buffering.
+    '''   Note that layer 0 has no transparency support (it is always completely opaque).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="layerIdA">
+    '''   the first layer (a number in range 0..layerCount-1)
+    ''' </param>
+    ''' <param name="layerIdB">
+    '''   the second layer (a number in range 0..layerCount-1)
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function swapLayerContent(layerIdA As Integer, layerIdB As Integer) As Integer
+      Me.flushLayers()
+      Return Me.sendCommand("E" + Convert.ToString(layerIdA) + "," + Convert.ToString(layerIdB))
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of displays started using <c>yFirstDisplay()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YDisplay</c> object, corresponding to
+    '''   a display currently online, or a <c>null</c> pointer
+    '''   if there are no more displays to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextDisplay() As YDisplay
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YDisplay.FindDisplay(hwid)
     End Function
 
     '''*
@@ -1892,11 +1831,8 @@ end enum
       Return YDisplay.FindDisplay(serial + "." + funcId)
     End Function
 
-    REM --- (end of generated code: YDisplay implementation)
+    REM --- (end of generated code: YDisplay public methods declaration)
 
-    Dim _allDisplayLayers() As YDisplayLayer = Nothing
-    Dim _recording As Boolean
-    Dim _sequence As String
 
     '''*
     ''' <summary>
@@ -1966,9 +1902,8 @@ end enum
     End Function
 
 
-
   End Class
-
+  
   REM --- (generated code: Display functions)
 
   '''*
@@ -2035,14 +1970,8 @@ end enum
     Return YDisplay.FirstDisplay()
   End Function
 
-  Private Sub _DisplayCleanup()
-  End Sub
-
 
   REM --- (end of generated code: Display functions)
-
-
-
 
 
 End Module

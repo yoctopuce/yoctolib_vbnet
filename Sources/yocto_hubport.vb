@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_hubport.vb 12337 2013-08-14 15:22:22Z mvuilleu $
+'* $Id: yocto_hubport.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindHubPort(), the high-level API for HubPort functions
 '*
@@ -45,16 +45,10 @@ Imports System.Text
 
 Module yocto_hubport
 
-  REM --- (return codes)
-  REM --- (end of return codes)
-  
-  REM --- (YHubPort definitions)
+    REM --- (YHubPort return codes)
+    REM --- (end of YHubPort return codes)
+  REM --- (YHubPort globals)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YHubPort, ByVal value As String)
-
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ENABLED_FALSE = 0
   Public Const Y_ENABLED_TRUE = 1
   Public Const Y_ENABLED_INVALID = -1
@@ -66,20 +60,28 @@ Module yocto_hubport
   Public Const Y_PORTSTATE_PROG = 4
   Public Const Y_PORTSTATE_INVALID = -1
 
-  Public Const Y_BAUDRATE_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_BAUDRATE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Delegate Sub YHubPortValueCallback(ByVal func As YHubPort, ByVal value As String)
+  Public Delegate Sub YHubPortTimedReportCallback(ByVal func As YHubPort, ByVal measure As YMeasure)
+  REM --- (end of YHubPort globals)
 
+  REM --- (YHubPort class start)
 
-  REM --- (end of YHubPort definitions)
-
-  REM --- (YHubPort implementation)
-
-  Private _HubPortCache As New Hashtable()
-  Private _callback As UpdateCallback
-
+  '''*
+  ''' <summary>
+  '''   YHubPort objects provide control over the power supply for every
+  '''   YoctoHub port and provide information about the device connected to it.
+  ''' <para>
+  '''   The logical name of a YHubPort is always automatically set to the
+  '''   unique serial number of the Yoctopuce device connected to it.
+  ''' </para>
+  ''' </summary>
+  '''/
   Public Class YHubPort
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of YHubPort class start)
+
+    REM --- (YHubPort definitions)
     Public Const ENABLED_FALSE = 0
     Public Const ENABLED_TRUE = 1
     Public Const ENABLED_INVALID = -1
@@ -91,124 +93,48 @@ Module yocto_hubport
     Public Const PORTSTATE_PROG = 4
     Public Const PORTSTATE_INVALID = -1
 
-    Public Const BAUDRATE_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const BAUDRATE_INVALID As Integer = YAPI.INVALID_UINT
+    REM --- (end of YHubPort definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _enabled As Long
-    Protected _portState As Long
-    Protected _baudRate As Long
+    REM --- (YHubPort attributes declaration)
+    Protected _enabled As Integer
+    Protected _portState As Integer
+    Protected _baudRate As Integer
+    Protected _valueCallbackHubPort As YHubPortValueCallback
+    REM --- (end of YHubPort attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("HubPort", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _enabled = Y_ENABLED_INVALID
-      _portState = Y_PORTSTATE_INVALID
-      _baudRate = Y_BAUDRATE_INVALID
+      MyBase.New(func)
+      _classname = "HubPort"
+      REM --- (YHubPort attributes initialization)
+      _enabled = ENABLED_INVALID
+      _portState = PORTSTATE_INVALID
+      _baudRate = BAUDRATE_INVALID
+      _valueCallbackHubPort = Nothing
+      REM --- (end of YHubPort attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+  REM --- (YHubPort private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "enabled") Then
+        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "enabled") Then
-          If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
-        ElseIf (member.name = "portState") Then
-          _portState = CLng(member.ivalue)
-        ElseIf (member.name = "baudRate") Then
-          _baudRate = CLng(member.ivalue)
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the Yocto-hub port, which is always the serial number of the
-    '''   connected module.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the Yocto-hub port, which is always the serial number of the
-    '''   connected module
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "portState") Then
+        _portState = CInt(member.ivalue)
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   It is not possible to configure the logical name of a Yocto-hub port.
-    ''' <para>
-    '''   The logical
-    '''   name is automatically set to the serial number of the connected module.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the Yocto-hub port (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the Yocto-hub port (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "baudRate") Then
+        _baudRate = CInt(member.ivalue)
+        Return 1
       End If
-      Return _advertisedValue
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of YHubPort private methods declaration)
+
+    REM --- (YHubPort public methods declaration)
     '''*
     ''' <summary>
     '''   Returns true if the Yocto-hub port is powered, false otherwise.
@@ -226,20 +152,21 @@ Module yocto_hubport
     ''' </para>
     '''/
     Public Function get_enabled() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ENABLED_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return ENABLED_INVALID
         End If
       End If
-      Return CType(_enabled,Integer)
+      Return Me._enabled
     End Function
+
 
     '''*
     ''' <summary>
     '''   Changes the activation of the Yocto-hub port.
     ''' <para>
     '''   If the port is enabled, the
-    '''   *      connected module is powered. Otherwise, port power is shut down.
+    '''   connected module is powered. Otherwise, port power is shut down.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -261,7 +188,6 @@ Module yocto_hubport
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("enabled", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the current state of the Yocto-hub port.
@@ -279,12 +205,12 @@ Module yocto_hubport
     ''' </para>
     '''/
     Public Function get_portState() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_PORTSTATE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return PORTSTATE_INVALID
         End If
       End If
-      Return CType(_portState,Integer)
+      Return Me._portState
     End Function
 
     '''*
@@ -305,66 +231,13 @@ Module yocto_hubport
     ''' </para>
     '''/
     Public Function get_baudRate() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_BAUDRATE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return BAUDRATE_INVALID
         End If
       End If
-      Return CType(_baudRate,Integer)
+      Return Me._baudRate
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of Yocto-hub ports started using <c>yFirstHubPort()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YHubPort</c> object, corresponding to
-    '''   a Yocto-hub port currently online, or a <c>null</c> pointer
-    '''   if there are no more Yocto-hub ports to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextHubPort() as YHubPort
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindHubPort(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
 
     '''*
     ''' <summary>
@@ -408,14 +281,83 @@ Module yocto_hubport
     '''   a <c>YHubPort</c> object allowing you to drive the Yocto-hub port.
     ''' </returns>
     '''/
-    Public Shared Function FindHubPort(ByVal func As String) As YHubPort
-      Dim res As YHubPort
-      If (_HubPortCache.ContainsKey(func)) Then
-        Return CType(_HubPortCache(func), YHubPort)
+    Public Shared Function FindHubPort(func As String) As YHubPort
+      Dim obj As YHubPort
+      obj = CType(YFunction._FindFromCache("HubPort", func), YHubPort)
+      If ((obj Is Nothing)) Then
+        obj = New YHubPort(func)
+        YFunction._AddToCache("HubPort", func, obj)
       End If
-      res = New YHubPort(func)
-      _HubPortCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YHubPortValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackHubPort = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackHubPort Is Nothing)) Then
+        Me._valueCallbackHubPort(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of Yocto-hub ports started using <c>yFirstHubPort()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YHubPort</c> object, corresponding to
+    '''   a Yocto-hub port currently online, or a <c>null</c> pointer
+    '''   if there are no more Yocto-hub ports to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextHubPort() As YHubPort
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YHubPort.FindHubPort(hwid)
     End Function
 
     '''*
@@ -459,7 +401,7 @@ Module yocto_hubport
       Return YHubPort.FindHubPort(serial + "." + funcId)
     End Function
 
-    REM --- (end of YHubPort implementation)
+    REM --- (end of YHubPort public methods declaration)
 
   End Class
 
@@ -528,9 +470,6 @@ Module yocto_hubport
   Public Function yFirstHubPort() As YHubPort
     Return YHubPort.FirstHubPort()
   End Function
-
-  Private Sub _HubPortCleanup()
-  End Sub
 
 
   REM --- (end of HubPort functions)

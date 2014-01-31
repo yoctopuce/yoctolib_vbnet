@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_servo.vb 12324 2013-08-13 15:10:31Z mvuilleu $
+'* $Id: yocto_servo.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindServo(), the high-level API for Servo functions
 '*
@@ -45,34 +45,25 @@ Imports System.Text
 
 Module yocto_servo
 
-  REM --- (return codes)
-  REM --- (end of return codes)
-  
-  REM --- (YServo definitions)
-
-  Public Delegate Sub UpdateCallback(ByVal func As YServo, ByVal value As String)
+    REM --- (YServo return codes)
+    REM --- (end of YServo return codes)
+  REM --- (YServo globals)
 
 Public Class YServoMove
-  Public target As System.Int64 = YAPI.INVALID_LONG
-  Public ms As System.Int64 = YAPI.INVALID_LONG
-  Public moving As System.Int64 = YAPI.INVALID_LONG
+  Public target As Integer = YAPI.INVALID_INT
+  Public ms As Integer = YAPI.INVALID_INT
+  Public moving As Integer = YAPI.INVALID_UINT
 End Class
 
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_POSITION_INVALID As Integer = YAPI.INVALID_INT
-  Public Const Y_RANGE_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_NEUTRAL_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_RANGE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_NEUTRAL_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_MOVE_INVALID = Nothing
+  Public Delegate Sub YServoValueCallback(ByVal func As YServo, ByVal value As String)
+  Public Delegate Sub YServoTimedReportCallback(ByVal func As YServo, ByVal measure As YMeasure)
+  REM --- (end of YServo globals)
 
-  Public Y_MOVE_INVALID As YServoMove
-
-  REM --- (end of YServo definitions)
-
-  REM --- (YServo implementation)
-
-  Private _ServoCache As New Hashtable()
-  Private _callback As UpdateCallback
+  REM --- (YServo class start)
 
   '''*
   ''' <summary>
@@ -87,147 +78,73 @@ End Class
   '''/
   Public Class YServo
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-    Public Const POSITION_INVALID As Integer = YAPI.INVALID_INT
-    Public Const RANGE_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const NEUTRAL_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    REM --- (end of YServo class start)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _position As Long
-    Protected _range As Long
-    Protected _neutral As Long
+    REM --- (YServo definitions)
+    Public Const POSITION_INVALID As Integer = YAPI.INVALID_INT
+    Public Const RANGE_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const NEUTRAL_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const MOVE_INVALID = Nothing
+    REM --- (end of YServo definitions)
+
+    REM --- (YServo attributes declaration)
+    Protected _position As Integer
+    Protected _range As Integer
+    Protected _neutral As Integer
     Protected _move As YServoMove
+    Protected _valueCallbackServo As YServoValueCallback
+    REM --- (end of YServo attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("Servo", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _position = Y_POSITION_INVALID
-      _range = Y_RANGE_INVALID
-      _neutral = Y_NEUTRAL_INVALID
+      MyBase.New(func)
+      _classname = "Servo"
+      REM --- (YServo attributes initialization)
+      _position = POSITION_INVALID
+      _range = RANGE_INVALID
+      _neutral = NEUTRAL_INVALID
       _move = New YServoMove()
+      _valueCallbackServo = Nothing
+      REM --- (end of YServo attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+  REM --- (YServo private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "position") Then
+        _position = CInt(member.ivalue)
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "position") Then
-          _position = member.ivalue
-        ElseIf (member.name = "range") Then
-          _range = CLng(member.ivalue)
-        ElseIf (member.name = "neutral") Then
-          _neutral = CLng(member.ivalue)
-        ElseIf (member.name = "move") Then
-          If (member.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then 
-             _parse = -1
-             Exit Function
-          End If
-          Dim submemb As TJSONRECORD
-          Dim l As Integer
-          For l=0 To member.membercount-1
-             submemb = member.members(l)
-             If (submemb.name = "moving") Then
-                _move.moving = submemb.ivalue
-             ElseIf (submemb.name = "target") Then
-                _move.target = submemb.ivalue
-             ElseIf (submemb.name = "ms") Then
-                _move.ms = submemb.ivalue
-             End If
-          Next l
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the servo.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the servo
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "range") Then
+        _range = CInt(member.ivalue)
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the servo.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the servo
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the servo (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the servo (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "neutral") Then
+        _neutral = CInt(member.ivalue)
+        Return 1
       End If
-      Return _advertisedValue
+      If (member.name = "move") Then
+        If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
+            Dim submemb As TJSONRECORD
+            Dim l As Integer
+            For l=0 To member.membercount-1
+               submemb = member.members(l)
+               If (submemb.name = "moving") Then
+                  _move.moving = CInt(submemb.ivalue)
+               ElseIf (submemb.name = "target") Then
+                  _move.target = CInt(submemb.ivalue)
+               ElseIf (submemb.name = "ms") Then
+                  _move.ms = CInt(submemb.ivalue)
+               End If
+            Next l
+        End If
+        Return 1
+      End If
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of YServo private methods declaration)
+
+    REM --- (YServo public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the current servo position.
@@ -244,13 +161,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_position() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_POSITION_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return POSITION_INVALID
         End If
       End If
-      Return CType(_position,Integer)
+      Return Me._position
     End Function
+
 
     '''*
     ''' <summary>
@@ -277,7 +195,6 @@ End Class
       rest_val = Ltrim(Str(newval))
       Return _setAttr("position", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the current range of use of the servo.
@@ -294,13 +211,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_range() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_RANGE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return RANGE_INVALID
         End If
       End If
-      Return CType(_range,Integer)
+      Return Me._range
     End Function
+
 
     '''*
     ''' <summary>
@@ -332,7 +250,6 @@ End Class
       rest_val = Ltrim(Str(newval))
       Return _setAttr("range", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the duration in microseconds of a neutral pulse for the servo.
@@ -349,13 +266,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_neutral() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_NEUTRAL_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return NEUTRAL_INVALID
         End If
       End If
-      Return CType(_neutral,Integer)
+      Return Me._neutral
     End Function
+
 
     '''*
     ''' <summary>
@@ -386,15 +304,15 @@ End Class
       rest_val = Ltrim(Str(newval))
       Return _setAttr("neutral", rest_val)
     End Function
-
     Public Function get_move() As YServoMove
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_MOVE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return MOVE_INVALID
         End If
       End If
-      Return _move
+      Return Me._move
     End Function
+
 
     Public Function set_move(ByVal newval As YServoMove) As Integer
       Dim rest_val As String
@@ -430,60 +348,6 @@ End Class
       rest_val = Ltrim(Str(target))+":"+Ltrim(Str(ms_duration))
       Return _setAttr("move", rest_val)
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of servos started using <c>yFirstServo()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YServo</c> object, corresponding to
-    '''   a servo currently online, or a <c>null</c> pointer
-    '''   if there are no more servos to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextServo() as YServo
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindServo(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
-
     '''*
     ''' <summary>
     '''   Retrieves a servo for a given identifier.
@@ -526,14 +390,83 @@ End Class
     '''   a <c>YServo</c> object allowing you to drive the servo.
     ''' </returns>
     '''/
-    Public Shared Function FindServo(ByVal func As String) As YServo
-      Dim res As YServo
-      If (_ServoCache.ContainsKey(func)) Then
-        Return CType(_ServoCache(func), YServo)
+    Public Shared Function FindServo(func As String) As YServo
+      Dim obj As YServo
+      obj = CType(YFunction._FindFromCache("Servo", func), YServo)
+      If ((obj Is Nothing)) Then
+        obj = New YServo(func)
+        YFunction._AddToCache("Servo", func, obj)
       End If
-      res = New YServo(func)
-      _ServoCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YServoValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackServo = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackServo Is Nothing)) Then
+        Me._valueCallbackServo(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of servos started using <c>yFirstServo()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YServo</c> object, corresponding to
+    '''   a servo currently online, or a <c>null</c> pointer
+    '''   if there are no more servos to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextServo() As YServo
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YServo.FindServo(hwid)
     End Function
 
     '''*
@@ -577,7 +510,7 @@ End Class
       Return YServo.FindServo(serial + "." + funcId)
     End Function
 
-    REM --- (end of YServo implementation)
+    REM --- (end of YServo public methods declaration)
 
   End Class
 
@@ -646,9 +579,6 @@ End Class
   Public Function yFirstServo() As YServo
     Return YServo.FirstServo()
   End Function
-
-  Private Sub _ServoCleanup()
-  End Sub
 
 
   REM --- (end of Servo functions)

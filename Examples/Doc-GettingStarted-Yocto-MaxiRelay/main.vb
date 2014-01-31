@@ -17,13 +17,13 @@
     Dim errmsg As String = ""
     Dim target, channel As String
     Dim relay As YRelay
-    Dim state As Char
+    Dim state As String
 
     If argv.Length < 3 Then Usage()
 
     target = argv(1)
     channel = argv(2)
-    state = CChar(Mid(argv(3), 1, 1).ToUpper())
+    state = argv(3).ToUpper
 
     REM Setup the API to use local USB devices
     If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
@@ -45,7 +45,11 @@
 
 
     If (relay.isOnline()) Then
-      If state = "ON" Then relay.set_output(Y_OUTPUT_ON) Else relay.set_output(Y_OUTPUT_OFF)
+      If state = "ON" Then
+        relay.set_output(Y_OUTPUT_ON)
+      Else
+        relay.set_output(Y_OUTPUT_OFF)
+      End If
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If

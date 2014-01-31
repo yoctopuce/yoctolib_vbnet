@@ -111,7 +111,7 @@
     buffer.DrawLine(red, point1, point2)
 
     REM draw the scale
-    Dim fontFamily As FontFamily = New FontFamily("Arial Narrow")
+    Dim fontFamily As FontFamily = New FontFamily("Arial")
     Dim font As Font = New Font(fontFamily, Convert.ToInt32(DialHeight / 10), FontStyle.Regular, GraphicsUnit.Pixel)
     buffer.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias
     Dim solidBrush As SolidBrush = New SolidBrush(Color.FromArgb(255, 20, 20, 20))

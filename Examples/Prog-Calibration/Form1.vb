@@ -190,7 +190,7 @@
     ' displays the sensor value on the ui
     ValueDisplayUnits.Text = valunit
 
-    If (resolution <> yocto_temperature.Y_RESOLUTION_INVALID) Then
+    If (resolution <> YTemperature.RESOLUTION_INVALID) Then
       'if resolution is available on the device the use it to  round the value
 
       Format = "F" + (-CInt(Math.Round(Math.Log10(resolution)))).ToString()
@@ -225,7 +225,7 @@
 
   End Sub
 
-  Private Sub DisplayCalPoints(ValuesRaw As Double(), ValuesCal As Double(), resolution As Double)
+  Private Sub DisplayCalPoints(ValuesRaw As List(Of Double), ValuesCal As List(Of Double), resolution As Double)
     Dim i As Integer
     ' little trick: if resolution is not available on the device, the
     ' calibration in not available either
@@ -237,9 +237,9 @@
 
     ' display the calibration points
     unsupported_warning.Visible = False
-    For i = 0 To ValuesRaw.Length - 1
-      rawedit(i).Text = ValuesRaw(i).ToString()
+    For i = 0 To ValuesRaw.Count - 1
       caledit(i).Text = ValuesCal(i).ToString()
+      rawedit(i).Text = ValuesRaw(i).ToString()
       rawedit(i).BackColor = System.Drawing.Color.FromArgb(&HA0, &HFF, &HA0)
       caledit(i).BackColor = System.Drawing.Color.FromArgb(&HA0, &HFF, &HA0)
     Next i
@@ -291,50 +291,50 @@
   End Sub
 
   Private Sub DisplayTemperatureCalPoints(fct As YTemperature)
-    Dim ValuesRaw As Double() = {}
-    Dim ValuesCal As Double() = {}
+    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
+    Dim ValuesCal As List(Of Double) = New List(Of Double)()
     fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
     DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
   End Sub
 
   Private Sub DisplayPressureCalPoints(fct As YPressure)
-    Dim ValuesRaw As Double() = {}
-    Dim ValuesCal As Double() = {}
+    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
+    Dim ValuesCal As List(Of Double) = New List(Of Double)()
     fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
     DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
   End Sub
 
   Private Sub DisplayHumidityCalPoints(fct As YHumidity)
-    Dim ValuesRaw As Double() = {}
-    Dim ValuesCal As Double() = {}
+    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
+    Dim ValuesCal As List(Of Double) = New List(Of Double)()
     fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
     DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
   End Sub
 
   Private Sub DisplayLightSensorCalPoints(fct As YLightSensor)
-    Dim ValuesRaw As Double() = {}
-    Dim ValuesCal As Double() = {}
+    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
+    Dim ValuesCal As List(Of Double) = New List(Of Double)()
     fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
     DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
   End Sub
 
   Private Sub DisplayCarbonDioxideCalPoints(fct As YCarbonDioxide)
-    Dim ValuesRaw As Double() = {}
-    Dim ValuesCal As Double() = {}
+    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
+    Dim ValuesCal As List(Of Double) = New List(Of Double)()
     fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
     DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
   End Sub
 
   Private Sub DisplayVoltageCalPoints(fct As YVoltage)
-    Dim ValuesRaw As Double() = {}
-    Dim ValuesCal As Double() = {}
+    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
+    Dim ValuesCal As List(Of Double) = New List(Of Double)()
     fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
     DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
   End Sub
 
   Private Sub DisplayCurrentCalPoints(fct As YCurrent)
-    Dim ValuesRaw As Double() = {}
-    Dim ValuesCal As Double() = {}
+    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
+    Dim ValuesCal As List(Of Double) = New List(Of Double)()
     fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
     DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
   End Sub
@@ -359,8 +359,8 @@
   '  in the device RAM, if you want the calibration
   '  to be persistent, you have to call saveToflash();
   Private Sub CalibrationChange(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles R4.Leave, R3.Leave, R2.Leave, R1.Leave, R0.Leave, C4.Leave, C3.Leave, C2.Leave, C1.Leave, C0.Leave
-    Dim ValuesRaw As Double() = {}
-    Dim ValuesCal As Double() = {}
+    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
+    Dim ValuesCal As List(Of Double) = New List(Of Double)()
     Dim fct As YFunction
     Dim stopplz As Boolean = False
     Dim i As Integer = 0
@@ -370,24 +370,29 @@
 
     Try
       While ((caledit(i).Text <> "") And (rawedit(i).Text <> "") And (i < 5) And Not (stopplz))
-        ReDim Preserve ValuesRaw(i)
-        ReDim Preserve ValuesCal(i)
-        ValuesCal(i) = Convert.ToDouble(caledit(i).Text)
-        ValuesRaw(i) = Convert.ToDouble(rawedit(i).Text)
+        ValuesCal.Add(Convert.ToDouble(caledit(i).Text))
+        ValuesRaw.Add(Convert.ToDouble(rawedit(i).Text))
         If (i > 0) Then
           If ValuesRaw(i) <= ValuesRaw(i - 1) Then
             stopplz = True
-            ReDim Preserve ValuesRaw(i - 1)
-            ReDim Preserve ValuesCal(i - 1)
             i = i - 1
           End If
         End If
         i = i + 1
       End While
     Catch ex As Exception
-      ReDim Preserve ValuesRaw(i - 1)
-      ReDim Preserve ValuesCal(i - 1)
     End Try
+
+    While ValuesCal.Count > ValuesRaw.Count
+      ValuesCal.RemoveAt(ValuesCal.Count - 1)
+    End While
+
+    While ValuesRaw.Count > ValuesCal.Count
+      ValuesRaw.RemoveAt(ValuesRaw.Count - 1)
+
+
+
+    End While
 
     ' some ui cosmetics: correct values are turned to green
     For j = 0 To i - 1

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_anbutton.vb 12324 2013-08-13 15:10:31Z mvuilleu $
+'* $Id: yocto_anbutton.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindAnButton(), the high-level API for AnButton functions
 '*
@@ -45,25 +45,19 @@ Imports System.Text
 
 Module yocto_anbutton
 
-  REM --- (return codes)
-  REM --- (end of return codes)
-  
-  REM --- (YAnButton definitions)
+    REM --- (YAnButton return codes)
+    REM --- (end of YAnButton return codes)
+  REM --- (YAnButton globals)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YAnButton, ByVal value As String)
-
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_CALIBRATEDVALUE_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_RAWVALUE_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_CALIBRATEDVALUE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_RAWVALUE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ANALOGCALIBRATION_OFF = 0
   Public Const Y_ANALOGCALIBRATION_ON = 1
   Public Const Y_ANALOGCALIBRATION_INVALID = -1
 
-  Public Const Y_CALIBRATIONMAX_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_CALIBRATIONMIN_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_SENSITIVITY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_CALIBRATIONMAX_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_CALIBRATIONMIN_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_SENSITIVITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ISPRESSED_FALSE = 0
   Public Const Y_ISPRESSED_TRUE = 1
   Public Const Y_ISPRESSED_INVALID = -1
@@ -72,14 +66,11 @@ Module yocto_anbutton
   Public Const Y_LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
+  Public Delegate Sub YAnButtonValueCallback(ByVal func As YAnButton, ByVal value As String)
+  Public Delegate Sub YAnButtonTimedReportCallback(ByVal func As YAnButton, ByVal measure As YMeasure)
+  REM --- (end of YAnButton globals)
 
-
-  REM --- (end of YAnButton definitions)
-
-  REM --- (YAnButton implementation)
-
-  Private _AnButtonCache As New Hashtable()
-  Private _callback As UpdateCallback
+  REM --- (YAnButton class start)
 
   '''*
   ''' <summary>
@@ -95,17 +86,18 @@ Module yocto_anbutton
   '''/
   Public Class YAnButton
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-    Public Const CALIBRATEDVALUE_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const RAWVALUE_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    REM --- (end of YAnButton class start)
+
+    REM --- (YAnButton definitions)
+    Public Const CALIBRATEDVALUE_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const RAWVALUE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ANALOGCALIBRATION_OFF = 0
     Public Const ANALOGCALIBRATION_ON = 1
     Public Const ANALOGCALIBRATION_INVALID = -1
 
-    Public Const CALIBRATIONMAX_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const CALIBRATIONMIN_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const SENSITIVITY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const CALIBRATIONMAX_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const CALIBRATIONMIN_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const SENSITIVITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ISPRESSED_FALSE = 0
     Public Const ISPRESSED_TRUE = 1
     Public Const ISPRESSED_INVALID = -1
@@ -114,155 +106,95 @@ Module yocto_anbutton
     Public Const LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
+    REM --- (end of YAnButton definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _calibratedValue As Long
-    Protected _rawValue As Long
-    Protected _analogCalibration As Long
-    Protected _calibrationMax As Long
-    Protected _calibrationMin As Long
-    Protected _sensitivity As Long
-    Protected _isPressed As Long
+    REM --- (YAnButton attributes declaration)
+    Protected _calibratedValue As Integer
+    Protected _rawValue As Integer
+    Protected _analogCalibration As Integer
+    Protected _calibrationMax As Integer
+    Protected _calibrationMin As Integer
+    Protected _sensitivity As Integer
+    Protected _isPressed As Integer
     Protected _lastTimePressed As Long
     Protected _lastTimeReleased As Long
     Protected _pulseCounter As Long
     Protected _pulseTimer As Long
+    Protected _valueCallbackAnButton As YAnButtonValueCallback
+    REM --- (end of YAnButton attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("AnButton", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _calibratedValue = Y_CALIBRATEDVALUE_INVALID
-      _rawValue = Y_RAWVALUE_INVALID
-      _analogCalibration = Y_ANALOGCALIBRATION_INVALID
-      _calibrationMax = Y_CALIBRATIONMAX_INVALID
-      _calibrationMin = Y_CALIBRATIONMIN_INVALID
-      _sensitivity = Y_SENSITIVITY_INVALID
-      _isPressed = Y_ISPRESSED_INVALID
-      _lastTimePressed = Y_LASTTIMEPRESSED_INVALID
-      _lastTimeReleased = Y_LASTTIMERELEASED_INVALID
-      _pulseCounter = Y_PULSECOUNTER_INVALID
-      _pulseTimer = Y_PULSETIMER_INVALID
+      MyBase.New(func)
+      _classname = "AnButton"
+      REM --- (YAnButton attributes initialization)
+      _calibratedValue = CALIBRATEDVALUE_INVALID
+      _rawValue = RAWVALUE_INVALID
+      _analogCalibration = ANALOGCALIBRATION_INVALID
+      _calibrationMax = CALIBRATIONMAX_INVALID
+      _calibrationMin = CALIBRATIONMIN_INVALID
+      _sensitivity = SENSITIVITY_INVALID
+      _isPressed = ISPRESSED_INVALID
+      _lastTimePressed = LASTTIMEPRESSED_INVALID
+      _lastTimeReleased = LASTTIMERELEASED_INVALID
+      _pulseCounter = PULSECOUNTER_INVALID
+      _pulseTimer = PULSETIMER_INVALID
+      _valueCallbackAnButton = Nothing
+      REM --- (end of YAnButton attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+  REM --- (YAnButton private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "calibratedValue") Then
+        _calibratedValue = CInt(member.ivalue)
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "calibratedValue") Then
-          _calibratedValue = CLng(member.ivalue)
-        ElseIf (member.name = "rawValue") Then
-          _rawValue = CLng(member.ivalue)
-        ElseIf (member.name = "analogCalibration") Then
-          If (member.ivalue > 0) Then _analogCalibration = 1 Else _analogCalibration = 0
-        ElseIf (member.name = "calibrationMax") Then
-          _calibrationMax = CLng(member.ivalue)
-        ElseIf (member.name = "calibrationMin") Then
-          _calibrationMin = CLng(member.ivalue)
-        ElseIf (member.name = "sensitivity") Then
-          _sensitivity = CLng(member.ivalue)
-        ElseIf (member.name = "isPressed") Then
-          If (member.ivalue > 0) Then _isPressed = 1 Else _isPressed = 0
-        ElseIf (member.name = "lastTimePressed") Then
-          _lastTimePressed = CLng(member.ivalue)
-        ElseIf (member.name = "lastTimeReleased") Then
-          _lastTimeReleased = CLng(member.ivalue)
-        ElseIf (member.name = "pulseCounter") Then
-          _pulseCounter = CLng(member.ivalue)
-        ElseIf (member.name = "pulseTimer") Then
-          _pulseTimer = CLng(member.ivalue)
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the analog input.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the analog input
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "rawValue") Then
+        _rawValue = CInt(member.ivalue)
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the analog input.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the analog input
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the analog input (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the analog input (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "analogCalibration") Then
+        If (member.ivalue > 0) Then _analogCalibration = 1 Else _analogCalibration = 0
+        Return 1
       End If
-      Return _advertisedValue
+      If (member.name = "calibrationMax") Then
+        _calibrationMax = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "calibrationMin") Then
+        _calibrationMin = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "sensitivity") Then
+        _sensitivity = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "isPressed") Then
+        If (member.ivalue > 0) Then _isPressed = 1 Else _isPressed = 0
+        Return 1
+      End If
+      If (member.name = "lastTimePressed") Then
+        _lastTimePressed = member.ivalue
+        Return 1
+      End If
+      If (member.name = "lastTimeReleased") Then
+        _lastTimeReleased = member.ivalue
+        Return 1
+      End If
+      If (member.name = "pulseCounter") Then
+        _pulseCounter = member.ivalue
+        Return 1
+      End If
+      If (member.name = "pulseTimer") Then
+        _pulseTimer = member.ivalue
+        Return 1
+      End If
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of YAnButton private methods declaration)
+
+    REM --- (YAnButton public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the current calibrated input value (between 0 and 1000, included).
@@ -279,12 +211,12 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_calibratedValue() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CALIBRATEDVALUE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALIBRATEDVALUE_INVALID
         End If
       End If
-      Return CType(_calibratedValue,Integer)
+      Return Me._calibratedValue
     End Function
 
     '''*
@@ -303,12 +235,12 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_rawValue() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_RAWVALUE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return RAWVALUE_INVALID
         End If
       End If
-      Return CType(_rawValue,Integer)
+      Return Me._rawValue
     End Function
 
     '''*
@@ -327,13 +259,14 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_analogCalibration() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ANALOGCALIBRATION_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return ANALOGCALIBRATION_INVALID
         End If
       End If
-      Return CType(_analogCalibration,Integer)
+      Return Me._analogCalibration
     End Function
+
 
     '''*
     ''' <summary>
@@ -362,7 +295,6 @@ Module yocto_anbutton
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("analogCalibration", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the maximal value measured during the calibration (between 0 and 4095, included).
@@ -379,13 +311,14 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_calibrationMax() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CALIBRATIONMAX_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALIBRATIONMAX_INVALID
         End If
       End If
-      Return CType(_calibrationMax,Integer)
+      Return Me._calibrationMax
     End Function
+
 
     '''*
     ''' <summary>
@@ -417,7 +350,6 @@ Module yocto_anbutton
       rest_val = Ltrim(Str(newval))
       Return _setAttr("calibrationMax", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the minimal value measured during the calibration (between 0 and 4095, included).
@@ -434,13 +366,14 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_calibrationMin() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CALIBRATIONMIN_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALIBRATIONMIN_INVALID
         End If
       End If
-      Return CType(_calibrationMin,Integer)
+      Return Me._calibrationMin
     End Function
+
 
     '''*
     ''' <summary>
@@ -472,7 +405,6 @@ Module yocto_anbutton
       rest_val = Ltrim(Str(newval))
       Return _setAttr("calibrationMin", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the sensibility for the input (between 1 and 1000) for triggering user callbacks.
@@ -489,13 +421,14 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_sensitivity() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_SENSITIVITY_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return SENSITIVITY_INVALID
         End If
       End If
-      Return CType(_sensitivity,Integer)
+      Return Me._sensitivity
     End Function
+
 
     '''*
     ''' <summary>
@@ -527,7 +460,6 @@ Module yocto_anbutton
       rest_val = Ltrim(Str(newval))
       Return _setAttr("sensitivity", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns true if the input (considered as binary) is active (closed contact), and false otherwise.
@@ -545,12 +477,12 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_isPressed() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ISPRESSED_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return ISPRESSED_INVALID
         End If
       End If
-      Return CType(_isPressed,Integer)
+      Return Me._isPressed
     End Function
 
     '''*
@@ -571,12 +503,12 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_lastTimePressed() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LASTTIMEPRESSED_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LASTTIMEPRESSED_INVALID
         End If
       End If
-      Return _lastTimePressed
+      Return Me._lastTimePressed
     End Function
 
     '''*
@@ -597,12 +529,12 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_lastTimeReleased() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LASTTIMERELEASED_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LASTTIMERELEASED_INVALID
         End If
       End If
-      Return _lastTimeReleased
+      Return Me._lastTimeReleased
     End Function
 
     '''*
@@ -619,13 +551,14 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_pulseCounter() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_PULSECOUNTER_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return PULSECOUNTER_INVALID
         End If
       End If
-      Return _pulseCounter
+      Return Me._pulseCounter
     End Function
+
 
     Public Function set_pulseCounter(ByVal newval As Long) As Integer
       Dim rest_val As String
@@ -651,7 +584,6 @@ Module yocto_anbutton
       rest_val = "0"
       Return _setAttr("pulseCounter", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the timer of the pulses counter (ms)
@@ -666,66 +598,13 @@ Module yocto_anbutton
     ''' </para>
     '''/
     Public Function get_pulseTimer() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_PULSETIMER_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return PULSETIMER_INVALID
         End If
       End If
-      Return _pulseTimer
+      Return Me._pulseTimer
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of analog inputs started using <c>yFirstAnButton()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YAnButton</c> object, corresponding to
-    '''   an analog input currently online, or a <c>null</c> pointer
-    '''   if there are no more analog inputs to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextAnButton() as YAnButton
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindAnButton(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
 
     '''*
     ''' <summary>
@@ -769,14 +648,83 @@ Module yocto_anbutton
     '''   a <c>YAnButton</c> object allowing you to drive the analog input.
     ''' </returns>
     '''/
-    Public Shared Function FindAnButton(ByVal func As String) As YAnButton
-      Dim res As YAnButton
-      If (_AnButtonCache.ContainsKey(func)) Then
-        Return CType(_AnButtonCache(func), YAnButton)
+    Public Shared Function FindAnButton(func As String) As YAnButton
+      Dim obj As YAnButton
+      obj = CType(YFunction._FindFromCache("AnButton", func), YAnButton)
+      If ((obj Is Nothing)) Then
+        obj = New YAnButton(func)
+        YFunction._AddToCache("AnButton", func, obj)
       End If
-      res = New YAnButton(func)
-      _AnButtonCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YAnButtonValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackAnButton = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackAnButton Is Nothing)) Then
+        Me._valueCallbackAnButton(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of analog inputs started using <c>yFirstAnButton()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YAnButton</c> object, corresponding to
+    '''   an analog input currently online, or a <c>null</c> pointer
+    '''   if there are no more analog inputs to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextAnButton() As YAnButton
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YAnButton.FindAnButton(hwid)
     End Function
 
     '''*
@@ -820,7 +768,7 @@ Module yocto_anbutton
       Return YAnButton.FindAnButton(serial + "." + funcId)
     End Function
 
-    REM --- (end of YAnButton implementation)
+    REM --- (end of YAnButton public methods declaration)
 
   End Class
 
@@ -889,9 +837,6 @@ Module yocto_anbutton
   Public Function yFirstAnButton() As YAnButton
     Return YAnButton.FirstAnButton()
   End Function
-
-  Private Sub _AnButtonCleanup()
-  End Sub
 
 
   REM --- (end of AnButton functions)

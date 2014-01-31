@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 12326 2013-08-13 15:52:20Z mvuilleu $
+'* $Id: yocto_api.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -64,7 +64,6 @@ Imports System.Math
 
 Module yocto_api
 
-
   Public Enum TJSONRECORDTYPE
     JSON_STRING
     JSON_INTEGER
@@ -77,7 +76,7 @@ Module yocto_api
     Dim name As String
     Dim recordtype As TJSONRECORDTYPE
     Dim svalue As String
-    Dim ivalue As Integer
+    Dim ivalue As Long
     Dim bvalue As Boolean
     Dim membercount As Integer
     Dim memberAllocated As Integer
@@ -125,7 +124,6 @@ Module yocto_api
             errmsg = "data should start with " + httpheader
             Throw New System.Exception(errmsg)
           End If
-
           p1 = InStr(Len(httpheader) + 1, jsonData, " ")
           p2 = InStr(jsonData, CR)
           httpcode = CInt(Val(Mid(jsonData, Len(httpheader), p1 - Len(httpheader))))
@@ -160,7 +158,7 @@ Module yocto_api
       If (p.Value.name <> "" And showNamePrefix) Then
         buffer = """" + p.Value.name + """:"
       Else
-        Buffer = ""
+        buffer = ""
       End If
 
       Select Case p.Value.recordtype
@@ -268,7 +266,7 @@ Module yocto_api
       createStrRecord = res
     End Function
 
-    Private Function createIntRecord(ByVal name As String, ByVal value As Integer) As TJSONRECORD
+    Private Function createIntRecord(ByVal name As String, ByVal value As Long) As TJSONRECORD
       Dim res As TJSONRECORD
       res.recordtype = TJSONRECORDTYPE.JSON_INTEGER
       res.name = name
@@ -334,7 +332,7 @@ Module yocto_api
       Dim res, value As TJSONRECORD
       Dim state As Tjstate
       Dim svalue As String = ""
-      Dim ivalue, isign As Integer
+      Dim ivalue, isign As Long
       Dim sti As Char
 
       Dim name As String
@@ -550,33 +548,28 @@ Module yocto_api
       GetChildNode = Nothing
     End Function
 
-    Public Function GetAllChilds(ByVal parent As Nullable(Of TJSONRECORD)) As String()
-      Dim res As String()
+    Public Function GetAllChilds(ByVal parent As Nullable(Of TJSONRECORD)) As List(Of String)
+      Dim res As List(Of String) = New List(Of String)()
       Dim p As Nullable(Of TJSONRECORD) = parent
 
-      If p Is Nothing Then p = Data
+      If p Is Nothing Then p = data
 
       If (p.Value.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-        ReDim res(p.Value.membercount - 1)
         For i = 0 To p.Value.membercount - 1
-          res(i) = Me.convertToString(p.Value.members(i), False)
+          res.Add(Me.convertToString(p.Value.members(i), False))
         Next i
       ElseIf (p.Value.recordtype = TJSONRECORDTYPE.JSON_ARRAY) Then
-        ReDim res(p.Value.itemcount - 1)
         For i = 0 To p.Value.itemcount - 1
-          res(i) = Me.convertToString(p.Value.items(i), False)
+          res.Add(Me.convertToString(p.Value.items(i), False))
         Next i
-      Else
-        ReDim res(-1)
       End If
-
       Return res
     End Function
   End Class
 
-  Public Const YOCTO_API_VERSION_STR = "1.01"
-  Public Const YOCTO_API_VERSION_BCD = &H101
-  Public Const YOCTO_API_BUILD_NO = "12553"
+  Public Const YOCTO_API_VERSION_STR = "1.10"
+  Public Const YOCTO_API_VERSION_BCD = &H110
+  Public Const YOCTO_API_BUILD_NO = "14801"
 
   Public Const YOCTO_DEFAULT_PORT = 4444
   Public Const YOCTO_VENDORID = &H24E0
@@ -629,8 +622,8 @@ Module yocto_api
     Public Const INVALID_STRING As String = "!INVALID!"
     Public Const INVALID_DOUBLE As Double = -1.7976931348623157E+308
     Public Const INVALID_INT As Integer = -2147483648
+    Public Const INVALID_UINT As Integer = -1
     Public Const INVALID_LONG As Long = -9223372036854775807
-    Public Const INVALID_UNSIGNED As Integer = -1
     Public Const HARDWAREID_INVALID As String = INVALID_STRING
     Public Const FUNCTIONID_INVALID As String = INVALID_STRING
     Public Const FRIENDLYNAME_INVALID As String = INVALID_STRING
@@ -641,7 +634,7 @@ Module yocto_api
     Public Const DETECT_NET As Integer = 2
     Public Const DETECT_ALL As Integer = DETECT_USB Or DETECT_NET
 
-    REM --- (generated code: return codes)
+    REM --- (generated code: YFunction return codes)
     REM Yoctopuce error codes, also used by default as function return value
     Public Const SUCCESS = 0                    REM everything worked allright
     Public Const NOT_INITIALIZED = -1           REM call yInitAPI() first !
@@ -658,7 +651,7 @@ Module yocto_api
     Public Const UNAUTHORIZED = -12             REM unauthorized access to password-protected device
     Public Const RTC_NOT_READY = -13            REM real-time clock has not been initialized (or time was lost)
 
-  REM --- (end of generated code: return codes)
+    REM --- (end of generated code: YFunction return codes)
 
     REM calibration handlers
     Private Shared _CalibHandlers As New Dictionary(Of String, yCalibrationHandler)
@@ -748,117 +741,46 @@ Module yocto_api
 
 
 
-    Public Shared Function _encodeCalibrationPoints(ByVal rawValues() As Double, ByVal refValues() As Double, ByVal resolution As Double, ByVal calibrationOffset As Long, ByVal actualCparams As String) As String
-      Dim i As Integer
-      Dim npt As Integer
-      If (rawValues.Length < refValues.Length) Then
-        npt = rawValues.Length
-      Else
-        npt = refValues.Length
-      End If
-      Dim rawVal As Integer
-      Dim refVal As Integer
-      Dim calibtype As Integer
-      Dim minRaw As Integer = 0
-      Dim res As String
-      If npt = 0 Then
-        Return ""
-      End If
-      If actualCparams = "" Then
-        calibtype = 10 + npt
-      Else
-        Dim pos As Integer = actualCparams.IndexOf(","c)
-        calibtype = Convert.ToInt32(actualCparams.Substring(0, pos))
-        If (calibtype <= 10) Then
-          calibtype = npt
-        Else
-          calibtype = 10 + npt
-        End If
-      End If
-
-      res = calibtype.ToString()
-      If (calibtype <= 10) Then
-        For i = 0 To npt - 1 Step 1
-          rawVal = CInt(Math.Round(rawValues(i) / resolution - calibrationOffset))
-          If (rawVal >= minRaw And rawVal < 65536) Then
-            refVal = CInt(Math.Round(refValues(i) / resolution - calibrationOffset))
-            If (refVal >= 0 And refVal < 65536) Then
-              res += "," + rawVal.ToString() + "," + refVal.ToString()
-              minRaw = rawVal + 1
-            End If
+    Public Shared Function _decodeWords(ByVal sdat As String) As List(Of Integer)
+      Dim udat As New List(Of Integer)()
+      For p As Integer = 0 To sdat.Length - 1 Step 0
+        Dim val As UInteger
+        Dim c As UInteger
+        c = CUInt(Asc(sdat.Substring(p, 1)))
+        p += 1
+        If c = 42 Then REM 42 == '*'
+          val = 0
+        ElseIf c = 88 Then REM 88 == 'X'
+          val = &HFFFF
+        ElseIf c = 89 Then REM 89 == 'Y'
+          val = &H7FFF
+        ElseIf (c >= 97) Then REM 97 ='a'
+          Dim srcpos As Integer = CInt((udat.Count - 1 - (c - 97)))
+          If (srcpos < 0) Then
+            val = 0
+          Else
+            val = CUInt(udat.ElementAt(srcpos))
           End If
-        Next
-      Else
-        REM 16-bit floating-point decimal encoding
-        For i = 0 To npt - 1 Step 1
-          rawVal = CInt(_doubleToDecimal(rawValues(i)))
-          refVal = CInt(_doubleToDecimal(refValues(i)))
-          res += "," + rawVal.ToString() + "," + refVal.ToString()
-        Next
-      End If
-      Return res
-    End Function
-
-
-
-    Public Shared Function _decodeCalibrationPoints(ByVal calibParams As String, ByRef intPt() As Integer, ByRef rawPt() As Double, ByRef calPt() As Double, ByRef resolution As Double, ByVal calibrationOffset As Long) As Integer
-      Dim valuesStr() As String
-      valuesStr = calibParams.Split(","c)
-      If valuesStr.Length <= 1 Then
-        Return 0
-      End If
-      Dim calibType As Integer = Convert.ToInt32(valuesStr(0))
-      Dim nval As Integer = 99
-      If (calibType < 20) Then
-        nval = 2 * (calibType Mod 10)
-      End If
-      Array.Resize(intPt, nval)
-      Array.Resize(rawPt, CInt(nval / 2))
-      Array.Resize(calPt, CInt(nval / 2))
-      Dim i As Integer = 1
-      While (i < nval And i < valuesStr.Length)
-        Dim rawval As Integer = Convert.ToInt32(valuesStr(i))
-        Dim calval As Integer = Convert.ToInt32(valuesStr(i + 1))
-        Dim rawval_d As Double
-        Dim calval_d As Double
-        If (calibType <= 10) Then
-          rawval_d = (rawval + calibrationOffset) * resolution
-          calval_d = (calval + calibrationOffset) * resolution
         Else
-          rawval_d = _decimalToDouble(rawval)
-          calval_d = _decimalToDouble(calval)
+          If (p + 2 > sdat.Length) Then
+            Return udat
+          End If
+          val = CUInt(c - 48) REM 48='0'
+          c = CUInt(Asc(sdat.Substring(p, 1)))
+          p += 1
+          val += CUInt(c - 48) << 5
+          c = CUInt(Asc(sdat.Substring(p, 1)))
+          p += 1
+          If (c = 122) Then REM 122 ='z'
+            c = 92 REM 92 ='\'
+          End If
+          val += CUInt(c - 48) << 10
         End If
-        intPt(i - 1) = rawval
-        intPt(i) = calval
-        rawPt((i - 1) >> 1) = rawval_d
-        calPt((i - 1) >> 1) = calval_d
-        i = i + 2
-      End While
-      Return calibType
+        udat.Add(CInt(val))
+      Next p
+      Return udat
     End Function
 
-
-    Public Shared Function _applyCalibration(ByVal rawValue As Double, ByVal calibParams As String, ByVal calibOffset As Long, ByVal resolution As Double) As Double
-      If ((rawValue = YAPI.INVALID_DOUBLE) Or (resolution = YAPI.INVALID_DOUBLE)) Then
-        Return YAPI.INVALID_DOUBLE
-      End If
-      If (calibParams.IndexOf(","c) <= 0) Then
-        Return YAPI.INVALID_DOUBLE
-      End If
-      Dim cur_calpar() As Integer = Nothing
-      Dim cur_calraw() As Double = Nothing
-      Dim cur_calref() As Double = Nothing
-      Dim calibType As Integer = YAPI._decodeCalibrationPoints(calibParams, cur_calpar, cur_calraw, cur_calref, resolution, calibOffset)
-      If (calibType = 0) Then
-        Return rawValue
-      End If
-      Dim calhdl As yCalibrationHandler
-      calhdl = YAPI._getCalibrationHandler(calibType)
-      If (calhdl = Nothing) Then
-        Return YAPI.INVALID_DOUBLE
-      End If
-      Return calhdl(rawValue, calibType, cur_calpar, cur_calraw, cur_calref)
-    End Function
 
     Public Shared Sub RegisterCalibrationHandler(ByVal calibType As Integer, ByVal callback As yCalibrationHandler)
 
@@ -867,7 +789,7 @@ Module yocto_api
       _CalibHandlers.Add(key, callback)
     End Sub
 
-    Private Shared Function yLinearCalibrationHandler(ByVal rawValue As Double, ByVal calibType As Integer, ByVal parameters() As Integer, ByVal rawValues() As Double, ByVal refValues() As Double) As Double
+    Private Shared Function yLinearCalibrationHandler(ByVal rawValue As Double, ByVal calibType As Integer, ByVal parameters As List(Of Integer), ByVal rawValues As List(Of Double), ByVal refValues As List(Of Double)) As Double
 
       Dim npt, i As Integer
       Dim x, adj As Double
@@ -879,8 +801,8 @@ Module yocto_api
       adj = refValues(0) - x
       i = 0
 
-      If (npt > rawValues.Length) Then npt = rawValues.Length
-      If (npt > refValues.Length) Then npt = refValues.Length + 1
+      If (npt > rawValues.Count) Then npt = rawValues.Count
+      If (npt > refValues.Count) Then npt = refValues.Count + 1
       While ((rawValue > rawValues(i)) And (i + 1 < npt))
         i = i + 1
         x2 = x
@@ -992,10 +914,9 @@ Module yocto_api
       _yapiRegisterDeviceRemovalCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceRemovalDelegate))
       _yapiRegisterDeviceChangeCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceChangeDelegate))
       _yapiRegisterFunctionUpdateCallback(Marshal.GetFunctionPointerForDelegate(native_yFunctionUpdateDelegate))
-
+      _yapiRegisterTimedReportCallback(Marshal.GetFunctionPointerForDelegate(native_yTimedReportDelegate))
       _yapiRegisterLogFunction(Marshal.GetFunctionPointerForDelegate(native_yLogFunctionDelegate))
-
-
+      _yapiRegisterHubDiscoveryCallback(Marshal.GetFunctionPointerForDelegate(native_HubDiscoveryDelegate))
       For i = 1 To 20
         RegisterCalibrationHandler(i, AddressOf yLinearCalibrationHandler)
       Next i
@@ -1027,12 +948,28 @@ Module yocto_api
     ''' <summary>
     '''   Setup the Yoctopuce library to use modules connected on a given machine.
     ''' <para>
-    '''   When using Yoctopuce modules through the VirtualHub gateway,
-    '''   you should provide as parameter the address of the machine on which the
-    '''   VirtualHub software is running (typically <c>"http://127.0.0.1:4444"</c>,
-    '''   which represents the local machine).
-    '''   When you use a language which has direct access to the USB hardware,
-    '''   you can use the pseudo-URL <c>"usb"</c> instead.
+    '''   The
+    '''   parameter will determine how the API will work. Use the following values:
+    ''' </para>
+    ''' <para>
+    '''   <b>usb</b>: When the <c>usb</c> keyword is used, the API will work with
+    '''   devices connected directly to the USB bus. Some programming languages such a Javascript,
+    '''   PHP, and Java don't provide direct access to USB hardware, so <c>usb</c> will
+    '''   not work with these. In this case, use a VirtualHub or a networked YoctoHub (see below).
+    ''' </para>
+    ''' <para>
+    '''   <b><i>x.x.x.x</i></b> or <b><i>hostname</i></b>: The API will use the devices connected to the
+    '''   host with the given IP address or hostname. That host can be a regular computer
+    '''   running a VirtualHub, or a networked YoctoHub such as YoctoHub-Ethernet or
+    '''   YoctoHub-Wireless. If you want to use the VirtualHub running on you local
+    '''   computer, use the IP address 127.0.0.1.
+    ''' </para>
+    ''' <para>
+    '''   <b>callback</b>: that keyword make the API run in "<i>HTTP Callback</i>" mode.
+    '''   This a special mode allowing to take control of Yoctopuce devices
+    '''   through a NAT filter when using a VirtualHub or a networked YoctoHub. You only
+    '''   need to configure your hub to call your server script on a regular basis.
+    '''   This mode is currently available for PHP and Node.JS only.
     ''' </para>
     ''' <para>
     '''   Be aware that only one application can use direct USB access at a
@@ -1044,17 +981,20 @@ Module yocto_api
     '''   rather than direct USB access.
     ''' </para>
     ''' <para>
-    '''   If acces control has been activated on the VirtualHub you want to
+    '''   If access control has been activated on the hub, virtual or not, you want to
     '''   reach, the URL parameter should look like:
     ''' </para>
     ''' <para>
     '''   <c>http://username:password@adresse:port</c>
     ''' </para>
     ''' <para>
+    '''   You can call <i>RegisterHub</i> several times to connect to several machines.
+    ''' </para>
+    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="url">
-    '''   a string containing either <c>"usb"</c> or the
+    '''   a string containing either <c>"usb"</c>,<c>"callback"</c> or the
     '''   root URL of the hub to monitor
     ''' </param>
     ''' <param name="errmsg">
@@ -1081,11 +1021,34 @@ Module yocto_api
         errmsg = buffer.ToString()
       End If
       Return res
-
     End Function
 
     '''*
-    ''' 
+    ''' <summary>
+    '''   Fault-tolerant alternative to RegisterHub().
+    ''' <para>
+    '''   This function has the same
+    '''   purpose and same arguments as <c>RegisterHub()</c>, but does not trigger
+    '''   an error when the selected hub is not available at the time of the function call.
+    '''   This makes it possible to register a network hub independently of the current
+    '''   connectivity, and to try to contact it only when a device is actively needed.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="url">
+    '''   a string containing either <c>"usb"</c>,<c>"callback"</c> or the
+    '''   root URL of the hub to monitor
+    ''' </param>
+    ''' <param name="errmsg">
+    '''   a string passed by reference to receive any error message.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Shared Function PreregisterHub(ByVal url As String, ByRef errmsg As String) As Integer
       Dim buffer As New StringBuilder(YOCTO_ERRMSG_LEN)
@@ -1101,7 +1064,6 @@ Module yocto_api
         errmsg = buffer.ToString()
       End If
       Return res
-
     End Function
 
     '''*
@@ -1149,15 +1111,12 @@ Module yocto_api
     Public Shared Function UpdateDeviceList(ByRef errmsg As String) As YRETCODE
       Dim errbuffer As New StringBuilder(YOCTO_ERRMSG_LEN)
       Dim res As YRETCODE
-      Dim p As yapiEvent
-
+      Dim p As PlugEvent
 
       If Not (apiInitialized) Then
         res = InitAPI(0, errmsg)
         If (YISERR(res)) Then Return res
       End If
-
-
       errbuffer.Length = 0
       res = _yapiUpdateDeviceList(0, errbuffer)
       If (YISERR(res)) Then
@@ -1170,25 +1129,13 @@ Module yocto_api
         errmsg = errbuffer.ToString()
         Return res
       End If
-
       While (_PlugEvents.Count > 0)
         yapiLockDeviceCallBack(errmsg)
         p = _PlugEvents(0)
         _PlugEvents.RemoveAt(0)
         yapiUnlockDeviceCallBack(errmsg)
-        Select Case p.eventtype
-          Case yapiEventType.YAPI_DEV_ARRIVAL
-            If yArrival <> Nothing Then yArrival(p.modul)
-
-          Case yapiEventType.YAPI_DEV_REMOVAL
-            If yRemoval <> Nothing Then yRemoval(p.modul)
-
-          Case yapiEventType.YAPI_DEV_CHANGE
-            If (yChange <> Nothing) Then yChange(p.modul)
-        End Select
-
+        p.invoke()
       End While
-
       Return YAPI_SUCCESS
     End Function
 
@@ -1221,12 +1168,8 @@ Module yocto_api
 
       Dim errBuffer As New StringBuilder(YOCTO_ERRMSG_LEN)
       Dim res As YRETCODE
-      Dim p As yapiEvent
-      REM Dim serial, funcId, funcName, discard As String
-      REM Dim devdescr As YDEV_DESCR
-      REM Dim modul As YModule
-      Dim i As Integer
-
+      Dim ev As DataEvent
+  
       errBuffer.Length = 0
       res = _yapiHandleEvents(errBuffer)
 
@@ -1242,16 +1185,10 @@ Module yocto_api
           yapiUnlockFunctionCallBack(errmsg)
 
         Else
-          p = _DataEvents(0)
+          ev = _DataEvents(0)
           _DataEvents.RemoveAt(0)
           yapiUnlockFunctionCallBack(errmsg)
-          If (p.eventtype = yapiEventType.YAPI_FUN_VALUE) Then
-            For i = 0 To YFunction._FunctionCallbacks.Count - 1
-              If (YFunction._FunctionCallbacks(i).get_functionDescriptor() = p.fun_descr) Then
-                YFunction._FunctionCallbacks(i).advertiseValue(p.value)
-              End If
-            Next i
-          End If
+          ev.invoke()
         End If
 
       End While
@@ -1263,7 +1200,7 @@ Module yocto_api
     '''   Pauses the execution flow for a specified duration.
     ''' <para>
     '''   This function implements a passive waiting loop, meaning that it does not
-    '''   consume CPU cycles significatively. The processor is left available for
+    '''   consume CPU cycles significantly. The processor is left available for
     '''   other threads and processes. During the pause, the library nevertheless
     '''   reads from time to time information from the Yoctopuce modules by
     '''   calling <c>yHandleEvents()</c>, in order to stay up-to-date.
@@ -1320,10 +1257,39 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Force a hub discovery, if a callback as been registered with <c>yRegisterDeviceRemovalCallback</c> it
+    '''   will be called for each net work hub that will respond to the discovery
+    ''' </summary>
+    ''' <param name="errmsg">
+    '''   a string passed by reference to receive any error message.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Shared Function TriggerHubDiscovery(ByRef errmsg As String) As Integer
+      Dim buffer As New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim res As YRETCODE
+
+      res = InitAPI(0, errmsg)
+      If YISERR(res) Then
+        Return res
+      End If
+      buffer.Length = 0
+      res = _yapiTriggerHubDiscovery(buffer)
+      If (YISERR(res)) Then
+        errmsg = buffer.ToString()
+      End If
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Returns the current value of a monotone millisecond-based time counter.
     ''' <para>
     '''   This counter can be used to compute delays in relation with
-    '''   Yoctopuce devices, which also uses the milisecond as timebase.
+    '''   Yoctopuce devices, which also uses the millisecond as timebase.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -1365,7 +1331,7 @@ Module yocto_api
     '''   Registers a log callback function.
     ''' <para>
     '''   This callback will be called each time
-    '''   the API have something to say. Quite usefull to debug the API.
+    '''   the API have something to say. Quite useful to debug the API.
     ''' </para>
     ''' </summary>
     ''' <param name="logfun">
@@ -1411,7 +1377,7 @@ Module yocto_api
     '''*
     ''' <summary>
     '''   Register a callback function, to be called each time
-    '''   a device is pluged.
+    '''   a device is plugged.
     ''' <para>
     '''   This callback will be invoked while <c>yUpdateDeviceList</c>
     '''   is running. You will have to call this function on a regular basis.
@@ -1425,7 +1391,7 @@ Module yocto_api
     Public Shared Sub RegisterDeviceArrivalCallback(ByVal arrivalCallback As yDeviceUpdateFunc)
       yArrival = arrivalCallback
       If (arrivalCallback <> Nothing) Then
-        Dim m As YModule = yFirstModule()
+        Dim m As YModule = YModule.FirstModule()
         Dim errmsg As String = ""
         While m IsNot Nothing
           If (m.isOnline()) Then
@@ -1441,7 +1407,7 @@ Module yocto_api
     '''*
     ''' <summary>
     '''   Register a callback function, to be called each time
-    '''   a device is unpluged.
+    '''   a device is unplugged.
     ''' <para>
     '''   This callback will be invoked while <c>yUpdateDeviceList</c>
     '''   is running. You will have to call this function on a regular basis.
@@ -1461,7 +1427,31 @@ Module yocto_api
       End If
     End Sub
 
-    Public Shared Sub yRegisterDeviceChangeCallback(ByVal callback As yDeviceUpdateFunc)
+    '''*
+    ''' <summary>
+    '''   Register a callback function, to be called each time an Network Hub send
+    '''   an SSDP message.
+    ''' <para>
+    '''   The callback has two string parameter, the first one
+    '''   contain the serial number of the hub and the second contain the URL of the
+    '''   network hub (this URL can be passed to RegisterHub). This callback will be invoked
+    '''   while yUpdateDeviceList is running. You will have to call this function on a regular basis.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="hubDiscoveryCallback">
+    '''   a procedure taking two string parameter, or null
+    '''   to unregister a previously registered  callback.
+    ''' </param>
+    '''/
+    Public Shared Sub RegisterHubDiscoveryCallback(ByVal hubDiscoveryCallback As YHubDiscoveryCallback)
+      Dim errmsg As String = ""
+      _HubDiscoveryCallback = hubDiscoveryCallback
+      YAPI.TriggerHubDiscovery(errmsg)
+    End Sub
+
+    Public Shared Sub RegisterDeviceChangeCallback(ByVal callback As yDeviceUpdateFunc)
       yChange = callback
       If yChange IsNot Nothing Then
         _yapiRegisterDeviceChangeCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceChangeDelegate))
@@ -1534,13 +1524,9 @@ Module yocto_api
 
 
 
+  REM --- (generated code: YFunction globals)
 
-  REM --- (generated code: YModule definitions)
-
-  Public Delegate Sub UpdateCallback(ByVal func As YModule, ByVal value As String)
-
-
- REM Yoctopuce error codes, also used by default as function return value
+  REM Yoctopuce error codes, also used by default as function return value
   Public Const YAPI_SUCCESS = 0                    REM everything worked allright
   Public Const YAPI_NOT_INITIALIZED = -1           REM call yInitAPI() first !
   Public Const YAPI_INVALID_ARGUMENT = -2          REM one of the arguments passed to the function is invalid
@@ -1556,34 +1542,66 @@ Module yocto_api
   Public Const YAPI_UNAUTHORIZED = -12             REM unauthorized access to password-protected device
   Public Const YAPI_RTC_NOT_READY = -13            REM real-time clock has not been initialized (or time was lost)
 
+  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
+  Public Delegate Sub YFunctionValueCallback(ByVal func As YFunction, ByVal value As String)
+  Public Delegate Sub YFunctionTimedReportCallback(ByVal func As YFunction, ByVal measure As YMeasure)
+  REM --- (end of generated code: YFunction globals)
+
+  REM --- (generated code: YModule globals)
+
   Public Const Y_PRODUCTNAME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SERIALNUMBER_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_PRODUCTID_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_PRODUCTRELEASE_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_PRODUCTID_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_PRODUCTRELEASE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_FIRMWARERELEASE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PERSISTENTSETTINGS_LOADED = 0
   Public Const Y_PERSISTENTSETTINGS_SAVED = 1
   Public Const Y_PERSISTENTSETTINGS_MODIFIED = 2
   Public Const Y_PERSISTENTSETTINGS_INVALID = -1
 
-  Public Const Y_LUMINOSITY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BEACON_OFF = 0
   Public Const Y_BEACON_ON = 1
   Public Const Y_BEACON_INVALID = -1
 
   Public Const Y_UPTIME_INVALID As Long = YAPI.INVALID_LONG
-  Public Const Y_USBCURRENT_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_USBCURRENT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_REBOOTCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_USBBANDWIDTH_SIMPLE = 0
   Public Const Y_USBBANDWIDTH_DOUBLE = 1
   Public Const Y_USBBANDWIDTH_INVALID = -1
 
+  Public Delegate Sub YModuleValueCallback(ByVal func As YModule, ByVal value As String)
+  Public Delegate Sub YModuleTimedReportCallback(ByVal func As YModule, ByVal measure As YMeasure)
+  REM --- (end of generated code: YModule globals)
 
+  REM --- (generated code: YSensor globals)
 
-  REM --- (end of generated code: YModule definitions)
+  Public Const Y_UNIT_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_CURRENTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_LOWESTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_HIGHESTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_CURRENTRAWVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_LOGFREQUENCY_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_REPORTFREQUENCY_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Delegate Sub YSensorValueCallback(ByVal func As YSensor, ByVal value As String)
+  Public Delegate Sub YSensorTimedReportCallback(ByVal func As YSensor, ByVal measure As YMeasure)
+  REM --- (end of generated code: YSensor globals)
 
+  REM --- (generated code: YDataStream globals)
 
+  REM --- (end of generated code: YDataStream globals)
+
+  REM --- (generated code: YMeasure globals)
+
+  REM --- (end of generated code: YMeasure globals)
+
+  REM --- (generated code: YDataSet globals)
+
+  REM --- (end of generated code: YDataSet globals)
 
   Public Class YAPI_Exception
     Inherits ApplicationException
@@ -1603,7 +1621,8 @@ Module yocto_api
   Public Delegate Sub yLogFunc(ByVal log As String)
   Public Delegate Sub yDeviceUpdateFunc(ByVal modul As YModule)
   Public Delegate Sub yFunctionUpdateFunc(ByVal modul As YModule, ByVal functionId As String, ByVal functionName As String, ByVal functionValue As String)
-  Public Delegate Function yCalibrationHandler(ByVal rawValue As Double, ByVal calibType As Integer, ByVal parameters() As Integer, ByVal rawValues() As Double, ByVal refValues() As Double) As Double
+  Public Delegate Function yCalibrationHandler(ByVal rawValue As Double, ByVal calibType As Integer, ByVal parameters As List(Of Integer), ByVal rawValues As List(Of Double), ByVal refValues As List(Of Double)) As Double
+  Public Delegate Sub YHubDiscoveryCallback(ByVal serial As String, ByVal url As String)
 
 
   REM - Types used for internal yapi callbacks
@@ -1616,11 +1635,18 @@ Module yocto_api
   <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
   Public Delegate Sub _yapiFunctionUpdateFunc(ByVal dev As YFUN_DESCR, ByVal value As IntPtr)
 
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  Public Delegate Sub _yapiTimedReportFunc(ByVal dev As YFUN_DESCR, ByVal timestamp As Double, ByVal data As IntPtr, ByVal len As System.UInt32)
+
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  Public Delegate Sub _yapiHubDiscoveryCallback(ByVal serial As IntPtr, ByVal url As IntPtr)
+
   REM - Variables used to store public yocto_api callbacks
-  Dim ylog As yLogFunc = Nothing
-  Dim yArrival As yDeviceUpdateFunc = Nothing
-  Dim yRemoval As yDeviceUpdateFunc = Nothing
-  Dim yChange As yDeviceUpdateFunc = Nothing
+  Private ylog As yLogFunc = Nothing
+  Private yArrival As yDeviceUpdateFunc = Nothing
+  Private yRemoval As yDeviceUpdateFunc = Nothing
+  Private yChange As yDeviceUpdateFunc = Nothing
+  Private _HubDiscoveryCallback As YHubDiscoveryCallback = Nothing
 
   Public Function YISERR(ByVal retcode As YRETCODE) As Boolean
     If retcode < 0 Then YISERR = True Else YISERR = False
@@ -1637,6 +1663,1392 @@ Module yocto_api
     context.response = result
     context.errmsg = errmsg
   End Sub
+
+
+
+  REM --- (generated code: YDataStream class start)
+
+  '''*
+  ''' <summary>
+  '''   YDataStream objects represent bare recorded measure sequences,
+  '''   exactly as found within the data logger present on Yoctopuce
+  '''   sensors.
+  ''' <para>
+  ''' </para>
+  ''' <para>
+  '''   In most cases, it is not necessary to use YDataStream objects
+  '''   directly, as the YDataSet objects (returned by the
+  '''   <c>get_recordedData()</c> method from sensors and the
+  '''   <c>get_dataSets()</c> method from the data logger) provide
+  '''   a more convenient interface.
+  ''' </para>
+  ''' </summary>
+  '''/
+  Public Class YDataStream
+    REM --- (end of generated code: YDataStream class start)
+    REM --- (generated code: YDataStream definitions)
+    REM --- (end of generated code: YDataStream definitions)
+    Public Const DATA_INVALID As Double = YAPI.INVALID_DOUBLE
+
+    REM --- (generated code: YDataStream attributes declaration)
+    Protected _parent As YFunction
+    Protected _runNo As Integer
+    Protected _utcStamp As Long
+    Protected _nCols As Integer
+    Protected _nRows As Integer
+    Protected _duration As Integer
+    Protected _columnNames As List(Of String)
+    Protected _functionId As String
+    Protected _isClosed As Boolean
+    Protected _isAvg As Boolean
+    Protected _isScal As Boolean
+    Protected _decimals As Integer
+    Protected _offset As Double
+    Protected _scale As Double
+    Protected _samplesPerHour As Integer
+    Protected _minVal As Double
+    Protected _avgVal As Double
+    Protected _maxVal As Double
+    Protected _decexp As Double
+    Protected _caltyp As Integer
+    Protected _calpar As List(Of Integer)
+    Protected _calraw As List(Of Double)
+    Protected _calref As List(Of Double)
+    Protected _values As List(Of List(Of Double))
+    REM --- (end of generated code: YDataStream attributes declaration)    
+    Protected _calhdl As yCalibrationHandler
+
+    Public Sub New(parent As YFunction)
+      _parent = parent
+      REM --- (generated code: YDataStream attributes initialization)
+      _runNo = 0
+      _utcStamp = 0
+      _nCols = 0
+      _nRows = 0
+      _duration = 0
+      _columnNames = New List(Of String)()
+      _decimals = 0
+      _offset = 0
+      _scale = 0
+      _samplesPerHour = 0
+      _minVal = 0
+      _avgVal = 0
+      _maxVal = 0
+      _decexp = 0
+      _caltyp = 0
+      _calpar = New List(Of Integer)()
+      _calraw = New List(Of Double)()
+      _calref = New List(Of Double)()
+      _values = New List(Of List(Of Double))()
+      REM --- (end of generated code: YDataStream attributes initialization)
+
+    End Sub
+
+    Public Sub New(parent As YFunction, dataset As YDataSet, encoded As List(Of Integer))
+      _parent = parent
+      REM --- (generated code: YDataStream attributes initialization)
+      _runNo = 0
+      _utcStamp = 0
+      _nCols = 0
+      _nRows = 0
+      _duration = 0
+      _columnNames = New List(Of String)()
+      _decimals = 0
+      _offset = 0
+      _scale = 0
+      _samplesPerHour = 0
+      _minVal = 0
+      _avgVal = 0
+      _maxVal = 0
+      _decexp = 0
+      _caltyp = 0
+      _calpar = New List(Of Integer)()
+      _calraw = New List(Of Double)()
+      _calref = New List(Of Double)()
+      _values = New List(Of List(Of Double))()
+      REM --- (end of generated code: YDataStream attributes initialization)
+      REM decode sequence header to extract data
+      _runNo = encoded.ElementAt(0) + (encoded.ElementAt(1) << 16)
+      _utcStamp = CUInt(encoded.ElementAt(2) + CUInt(encoded.ElementAt(3) << 16))
+      _isAvg = (encoded.ElementAt(4) And &H100) = 0
+      _samplesPerHour = encoded.ElementAt(4) And &HFF
+      If ((encoded.ElementAt(4) And &H100) <> 0) Then
+        _samplesPerHour *= 3600
+      ElseIf ((encoded.ElementAt(4) And &H200) <> 0) Then
+        _samplesPerHour *= 60
+      End If
+      _decimals = encoded.ElementAt(5)
+      _offset = encoded.ElementAt(5)
+      _scale = encoded.ElementAt(6)
+      _isScal = (_scale <> 0)
+      _isClosed = (encoded.ElementAt(7) <> &HFFFF)
+      If (_isClosed) Then
+        _nRows = encoded.ElementAt(7)
+      Else
+        _nRows = 0
+      End If
+      _duration = CInt((_nRows * 3600 + (_samplesPerHour / 2)) / _samplesPerHour)
+
+      REM precompute decoding parameters
+      _decexp = 1.0
+      For i As Integer = 0 To _decimals - 1 Step 1
+        _decexp *= 10.0
+      Next i
+      _columnNames = New List(Of String)()
+      _calpar = New List(Of Integer)()
+      _calraw = New List(Of Double)()
+      _calref = New List(Of Double)()
+      _values = New List(Of List(Of Double))()
+      Dim calib As List(Of Integer) = dataset.get_calibration()
+      _caltyp = calib.ElementAt(0)
+      If (_caltyp > 0) Then
+        _calhdl = YAPI._getCalibrationHandler(_caltyp)
+        For i As Integer = 1 To calib.Count - 1 Step 1
+          Dim ival As Integer = calib.ElementAt(i)
+          Dim fval As Double
+          If (_caltyp <= 10) Then
+            fval = (ival - _offset) / _scale
+          Else
+            fval = YAPI._decimalToDouble(ival)
+          End If
+          _calpar.Add(ival)
+          If ((i And 1) <> 0) Then
+            _calraw.Add(fval)
+          Else
+            _calref.Add(fval)
+          End If
+        Next i
+      End If
+
+      REM preload column names for backward-compatibility
+      _functionId = dataset.get_functionId()
+      If (_isAvg) Then
+        _columnNames.Add(_functionId + "_min")
+        _columnNames.Add(_functionId + "_avg")
+        _columnNames.Add(_functionId + "_max")
+        _nCols = 3
+      Else
+        _columnNames.Add(_functionId)
+        _nCols = 1
+      End If
+
+      REM decode min/avg/max values for the sequence
+      If (_nRows > 0) Then
+        _minVal = _decodeVal(encoded.ElementAt(8))
+        _maxVal = _decodeVal(encoded.ElementAt(9))
+        _avgVal = _decodeAvg(encoded.ElementAt(10) + (encoded.ElementAt(11) << 16), _nRows)
+      End If
+    End Sub
+
+    REM --- (generated code: YDataStream private methods declaration)
+
+    REM --- (end of generated code: YDataStream private methods declaration)
+
+    REM --- (generated code: YDataStream public methods declaration)
+    Public Overridable Function _initFromDataSet(dataset As YDataSet, encoded As List(Of Integer)) As Integer
+      Dim val As Integer = 0
+      Dim i As Integer = 0
+      Dim iRaw As Integer = 0
+      Dim iRef As Integer = 0
+      Dim fRaw As Double = 0
+      Dim fRef As Double = 0
+      Dim duration_float As Double = 0
+      Dim iCalib As List(Of Integer) = New List(Of Integer)()
+      
+      REM // decode sequence header to extract data
+      Me._runNo = encoded.ElementAt(0) + (((encoded.ElementAt(1)) << (16)))
+      Me._utcStamp = encoded.ElementAt(2) + (((encoded.ElementAt(3)) << (16)))
+      val = encoded.ElementAt(4)
+      Me._isAvg = (((val) And (&H100)) = 0)
+      Me._samplesPerHour = ((val) And (&Hff))
+      If (((val) And (&H100)) <> 0) Then
+        Me._samplesPerHour = Me._samplesPerHour * 3600
+      Else
+        If (((val) And (&H200)) <> 0) Then
+          Me._samplesPerHour = Me._samplesPerHour * 60
+        End If
+      End If
+      
+      val = encoded.ElementAt(5)
+      If (val > 32767) Then
+        val = val - 65536
+      End If
+      Me._decimals = val
+      Me._offset = val
+      Me._scale = encoded.ElementAt(6)
+      Me._isScal = (Me._scale <> 0)
+      
+      val = encoded.ElementAt(7)
+      Me._isClosed = (val <> &Hffff)
+      If (val = &Hffff) Then
+        val = 0
+      End If
+      Me._nRows = val
+      duration_float = Me._nRows * 3600 / Me._samplesPerHour
+      Me._duration = CType(Math.Round(duration_float), Integer)
+      REM // precompute decoding parameters
+      Me._decexp = 1.0
+      If (Me._scale = 0) Then
+        i = 0
+        While (i < Me._decimals)
+          Me._decexp = Me._decexp * 10.0
+          i = i + 1
+        End While
+      End If
+      iCalib = dataset.get_calibration()
+      Me._caltyp = iCalib.ElementAt(0)
+      If (Me._caltyp <> 0) Then
+        Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
+        Me._calpar.Clear()
+        Me._calraw.Clear()
+        Me._calref.Clear()
+        i = 1
+        While (i + 1 < iCalib.Count)
+          iRaw = iCalib.ElementAt(i)
+          iRef = iCalib.ElementAt(i + 1)
+          Me._calpar.Add(iRaw)
+          Me._calpar.Add(iRef)
+          If (Me._isScal) Then
+            fRaw = iRaw
+            fRaw = (fRaw - Me._offset) / Me._scale
+            fRef = iRef
+            fRef = (fRef - Me._offset) / Me._scale
+            Me._calraw.Add(fRaw)
+            Me._calref.Add(fRef)
+          Else
+            Me._calraw.Add(YAPI._decimalToDouble(iRaw))
+            Me._calref.Add(YAPI._decimalToDouble(iRef))
+          End If
+          i = i + 2
+        End While
+      End If
+      REM // preload column names for backward-compatibility
+      Me._functionId = dataset.get_functionId()
+      If (Me._isAvg) Then
+        Me._columnNames.Clear()
+        Me._columnNames.Add("" + Me._functionId + "_min")
+        Me._columnNames.Add("" + Me._functionId + "_avg")
+        Me._columnNames.Add("" + Me._functionId + "_max")
+        Me._nCols = 3
+      Else
+        Me._columnNames.Clear()
+        Me._columnNames.Add(Me._functionId)
+        Me._nCols = 1
+      End If
+      REM // decode min/avg/max values for the sequence
+      If (Me._nRows > 0) Then
+        Me._minVal = Me._decodeVal(encoded.ElementAt(8))
+        Me._maxVal = Me._decodeVal(encoded.ElementAt(9))
+        Me._avgVal = Me._decodeAvg(encoded.ElementAt(10) + (((encoded.ElementAt(11)) << (16))), Me._nRows)
+      End If
+      Return 0
+    End Function
+
+    Public Overridable Function parse(sdata As Byte()) As Integer
+      Dim idx As Integer = 0
+      Dim udat As List(Of Integer) = New List(Of Integer)()
+      Dim dat As List(Of Double) = New List(Of Double)()
+      REM // may throw an exception
+      udat = YAPI._decodeWords(Me._parent._json_get_string(sdata))
+      Me._values.Clear()
+      idx = 0
+      If (Me._isAvg) Then
+        While (idx + 3 < udat.Count)
+          dat.Clear()
+          dat.Add(Me._decodeVal(udat.ElementAt(idx)))
+          dat.Add(Me._decodeAvg(udat.ElementAt(idx + 2) + (((udat.ElementAt(idx + 3)) << (16))), 1))
+          dat.Add(Me._decodeVal(udat.ElementAt(idx + 1)))
+          Me._values.Add(New List(Of Double)(dat))
+          idx = idx + 4
+        End While
+      Else
+        If (Me._isScal) Then
+          While (idx < udat.Count)
+            dat.Clear()
+            dat.Add(Me._decodeVal(udat.ElementAt(idx)))
+            Me._values.Add(New List(Of Double)(dat))
+            idx = idx + 1
+          End While
+        Else
+          While (idx + 1 < udat.Count)
+            dat.Clear()
+            dat.Add(Me._decodeAvg(udat.ElementAt(idx) + (((udat.ElementAt(idx + 1)) << (16))), 1))
+            Me._values.Add(New List(Of Double)(dat))
+            idx = idx + 2
+          End While
+        End If
+      End If
+      
+      Me._nRows = Me._values.Count
+      Return YAPI.SUCCESS
+    End Function
+
+    Public Overridable Function get_url() As String
+      Dim url As String
+      url = "logger.json?id=" +
+      Me._functionId + "&run=" + Convert.ToString(Me._runNo) + "&utc=" + Convert.ToString(Me._utcStamp)
+      Return url
+    End Function
+
+    Public Overridable Function loadStream() As Integer
+      REM // may throw an exception
+      Return Me.parse(Me._parent._download(Me.get_url()))
+    End Function
+
+    Public Overridable Function _decodeVal(w As Integer) As Double
+      Dim val As Double = 0
+      val = w
+      If (Me._isScal) Then
+        val = (val - Me._offset) / Me._scale
+      Else
+        val = YAPI._decimalToDouble(w)
+      End If
+      If (Me._caltyp <> 0) Then
+        val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+      End If
+      Return val
+    End Function
+
+    Public Overridable Function _decodeAvg(dw As Integer, count As Integer) As Double
+      Dim val As Double = 0
+      val = dw
+      If (Me._isScal) Then
+        val = (val / (100 * count) - Me._offset) / Me._scale
+      Else
+        val = val / (count * Me._decexp)
+      End If
+      If (Me._caltyp <> 0) Then
+        val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+      End If
+      Return val
+    End Function
+
+    Public Overridable Function isClosed() As Boolean
+      Return Me._isClosed
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the run index of the data stream.
+    ''' <para>
+    '''   A run can be made of
+    '''   multiple datastreams, for different time intervals.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an unsigned number corresponding to the run index.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_runIndex() As Integer
+      Return Me._runNo
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the relative start time of the data stream, measured in seconds.
+    ''' <para>
+    '''   For recent firmwares, the value is relative to the present time,
+    '''   which means the value is always negative.
+    '''   If the device uses a firmware older than version 13000, value is
+    '''   relative to the start of the time the device was powered on, and
+    '''   is always positive.
+    '''   If you need an absolute UTC timestamp, use <c>get_startTimeUTC()</c>.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an unsigned number corresponding to the number of seconds
+    '''   between the start of the run and the beginning of this data
+    '''   stream.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_startTime() As Integer
+      Return CInt(Me._utcStamp - CInt((DateTime.UtcNow - New DateTime(1970, 1, 1)).TotalSeconds))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the start time of the data stream, relative to the Jan 1, 1970.
+    ''' <para>
+    '''   If the UTC time was not set in the datalogger at the time of the recording
+    '''   of this data stream, this method returns 0.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an unsigned number corresponding to the number of seconds
+    '''   between the Jan 1, 1970 and the beginning of this data
+    '''   stream (i.e. Unix time representation of the absolute time).
+    ''' </returns>
+    '''/
+    Public Overridable Function get_startTimeUTC() As Long
+      Return Me._utcStamp
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the number of milliseconds between two consecutive
+    '''   rows of this data stream.
+    ''' <para>
+    '''   By default, the data logger records one row
+    '''   per second, but the recording frequency can be changed for
+    '''   each device function
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an unsigned number corresponding to a number of milliseconds.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_dataSamplesIntervalMs() As Integer
+      Return (3600000 \ Me._samplesPerHour)
+    End Function
+
+    Public Overridable Function get_dataSamplesInterval() As Double
+      Return 3600.0 / Me._samplesPerHour
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the number of data rows present in this stream.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   If the device uses a firmware older than version 13000,
+    '''   this method fetches the whole data stream from the device
+    '''   if not yet done, which can cause a little delay.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an unsigned number corresponding to the number of rows.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns zero.
+    ''' </para>
+    '''/
+    Public Overridable Function get_rowCount() As Integer
+      If ((Me._nRows <> 0) And Me._isClosed) Then
+        Return Me._nRows
+      End If
+      Me.loadStream()
+      Return Me._nRows
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the number of data columns present in this stream.
+    ''' <para>
+    '''   The meaning of the values present in each column can be obtained
+    '''   using the method <c>get_columnNames()</c>.
+    ''' </para>
+    ''' <para>
+    '''   If the device uses a firmware older than version 13000,
+    '''   this method fetches the whole data stream from the device
+    '''   if not yet done, which can cause a little delay.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an unsigned number corresponding to the number of columns.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns zero.
+    ''' </para>
+    '''/
+    Public Overridable Function get_columnCount() As Integer
+      If (Me._nCols <> 0) Then
+        Return Me._nCols
+      End If
+      Me.loadStream()
+      Return Me._nCols
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the title (or meaning) of each data column present in this stream.
+    ''' <para>
+    '''   In most case, the title of the data column is the hardware identifier
+    '''   of the sensor that produced the data. For streams recorded at a lower
+    '''   recording rate, the dataLogger stores the min, average and max value
+    '''   during each measure interval into three columns with suffixes _min,
+    '''   _avg and _max respectively.
+    ''' </para>
+    ''' <para>
+    '''   If the device uses a firmware older than version 13000,
+    '''   this method fetches the whole data stream from the device
+    '''   if not yet done, which can cause a little delay.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a list containing as many strings as there are columns in the
+    '''   data stream.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function get_columnNames() As List(Of String)
+      If (Me._columnNames.Count <> 0) Then
+        Return Me._columnNames
+      End If
+      Me.loadStream()
+      Return Me._columnNames
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the smallest measure observed within this stream.
+    ''' <para>
+    '''   If the device uses a firmware older than version 13000,
+    '''   this method will always return Y_DATA_INVALID.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating-point number corresponding to the smallest value,
+    '''   or Y_DATA_INVALID if the stream is not yet complete (still recording).
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns Y_DATA_INVALID.
+    ''' </para>
+    '''/
+    Public Overridable Function get_minValue() As Double
+      Return Me._minVal
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the average of all measures observed within this stream.
+    ''' <para>
+    '''   If the device uses a firmware older than version 13000,
+    '''   this method will always return Y_DATA_INVALID.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating-point number corresponding to the average value,
+    '''   or Y_DATA_INVALID if the stream is not yet complete (still recording).
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns Y_DATA_INVALID.
+    ''' </para>
+    '''/
+    Public Overridable Function get_averageValue() As Double
+      Return Me._avgVal
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the largest measure observed within this stream.
+    ''' <para>
+    '''   If the device uses a firmware older than version 13000,
+    '''   this method will always return Y_DATA_INVALID.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating-point number corresponding to the largest value,
+    '''   or Y_DATA_INVALID if the stream is not yet complete (still recording).
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns Y_DATA_INVALID.
+    ''' </para>
+    '''/
+    Public Overridable Function get_maxValue() As Double
+      Return Me._maxVal
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the approximate duration of this stream, in seconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the number of seconds covered by this stream.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns Y_DURATION_INVALID.
+    ''' </para>
+    '''/
+    Public Overridable Function get_duration() As Integer
+      If (Me._isClosed) Then
+        Return Me._duration
+      End If
+      Return CInt(CInt((DateTime.UtcNow - New DateTime(1970, 1, 1)).TotalSeconds) - Me._utcStamp)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the whole data set contained in the stream, as a bidimensional
+    '''   table of numbers.
+    ''' <para>
+    '''   The meaning of the values present in each column can be obtained
+    '''   using the method <c>get_columnNames()</c>.
+    ''' </para>
+    ''' <para>
+    '''   This method fetches the whole data stream from the device,
+    '''   if not yet done.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a list containing as many elements as there are rows in the
+    '''   data stream. Each row itself is a list of floating-point
+    '''   numbers.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function get_dataRows() As List(Of List(Of Double))
+      If ((Me._values.Count = 0) Or Not (Me._isClosed)) Then
+        Me.loadStream()
+      End If
+      Return Me._values
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns a single measure from the data stream, specified by its
+    '''   row and column index.
+    ''' <para>
+    '''   The meaning of the values present in each column can be obtained
+    '''   using the method get_columnNames().
+    ''' </para>
+    ''' <para>
+    '''   This method fetches the whole data stream from the device,
+    '''   if not yet done.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="row">
+    '''   row index
+    ''' </param>
+    ''' <param name="col">
+    '''   column index
+    ''' </param>
+    ''' <returns>
+    '''   a floating-point number
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns Y_DATA_INVALID.
+    ''' </para>
+    '''/
+    Public Overridable Function get_data(row As Integer, col As Integer) As Double
+      If ((Me._values.Count = 0) Or Not (Me._isClosed)) Then
+        Me.loadStream()
+      End If
+      If (row >= Me._values.Count) Then
+        Return DATA_INVALID
+      End If
+      If (col >= Me._values.ElementAt(row).Count) Then
+        Return DATA_INVALID
+      End If
+      Return Me._values.ElementAt(row).ElementAt(col)
+    End Function
+
+
+
+    REM --- (end of generated code: YDataStream public methods declaration)
+
+
+  End Class
+
+  REM --- (generated code: DataStream functions)
+
+
+  REM --- (end of generated code: DataStream functions)
+
+
+
+  REM --- (generated code: YMeasure class start)
+
+  '''*
+  ''' <summary>
+  '''   YMeasure objects are used within the API to represent
+  '''   a value measured at a specified time.
+  ''' <para>
+  '''   These objects are
+  '''   used in particular in conjunction with the YDataSet class.
+  ''' </para>
+  ''' </summary>
+  '''/
+  Public Class YMeasure
+    REM --- (end of generated code: YMeasure class start)
+
+    REM --- (generated code: YMeasure definitions)
+    REM --- (end of generated code: YMeasure definitions)
+
+    REM --- (generated code: YMeasure attributes declaration)
+    Protected _start As Double
+    Protected _end As Double
+    Protected _minVal As Double
+    Protected _avgVal As Double
+    Protected _maxVal As Double
+    REM --- (end of generated code: YMeasure attributes declaration)
+    Protected _start_datetime As DateTime
+    Protected _end_datetime As DateTime
+
+    Sub New(start As Double, endt As Double, minVal As Double, avgVal As Double, maxVal As Double)
+      Dim epoch As New DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+      REM --- (generated code: YMeasure attributes initialization)
+      _start = 0
+      _end = 0
+      _minVal = 0
+      _avgVal = 0
+      _maxVal = 0
+      REM --- (end of generated code: YMeasure attributes initialization)
+      _start = start
+      _end = endt
+      _minVal = minVal
+      _avgVal = avgVal
+      _maxVal = maxVal
+      _start_datetime = epoch.AddSeconds(_start)
+      _end_datetime = epoch.AddSeconds(_end)
+
+    End Sub
+
+    REM --- (generated code: YMeasure private methods declaration)
+
+    REM --- (end of generated code: YMeasure private methods declaration)
+
+    REM --- (generated code: YMeasure public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the start time of the measure, relative to the Jan 1, 1970 UTC
+    '''   (Unix timestamp).
+    ''' <para>
+    '''   When the recording rate is higher then 1 sample
+    '''   per second, the timestamp may have a fractional part.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an floating point number corresponding to the number of seconds
+    '''   between the Jan 1, 1970 UTC and the beginning of this measure.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_startTimeUTC() As Double
+      Return Me._start
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the end time of the measure, relative to the Jan 1, 1970 UTC
+    '''   (Unix timestamp).
+    ''' <para>
+    '''   When the recording rate is higher then 1 sample
+    '''   per second, the timestamp may have a fractional part.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an floating point number corresponding to the number of seconds
+    '''   between the Jan 1, 1970 UTC and the end of this measure.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_endTimeUTC() As Double
+      Return Me._end
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the smallest value observed during the time interval
+    '''   covered by this measure.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating-point number corresponding to the smallest value observed.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_minValue() As Double
+      Return Me._minVal
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the average value observed during the time interval
+    '''   covered by this measure.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating-point number corresponding to the average value observed.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_averageValue() As Double
+      Return Me._avgVal
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the largest value observed during the time interval
+    '''   covered by this measure.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating-point number corresponding to the largest value observed.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_maxValue() As Double
+      Return Me._maxVal
+    End Function
+
+
+
+    REM --- (end of generated code: YMeasure public methods declaration)
+
+    Function get_startTimeUTC_asDateTime() As DateTime
+      Return _start_datetime
+    End Function
+
+    Function get_endTimeUTC_asDateTime() As DateTime
+      Return _end_datetime
+    End Function
+
+  End Class
+
+  REM --- (generated code: Measure functions)
+
+
+  REM --- (end of generated code: Measure functions)
+
+
+  REM --- (generated code: YDataSet class start)
+
+  '''*
+  ''' <summary>
+  '''   YDataSet objects make it possible to retrieve a set of recorded measures
+  '''   for a given sensor and a specified time interval.
+  ''' <para>
+  '''   They can be used
+  '''   to load data points with a progress report. When the YDataSet object is
+  '''   instanciated by the <c>get_recordedData()</c>  function, no data is
+  '''   yet loaded from the module. It is only when the <c>loadMore()</c>
+  '''   method is called over and over than data will be effectively loaded
+  '''   from the dataLogger.
+  ''' </para>
+  ''' <para>
+  '''   A preview of available measures is available using the function
+  '''   <c>get_preview()</c> as soon as <c>loadMore()</c> has been called
+  '''   once. Measures themselves are available using function <c>get_measures()</c>
+  '''   when loaded by subsequent calls to <c>loadMore()</c>.
+  ''' </para>
+  ''' <para>
+  '''   This class can only be used on devices that use a recent firmware,
+  '''   as YDataSet objects are not supported by firmwares older than version 13000.
+  ''' </para>
+  ''' </summary>
+  '''/
+  Public Class YDataSet
+    REM --- (end of generated code: YDataSet class start)
+    REM --- (generated code: YDataSet definitions)
+    REM --- (end of generated code: YDataSet definitions)
+
+    REM --- (generated code: YDataSet attributes declaration)
+    Protected _parent As YFunction
+    Protected _hardwareId As String
+    Protected _functionId As String
+    Protected _unit As String
+    Protected _startTime As Long
+    Protected _endTime As Long
+    Protected _progress As Integer
+    Protected _calib As List(Of Integer)
+    Protected _streams As List(Of YDataStream)
+    Protected _summary As YMeasure
+    Protected _preview As List(Of YMeasure)
+    Protected _measures As List(Of YMeasure)
+    REM --- (end of generated code: YDataSet attributes declaration)
+
+
+
+    Sub New(parent As YFunction, functionId As String, unit As String, startTime As Long, endTime As Long)
+      REM --- (generated code: YDataSet attributes initialization)
+      _startTime = 0
+      _endTime = 0
+      _progress = 0
+      _calib = New List(Of Integer)()
+      _streams = New List(Of YDataStream)()
+      _preview = New List(Of YMeasure)()
+      _measures = New List(Of YMeasure)()
+      REM --- (end of generated code: YDataSet attributes initialization)
+      _parent = parent
+      _functionId = functionId
+      _unit = unit
+      _startTime = startTime
+      _endTime = endTime
+      _summary = New YMeasure(0, 0, 0, 0, 0)
+      _progress = -1
+    End Sub
+
+
+    Sub New(parent As YFunction, data As String)
+      REM --- (generated code: YDataSet attributes initialization)
+      _startTime = 0
+      _endTime = 0
+      _progress = 0
+      _calib = New List(Of Integer)()
+      _streams = New List(Of YDataStream)()
+      _preview = New List(Of YMeasure)()
+      _measures = New List(Of YMeasure)()
+      REM --- (end of generated code: YDataSet attributes initialization)
+      _parent = parent
+      _startTime = 0
+      _endTime = 0
+      _summary = New YMeasure(0, 0, 0, 0, 0)
+      _parse(data)
+    End Sub
+
+
+    Protected Function _parse(data As String) As Integer
+      Dim p As TJsonParser = New TJsonParser(data, False)
+      Dim node As TJSONRECORD
+      Dim arr As TJSONRECORD
+      Dim stream As YDataStream
+      Dim summaryMinVal As Double = Double.MaxValue
+      Dim summaryMaxVal As Double = -Double.MaxValue
+      Dim summaryTotalTime As Double = 0
+      Dim summaryTotalAvg As Double = 0
+      Dim startTime As UInt32
+      Dim endtime As UInt32
+
+      node = CType(p.GetChildNode(Nothing, "id"), TJSONRECORD)
+      _functionId = node.svalue
+      node = CType(p.GetChildNode(Nothing, "unit"), TJSONRECORD)
+      _unit = node.svalue
+      node = CType(p.GetChildNode(Nothing, "cal"), TJSONRECORD)
+      _calib = YAPI._decodeWords(node.svalue)
+      arr = CType(p.GetChildNode(Nothing, "streams"), TJSONRECORD)
+      _streams = New List(Of YDataStream)()
+      _preview = New List(Of YMeasure)()
+      _measures = New List(Of YMeasure)()
+
+      For i As Integer = 0 To arr.itemcount - 1 Step 1
+        stream = _parent._findDataStream(Me, arr.items.ElementAt(i).svalue)
+        If (_startTime > 0 And stream.get_startTimeUTC() + stream.get_duration() <= _startTime) Then
+          REM this stream is too early, drop it
+        ElseIf (_endTime > 0 And stream.get_startTimeUTC() > _endTime) Then
+          REM this stream is too late, drop it
+        Else
+          _streams.Add(stream)
+          If (stream.isClosed() And stream.get_startTimeUTC() >= _startTime And (_endTime = 0 Or stream.get_startTimeUTC() + stream.get_duration() <= _endTime)) Then
+            If (summaryMinVal > stream.get_minValue()) Then
+              summaryMinVal = stream.get_minValue()
+            End If
+            If (summaryMaxVal < stream.get_maxValue()) Then
+              summaryMaxVal = stream.get_maxValue()
+            End If
+            summaryTotalAvg += stream.get_averageValue() * stream.get_duration()
+            summaryTotalTime += stream.get_duration()
+            Dim rec As New YMeasure(stream.get_startTimeUTC(),
+                                    stream.get_startTimeUTC() + stream.get_duration(),
+                                    stream.get_minValue(),
+                                    stream.get_averageValue(),
+                                    stream.get_maxValue())
+            _preview.Add(rec)
+          End If
+        End If
+      Next i
+      If (_streams.Count > 0) Then
+        REM update time boundaries with actual data
+        stream = _streams.ElementAt(_streams.Count - 1)
+        endtime = CUInt(stream.get_startTimeUTC() + stream.get_duration())
+        startTime = CUInt((_streams.ElementAt(0).get_startTimeUTC() - stream.get_dataSamplesIntervalMs() / 1000))
+        If (_startTime < startTime) Then
+          _startTime = startTime
+        End If
+        If (_endTime = 0 Or _endTime > endtime) Then
+          _endTime = endtime
+        End If
+        _summary = New YMeasure(_startTime,
+                                _endTime,
+                                summaryMinVal,
+                                summaryTotalAvg / summaryTotalTime,
+                                summaryMaxVal)
+      End If
+      _progress = 0
+      Return get_progress()
+    End Function
+
+    REM --- (generated code: YDataSet private methods declaration)
+
+    REM --- (end of generated code: YDataSet private methods declaration)
+
+    REM --- (generated code: YDataSet public methods declaration)
+    Public Overridable Function get_calibration() As List(Of Integer)
+      Return Me._calib
+    End Function
+
+    Public Overridable Function processMore(progress As Integer, data As Byte()) As Integer
+        Dim i_i As Integer
+      Dim stream As YDataStream
+      Dim dataRows As List(Of List(Of Double)) = New List(Of List(Of Double))()
+      Dim strdata As String
+      Dim tim As Double = 0
+      Dim itv As Double = 0
+      Dim nCols As Integer = 0
+      Dim minCol As Integer = 0
+      Dim avgCol As Integer = 0
+      Dim maxCol As Integer = 0
+      REM // may throw an exception
+      If (progress <> Me._progress) Then
+        Return Me._progress
+      End If
+      If (Me._progress < 0) Then
+        strdata = YAPI.DefaultEncoding.GetString(data)
+        If (strdata = "{}") Then
+          Me._parent._throw(YAPI.VERSION_MISMATCH, "device firmware is too old")
+          Return YAPI.VERSION_MISMATCH
+        End If
+        Return Me._parse(strdata)
+      End If
+      stream = Me._streams.ElementAt(Me._progress)
+      stream.parse(data)
+      dataRows = stream.get_dataRows()
+      Me._progress = Me._progress + 1
+      If (dataRows.Count = 0) Then
+        Return Me.get_progress()
+      End If
+      tim = CType(stream.get_startTimeUTC(), Double)
+      itv = stream.get_dataSamplesInterval()
+      nCols = dataRows.ElementAt(0).Count
+      minCol = 0
+      If (nCols > 2) Then
+        avgCol = 1
+      Else
+        avgCol = 0
+      End If
+      If (nCols > 2) Then
+        maxCol = 2
+      Else
+        maxCol = 0
+      End If
+      
+      For i_i = 0 To dataRows.Count - 1
+        If ((tim >= Me._startTime) And ((Me._endTime = 0) Or (tim <= Me._endTime))) Then
+          Me._measures.Add(New YMeasure(tim - itv, tim, dataRows(i_i).ElementAt(minCol), dataRows(i_i).ElementAt(avgCol), dataRows(i_i).ElementAt(maxCol)))
+          tim = tim + itv
+        End If
+      Next i_i
+      
+      Return Me.get_progress()
+    End Function
+
+    Public Overridable Function get_privateDataStreams() As List(Of YDataStream)
+      Return Me._streams
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the unique hardware identifier of the function who performed the measures,
+    '''   in the form <c>SERIAL.FUNCTIONID</c>.
+    ''' <para>
+    '''   The unique hardware identifier is composed of the
+    '''   device serial number and of the hardware identifier of the function
+    '''   (for example <c>THRMCPL1-123456.temperature1</c>)
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string that uniquely identifies the function (ex: <c>THRMCPL1-123456.temperature1</c>)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns  <c>Y_HARDWAREID_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Overridable Function get_hardwareId() As String
+      Dim mo As YModule
+      If (Not (Me._hardwareId = "")) Then
+        Return Me._hardwareId
+      End If
+      mo = Me._parent.get_module()
+      Me._hardwareId = "" +  mo.get_serialNumber() + "." + Me.get_functionId()
+      Return Me._hardwareId
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the hardware identifier of the function that performed the measure,
+    '''   without reference to the module.
+    ''' <para>
+    '''   For example <c>temperature1</c>.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string that identifies the function (ex: <c>temperature1</c>)
+    ''' </returns>
+    '''/
+    Public Overridable Function get_functionId() As String
+      Return Me._functionId
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the measuring unit for the measured value.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string that represents a physical unit.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns  <c>Y_UNIT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Overridable Function get_unit() As String
+      Return Me._unit
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the start time of the dataset, relative to the Jan 1, 1970.
+    ''' <para>
+    '''   When the YDataSet is created, the start time is the value passed
+    '''   in parameter to the <c>get_dataSet()</c> function. After the
+    '''   very first call to <c>loadMore()</c>, the start time is updated
+    '''   to reflect the timestamp of the first measure actually found in the
+    '''   dataLogger within the specified range.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an unsigned number corresponding to the number of seconds
+    '''   between the Jan 1, 1970 and the beginning of this data
+    '''   set (i.e. Unix time representation of the absolute time).
+    ''' </returns>
+    '''/
+    Public Overridable Function get_startTimeUTC() As Long
+      Return Me._startTime
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the end time of the dataset, relative to the Jan 1, 1970.
+    ''' <para>
+    '''   When the YDataSet is created, the end time is the value passed
+    '''   in parameter to the <c>get_dataSet()</c> function. After the
+    '''   very first call to <c>loadMore()</c>, the end time is updated
+    '''   to reflect the timestamp of the last measure actually found in the
+    '''   dataLogger within the specified range.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an unsigned number corresponding to the number of seconds
+    '''   between the Jan 1, 1970 and the end of this data
+    '''   set (i.e. Unix time representation of the absolute time).
+    ''' </returns>
+    '''/
+    Public Overridable Function get_endTimeUTC() As Long
+      Return Me._endTime
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the progress of the downloads of the measures from the data logger,
+    '''   on a scale from 0 to 100.
+    ''' <para>
+    '''   When the object is instanciated by <c>get_dataSet</c>,
+    '''   the progress is zero. Each time <c>loadMore()</c> is invoked, the progress
+    '''   is updated, to reach the value 100 only once all measures have been loaded.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer in the range 0 to 100 (percentage of completion).
+    ''' </returns>
+    '''/
+    Public Overridable Function get_progress() As Integer
+      If (Me._progress < 0) Then
+        Return 0
+      End If
+      REM // index not yet loaded
+      If (Me._progress >= Me._streams.Count) Then
+        Return 100
+      End If
+      Return (1 + (1 + Me._progress) * 98 \ (1 + Me._streams.Count))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Loads the the next block of measures from the dataLogger, and updates
+    '''   the progress indicator.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer in the range 0 to 100 (percentage of completion),
+    '''   or a negative error code in case of failure.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function loadMore() As Integer
+      Dim url As String
+      Dim stream As YDataStream
+      If (Me._progress < 0) Then
+        url = "logger.json?id=" + Me._functionId
+      Else
+        If (Me._progress >= Me._streams.Count) Then
+          Return 100
+        Else
+          stream = Me._streams.ElementAt(Me._progress)
+          url = stream.get_url()
+        End If
+      End If
+      Return Me.processMore(Me._progress, Me._parent._download(url))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns an YMeasure object which summarizes the whole
+    '''   DataSet.
+    ''' <para>
+    '''   In includes the following information:
+    '''   - the start of a time interval
+    '''   - the end of a time interval
+    '''   - the minimal value observed during the time interval
+    '''   - the average value observed during the time interval
+    '''   - the maximal value observed during the time interval
+    ''' </para>
+    ''' <para>
+    '''   This summary is available as soon as <c>loadMore()</c> has
+    '''   been called for the first time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an YMeasure object
+    ''' </returns>
+    '''/
+    Public Overridable Function get_summary() As YMeasure
+      Return Me._summary
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns a condensed version of the measures that can
+    '''   retrieved in this YDataSet, as a list of YMeasure
+    '''   objects.
+    ''' <para>
+    '''   Each item includes:
+    '''   - the start of a time interval
+    '''   - the end of a time interval
+    '''   - the minimal value observed during the time interval
+    '''   - the average value observed during the time interval
+    '''   - the maximal value observed during the time interval
+    ''' </para>
+    ''' <para>
+    '''   This preview is available as soon as <c>loadMore()</c> has
+    '''   been called for the first time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a table of records, where each record depicts the
+    '''   measured values during a time interval
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function get_preview() As List(Of YMeasure)
+      Return Me._preview
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns all measured values currently available for this DataSet,
+    '''   as a list of YMeasure objects.
+    ''' <para>
+    '''   Each item includes:
+    '''   - the start of the measure time interval
+    '''   - the end of the measure time interval
+    '''   - the minimal value observed during the time interval
+    '''   - the average value observed during the time interval
+    '''   - the maximal value observed during the time interval
+    ''' </para>
+    ''' <para>
+    '''   Before calling this method, you should call <c>loadMore()</c>
+    '''   to load data from the device. You may have to call loadMore()
+    '''   several time until all rows are loaded, but you can start
+    '''   looking at available data rows before the load is complete.
+    ''' </para>
+    ''' <para>
+    '''   The oldest measures are always loaded first, and the most
+    '''   recent measures will be loaded last. As a result, timestamps
+    '''   are normally sorted in ascending order within the measure table,
+    '''   unless there was an unexpected adjustment of the datalogger UTC
+    '''   clock.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a table of records, where each record depicts the
+    '''   measured value for a given time interval
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function get_measures() As List(Of YMeasure)
+      Return Me._measures
+    End Function
+
+
+
+    REM --- (end of generated code: YDataSet public methods declaration)
+
+  End Class
+
+  REM --- (generated code: DataSet functions)
+
+
+  REM --- (end of generated code: DataSet functions)
+
+
 
   Public Class YDevice
     Private _devdescr As YDEV_DESCR
@@ -1879,66 +3291,93 @@ Module yocto_api
 
   End Class
 
+  REM --- (generated code: YFunction class start)
 
   '''*
-  ''' <summary>YFunction Class (virtual class, used internally)
+  ''' <summary>
+  '''   This is the parent class for all public objects representing device functions documented in
+  '''   the high-level programming API.
   ''' <para>
-  ''' This is the parent class for all public objects representing device functions documented in
-  ''' the high-level programming API. This abstract class does all the real job, but without
-  ''' knowledge of the specific function attributes.
+  '''   This abstract class does all the real job, but without
+  '''   knowledge of the specific function attributes.
   ''' </para>
   ''' <para>
-  ''' Instantiating a child class of YFunction does not cause any communication.
-  ''' The instance simply keeps track of its function identifier, and will dynamically bind
-  ''' to a matching device at the time it is really beeing used to read or set an attribute.
-  ''' In order to allow true hot-plug replacement of one device by another, the binding stay
-  ''' dynamic through the life of the object.
+  '''   Instantiating a child class of YFunction does not cause any communication.
+  '''   The instance simply keeps track of its function identifier, and will dynamically bind
+  '''   to a matching device at the time it is really being used to read or set an attribute.
+  '''   In order to allow true hot-plug replacement of one device by another, the binding stay
+  '''   dynamic through the life of the object.
   ''' </para>
   ''' <para>
-  ''' The YFunction class implements a generic high-level cache for the attribute values of
-  ''' the specified function, pre-parsed from the REST API string.
+  '''   The YFunction class implements a generic high-level cache for the attribute values of
+  '''   the specified function, pre-parsed from the REST API string.
   ''' </para>
   ''' </summary>
   '''/
-
-
-
-  Public MustInherit Class YFunction
-
-    Public Shared _FunctionCache As List(Of YFunction) = New List(Of YFunction)
-    Public Shared _FunctionCallbacks As List(Of YFunction) = New List(Of YFunction)
-    Public Delegate Sub GenericUpdateCallback(ByVal func As YFunction, ByVal value As String)
-
+  Public Class YFunction
+    REM --- (end of generated code: YFunction class start)
+    REM --- (generated code: YFunction definitions)
+    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
+    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of generated code: YFunction definitions)
     Public Const FUNCTIONDESCRIPTOR_INVALID As YFUN_DESCR = -1
 
+    Public Shared _cache As Dictionary(Of String, YFunction) = New Dictionary(Of String, YFunction)
+    Public Shared _ValueCallbackList As List(Of YFunction) = New List(Of YFunction)
+    Public Shared _TimedReportCallbackList As List(Of YFunction) = New List(Of YFunction)
+
+    REM --- (generated code: YFunction attributes declaration)
+    Protected _logicalName As String
+    Protected _advertisedValue As String
+    Protected _valueCallbackFunction As YFunctionValueCallback
+    Protected _cacheExpiration As ULong
+    Protected _serial As String
+    Protected _funId As String
+    Protected _hwId As String
+    REM --- (end of generated code: YFunction attributes declaration)
     Protected _className As String
     Protected _func As String
     Protected _lastErrorType As YRETCODE
     Protected _lastErrorMsg As String
-
     Protected _fundescr As YFUN_DESCR
     Protected _userData As Object
-    REM protected Action<T,T>   _callback;
-    Protected _genCallback As GenericUpdateCallback
+    Protected _dataStreams As Hashtable = New Hashtable()
 
-
-
-    Protected _cacheExpiration As System.UInt64
-
-    Public Sub New(ByRef classname As String, ByRef func As String)
-      _className = classname
+    Public Sub New(ByRef func As String)
+      REM --- (generated code: YFunction attributes initialization)
+      _logicalName = LOGICALNAME_INVALID
+      _advertisedValue = ADVERTISEDVALUE_INVALID
+      _valueCallbackFunction = Nothing
+      _cacheExpiration = 0
+      REM --- (end of generated code: YFunction attributes initialization)
+      _className = "Function"
       _func = func
       _lastErrorType = YAPI_SUCCESS
       _lastErrorMsg = ""
       _cacheExpiration = 0
       _fundescr = FUNCTIONDESCRIPTOR_INVALID
       _userData = Nothing
-      _genCallback = Nothing
-      _FunctionCache.Add(Me)
-
     End Sub
 
-    Protected Sub _throw(ByVal errType As YRETCODE, ByVal errMsg As String)
+
+    Protected Shared Function _FindFromCache(ByVal classname As String, ByVal func As String) As YFunction
+      Dim key As String
+      key = classname + "_" + func
+      If (_cache.ContainsKey(key)) Then
+        Return _cache.Item(key)
+      End If
+      Return Nothing
+    End Function
+
+    Protected Shared Sub _AddToCache(ByVal classname As String, ByVal func As String, obj As YFunction)
+      _cache.Add(classname + "_" + func, obj)
+    End Sub
+
+    Public Shared Sub _ClearCache(ByVal classname As String, ByVal func As String)
+      _cache.Clear()
+    End Sub
+
+    Public Sub _throw(ByVal errType As YRETCODE, ByVal errMsg As String)
       _lastErrorType = errType
       _lastErrorMsg = errMsg
       If Not (YAPI.ExceptionsDisabled) Then
@@ -2099,6 +3538,7 @@ Module yocto_api
       request = request + uchangeval + " " + Chr(13) + Chr(10) + Chr(13) + Chr(10)
       _buildSetRequest = YAPI_SUCCESS
     End Function
+
 
     REM Set an attribute in the function, and parse the resulting new function state
     Protected Function _setAttr(ByVal attrname As String, ByVal newvalue As String) As YRETCODE
@@ -2291,7 +3731,309 @@ Module yocto_api
       Return YAPI.SUCCESS
     End Function
 
-    Protected MustOverride Function _parse(ByRef parser As TJSONRECORD) As Integer
+    Public Function _findDataStream(dataset As YDataSet, def As String) As YDataStream
+      Dim key As String = dataset.get_functionId() + ":" + def
+      Dim newDataStream As YDataStream
+      If (_dataStreams.ContainsKey(key)) Then
+        Return CType(_dataStreams(key), YDataStream)
+      End If
+      newDataStream = New YDataStream(Me, dataset, YAPI._decodeWords(def))
+      Return newDataStream
+    End Function
+
+    Protected Function _parse(ByRef j As TJSONRECORD) As Integer
+      Dim member As TJSONRECORD
+      Dim i As Integer
+      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
+        Return -1
+      End If
+      For i = 0 To j.membercount - 1
+        member = j.members(i)
+        _parseAttr(member)
+      Next i
+      _parserHelper()
+      Return 0
+    End Function
+
+    Protected Shared Sub _UpdateValueCallbackList(func As YFunction, add As Boolean)
+      If (add) Then
+        func.isOnline()
+        If Not (_ValueCallbackList.Contains(func)) Then
+          _ValueCallbackList.Add(func)
+        End If
+      Else
+        _ValueCallbackList.Remove(func)
+      End If
+    End Sub
+
+
+
+
+    Protected Shared Sub _UpdateTimedReportCallbackList(func As YFunction, add As Boolean)
+      If (add) Then
+        func.isOnline()
+        If Not (_TimedReportCallbackList.Contains(func)) Then
+          _TimedReportCallbackList.Add(func)
+        End If
+      Else
+        _TimedReportCallbackList.Remove(func)
+      End If
+    End Sub
+
+
+
+
+    REM --- (generated code: YFunction private methods declaration)
+
+    Protected Overridable Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "logicalName") Then
+        _logicalName = member.svalue
+        Return 1
+      End If
+      If (member.name = "advertisedValue") Then
+        _advertisedValue = member.svalue
+        Return 1
+      End If
+      Return 0
+    End Function
+
+    REM --- (end of generated code: YFunction private methods declaration)
+
+    REM --- (generated code: YFunction public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the logical name of the function.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the logical name of the function
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_logicalName() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LOGICALNAME_INVALID
+        End If
+      End If
+      Return Me._logicalName
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the logical name of the function.
+    ''' <para>
+    '''   You can use <c>yCheckLogicalName()</c>
+    '''   prior to this call to make sure that your parameter is valid.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the logical name of the function
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_logicalName(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("logicalName", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the current value of the function (no more than 6 characters).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the current value of the function (no more than 6 characters)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_advertisedValue() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return ADVERTISEDVALUE_INVALID
+        End If
+      End If
+      Return Me._advertisedValue
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves a function for a given identifier.
+    ''' <para>
+    '''   The identifier can be specified using several formats:
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   - FunctionLogicalName
+    ''' </para>
+    ''' <para>
+    '''   - ModuleSerialNumber.FunctionIdentifier
+    ''' </para>
+    ''' <para>
+    '''   - ModuleSerialNumber.FunctionLogicalName
+    ''' </para>
+    ''' <para>
+    '''   - ModuleLogicalName.FunctionIdentifier
+    ''' </para>
+    ''' <para>
+    '''   - ModuleLogicalName.FunctionLogicalName
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   This function does not require that the function is online at the time
+    '''   it is invoked. The returned object is nevertheless valid.
+    '''   Use the method <c>YFunction.isOnline()</c> to test if the function is
+    '''   indeed online at a given time. In case of ambiguity when looking for
+    '''   a function by logical name, no error is notified: the first instance
+    '''   found is returned. The search is performed first by hardware name,
+    '''   then by logical name.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="func">
+    '''   a string that uniquely characterizes the function
+    ''' </param>
+    ''' <returns>
+    '''   a <c>YFunction</c> object allowing you to drive the function.
+    ''' </returns>
+    '''/
+    Public Shared Function FindFunction(func As String) As YFunction
+      Dim obj As YFunction
+      obj = CType(YFunction._FindFromCache("Function", func), YFunction)
+      If ((obj Is Nothing)) Then
+        obj = New YFunction(func)
+        YFunction._AddToCache("Function", func, obj)
+      End If
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overridable Function registerValueCallback(callback As YFunctionValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackFunction = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overridable Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackFunction Is Nothing)) Then
+        Me._valueCallbackFunction(Me, value)
+      End If
+      Return 0
+    End Function
+
+    Public Overridable Function _parserHelper() As Integer
+      REM // By default, nothing to do
+      Return 0
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   c
+    ''' <para>
+    '''   omment from .yc definition
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Function nextFunction() As YFunction
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YFunction.FindFunction(hwid)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   c
+    ''' <para>
+    '''   omment from .yc definition
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Shared Function FirstFunction() As YFunction
+      Dim v_fundescr(1) As YFUN_DESCR
+      Dim dev As YDEV_DESCR
+      Dim neededsize, err As Integer
+      Dim serial, funcId, funcName, funcVal As String
+      Dim errmsg As String = ""
+      Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
+      Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
+
+      err = yapiGetFunctionsByClass("Function", 0, p, size, neededsize, errmsg)
+      Marshal.Copy(p, v_fundescr, 0, 1)
+      Marshal.FreeHGlobal(p)
+
+      If (YISERR(err) Or (neededsize = 0)) Then
+        Return Nothing
+      End If
+      serial = ""
+      funcId = ""
+      funcName = ""
+      funcVal = ""
+      errmsg = ""
+      If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
+        Return Nothing
+      End If
+      Return YFunction.FindFunction(serial + "." + funcId)
+    End Function
+
+    REM --- (end of generated code: YFunction public methods declaration)
 
     '''*
     ''' <summary>
@@ -2335,7 +4077,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the unique hardware identifier of the function in the form <c>SERIAL&#46;FUNCTIONID</c>.
+    '''   Returns the unique hardware identifier of the function in the form <c>SERIAL.FUNCTIONID</c>.
     ''' <para>
     '''   The unique hardware identifier is composed of the device serial
     '''   number and of the hardware identifier of the function. (for example <c>RELAYLO1-123456.relay1</c>)
@@ -2482,7 +4224,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the numerical error code of the latest error with this function.
+    '''   Returns the numerical error code of the latest error with the function.
     ''' <para>
     '''   This method is mostly useful when using the Yoctopuce library with
     '''   exceptions disabled.
@@ -2492,7 +4234,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a number corresponding to the code of the latest error that occured while
-    '''   using this function object
+    '''   using the function object
     ''' </returns>
     '''/
     Public Function get_errorType() As YRETCODE
@@ -2507,7 +4249,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the error message of the latest error with this function.
+    '''   Returns the error message of the latest error with the function.
     ''' <para>
     '''   This method is mostly useful when using the Yoctopuce library with
     '''   exceptions disabled.
@@ -2517,7 +4259,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a string corresponding to the latest error message that occured while
-    '''   using this function object
+    '''   using the function object
     ''' </returns>
     '''/
     Public Function get_errorMessage() As String
@@ -2537,7 +4279,7 @@ Module yocto_api
     '''   If there is a cached value for the function in cache, that has not yet
     '''   expired, the device is considered reachable.
     '''   No exception is raised if there is an error while trying to contact the
-    '''   device hosting the requested function.
+    '''   device hosting the function.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -2570,6 +4312,9 @@ Module yocto_api
         Exit Function
       End If
 
+      REM Preload the function data, since we have it in device cache
+      load(YAPI.DefaultCacheValidity)
+
       isOnline = True
     End Function
 
@@ -2583,12 +4328,19 @@ Module yocto_api
       Return node.Value.svalue
     End Function
 
-    Protected Function _json_get_array(ByVal data As Byte()) As String()
+    Protected Function _json_get_array(ByVal data As Byte()) As List(Of String)
       Dim st As String = YAPI.DefaultEncoding.GetString(data)
       Dim p As TJsonParser = New TJsonParser(st, False)
-
       Return p.GetAllChilds(Nothing)
     End Function
+
+    Public Function _json_get_string(ByVal data As Byte()) As String
+      Dim json_str As String = YAPI.DefaultEncoding.GetString(data)
+      Dim p As TJsonParser = New TJsonParser("[" + json_str + "]", False)
+      Dim node As TJSONRECORD = p.GetRootNode()
+      Return node.items.ElementAt(0).svalue
+    End Function
+
 
 
 
@@ -2660,6 +4412,10 @@ Module yocto_api
         load = res
         Exit Function
       End If
+      _cacheExpiration = CULng(YAPI.GetTickCount() + msValidity)
+      _serial = serial
+      _funId = funcId
+      _hwId = _serial + "." + _funId
 
       node = apires.GetChildNode(Nothing, funcId)
       If Not (node.HasValue) Then
@@ -2669,7 +4425,6 @@ Module yocto_api
       End If
 
       _parse(CType(node, TJSONRECORD))
-      _cacheExpiration = CULng(YAPI.GetTickCount() + msValidity)
       load = YAPI_SUCCESS
     End Function
 
@@ -2766,57 +4521,75 @@ Module yocto_api
       _userData = data
     End Sub
 
-    Protected Sub registerFuncCallback(ByVal func As YFunction)
-      isOnline()
-      If Not (_FunctionCallbacks.Contains(Me)) Then
-        _FunctionCallbacks.Add(Me)
-      End If
-    End Sub
-
-    Protected Sub unregisterFuncCallback(ByVal func As YFunction)
-      _FunctionCallbacks.Remove(Me)
-    End Sub
-
-    '''*
-    ''' <summary>
-    '''   Registers the callback function that is invoked on every change of advertised value.
-    ''' <para>
-    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
-    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and the character string describing
-    '''   the new advertised value.
-    ''' @noreturn
-    ''' </param>
-    '''/
-    Public Sub registerValueCallback(ByVal callback As GenericUpdateCallback)
-      If (callback IsNot Nothing) Then
-        registerFuncCallback(Me)
-      Else
-        unregisterFuncCallback(Me)
-      End If
-      _genCallback = callback
-    End Sub
-
-
-
-    Public Overridable Sub advertiseValue(ByVal value As String)
-      If (_genCallback IsNot Nothing) Then _genCallback(Me, value)
-    End Sub
-
 
   End Class
 
-  REM --- (generated code: YModule implementation)
+  REM --- (generated code: Function functions)
 
-  Private _ModuleCache As New Hashtable()
-  Private _callback As UpdateCallback
+  '''*
+  ''' <summary>
+  '''   Retrieves a function for a given identifier.
+  ''' <para>
+  '''   The identifier can be specified using several formats:
+  ''' </para>
+  ''' <para>
+  ''' </para>
+  ''' <para>
+  '''   - FunctionLogicalName
+  ''' </para>
+  ''' <para>
+  '''   - ModuleSerialNumber.FunctionIdentifier
+  ''' </para>
+  ''' <para>
+  '''   - ModuleSerialNumber.FunctionLogicalName
+  ''' </para>
+  ''' <para>
+  '''   - ModuleLogicalName.FunctionIdentifier
+  ''' </para>
+  ''' <para>
+  '''   - ModuleLogicalName.FunctionLogicalName
+  ''' </para>
+  ''' <para>
+  ''' </para>
+  ''' <para>
+  '''   This function does not require that the function is online at the time
+  '''   it is invoked. The returned object is nevertheless valid.
+  '''   Use the method <c>YFunction.isOnline()</c> to test if the function is
+  '''   indeed online at a given time. In case of ambiguity when looking for
+  '''   a function by logical name, no error is notified: the first instance
+  '''   found is returned. The search is performed first by hardware name,
+  '''   then by logical name.
+  ''' </para>
+  ''' </summary>
+  ''' <param name="func">
+  '''   a string that uniquely characterizes the function
+  ''' </param>
+  ''' <returns>
+  '''   a <c>YFunction</c> object allowing you to drive the function.
+  ''' </returns>
+  '''/
+  Public Function yFindFunction(ByVal func As String) As YFunction
+    Return YFunction.FindFunction(func)
+  End Function
+
+  '''*
+  ''' <summary>
+  '''   A
+  ''' <para>
+  '''   lias for Y{$classname}.First{$classname}()
+  ''' </para>
+  ''' </summary>
+  '''/
+  Public Function yFirstFunction() As YFunction
+    Return YFunction.FirstFunction()
+  End Function
+
+
+  REM --- (end of generated code: Function functions)
+
+
+
+  REM --- (generated code: YModule class start)
 
   '''*
   ''' <summary>
@@ -2829,830 +4602,126 @@ Module yocto_api
   '''/
   Public Class YModule
     Inherits YFunction
+    REM --- (end of generated code: YModule class start)
+
+    REM --- (generated code: YModule definitions)
     Public Const PRODUCTNAME_INVALID As String = YAPI.INVALID_STRING
     Public Const SERIALNUMBER_INVALID As String = YAPI.INVALID_STRING
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const PRODUCTID_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const PRODUCTRELEASE_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const PRODUCTID_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const PRODUCTRELEASE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const FIRMWARERELEASE_INVALID As String = YAPI.INVALID_STRING
     Public Const PERSISTENTSETTINGS_LOADED = 0
     Public Const PERSISTENTSETTINGS_SAVED = 1
     Public Const PERSISTENTSETTINGS_MODIFIED = 2
     Public Const PERSISTENTSETTINGS_INVALID = -1
 
-    Public Const LUMINOSITY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BEACON_OFF = 0
     Public Const BEACON_ON = 1
     Public Const BEACON_INVALID = -1
 
     Public Const UPTIME_INVALID As Long = YAPI.INVALID_LONG
-    Public Const USBCURRENT_INVALID As Long = YAPI.INVALID_LONG
+    Public Const USBCURRENT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const REBOOTCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
     Public Const USBBANDWIDTH_SIMPLE = 0
     Public Const USBBANDWIDTH_DOUBLE = 1
     Public Const USBBANDWIDTH_INVALID = -1
 
+    REM --- (end of generated code: YModule definitions)
 
+    REM --- (generated code: YModule attributes declaration)
     Protected _productName As String
     Protected _serialNumber As String
-    Protected _logicalName As String
-    Protected _productId As Long
-    Protected _productRelease As Long
+    Protected _productId As Integer
+    Protected _productRelease As Integer
     Protected _firmwareRelease As String
-    Protected _persistentSettings As Long
-    Protected _luminosity As Long
-    Protected _beacon As Long
+    Protected _persistentSettings As Integer
+    Protected _luminosity As Integer
+    Protected _beacon As Integer
     Protected _upTime As Long
-    Protected _usbCurrent As Long
-    Protected _rebootCountdown As Long
-    Protected _usbBandwidth As Long
+    Protected _usbCurrent As Integer
+    Protected _rebootCountdown As Integer
+    Protected _usbBandwidth As Integer
+    Protected _valueCallbackModule As YModuleValueCallback
+    REM --- (end of generated code: YModule attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("Module", func)
-      _productName = Y_PRODUCTNAME_INVALID
-      _serialNumber = Y_SERIALNUMBER_INVALID
-      _logicalName = Y_LOGICALNAME_INVALID
-      _productId = Y_PRODUCTID_INVALID
-      _productRelease = Y_PRODUCTRELEASE_INVALID
-      _firmwareRelease = Y_FIRMWARERELEASE_INVALID
-      _persistentSettings = Y_PERSISTENTSETTINGS_INVALID
-      _luminosity = Y_LUMINOSITY_INVALID
-      _beacon = Y_BEACON_INVALID
-      _upTime = Y_UPTIME_INVALID
-      _usbCurrent = Y_USBCURRENT_INVALID
-      _rebootCountdown = Y_REBOOTCOUNTDOWN_INVALID
-      _usbBandwidth = Y_USBBANDWIDTH_INVALID
+      MyBase.New(func)
+      _className = "Module"
+      REM --- (generated code: YModule attributes initialization)
+      _productName = PRODUCTNAME_INVALID
+      _serialNumber = SERIALNUMBER_INVALID
+      _productId = PRODUCTID_INVALID
+      _productRelease = PRODUCTRELEASE_INVALID
+      _firmwareRelease = FIRMWARERELEASE_INVALID
+      _persistentSettings = PERSISTENTSETTINGS_INVALID
+      _luminosity = LUMINOSITY_INVALID
+      _beacon = BEACON_INVALID
+      _upTime = UPTIME_INVALID
+      _usbCurrent = USBCURRENT_INVALID
+      _rebootCountdown = REBOOTCOUNTDOWN_INVALID
+      _usbBandwidth = USBBANDWIDTH_INVALID
+      _valueCallbackModule = Nothing
+      REM --- (end of generated code: YModule attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+    REM --- (generated code: YModule private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "productName") Then
+        _productName = member.svalue
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "productName") Then
-          _productName = member.svalue
-        ElseIf (member.name = "serialNumber") Then
-          _serialNumber = member.svalue
-        ElseIf (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "productId") Then
-          _productId = CLng(member.ivalue)
-        ElseIf (member.name = "productRelease") Then
-          _productRelease = CLng(member.ivalue)
-        ElseIf (member.name = "firmwareRelease") Then
-          _firmwareRelease = member.svalue
-        ElseIf (member.name = "persistentSettings") Then
-          _persistentSettings = CLng(member.ivalue)
-        ElseIf (member.name = "luminosity") Then
-          _luminosity = CLng(member.ivalue)
-        ElseIf (member.name = "beacon") Then
-          If (member.ivalue > 0) Then _beacon = 1 Else _beacon = 0
-        ElseIf (member.name = "upTime") Then
-          _upTime = CLng(member.ivalue)
-        ElseIf (member.name = "usbCurrent") Then
-          _usbCurrent = CLng(member.ivalue)
-        ElseIf (member.name = "rebootCountdown") Then
-          _rebootCountdown = member.ivalue
-        ElseIf (member.name = "usbBandwidth") Then
-          _usbBandwidth = CLng(member.ivalue)
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the commercial name of the module, as set by the factory.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the commercial name of the module, as set by the factory
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PRODUCTNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_productName() As String
-      If (_productName = Y_PRODUCTNAME_INVALID) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_PRODUCTNAME_INVALID
-        End If
+      If (member.name = "serialNumber") Then
+        _serialNumber = member.svalue
+        Return 1
       End If
-      Return _productName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the serial number of the module, as set by the factory.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the serial number of the module, as set by the factory
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SERIALNUMBER_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_serialNumber() As String
-      If (_serialNumber = Y_SERIALNUMBER_INVALID) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_SERIALNUMBER_INVALID
-        End If
+      If (member.name = "productId") Then
+        _productId = CInt(member.ivalue)
+        Return 1
       End If
-      Return _serialNumber
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the module.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the module
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "productRelease") Then
+        _productRelease = CInt(member.ivalue)
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the module.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the module
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the USB device identifier of the module.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the USB device identifier of the module
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PRODUCTID_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_productId() As Integer
-      If (_productId = Y_PRODUCTID_INVALID) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_PRODUCTID_INVALID
-        End If
+      If (member.name = "firmwareRelease") Then
+        _firmwareRelease = member.svalue
+        Return 1
       End If
-      Return CType(_productId,Integer)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the hardware release version of the module.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the hardware release version of the module
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PRODUCTRELEASE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_productRelease() As Integer
-      If (_productRelease = Y_PRODUCTRELEASE_INVALID) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_PRODUCTRELEASE_INVALID
-        End If
+      If (member.name = "persistentSettings") Then
+        _persistentSettings = CInt(member.ivalue)
+        Return 1
       End If
-      Return CType(_productRelease,Integer)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the version of the firmware embedded in the module.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the version of the firmware embedded in the module
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FIRMWARERELEASE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_firmwareRelease() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_FIRMWARERELEASE_INVALID
-        End If
+      If (member.name = "luminosity") Then
+        _luminosity = CInt(member.ivalue)
+        Return 1
       End If
-      Return _firmwareRelease
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current state of persistent module settings.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a value among <c>Y_PERSISTENTSETTINGS_LOADED</c>, <c>Y_PERSISTENTSETTINGS_SAVED</c> and
-    '''   <c>Y_PERSISTENTSETTINGS_MODIFIED</c> corresponding to the current state of persistent module settings
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PERSISTENTSETTINGS_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_persistentSettings() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_PERSISTENTSETTINGS_INVALID
-        End If
+      If (member.name = "beacon") Then
+        If (member.ivalue > 0) Then _beacon = 1 Else _beacon = 0
+        Return 1
       End If
-      Return CType(_persistentSettings,Integer)
-    End Function
-
-    Public Function set_persistentSettings(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("persistentSettings", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Saves current settings in the nonvolatile memory of the module.
-    ''' <para>
-    '''   Warning: the number of allowed save operations during a module life is
-    '''   limited (about 100000 cycles). Do not call this function within a loop.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function saveToFlash() As Integer
-      Dim rest_val As String
-      rest_val = "1"
-      Return _setAttr("persistentSettings", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Reloads the settings stored in the nonvolatile memory, as
-    '''   when the module is powered on.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function revertFromFlash() As Integer
-      Dim rest_val As String
-      rest_val = "0"
-      Return _setAttr("persistentSettings", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the luminosity of the  module informative leds (from 0 to 100).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the luminosity of the  module informative leds (from 0 to 100)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LUMINOSITY_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_luminosity() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LUMINOSITY_INVALID
-        End If
+      If (member.name = "upTime") Then
+        _upTime = member.ivalue
+        Return 1
       End If
-      Return CType(_luminosity,Integer)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the luminosity of the module informative leds.
-    ''' <para>
-    '''   The parameter is a
-    '''   value between 0 and 100.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   an integer corresponding to the luminosity of the module informative leds
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_luminosity(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("luminosity", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the state of the localization beacon.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   either <c>Y_BEACON_OFF</c> or <c>Y_BEACON_ON</c>, according to the state of the localization beacon
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BEACON_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_beacon() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_BEACON_INVALID
-        End If
+      If (member.name = "usbCurrent") Then
+        _usbCurrent = CInt(member.ivalue)
+        Return 1
       End If
-      Return CType(_beacon,Integer)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Turns on or off the module localization beacon.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   either <c>Y_BEACON_OFF</c> or <c>Y_BEACON_ON</c>
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_beacon(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
-      Return _setAttr("beacon", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the number of milliseconds spent since the module was powered on.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the number of milliseconds spent since the module was powered on
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_UPTIME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_upTime() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_UPTIME_INVALID
-        End If
+      If (member.name = "rebootCountdown") Then
+        _rebootCountdown = CInt(member.ivalue)
+        Return 1
       End If
-      Return _upTime
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current consumed by the module on the USB bus, in milli-amps.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the current consumed by the module on the USB bus, in milli-amps
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_USBCURRENT_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_usbCurrent() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_USBCURRENT_INVALID
-        End If
+      If (member.name = "usbBandwidth") Then
+        _usbBandwidth = CInt(member.ivalue)
+        Return 1
       End If
-      Return _usbCurrent
+      Return MyBase._parseAttr(member)
     End Function
 
-    '''*
-    ''' <summary>
-    '''   Returns the remaining number of seconds before the module restarts, or zero when no
-    '''   reboot has been scheduled.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the remaining number of seconds before the module restarts, or zero when no
-    '''   reboot has been scheduled
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_REBOOTCOUNTDOWN_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_rebootCountdown() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_REBOOTCOUNTDOWN_INVALID
-        End If
-      End If
-      Return CType(_rebootCountdown,Integer)
-    End Function
-
-    Public Function set_rebootCountdown(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("rebootCountdown", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Schedules a simple module reboot after the given number of seconds.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="secBeforeReboot">
-    '''   number of seconds before rebooting
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function reboot(ByVal secBeforeReboot As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(secBeforeReboot))
-      Return _setAttr("rebootCountdown", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Schedules a module reboot into special firmware update mode.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="secBeforeReboot">
-    '''   number of seconds before rebooting
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function triggerFirmwareUpdate(ByVal secBeforeReboot As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(-secBeforeReboot))
-      Return _setAttr("rebootCountdown", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the number of USB interfaces used by the module.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   either <c>Y_USBBANDWIDTH_SIMPLE</c> or <c>Y_USBBANDWIDTH_DOUBLE</c>, according to the number of USB
-    '''   interfaces used by the module
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_USBBANDWIDTH_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_usbBandwidth() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_USBBANDWIDTH_INVALID
-        End If
-      End If
-      Return CType(_usbBandwidth,Integer)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the number of USB interfaces used by the module.
-    ''' <para>
-    '''   You must reboot the module
-    '''   after changing this setting.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   either <c>Y_USBBANDWIDTH_SIMPLE</c> or <c>Y_USBBANDWIDTH_DOUBLE</c>, according to the number of USB
-    '''   interfaces used by the module
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_usbBandwidth(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("usbBandwidth", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Downloads the specified built-in file and returns a binary buffer with its content.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="pathname">
-    '''   name of the new file to load
-    ''' </param>
-    ''' <returns>
-    '''   a binary buffer with the file content
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty content.
-    ''' </para>
-    '''/
-    public function download(pathname as string) as byte()
-        Return Me._download(pathname)
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Returns the icon of the module.
-    ''' <para>
-    '''   The icon is a PNG image and does not
-    '''   exceeds 1536 bytes.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a binary buffer with module icon, in png format.
-    ''' </returns>
-    '''/
-    public function get_icon2d() as byte()
-        Return Me._download("icon2d.png")
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Returns a string with last logs of the module.
-    ''' <para>
-    '''   This method return only
-    '''   logs that are still in the module.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string with last logs of the module.
-    ''' </returns>
-    '''/
-    public function get_lastLogs() as string
-        dim  content as byte()
-        content = Me._download("logs.txt")
-        Return YAPI.DefaultEncoding.GetString(content)
-        
-     end function
+    REM --- (end of generated code: YModule private methods declaration)
 
 
-    '''*
-    ''' <summary>
-    '''   Continues the module enumeration started using <c>yFirstModule()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YModule</c> object, corresponding to
-    '''   the next module found, or a <c>null</c> pointer
-    '''   if there are no more modules to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextModule() as YModule
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindModule(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
-
-    '''*
-    ''' <summary>
-    '''   Allows you to find a module from its serial number or from its logical name.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    '''   This function does not require that the module is online at the time
-    '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YModule.isOnline()</c> to test if the module is
-    '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a module by logical name, no error is notified: the first instance
-    '''   found is returned. The search is performed first by hardware name,
-    '''   then by logical name.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="func">
-    '''   a string containing either the serial number or
-    '''   the logical name of the desired module
-    ''' </param>
-    ''' <returns>
-    '''   a <c>YModule</c> object allowing you to drive the module
-    '''   or get additional information on the module.
-    ''' </returns>
-    '''/
-    Public Shared Function FindModule(ByVal func As String) As YModule
-      Dim res As YModule
-      If (_ModuleCache.ContainsKey(func)) Then
-        Return CType(_ModuleCache(func), YModule)
-      End If
-      res = New YModule(func)
-      _ModuleCache.Add(func, res)
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Starts the enumeration of modules currently accessible.
-    ''' <para>
-    '''   Use the method <c>YModule.nextModule()</c> to iterate on the
-    '''   next modules.
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YModule</c> object, corresponding to
-    '''   the first module currently online, or a <c>null</c> pointer
-    '''   if there are none.
-    ''' </returns>
-    '''/
-    Public Shared Function FirstModule() As YModule
-      Dim v_fundescr(1) As YFUN_DESCR
-      Dim dev As YDEV_DESCR
-      Dim neededsize, err As Integer
-      Dim serial, funcId, funcName, funcVal As String
-      Dim errmsg As String = ""
-      Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
-      Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
-
-      err = yapiGetFunctionsByClass("Module", 0, p, size, neededsize, errmsg)
-      Marshal.Copy(p, v_fundescr, 0, 1)
-      Marshal.FreeHGlobal(p)
-
-      If (YISERR(err) Or (neededsize = 0)) Then
-        Return Nothing
-      End If
-      serial = ""
-      funcId = ""
-      funcName = ""
-      funcVal = ""
-      errmsg = ""
-      If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
-        Return Nothing
-      End If
-      Return YModule.FindModule(serial + "." + funcId)
-    End Function
-
-    REM --- (end of generated code: YModule implementation)
     Public Overloads Function get_friendlyName() As String
       Dim retcode As YRETCODE
       Dim fundesc As YFUN_DESCR = 0
@@ -3880,7 +4949,1896 @@ Module yocto_api
       functionValue = funcVal
     End Function
 
+    REM --- (generated code: YModule public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the commercial name of the module, as set by the factory.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the commercial name of the module, as set by the factory
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PRODUCTNAME_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_productName() As String
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return PRODUCTNAME_INVALID
+        End If
+      End If
+      Return Me._productName
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the serial number of the module, as set by the factory.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the serial number of the module, as set by the factory
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_SERIALNUMBER_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_serialNumber() As String
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return SERIALNUMBER_INVALID
+        End If
+      End If
+      Return Me._serialNumber
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the USB device identifier of the module.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the USB device identifier of the module
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PRODUCTID_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_productId() As Integer
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return PRODUCTID_INVALID
+        End If
+      End If
+      Return Me._productId
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the hardware release version of the module.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the hardware release version of the module
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PRODUCTRELEASE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_productRelease() As Integer
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return PRODUCTRELEASE_INVALID
+        End If
+      End If
+      Return Me._productRelease
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the version of the firmware embedded in the module.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the version of the firmware embedded in the module
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_FIRMWARERELEASE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_firmwareRelease() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return FIRMWARERELEASE_INVALID
+        End If
+      End If
+      Return Me._firmwareRelease
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the current state of persistent module settings.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_PERSISTENTSETTINGS_LOADED</c>, <c>Y_PERSISTENTSETTINGS_SAVED</c> and
+    '''   <c>Y_PERSISTENTSETTINGS_MODIFIED</c> corresponding to the current state of persistent module settings
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PERSISTENTSETTINGS_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_persistentSettings() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return PERSISTENTSETTINGS_INVALID
+        End If
+      End If
+      Return Me._persistentSettings
+    End Function
+
+
+    Public Function set_persistentSettings(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("persistentSettings", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the luminosity of the  module informative leds (from 0 to 100).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the luminosity of the  module informative leds (from 0 to 100)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_LUMINOSITY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_luminosity() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LUMINOSITY_INVALID
+        End If
+      End If
+      Return Me._luminosity
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the luminosity of the module informative leds.
+    ''' <para>
+    '''   The parameter is a
+    '''   value between 0 and 100.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the luminosity of the module informative leds
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_luminosity(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("luminosity", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the state of the localization beacon.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_BEACON_OFF</c> or <c>Y_BEACON_ON</c>, according to the state of the localization beacon
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BEACON_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_beacon() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return BEACON_INVALID
+        End If
+      End If
+      Return Me._beacon
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Turns on or off the module localization beacon.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_BEACON_OFF</c> or <c>Y_BEACON_ON</c>
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_beacon(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("beacon", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the number of milliseconds spent since the module was powered on.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the number of milliseconds spent since the module was powered on
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_UPTIME_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_upTime() As Long
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return UPTIME_INVALID
+        End If
+      End If
+      Return Me._upTime
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the current consumed by the module on the USB bus, in milli-amps.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the current consumed by the module on the USB bus, in milli-amps
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_USBCURRENT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_usbCurrent() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return USBCURRENT_INVALID
+        End If
+      End If
+      Return Me._usbCurrent
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the remaining number of seconds before the module restarts, or zero when no
+    '''   reboot has been scheduled.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the remaining number of seconds before the module restarts, or zero when no
+    '''   reboot has been scheduled
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_REBOOTCOUNTDOWN_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_rebootCountdown() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return REBOOTCOUNTDOWN_INVALID
+        End If
+      End If
+      Return Me._rebootCountdown
+    End Function
+
+
+    Public Function set_rebootCountdown(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("rebootCountdown", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the number of USB interfaces used by the module.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_USBBANDWIDTH_SIMPLE</c> or <c>Y_USBBANDWIDTH_DOUBLE</c>, according to the number of USB
+    '''   interfaces used by the module
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_USBBANDWIDTH_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_usbBandwidth() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return USBBANDWIDTH_INVALID
+        End If
+      End If
+      Return Me._usbBandwidth
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the number of USB interfaces used by the module.
+    ''' <para>
+    '''   You must reboot the module
+    '''   after changing this setting.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_USBBANDWIDTH_SIMPLE</c> or <c>Y_USBBANDWIDTH_DOUBLE</c>, according to the number of USB
+    '''   interfaces used by the module
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_usbBandwidth(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("usbBandwidth", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Allows you to find a module from its serial number or from its logical name.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   This function does not require that the module is online at the time
+    '''   it is invoked. The returned object is nevertheless valid.
+    '''   Use the method <c>YModule.isOnline()</c> to test if the module is
+    '''   indeed online at a given time. In case of ambiguity when looking for
+    '''   a module by logical name, no error is notified: the first instance
+    '''   found is returned. The search is performed first by hardware name,
+    '''   then by logical name.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="func">
+    '''   a string containing either the serial number or
+    '''   the logical name of the desired module
+    ''' </param>
+    ''' <returns>
+    '''   a <c>YModule</c> object allowing you to drive the module
+    '''   or get additional information on the module.
+    ''' </returns>
+    '''/
+    Public Shared Function FindModule(func As String) As YModule
+      Dim obj As YModule
+      obj = CType(YFunction._FindFromCache("Module", func), YModule)
+      If ((obj Is Nothing)) Then
+        obj = New YModule(func)
+        YFunction._AddToCache("Module", func, obj)
+      End If
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YModuleValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackModule = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackModule Is Nothing)) Then
+        Me._valueCallbackModule(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Saves current settings in the nonvolatile memory of the module.
+    ''' <para>
+    '''   Warning: the number of allowed save operations during a module life is
+    '''   limited (about 100000 cycles). Do not call this function within a loop.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function saveToFlash() As Integer
+      Return Me.set_persistentSettings(PERSISTENTSETTINGS_SAVED)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reloads the settings stored in the nonvolatile memory, as
+    '''   when the module is powered on.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function revertFromFlash() As Integer
+      Return Me.set_persistentSettings(PERSISTENTSETTINGS_LOADED)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Schedules a simple module reboot after the given number of seconds.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="secBeforeReboot">
+    '''   number of seconds before rebooting
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function reboot(secBeforeReboot As Integer) As Integer
+      Return Me.set_rebootCountdown(secBeforeReboot)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Schedules a module reboot into special firmware update mode.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="secBeforeReboot">
+    '''   number of seconds before rebooting
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function triggerFirmwareUpdate(secBeforeReboot As Integer) As Integer
+      Return Me.set_rebootCountdown(-secBeforeReboot)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Downloads the specified built-in file and returns a binary buffer with its content.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="pathname">
+    '''   name of the new file to load
+    ''' </param>
+    ''' <returns>
+    '''   a binary buffer with the file content
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty content.
+    ''' </para>
+    '''/
+    Public Overridable Function download(pathname As String) As Byte()
+      Return Me._download(pathname)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the icon of the module.
+    ''' <para>
+    '''   The icon is a PNG image and does not
+    '''   exceeds 1536 bytes.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a binary buffer with module icon, in png format.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_icon2d() As Byte()
+      REM // may throw an exception
+      Return Me._download("icon2d.png")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns a string with last logs of the module.
+    ''' <para>
+    '''   This method return only
+    '''   logs that are still in the module.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with last logs of the module.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_lastLogs() As String
+      Dim content As Byte()
+      REM // may throw an exception
+      content = Me._download("logs.txt")
+      Return YAPI.DefaultEncoding.GetString(content)
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the module enumeration started using <c>yFirstModule()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YModule</c> object, corresponding to
+    '''   the next module found, or a <c>null</c> pointer
+    '''   if there are no more modules to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextModule() As YModule
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YModule.FindModule(hwid)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Starts the enumeration of modules currently accessible.
+    ''' <para>
+    '''   Use the method <c>YModule.nextModule()</c> to iterate on the
+    '''   next modules.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YModule</c> object, corresponding to
+    '''   the first module currently online, or a <c>null</c> pointer
+    '''   if there are none.
+    ''' </returns>
+    '''/
+    Public Shared Function FirstModule() As YModule
+      Dim v_fundescr(1) As YFUN_DESCR
+      Dim dev As YDEV_DESCR
+      Dim neededsize, err As Integer
+      Dim serial, funcId, funcName, funcVal As String
+      Dim errmsg As String = ""
+      Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
+      Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
+
+      err = yapiGetFunctionsByClass("Module", 0, p, size, neededsize, errmsg)
+      Marshal.Copy(p, v_fundescr, 0, 1)
+      Marshal.FreeHGlobal(p)
+
+      If (YISERR(err) Or (neededsize = 0)) Then
+        Return Nothing
+      End If
+      serial = ""
+      funcId = ""
+      funcName = ""
+      funcVal = ""
+      errmsg = ""
+      If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
+        Return Nothing
+      End If
+      Return YModule.FindModule(serial + "." + funcId)
+    End Function
+
+    REM --- (end of generated code: YModule public methods declaration)
+
+
   End Class
+
+
+  REM --- (generated code: Module functions)
+
+  '''*
+  ''' <summary>
+  '''   Allows you to find a module from its serial number or from its logical name.
+  ''' <para>
+  ''' </para>
+  ''' <para>
+  '''   This function does not require that the module is online at the time
+  '''   it is invoked. The returned object is nevertheless valid.
+  '''   Use the method <c>YModule.isOnline()</c> to test if the module is
+  '''   indeed online at a given time. In case of ambiguity when looking for
+  '''   a module by logical name, no error is notified: the first instance
+  '''   found is returned. The search is performed first by hardware name,
+  '''   then by logical name.
+  ''' </para>
+  ''' </summary>
+  ''' <param name="func">
+  '''   a string containing either the serial number or
+  '''   the logical name of the desired module
+  ''' </param>
+  ''' <returns>
+  '''   a <c>YModule</c> object allowing you to drive the module
+  '''   or get additional information on the module.
+  ''' </returns>
+  '''/
+  Public Function yFindModule(ByVal func As String) As YModule
+    Return YModule.FindModule(func)
+  End Function
+
+  '''*
+  ''' <summary>
+  '''   Starts the enumeration of modules currently accessible.
+  ''' <para>
+  '''   Use the method <c>YModule.nextModule()</c> to iterate on the
+  '''   next modules.
+  ''' </para>
+  ''' </summary>
+  ''' <returns>
+  '''   a pointer to a <c>YModule</c> object, corresponding to
+  '''   the first module currently online, or a <c>null</c> pointer
+  '''   if there are none.
+  ''' </returns>
+  '''/
+  Public Function yFirstModule() As YModule
+    Return YModule.FirstModule()
+  End Function
+
+
+  REM --- (end of generated code: Module functions)
+
+
+
+
+  REM --- (generated code: YSensor class start)
+
+  '''*
+  ''' <summary>
+  '''   The Yoctopuce application programming interface allows you to read an instant
+  '''   measure of the sensor, as well as the minimal and maximal values observed.
+  ''' <para>
+  ''' </para>
+  ''' </summary>
+  '''/
+  Public Class YSensor
+    Inherits YFunction
+    REM --- (end of generated code: YSensor class start)
+
+    REM --- (generated code: YSensor definitions)
+    Public Const UNIT_INVALID As String = YAPI.INVALID_STRING
+    Public Const CURRENTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const LOWESTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const HIGHESTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const CURRENTRAWVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const LOGFREQUENCY_INVALID As String = YAPI.INVALID_STRING
+    Public Const REPORTFREQUENCY_INVALID As String = YAPI.INVALID_STRING
+    Public Const CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
+    Public Const RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
+    REM --- (end of generated code: YSensor definitions)
+
+    REM --- (generated code: YSensor attributes declaration)
+    Protected _unit As String
+    Protected _currentValue As Double
+    Protected _lowestValue As Double
+    Protected _highestValue As Double
+    Protected _currentRawValue As Double
+    Protected _logFrequency As String
+    Protected _reportFrequency As String
+    Protected _calibrationParam As String
+    Protected _resolution As Double
+    Protected _valueCallbackSensor As YSensorValueCallback
+    Protected _timedReportCallbackSensor As YSensorTimedReportCallback
+    Protected _prevTimedReport As Double
+    Protected _iresol As Double
+    Protected _offset As Double
+    Protected _scale As Double
+    Protected _decexp As Double
+    Protected _isScal As Boolean
+    Protected _caltyp As Integer
+    Protected _calpar As List(Of Integer)
+    Protected _calraw As List(Of Double)
+    Protected _calref As List(Of Double)
+    Protected _calhdl As yCalibrationHandler
+    REM --- (end of generated code: YSensor attributes declaration)
+
+    Public Sub New(ByVal func As String)
+      MyBase.New(func)
+      _className = "Sensor"
+      REM --- (generated code: YSensor attributes initialization)
+      _unit = UNIT_INVALID
+      _currentValue = CURRENTVALUE_INVALID
+      _lowestValue = LOWESTVALUE_INVALID
+      _highestValue = HIGHESTVALUE_INVALID
+      _currentRawValue = CURRENTRAWVALUE_INVALID
+      _logFrequency = LOGFREQUENCY_INVALID
+      _reportFrequency = REPORTFREQUENCY_INVALID
+      _calibrationParam = CALIBRATIONPARAM_INVALID
+      _resolution = RESOLUTION_INVALID
+      _valueCallbackSensor = Nothing
+      _timedReportCallbackSensor = Nothing
+      _prevTimedReport = 0
+      _iresol = 0
+      _offset = 0
+      _scale = 0
+      _decexp = 0
+      _caltyp = 0
+      _calpar = New List(Of Integer)()
+      _calraw = New List(Of Double)()
+      _calref = New List(Of Double)()
+      _calhdl = Nothing
+      REM --- (end of generated code: YSensor attributes initialization)
+    End Sub
+
+    REM --- (generated code: YSensor private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "unit") Then
+        _unit = member.svalue
+        Return 1
+      End If
+      If (member.name = "currentValue") Then
+        _currentValue = member.ivalue / 65536.0
+        Return 1
+      End If
+      If (member.name = "lowestValue") Then
+        _lowestValue = member.ivalue / 65536.0
+        Return 1
+      End If
+      If (member.name = "highestValue") Then
+        _highestValue = member.ivalue / 65536.0
+        Return 1
+      End If
+      If (member.name = "currentRawValue") Then
+        _currentRawValue = member.ivalue / 65536.0
+        Return 1
+      End If
+      If (member.name = "logFrequency") Then
+        _logFrequency = member.svalue
+        Return 1
+      End If
+      If (member.name = "reportFrequency") Then
+        _reportFrequency = member.svalue
+        Return 1
+      End If
+      If (member.name = "calibrationParam") Then
+        _calibrationParam = member.svalue
+        Return 1
+      End If
+      If (member.name = "resolution") Then
+        If (member.ivalue > 100) Then _resolution = 1.0 / Math.Round(65536.0 / member.ivalue) Else _resolution = 0.001 / Math.Round(67.0 / member.ivalue)
+        Return 1
+      End If
+      Return MyBase._parseAttr(member)
+    End Function
+
+    REM --- (end of generated code: YSensor private methods declaration)
+
+    REM --- (generated code: YSensor public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the measuring unit for the measure.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the measuring unit for the measure
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_UNIT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_unit() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return UNIT_INVALID
+        End If
+      End If
+      Return Me._unit
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the current value of the measure.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the current value of the measure
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CURRENTVALUE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_currentValue() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CURRENTVALUE_INVALID
+        End If
+      End If
+      res = Me._applyCalibration(Me._currentRawValue)
+      If (res = CURRENTVALUE_INVALID) Then
+        res = Me._currentValue
+      End If
+      res = res * Me._iresol
+      Return Math.Round(res) / Me._iresol
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the recorded minimal value observed.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the recorded minimal value observed
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_lowestValue(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("lowestValue", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the minimal value observed for the measure since the device was started.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the minimal value observed for the measure since the device was started
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_LOWESTVALUE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_lowestValue() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LOWESTVALUE_INVALID
+        End If
+      End If
+      res = Me._lowestValue * Me._iresol
+      Return Math.Round(res) / Me._iresol
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the recorded maximal value observed.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the recorded maximal value observed
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_highestValue(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("highestValue", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the maximal value observed for the measure since the device was started.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the maximal value observed for the measure since the device was started
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_HIGHESTVALUE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_highestValue() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return HIGHESTVALUE_INVALID
+        End If
+      End If
+      res = Me._highestValue * Me._iresol
+      Return Math.Round(res) / Me._iresol
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the uncalibrated, unrounded raw value returned by the sensor.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the uncalibrated, unrounded raw value returned by the sensor
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CURRENTRAWVALUE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_currentRawValue() As Double
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CURRENTRAWVALUE_INVALID
+        End If
+      End If
+      Return Me._currentRawValue
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the datalogger recording frequency for this function, or "OFF"
+    '''   when measures are not stored in the data logger flash memory.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the datalogger recording frequency for this function, or "OFF"
+    '''   when measures are not stored in the data logger flash memory
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_LOGFREQUENCY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_logFrequency() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LOGFREQUENCY_INVALID
+        End If
+      End If
+      Return Me._logFrequency
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the datalogger recording frequency for this function.
+    ''' <para>
+    '''   The frequency can be specified as samples per second,
+    '''   as sample per minute (for instance "15/m") or in samples per
+    '''   hour (eg. "4/h"). To disable recording for this function, use
+    '''   the value "OFF".
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the datalogger recording frequency for this function
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_logFrequency(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("logFrequency", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the timed value notification frequency, or "OFF" if timed
+    '''   value notifications are disabled for this function.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the timed value notification frequency, or "OFF" if timed
+    '''   value notifications are disabled for this function
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_REPORTFREQUENCY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_reportFrequency() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return REPORTFREQUENCY_INVALID
+        End If
+      End If
+      Return Me._reportFrequency
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the timed value notification frequency for this function.
+    ''' <para>
+    '''   The frequency can be specified as samples per second,
+    '''   as sample per minute (for instance "15/m") or in samples per
+    '''   hour (eg. "4/h"). To disable timed value notifications for this
+    '''   function, use the value "OFF".
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the timed value notification frequency for this function
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_reportFrequency(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("reportFrequency", rest_val)
+    End Function
+    Public Function get_calibrationParam() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALIBRATIONPARAM_INVALID
+        End If
+      End If
+      Return Me._calibrationParam
+    End Function
+
+
+    Public Function set_calibrationParam(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("calibrationParam", rest_val)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the resolution of the measured physical values.
+    ''' <para>
+    '''   The resolution corresponds to the numerical precision
+    '''   when displaying value. It does not change the precision of the measure itself.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the resolution of the measured physical values
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_resolution(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("resolution", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the resolution of the measured values.
+    ''' <para>
+    '''   The resolution corresponds to the numerical precision
+    '''   of the measures, which is not always the same as the actual precision of the sensor.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the resolution of the measured values
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_RESOLUTION_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_resolution() As Double
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return RESOLUTION_INVALID
+        End If
+      End If
+      Return Me._resolution
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves a sensor for a given identifier.
+    ''' <para>
+    '''   The identifier can be specified using several formats:
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   - FunctionLogicalName
+    ''' </para>
+    ''' <para>
+    '''   - ModuleSerialNumber.FunctionIdentifier
+    ''' </para>
+    ''' <para>
+    '''   - ModuleSerialNumber.FunctionLogicalName
+    ''' </para>
+    ''' <para>
+    '''   - ModuleLogicalName.FunctionIdentifier
+    ''' </para>
+    ''' <para>
+    '''   - ModuleLogicalName.FunctionLogicalName
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   This function does not require that the sensor is online at the time
+    '''   it is invoked. The returned object is nevertheless valid.
+    '''   Use the method <c>YSensor.isOnline()</c> to test if the sensor is
+    '''   indeed online at a given time. In case of ambiguity when looking for
+    '''   a sensor by logical name, no error is notified: the first instance
+    '''   found is returned. The search is performed first by hardware name,
+    '''   then by logical name.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="func">
+    '''   a string that uniquely characterizes the sensor
+    ''' </param>
+    ''' <returns>
+    '''   a <c>YSensor</c> object allowing you to drive the sensor.
+    ''' </returns>
+    '''/
+    Public Shared Function FindSensor(func As String) As YSensor
+      Dim obj As YSensor
+      obj = CType(YFunction._FindFromCache("Sensor", func), YSensor)
+      If ((obj Is Nothing)) Then
+        obj = New YSensor(func)
+        YFunction._AddToCache("Sensor", func, obj)
+      End If
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YSensorValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackSensor = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackSensor Is Nothing)) Then
+        Me._valueCallbackSensor(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _parserHelper() As Integer
+      Dim position As Integer = 0
+      Dim maxpos As Integer = 0
+      Dim iCalib As List(Of Integer) = New List(Of Integer)()
+      Dim iRaw As Integer = 0
+      Dim iRef As Integer = 0
+      Dim fRaw As Double = 0
+      Dim fRef As Double = 0
+      REM // Store inverted resolution, to provide better rounding
+      If (Me._resolution > 0) Then
+        Me._iresol = Math.Round(1.0 / Me._resolution)
+      Else
+        Return 0
+      End If
+      
+      Me._scale = -1
+      Me._calpar.Clear()
+      Me._calraw.Clear()
+      Me._calref.Clear()
+      
+      REM // Old format: supported when there is no calibration
+      If (Me._calibrationParam = "" Or Me._calibrationParam = "0") Then
+        Me._caltyp = 0
+        Return 0
+      End If
+      REM // Old format: calibrated value will be provided by the device
+      If (Me._calibrationParam.IndexOf(",") >= 0) Then
+        Me._caltyp = -1
+        Return 0
+      End If
+      REM // New format, decode parameters
+      iCalib = YAPI._decodeWords(Me._calibrationParam)
+      REM // In case of unknown format, calibrated value will be provided by the device
+      If (iCalib.Count < 2) Then
+        Me._caltyp = -1
+        Return 0
+      End If
+      
+      REM // Save variable format (scale for scalar, or decimal exponent)
+      Me._isScal = (iCalib.ElementAt(1) > 0)
+      If (Me._isScal) Then
+        Me._offset = iCalib.ElementAt(0)
+        If (Me._offset > 32767) Then
+          Me._offset = Me._offset - 65536
+        End If
+        Me._scale = iCalib.ElementAt(1)
+        Me._decexp = 0
+      Else
+        Me._offset = 0
+        Me._scale = 1
+        Me._decexp = 1.0
+        position = iCalib.ElementAt(0)
+        While (position > 0)
+          Me._decexp = Me._decexp * 10
+          position = position - 1
+        End While
+      End If
+      
+      REM // Shortcut when there is no calibration parameter
+      If (iCalib.Count = 2) Then
+        Me._caltyp = 0
+        Return 0
+      End If
+      
+      Me._caltyp = iCalib.ElementAt(2)
+      Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
+      REM // parse calibration points
+      position = 3
+      If (Me._caltyp <= 10) Then
+        maxpos = Me._caltyp
+      Else
+        If (Me._caltyp <= 20) Then
+          maxpos = Me._caltyp - 10
+        Else
+          maxpos = 5
+        End If
+      End If
+      maxpos = 3 + 2 * maxpos
+      If (maxpos > iCalib.Count) Then
+        maxpos = iCalib.Count
+      End If
+      Me._calpar.Clear()
+      Me._calraw.Clear()
+      Me._calref.Clear()
+      While (position + 1 < maxpos)
+        iRaw = iCalib.ElementAt(position)
+        iRef = iCalib.ElementAt(position + 1)
+        Me._calpar.Add(iRaw)
+        Me._calpar.Add(iRef)
+        If (Me._isScal) Then
+          fRaw = iRaw
+          fRaw = (fRaw - Me._offset) / Me._scale
+          fRef = iRef
+          fRef = (fRef - Me._offset) / Me._scale
+          Me._calraw.Add(fRaw)
+          Me._calref.Add(fRef)
+        Else
+          Me._calraw.Add(YAPI._decimalToDouble(iRaw))
+          Me._calref.Add(YAPI._decimalToDouble(iRef))
+        End If
+        position = position + 2
+      End While
+      
+      
+      
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves a DataSet object holding historical data for this
+    '''   sensor, for a specified time interval.
+    ''' <para>
+    '''   The measures will be
+    '''   retrieved from the data logger, which must have been turned
+    '''   on at the desired time. See the documentation of the DataSet
+    '''   class for information on how to get an overview of the
+    '''   recorded data, and how to load progressively a large set
+    '''   of measures from the data logger.
+    ''' </para>
+    ''' <para>
+    '''   This function only works if the device uses a recent firmware,
+    '''   as DataSet objects are not supported by firmwares older than
+    '''   version 13000.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="startTime">
+    '''   the start of the desired measure time interval,
+    '''   as a Unix timestamp, i.e. the number of seconds since
+    '''   January 1, 1970 UTC. The special value 0 can be used
+    '''   to include any meaasure, without initial limit.
+    ''' </param>
+    ''' <param name="endTime">
+    '''   the end of the desired measure time interval,
+    '''   as a Unix timestamp, i.e. the number of seconds since
+    '''   January 1, 1970 UTC. The special value 0 can be used
+    '''   to include any meaasure, without ending limit.
+    ''' </param>
+    ''' <returns>
+    '''   an instance of YDataSet, providing access to historical
+    '''   data. Past measures can be loaded progressively
+    '''   using methods from the YDataSet object.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_recordedData(startTime As Long, endTime As Long) As YDataSet
+      Dim funcid As String
+      Dim funit As String
+      REM // may throw an exception
+      funcid = Me.get_functionId()
+      funit = Me.get_unit()
+      Return New YDataSet(Me, funcid, funit, startTime, endTime)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every periodic timed notification.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overridable Function registerTimedReportCallback(callback As YSensorTimedReportCallback) As Integer
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateTimedReportCallbackList(Me , True)
+      Else
+        YFunction._UpdateTimedReportCallbackList(Me , False)
+      End If
+      Me._timedReportCallbackSensor = callback
+      Return 0
+    End Function
+
+    Public Overridable Function _invokeTimedReportCallback(value As YMeasure) As Integer
+      If (Not (Me._timedReportCallbackSensor Is Nothing)) Then
+        Me._timedReportCallbackSensor(Me, value)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Configures error correction data points, in particular to compensate for
+    '''   a possible perturbation of the measure caused by an enclosure.
+    ''' <para>
+    '''   It is possible
+    '''   to configure up to five correction points. Correction points must be provided
+    '''   in ascending order, and be in the range of the sensor. The device will automatically
+    '''   perform a linear interpolation of the error correction between specified
+    '''   points. Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    '''   For more information on advanced capabilities to refine the calibration of
+    '''   sensors, please contact support@yoctopuce.com.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="rawValues">
+    '''   array of floating point numbers, corresponding to the raw
+    '''   values returned by the sensor for the correction points.
+    ''' </param>
+    ''' <param name="refValues">
+    '''   array of floating point numbers, corresponding to the corrected
+    '''   values for the correction points.
+    ''' </param>
+    '''/
+    Public Overridable Function calibrateFromPoints(rawValues As List(Of Double), refValues As List(Of Double)) As Integer
+      Dim rest_val As String
+      REM // may throw an exception
+      rest_val = Me._encodeCalibrationPoints(rawValues, refValues)
+      Return Me._setAttr("calibrationParam", rest_val)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves error correction data points previously entered using the method
+    '''   <c>calibrateFromPoints</c>.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="rawValues">
+    '''   array of floating point numbers, that will be filled by the
+    '''   function with the raw sensor values for the correction points.
+    ''' </param>
+    ''' <param name="refValues">
+    '''   array of floating point numbers, that will be filled by the
+    '''   function with the desired values for the correction points.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function loadCalibrationPoints(rawValues As List(Of Double), refValues As List(Of Double)) As Integer
+        Dim i_i As Integer
+      rawValues.Clear()
+      refValues.Clear()
+      
+      REM // Load function parameters if not yet loaded
+      If (Me._scale = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return YAPI.DEVICE_NOT_FOUND
+        End If
+      End If
+      
+      If (Me._caltyp < 0) Then
+        Me._throw(YAPI.NOT_SUPPORTED, "Device does not support new calibration parameters. Please upgrade your firmware")
+        Return YAPI.NOT_SUPPORTED
+      End If
+      rawValues.Clear()
+      refValues.Clear()
+      For i_i = 0 To Me._calraw.Count - 1
+        rawValues.Add(Me._calraw(i_i))
+      Next i_i
+      For i_i = 0 To Me._calref.Count - 1
+        refValues.Add(Me._calref(i_i))
+      Next i_i
+      Return YAPI.SUCCESS
+    End Function
+
+    Public Overridable Function _encodeCalibrationPoints(rawValues As List(Of Double), refValues As List(Of Double)) As String
+      Dim res As String
+      Dim npt As Integer = 0
+      Dim idx As Integer = 0
+      Dim iRaw As Integer = 0
+      Dim iRef As Integer = 0
+      
+      npt = rawValues.Count
+      If (npt <> refValues.Count) Then
+        Me._throw(YAPI.INVALID_ARGUMENT, "Invalid calibration parameters (size mismatch)")
+        Return YAPI.INVALID_STRING
+      End If
+      
+      REM // Shortcut when building empty calibration parameters
+      If (npt = 0) Then
+        Return "0"
+      End If
+      
+      REM // Load function parameters if not yet loaded
+      If (Me._scale = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return YAPI.INVALID_STRING
+        End If
+      End If
+      
+      REM // Detect old firmware
+      If ((Me._caltyp < 0) Or (Me._scale < 0)) Then
+        Me._throw(YAPI.NOT_SUPPORTED, "Device does not support new calibration parameters. Please upgrade your firmware")
+        Return "0"
+      End If
+      If (Me._isScal) Then
+        REM
+        res = "" + Convert.ToString(npt)
+        idx = 0
+        While (idx < npt)
+          iRaw = CType(Math.Round(rawValues.ElementAt(idx) * Me._scale - Me._offset), Integer)
+          iRef = CType(Math.Round(refValues.ElementAt(idx) * Me._scale - Me._offset), Integer)
+          res = "" +  res + "," + Convert.ToString( iRaw) + "," + Convert.ToString(iRef)
+          idx = idx + 1
+        End While
+      Else
+        REM
+        res = "" + Convert.ToString(10 + npt)
+        idx = 0
+        While (idx < npt)
+          iRaw = CType(YAPI._doubleToDecimal(rawValues.ElementAt(idx)), Integer)
+          iRef = CType(YAPI._doubleToDecimal(refValues.ElementAt(idx)), Integer)
+          res = "" +  res + "," + Convert.ToString( iRaw) + "," + Convert.ToString(iRef)
+          idx = idx + 1
+        End While
+      End If
+      Return res
+    End Function
+
+    Public Overridable Function _applyCalibration(rawValue As Double) As Double
+      If (rawValue = CURRENTVALUE_INVALID) Then
+        Return CURRENTVALUE_INVALID
+      End If
+      If (Me._caltyp = 0) Then
+        Return rawValue
+      End If
+      If (Me._caltyp < 0) Then
+        Return CURRENTVALUE_INVALID
+      End If
+      If (Not (Not (Me._calhdl Is Nothing))) Then
+        Return CURRENTVALUE_INVALID
+      End If
+      Return Me._calhdl(rawValue, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+    End Function
+
+    Public Overridable Function _decodeTimedReport(timestamp As Double, report As List(Of Integer)) As YMeasure
+      Dim i As Integer = 0
+      Dim byteVal As Integer = 0
+      Dim poww As Integer = 0
+      Dim minRaw As Integer = 0
+      Dim avgRaw As Integer = 0
+      Dim maxRaw As Integer = 0
+      Dim startTime As Double = 0
+      Dim endTime As Double = 0
+      Dim minVal As Double = 0
+      Dim avgVal As Double = 0
+      Dim maxVal As Double = 0
+      
+      startTime = Me._prevTimedReport
+      endTime = timestamp
+      Me._prevTimedReport = endTime
+      If (startTime = 0) Then
+        startTime = endTime
+      End If
+      If (report.ElementAt(0) > 0) Then
+        REM
+        minRaw = report.ElementAt(1) + &H100 * report.ElementAt(2)
+        maxRaw = report.ElementAt(3) + &H100 * report.ElementAt(4)
+        avgRaw = report.ElementAt(5) + &H100 * report.ElementAt(6) + &H10000 * report.ElementAt(7)
+        byteVal = report.ElementAt(8)
+        If (((byteVal) And (&H80)) = 0) Then
+          avgRaw = avgRaw + &H1000000 * byteVal
+        Else
+          avgRaw = avgRaw - &H1000000 * (&H100 - byteVal)
+        End If
+        minVal = Me._decodeVal(minRaw)
+        avgVal = Me._decodeAvg(avgRaw)
+        maxVal = Me._decodeVal(maxRaw)
+      Else
+        REM
+        poww = 1
+        avgRaw = 0
+        byteVal = 0
+        i = 1
+        While (i < report.Count)
+          byteVal = report.ElementAt(i)
+          avgRaw = avgRaw + poww * byteVal
+          poww = poww * &H100
+          i = i + 1
+        End While
+        If (Me._isScal) Then
+          avgVal = Me._decodeVal(avgRaw)
+        Else
+          If (((byteVal) And (&H80)) <> 0) Then
+            avgRaw = avgRaw - poww
+          End If
+          avgVal = Me._decodeAvg(avgRaw)
+        End If
+        minVal = avgVal
+        maxVal = avgVal
+      End If
+      
+      Return New YMeasure(startTime, endTime, minVal, avgVal, maxVal)
+    End Function
+
+    Public Overridable Function _decodeVal(w As Integer) As Double
+      Dim val As Double = 0
+      val = w
+      If (Me._isScal) Then
+        val = (val - Me._offset) / Me._scale
+      Else
+        val = YAPI._decimalToDouble(w)
+      End If
+      If (Me._caltyp <> 0) Then
+        val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+      End If
+      Return val
+    End Function
+
+    Public Overridable Function _decodeAvg(dw As Integer) As Double
+      Dim val As Double = 0
+      val = dw
+      If (Me._isScal) Then
+        val = (val / 100 - Me._offset) / Me._scale
+      Else
+        val = val / Me._decexp
+      End If
+      If (Me._caltyp <> 0) Then
+        val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+      End If
+      Return val
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of sensors started using <c>yFirstSensor()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YSensor</c> object, corresponding to
+    '''   a sensor currently online, or a <c>null</c> pointer
+    '''   if there are no more sensors to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextSensor() As YSensor
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YSensor.FindSensor(hwid)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Starts the enumeration of sensors currently accessible.
+    ''' <para>
+    '''   Use the method <c>YSensor.nextSensor()</c> to iterate on
+    '''   next sensors.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YSensor</c> object, corresponding to
+    '''   the first sensor currently online, or a <c>null</c> pointer
+    '''   if there are none.
+    ''' </returns>
+    '''/
+    Public Shared Function FirstSensor() As YSensor
+      Dim v_fundescr(1) As YFUN_DESCR
+      Dim dev As YDEV_DESCR
+      Dim neededsize, err As Integer
+      Dim serial, funcId, funcName, funcVal As String
+      Dim errmsg As String = ""
+      Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
+      Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
+
+      err = yapiGetFunctionsByClass("Sensor", 0, p, size, neededsize, errmsg)
+      Marshal.Copy(p, v_fundescr, 0, 1)
+      Marshal.FreeHGlobal(p)
+
+      If (YISERR(err) Or (neededsize = 0)) Then
+        Return Nothing
+      End If
+      serial = ""
+      funcId = ""
+      funcName = ""
+      funcVal = ""
+      errmsg = ""
+      If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
+        Return Nothing
+      End If
+      Return YSensor.FindSensor(serial + "." + funcId)
+    End Function
+
+    REM --- (end of generated code: YSensor public methods declaration)
+
+  End Class
+
+  REM --- (generated code: Sensor functions)
+
+  '''*
+  ''' <summary>
+  '''   Retrieves a sensor for a given identifier.
+  ''' <para>
+  '''   The identifier can be specified using several formats:
+  ''' </para>
+  ''' <para>
+  ''' </para>
+  ''' <para>
+  '''   - FunctionLogicalName
+  ''' </para>
+  ''' <para>
+  '''   - ModuleSerialNumber.FunctionIdentifier
+  ''' </para>
+  ''' <para>
+  '''   - ModuleSerialNumber.FunctionLogicalName
+  ''' </para>
+  ''' <para>
+  '''   - ModuleLogicalName.FunctionIdentifier
+  ''' </para>
+  ''' <para>
+  '''   - ModuleLogicalName.FunctionLogicalName
+  ''' </para>
+  ''' <para>
+  ''' </para>
+  ''' <para>
+  '''   This function does not require that the sensor is online at the time
+  '''   it is invoked. The returned object is nevertheless valid.
+  '''   Use the method <c>YSensor.isOnline()</c> to test if the sensor is
+  '''   indeed online at a given time. In case of ambiguity when looking for
+  '''   a sensor by logical name, no error is notified: the first instance
+  '''   found is returned. The search is performed first by hardware name,
+  '''   then by logical name.
+  ''' </para>
+  ''' </summary>
+  ''' <param name="func">
+  '''   a string that uniquely characterizes the sensor
+  ''' </param>
+  ''' <returns>
+  '''   a <c>YSensor</c> object allowing you to drive the sensor.
+  ''' </returns>
+  '''/
+  Public Function yFindSensor(ByVal func As String) As YSensor
+    Return YSensor.FindSensor(func)
+  End Function
+
+  '''*
+  ''' <summary>
+  '''   Starts the enumeration of sensors currently accessible.
+  ''' <para>
+  '''   Use the method <c>YSensor.nextSensor()</c> to iterate on
+  '''   next sensors.
+  ''' </para>
+  ''' </summary>
+  ''' <returns>
+  '''   a pointer to a <c>YSensor</c> object, corresponding to
+  '''   the first sensor currently online, or a <c>null</c> pointer
+  '''   if there are none.
+  ''' </returns>
+  '''/
+  Public Function yFirstSensor() As YSensor
+    Return YSensor.FirstSensor()
+  End Function
+
+
+  REM --- (end of generated code: Sensor functions)
+
+
+
+
 
   '''*
   ''' <summary>
@@ -3921,7 +6879,7 @@ Module yocto_api
   '''   Registers a log callback function.
   ''' <para>
   '''   This callback will be called each time
-  '''   the API have something to say. Quite usefull to debug the API.
+  '''   the API have something to say. Quite useful to debug the API.
   ''' </para>
   ''' </summary>
   ''' <param name="logfun">
@@ -3933,21 +6891,88 @@ Module yocto_api
     YAPI.RegisterLogFunction(logfun)
   End Sub
 
-  Enum yapiEventType
-    YAPI_DEV_ARRIVAL
-    YAPI_DEV_REMOVAL
-    YAPI_DEV_CHANGE
-    YAPI_FUN_UPDATE
-    YAPI_FUN_VALUE
-    YAPI_NOP
-  End Enum
 
-  Private Structure yapiEvent
-    Dim eventtype As yapiEventType
-    Dim modul As YModule
-    Dim fun_descr As YFUN_DESCR
-    Dim value As String
-  End Structure
+
+  Private Class PlugEvent
+    Enum EVTYPE
+      ARRIVAL
+      REMOVAL
+      CHANGE
+      HUB_DISCOVERY
+    End Enum
+
+    Private _ev As EVTYPE
+    Private _module As YModule
+    Private _serial As String
+    Private _url As String
+
+    Public Sub New(ByVal ev As EVTYPE, ByVal modul As YModule)
+      _ev = ev
+      _module = modul
+    End Sub
+
+    Public Sub New(ByVal serial As String, ByVal url As String)
+      _ev = EVTYPE.HUB_DISCOVERY
+      _serial = serial
+      _url = url
+    End Sub
+
+    Public Sub invoke()
+      Select Case _ev
+        Case EVTYPE.ARRIVAL
+          If yArrival <> Nothing Then
+            yArrival(_module)
+          End If
+        Case EVTYPE.REMOVAL
+          If yRemoval <> Nothing Then
+            yRemoval(_module)
+          End If
+        Case EVTYPE.CHANGE
+          If (yChange <> Nothing) Then
+            yChange(_module)
+          End If
+        Case EVTYPE.HUB_DISCOVERY
+          If (_HubDiscoveryCallback <> Nothing) Then
+            _HubDiscoveryCallback(_serial, _url)
+          End If
+      End Select
+    End Sub
+  End Class
+
+  Private Class DataEvent
+    Private _fun As YFunction
+    Private _value As String
+    Private _report As List(Of Integer)
+    Private _timestamp As Double
+
+    Public Sub New(ByVal fun As YFunction, ByVal value As String)
+      _fun = fun
+      _value = value
+      _report = Nothing
+      _timestamp = 0
+    End Sub
+
+    Public Sub New(ByVal fun As YFunction, ByVal timestamp As Double, ByVal report As List(Of Integer))
+      _fun = fun
+      _value = Nothing
+      _timestamp = timestamp
+      _report = report
+    End Sub
+
+    Public Sub invoke()
+      If (_value Is Nothing) Then
+        Dim sensor As YSensor = CType(_fun, YSensor)
+        Dim measure As YMeasure = sensor._decodeTimedReport(_timestamp, _report)
+        sensor._invokeTimedReportCallback(measure)
+      Else
+        REM new value
+        _fun._invokeValueCallback(_value)
+      End If
+
+
+    End Sub
+  End Class
+
 
   Private Function emptyDeviceSt() As yDeviceSt
     Dim infos As yDeviceSt
@@ -3964,36 +6989,28 @@ Module yocto_api
     emptyDeviceSt = infos
   End Function
 
-  Private Function emptyApiEvent() As yapiEvent
-    Dim ev As yapiEvent
-    ev.eventtype = yapiEventType.YAPI_NOP
-    ev.modul = Nothing
-    ev.fun_descr = 0
-    ev.value = ""
-    emptyApiEvent = ev
-  End Function
-
-  Dim _PlugEvents As List(Of yapiEvent)
-  Dim _DataEvents As List(Of yapiEvent)
+  Dim _PlugEvents As List(Of PlugEvent)
+  Dim _DataEvents As List(Of DataEvent)
 
   Private Sub native_yDeviceArrivalCallback(ByVal d As YDEV_DESCR)
     Dim infos As yDeviceSt = emptyDeviceSt()
-    Dim ev As yapiEvent = emptyApiEvent()
+    Dim ev As PlugEvent
+    Dim modul As YModule
     Dim errmsg As String = ""
 
-    ev.eventtype = yapiEventType.YAPI_DEV_ARRIVAL
     If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then
       Exit Sub
     End If
-    ev.modul = yFindModule(infos.serial + ".module")
-    ev.modul.setImmutableAttributes(infos)
+    modul = YModule.FindModule(infos.serial + ".module")
+    modul.setImmutableAttributes(infos)
+    ev = New PlugEvent(PlugEvent.EVTYPE.ARRIVAL, modul)
     If (yArrival <> Nothing) Then _PlugEvents.Add(ev)
   End Sub
 
   '''*
   ''' <summary>
   '''   Register a callback function, to be called each time
-  '''   a device is pluged.
+  '''   a device is plugged.
   ''' <para>
   '''   This callback will be invoked while <c>yUpdateDeviceList</c>
   '''   is running. You will have to call this function on a regular basis.
@@ -4009,23 +7026,22 @@ Module yocto_api
   End Sub
 
   Private Sub native_yDeviceRemovalCallback(ByVal d As YDEV_DESCR)
-    Dim ev As yapiEvent = emptyApiEvent()
+    Dim ev As PlugEvent
+    Dim modul As YModule
     Dim infos As yDeviceSt = emptyDeviceSt()
     Dim errmsg As String = ""
     If (yRemoval = Nothing) Then Exit Sub
-    ev.fun_descr = 0
-    ev.value = ""
-    ev.eventtype = yapiEventType.YAPI_DEV_REMOVAL
     infos.deviceid = 0
     If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then Exit Sub
-    ev.modul = yFindModule(infos.serial + ".module")
+    modul = YModule.FindModule(infos.serial + ".module")
+    ev = New PlugEvent(PlugEvent.EVTYPE.REMOVAL, modul)
     _PlugEvents.Add(ev)
   End Sub
 
   '''*
   ''' <summary>
   '''   Register a callback function, to be called each time
-  '''   a device is unpluged.
+  '''   a device is unplugged.
   ''' <para>
   '''   This callback will be invoked while <c>yUpdateDeviceList</c>
   '''   is running. You will have to call this function on a regular basis.
@@ -4040,20 +7056,53 @@ Module yocto_api
     YAPI.RegisterDeviceRemovalCallback(removalCallback)
   End Sub
 
+  Public Sub native_HubDiscoveryCallback(ByVal serial_ptr As IntPtr, ByVal url_ptr As IntPtr)
+    Dim ev As PlugEvent
+    Dim serial As String = Marshal.PtrToStringAnsi(serial_ptr)
+    Dim url As String = Marshal.PtrToStringAnsi(url_ptr)
+    ev = New PlugEvent(serial, url)
+    _PlugEvents.Add(ev)
+  End Sub
+
+
+  '''*
+  ''' <summary>
+  '''   Register a callback function, to be called each time an Network Hub send
+  '''   an SSDP message.
+  ''' <para>
+  '''   The callback has two string parameter, the first one
+  '''   contain the serial number of the hub and the second contain the URL of the
+  '''   network hub (this URL can be passed to RegisterHub). This callback will be invoked
+  '''   while yUpdateDeviceList is running. You will have to call this function on a regular basis.
+  ''' </para>
+  ''' <para>
+  ''' </para>
+  ''' </summary>
+  ''' <param name="hubDiscoveryCallback">
+  '''   a procedure taking two string parameter, or null
+  '''   to unregister a previously registered  callback.
+  ''' </param>
+  '''/
+  Public Sub yRegisterHubDiscoveryCallback(ByVal hubDiscoveryCallback As YHubDiscoveryCallback)
+    YAPI.RegisterHubDiscoveryCallback(hubDiscoveryCallback)
+  End Sub
+
+
   Public Sub native_yDeviceChangeCallback(ByVal d As YDEV_DESCR)
-    Dim ev As yapiEvent = emptyApiEvent()
+    Dim ev As PlugEvent
+    Dim modul As YModule
     Dim infos As yDeviceSt = emptyDeviceSt()
     Dim errmsg As String = ""
 
     If (yChange = Nothing) Then Exit Sub
-    ev.eventtype = yapiEventType.YAPI_DEV_CHANGE
     If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then Exit Sub
-    ev.modul = yFindModule(infos.serial + ".module")
+    modul = YModule.FindModule(infos.serial + ".module")
+    ev = New PlugEvent(PlugEvent.EVTYPE.CHANGE, modul)
     _PlugEvents.Add(ev)
   End Sub
 
   Public Sub yRegisterDeviceChangeCallback(ByVal callback As yDeviceUpdateFunc)
-    YAPI.yRegisterDeviceChangeCallback(callback)
+    YAPI.RegisterDeviceChangeCallback(callback)
   End Sub
 
   Private Sub queuesCleanUp()
@@ -4063,17 +7112,41 @@ Module yocto_api
     _DataEvents = Nothing
   End Sub
 
-  Private Sub native_yFunctionUpdateCallback(ByVal f As YFUN_DESCR, ByVal data As IntPtr)
-    Dim ev As yapiEvent = emptyApiEvent()
-    ev.fun_descr = f
-
-    If (data = IntPtr.Zero) Then
-      ev.eventtype = yapiEventType.YAPI_FUN_UPDATE
-    Else
-      ev.eventtype = yapiEventType.YAPI_FUN_VALUE
-      ev.value = Marshal.PtrToStringAnsi(data)
+  Private Sub native_yFunctionUpdateCallback(ByVal fundescr As YFUN_DESCR, ByVal data As IntPtr)
+    Dim ev As DataEvent
+    If (Not (data = IntPtr.Zero)) Then
+      For i = 0 To YFunction._ValueCallbackList.Count - 1
+        If (YFunction._ValueCallbackList(i).get_functionDescriptor() = fundescr) Then
+          ev = New DataEvent(YFunction._ValueCallbackList(i), Marshal.PtrToStringAnsi(data))
+          _DataEvents.Add(ev)
+          Return
+        End If
+      Next i
     End If
-    _DataEvents.Add(ev)
+  End Sub
+
+
+  Private Sub native_yTimedReportCallback(ByVal fundescr As YFUN_DESCR, timestamp As Double, rawdata As IntPtr, len As System.UInt32)
+    Dim ev As DataEvent
+    Dim data As Byte()
+    Dim report As List(Of Integer)
+    Dim intlen As Integer = CInt(len)
+    Dim p As Integer
+    For i = 0 To YFunction._TimedReportCallbackList.Count - 1
+      If (YFunction._TimedReportCallbackList(i).get_functionDescriptor() = fundescr) Then
+        ReDim data(intlen)
+        Marshal.Copy(rawdata, data, 0, intlen)
+        report = New List(Of Integer)(intlen)
+        p = 0
+        While (p < intlen)
+          report.Add(data(p))
+          p = p + 1
+        End While
+        ev = New DataEvent(YFunction._TimedReportCallbackList(i), timestamp, report)
+        _DataEvents.Add(ev)
+        Return
+      End If
+    Next i
   End Sub
 
 
@@ -4116,6 +7189,9 @@ Module yocto_api
   Public native_yFunctionUpdateDelegate As _yapiFunctionUpdateFunc = AddressOf native_yFunctionUpdateCallback
   Dim native_yFunctionUpdateAnchor As GCHandle = GCHandle.Alloc(native_yFunctionUpdateDelegate)
 
+  Public native_yTimedReportDelegate As _yapiTimedReportFunc = AddressOf native_yTimedReportCallback
+  Dim native_yTimedReportAnchor As GCHandle = GCHandle.Alloc(native_yTimedReportDelegate)
+
   Public native_yDeviceArrivalDelegate As _yapiDeviceUpdateFunc = AddressOf native_yDeviceArrivalCallback
   Dim native_yDeviceArrivalAnchor As GCHandle = GCHandle.Alloc(native_yDeviceArrivalDelegate)
 
@@ -4125,6 +7201,8 @@ Module yocto_api
   Public native_yDeviceChangeDelegate As _yapiDeviceUpdateFunc = AddressOf native_yDeviceChangeCallback
   Dim native_yDeviceChangeAnchor As GCHandle = GCHandle.Alloc(native_yDeviceChangeDelegate)
 
+  Public native_HubDiscoveryDelegate As _yapiHubDiscoveryCallback = AddressOf native_HubDiscoveryCallback
+  Dim native_HubDiscoveryAnchor As GCHandle = GCHandle.Alloc(native_HubDiscoveryDelegate)
 
   '''*
   ''' <summary>
@@ -4184,12 +7262,28 @@ Module yocto_api
   ''' <summary>
   '''   Setup the Yoctopuce library to use modules connected on a given machine.
   ''' <para>
-  '''   When using Yoctopuce modules through the VirtualHub gateway,
-  '''   you should provide as parameter the address of the machine on which the
-  '''   VirtualHub software is running (typically <c>"http://127.0.0.1:4444"</c>,
-  '''   which represents the local machine).
-  '''   When you use a language which has direct access to the USB hardware,
-  '''   you can use the pseudo-URL <c>"usb"</c> instead.
+  '''   The
+  '''   parameter will determine how the API will work. Use the following values:
+  ''' </para>
+  ''' <para>
+  '''   <b>usb</b>: When the <c>usb</c> keyword is used, the API will work with
+  '''   devices connected directly to the USB bus. Some programming languages such a Javascript,
+  '''   PHP, and Java don't provide direct access to USB hardware, so <c>usb</c> will
+  '''   not work with these. In this case, use a VirtualHub or a networked YoctoHub (see below).
+  ''' </para>
+  ''' <para>
+  '''   <b><i>x.x.x.x</i></b> or <b><i>hostname</i></b>: The API will use the devices connected to the
+  '''   host with the given IP address or hostname. That host can be a regular computer
+  '''   running a VirtualHub, or a networked YoctoHub such as YoctoHub-Ethernet or
+  '''   YoctoHub-Wireless. If you want to use the VirtualHub running on you local
+  '''   computer, use the IP address 127.0.0.1.
+  ''' </para>
+  ''' <para>
+  '''   <b>callback</b>: that keyword make the API run in "<i>HTTP Callback</i>" mode.
+  '''   This a special mode allowing to take control of Yoctopuce devices
+  '''   through a NAT filter when using a VirtualHub or a networked YoctoHub. You only
+  '''   need to configure your hub to call your server script on a regular basis.
+  '''   This mode is currently available for PHP and Node.JS only.
   ''' </para>
   ''' <para>
   '''   Be aware that only one application can use direct USB access at a
@@ -4201,17 +7295,20 @@ Module yocto_api
   '''   rather than direct USB access.
   ''' </para>
   ''' <para>
-  '''   If acces control has been activated on the VirtualHub you want to
+  '''   If access control has been activated on the hub, virtual or not, you want to
   '''   reach, the URL parameter should look like:
   ''' </para>
   ''' <para>
   '''   <c>http://username:password@adresse:port</c>
   ''' </para>
   ''' <para>
+  '''   You can call <i>RegisterHub</i> several times to connect to several machines.
+  ''' </para>
+  ''' <para>
   ''' </para>
   ''' </summary>
   ''' <param name="url">
-  '''   a string containing either <c>"usb"</c> or the
+  '''   a string containing either <c>"usb"</c>,<c>"callback"</c> or the
   '''   root URL of the hub to monitor
   ''' </param>
   ''' <param name="errmsg">
@@ -4229,7 +7326,31 @@ Module yocto_api
   End Function
 
   '''*
-  '''
+  ''' <summary>
+  '''   Fault-tolerant alternative to RegisterHub().
+  ''' <para>
+  '''   This function has the same
+  '''   purpose and same arguments as <c>RegisterHub()</c>, but does not trigger
+  '''   an error when the selected hub is not available at the time of the function call.
+  '''   This makes it possible to register a network hub independently of the current
+  '''   connectivity, and to try to contact it only when a device is actively needed.
+  ''' </para>
+  ''' <para>
+  ''' </para>
+  ''' </summary>
+  ''' <param name="url">
+  '''   a string containing either <c>"usb"</c>,<c>"callback"</c> or the
+  '''   root URL of the hub to monitor
+  ''' </param>
+  ''' <param name="errmsg">
+  '''   a string passed by reference to receive any error message.
+  ''' </param>
+  ''' <returns>
+  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  ''' </returns>
+  ''' <para>
+  '''   On failure, throws an exception or returns a negative error code.
+  ''' </para>
   '''/
   Public Function yPreregisterHub(ByVal url As String, ByRef errmsg As String) As Integer
     Return YAPI.PreregisterHub(url, errmsg)
@@ -4312,7 +7433,7 @@ Module yocto_api
   '''   Pauses the execution flow for a specified duration.
   ''' <para>
   '''   This function implements a passive waiting loop, meaning that it does not
-  '''   consume CPU cycles significatively. The processor is left available for
+  '''   consume CPU cycles significantly. The processor is left available for
   '''   other threads and processes. During the pause, the library nevertheless
   '''   reads from time to time information from the Yoctopuce modules by
   '''   calling <c>yHandleEvents()</c>, in order to stay up-to-date.
@@ -4342,10 +7463,29 @@ Module yocto_api
 
   '''*
   ''' <summary>
+  '''   Force a hub discovery, if a callback as been registered with <c>yRegisterDeviceRemovalCallback</c> it
+  '''   will be called for each net work hub that will respond to the discovery
+  ''' </summary>
+  ''' <param name="errmsg">
+  '''   a string passed by reference to receive any error message.
+  ''' </param>
+  ''' <returns>
+  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  '''   On failure, throws an exception or returns a negative error code.
+  ''' </returns>
+  '''/
+  Public Function yTriggerHubDiscovery(ByRef errmsg As String) As Integer
+    Return YAPI.TriggerHubDiscovery(errmsg)
+  End Function
+
+
+
+  '''*
+  ''' <summary>
   '''   Returns the current value of a monotone millisecond-based time counter.
   ''' <para>
   '''   This counter can be used to compute delays in relation with
-  '''   Yoctopuce devices, which also uses the milisecond as timebase.
+  '''   Yoctopuce devices, which also uses the millisecond as timebase.
   ''' </para>
   ''' </summary>
   ''' <returns>
@@ -4516,6 +7656,10 @@ Module yocto_api
   Private Sub _yapiRegisterFunctionUpdateCallback(ByVal fct As IntPtr)
   End Sub
 
+  <DllImport("yapi.dll", entrypoint:="yapiRegisterTimedReportCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Sub _yapiRegisterTimedReportCallback(ByVal fct As IntPtr)
+  End Sub
+
   <DllImport("yapi.dll", entrypoint:="yapiLockDeviceCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiLockDeviceCallBack(ByVal errmsg As StringBuilder) As Integer
   End Function
@@ -4653,79 +7797,43 @@ Module yocto_api
   Private Function _yapiSleep(ByVal duration_ms As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  REM--- (generated code: Module functions)
-
-  '''*
-  ''' <summary>
-  '''   Allows you to find a module from its serial number or from its logical name.
-  ''' <para>
-  ''' </para>
-  ''' <para>
-  '''   This function does not require that the module is online at the time
-  '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YModule.isOnline()</c> to test if the module is
-  '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a module by logical name, no error is notified: the first instance
-  '''   found is returned. The search is performed first by hardware name,
-  '''   then by logical name.
-  ''' </para>
-  ''' </summary>
-  ''' <param name="func">
-  '''   a string containing either the serial number or
-  '''   the logical name of the desired module
-  ''' </param>
-  ''' <returns>
-  '''   a <c>YModule</c> object allowing you to drive the module
-  '''   or get additional information on the module.
-  ''' </returns>
-  '''/
-  Public Function yFindModule(ByVal func As String) As YModule
-    Return YModule.FindModule(func)
-  End Function
-
-  '''*
-  ''' <summary>
-  '''   Starts the enumeration of modules currently accessible.
-  ''' <para>
-  '''   Use the method <c>YModule.nextModule()</c> to iterate on the
-  '''   next modules.
-  ''' </para>
-  ''' </summary>
-  ''' <returns>
-  '''   a pointer to a <c>YModule</c> object, corresponding to
-  '''   the first module currently online, or a <c>null</c> pointer
-  '''   if there are none.
-  ''' </returns>
-  '''/
-  Public Function yFirstModule() As YModule
-    Return YModule.FirstModule()
-  End Function
-
-  Private Sub _ModuleCleanup()
+  <DllImport("yapi.dll", entrypoint:="yapiRegisterHubDiscoveryCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Sub _yapiRegisterHubDiscoveryCallback(ByVal fct As IntPtr)
   End Sub
 
-
-  REM --- (end of generated code: Module functions)
-
+  <DllImport("yapi.dll", entrypoint:="yapiTriggerHubDiscovery", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiTriggerHubDiscovery(ByVal errmsg As StringBuilder) As Integer
+  End Function
 
   Private Sub vbmodule_initialization()
-
     YDevice_devCache = New List(Of YDevice)
+    REM --- (generated code: Function initialization)
+    REM --- (end of generated code: Function initialization)
     REM --- (generated code: Module initialization)
-    _ModuleCache = New Hashtable()
     REM --- (end of generated code: Module initialization)
-    _PlugEvents = New List(Of yapiEvent)
-    _DataEvents = New List(Of yapiEvent)
-
+    REM --- (generated code: DataStream initialization)
+    REM --- (end of generated code: DataStream initialization)
+    REM --- (generated code: Measure initialization)
+    REM --- (end of generated code: Measure initialization)
+    REM --- (generated code: DataSet initialization)
+    REM --- (end of generated code: DataSet initialization)
+    _PlugEvents = New List(Of PlugEvent)
+    _DataEvents = New List(Of DataEvent)
   End Sub
 
   Private Sub vbmodule_cleanup()
     YDevice_devCache.Clear()
     YDevice_devCache = Nothing
+    REM --- (generated code: Function cleanup)
+    REM --- (end of generated code: Function cleanup)
     REM --- (generated code: Module cleanup)
-    _ModuleCache.Clear()
-    _ModuleCache = Nothing
     REM --- (end of generated code: Module cleanup)
+    REM --- (generated code: DataStream cleanup)
+    REM --- (end of generated code: DataStream cleanup)
+    REM --- (generated code: Measure cleanup)
+    REM --- (end of generated code: Measure cleanup)
+    REM --- (generated code: DataSet cleanup)
+    REM --- (end of generated code: DataSet cleanup)
     _PlugEvents.Clear()
     _PlugEvents = Nothing
     _DataEvents.Clear()

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 12326 2013-08-13 15:52:20Z mvuilleu $
+'* $Id: yocto_files.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -44,83 +44,75 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 
 Module yocto_files
+  REM --- (generated code: YFileRecord globals)
 
-  REM --- (definitions)
+  REM --- (end of generated code: YFileRecord globals)
+  REM --- (generated code: YFiles globals)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YFiles, ByVal value As String)
-
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_FILESCOUNT_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_FREESPACE_INVALID As Integer = YAPI.INVALID_UNSIGNED
-
-  REM --- (end of generated code: definitions)
+  Public Const Y_FILESCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_FREESPACE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Delegate Sub YFilesValueCallback(ByVal func As YFiles, ByVal value As String)
+  Public Delegate Sub YFilesTimedReportCallback(ByVal func As YFiles, ByVal measure As YMeasure)
+  REM --- (end of generated code: YFiles globals)
 
 
-
-  REM--- (generated code: YFileRecord implementation)
-
+  REM --- (generated code: YFileRecord class start)
 
   Public Class YFileRecord
+    REM --- (end of generated code: YFileRecord class start)
 
+    REM --- (generated code: YFileRecord definitions)
+    REM --- (end of generated code: YFileRecord definitions)
 
-
-    public function get_name() as string
-        Return Me._name
-     end function
-
-    public function get_size() as integer
-        Return Me._size
-     end function
-
-    public function get_crc() as integer
-        Return Me._crc
-     end function
-
-    public function name() as string
-        Return Me._name
-     end function
-
-    public function size() as integer
-        Return Me._size
-     end function
-
-    public function crc() as integer
-        Return Me._crc
-     end function
-
-
-
-    REM --- (end of generated code: YFileRecord implementation)
-
+    REM --- (generated code: YFileRecord attributes declaration)
     Protected _name As String
-    Protected _crc As Integer
     Protected _size As Integer
+    Protected _crc As Integer
+    REM --- (end of generated code: YFileRecord attributes declaration)
 
-    Public Sub New(ByVal data As String)
+    REM --- (generated code: YFileRecord private methods declaration)
+
+    REM --- (end of generated code: YFileRecord private methods declaration)
+
+    REM --- (generated code: YFileRecord public methods declaration)
+    Public Overridable Function get_name() As String
+      Return Me._name
+    End Function
+
+    Public Overridable Function get_size() As Integer
+      Return Me._size
+    End Function
+
+    Public Overridable Function get_crc() As Integer
+      Return Me._crc
+    End Function
+
+
+
+    REM --- (end of generated code: YFileRecord public methods declaration)
+
+   Public Sub New(ByVal data As String)
       Dim p As TJsonParser
       Dim node As Nullable(Of TJSONRECORD)
       p = New TJsonParser(data, False)
       node = p.GetChildNode(Nothing, "name")
       Me._name = node.Value.svalue
       node = p.GetChildNode(Nothing, "size")
-      Me._size = node.Value.ivalue
+      Me._size = CInt(node.Value.ivalue)
       node = p.GetChildNode(Nothing, "crc")
-      Me._crc = node.Value.ivalue
-    End Sub
-
-
+      Me._crc = CInt(node.Value.ivalue)
+    End Sub  
+    
   End Class
+  
+  REM --- (generated code: FileRecord functions)
+
+
+  REM --- (end of generated code: FileRecord functions)
 
 
 
-
-
-  REM --- (generated code: YFiles implementation)
-
-  Private _FilesCache As New Hashtable()
-  Private _callback As UpdateCallback
+  REM --- (generated code: YFiles class start)
 
   '''*
   ''' <summary>
@@ -134,123 +126,46 @@ Module yocto_files
   '''/
   Public Class YFiles
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-    Public Const FILESCOUNT_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const FREESPACE_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    REM --- (end of generated code: YFiles class start)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _filesCount As Long
-    Protected _freeSpace As Long
+    REM --- (generated code: YFiles definitions)
+    Public Const FILESCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const FREESPACE_INVALID As Integer = YAPI.INVALID_UINT
+    REM --- (end of generated code: YFiles definitions)
+
+    REM --- (generated code: YFiles attributes declaration)
+    Protected _filesCount As Integer
+    Protected _freeSpace As Integer
+    Protected _valueCallbackFiles As YFilesValueCallback
+    REM --- (end of generated code: YFiles attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("Files", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _filesCount = Y_FILESCOUNT_INVALID
-      _freeSpace = Y_FREESPACE_INVALID
+      MyBase.new(func)
+      _className = "Files"
+      REM --- (generated code: YFiles attributes initialization)
+      _filesCount = FILESCOUNT_INVALID
+      _freeSpace = FREESPACE_INVALID
+      _valueCallbackFiles = Nothing
+      REM --- (end of generated code: YFiles attributes initialization)
     End Sub
+    
+    REM --- (generated code: YFiles private methods declaration)
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "filesCount") Then
+        _filesCount = CInt(member.ivalue)
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "filesCount") Then
-          _filesCount = CLng(member.ivalue)
-        ElseIf (member.name = "freeSpace") Then
-          _freeSpace = CLng(member.ivalue)
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the filesystem.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the filesystem
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "freeSpace") Then
+        _freeSpace = CInt(member.ivalue)
+        Return 1
       End If
-      Return _logicalName
+      Return MyBase._parseAttr(member)
     End Function
 
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the filesystem.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the filesystem
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
+    REM --- (end of generated code: YFiles private methods declaration)
 
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the filesystem (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the filesystem (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
-      End If
-      Return _advertisedValue
-    End Function
-
+    REM --- (generated code: YFiles public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the number of files currently loaded in the filesystem.
@@ -267,12 +182,12 @@ Module yocto_files
     ''' </para>
     '''/
     Public Function get_filesCount() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_FILESCOUNT_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return FILESCOUNT_INVALID
         End If
       End If
-      Return CType(_filesCount,Integer)
+      Return Me._filesCount
     End Function
 
     '''*
@@ -291,214 +206,13 @@ Module yocto_files
     ''' </para>
     '''/
     Public Function get_freeSpace() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_FREESPACE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return FREESPACE_INVALID
         End If
       End If
-      Return CType(_freeSpace,Integer)
+      Return Me._freeSpace
     End Function
-    public function sendCommand(command as string) as byte()
-        dim  url as string
-        url =  "files.json?a="+command
-        Return Me._download(url)
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Reinitializes the filesystem to its clean, unfragmented, empty state.
-    ''' <para>
-    '''   All files previously uploaded are permanently lost.
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function format_fs() as integer
-        dim  json as byte()
-        dim  res as string
-        json = Me.sendCommand("format")
-        res  = Me._json_get_key(json, "res")
-        if not(res = "ok") then
-me._throw( YAPI.IO_ERROR, "format failed")
- return  YAPI.IO_ERROR
-end if
-
-        Return YAPI.SUCCESS
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Returns a list of YFileRecord objects that describe files currently loaded
-    '''   in the filesystem.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="pattern">
-    '''   an optional filter pattern, using star and question marks
-    '''   as wildcards. When an empty pattern is provided, all file records
-    '''   are returned.
-    ''' </param>
-    ''' <returns>
-    '''   a list of <c>YFileRecord</c> objects, containing the file path
-    '''   and name, byte size and 32-bit CRC of the file content.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty list.
-    ''' </para>
-    '''/
-    public function get_list(pattern as string) as List(of YFileRecord)
-        dim  json as byte()
-        dim  list as string()
-        dim  res as List(of YFileRecord) = new List(of YFileRecord)()
-        json = Me.sendCommand("dir&f="+pattern)
-        list = Me._json_get_array(json)
-        dim i_i as integer
-for i_i=0 to list.Count-1
-res.Add(new YFileRecord(list(i_i)))
-next i_i
-
-        Return res
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Downloads the requested file and returns a binary buffer with its content.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="pathname">
-    '''   path and name of the new file to load
-    ''' </param>
-    ''' <returns>
-    '''   a binary buffer with the file content
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty content.
-    ''' </para>
-    '''/
-    public function download(pathname as string) as byte()
-        Return Me._download(pathname)
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Uploads a file to the filesystem, to the specified full path name.
-    ''' <para>
-    '''   If a file already exists with the same path name, its content is overwritten.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="pathname">
-    '''   path and name of the new file to create
-    ''' </param>
-    ''' <param name="content">
-    '''   binary buffer with the content to set
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function upload(pathname as string, content as byte()) as integer
-        Return Me._upload(pathname,content)
-        
-     end function
-
-    '''*
-    ''' <summary>
-    '''   Deletes a file, given by its full path name, from the filesystem.
-    ''' <para>
-    '''   Because of filesystem fragmentation, deleting a file may not always
-    '''   free up the whole space used by the file. However, rewriting a file
-    '''   with the same path name will always reuse any space not freed previously.
-    '''   If you need to ensure that no space is taken by previously deleted files,
-    '''   you can use <c>format_fs</c> to fully reinitialize the filesystem.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="pathname">
-    '''   path and name of the file to remove.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    public function remove(pathname as string) as integer
-        dim  json as byte()
-        dim  res as string
-        json = Me.sendCommand("del&f="+pathname)
-        res  = Me._json_get_key(json, "res")
-        if not(res = "ok") then
-me._throw( YAPI.IO_ERROR, "unable to remove file")
- return  YAPI.IO_ERROR
-end if
-
-        Return YAPI.SUCCESS
-     end function
-
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of filesystems started using <c>yFirstFiles()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YFiles</c> object, corresponding to
-    '''   a filesystem currently online, or a <c>null</c> pointer
-    '''   if there are no more filesystems to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextFiles() as YFiles
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindFiles(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
 
     '''*
     ''' <summary>
@@ -542,14 +256,227 @@ end if
     '''   a <c>YFiles</c> object allowing you to drive the filesystem.
     ''' </returns>
     '''/
-    Public Shared Function FindFiles(ByVal func As String) As YFiles
-      Dim res As YFiles
-      If (_FilesCache.ContainsKey(func)) Then
-        Return CType(_FilesCache(func), YFiles)
+    Public Shared Function FindFiles(func As String) As YFiles
+      Dim obj As YFiles
+      obj = CType(YFunction._FindFromCache("Files", func), YFiles)
+      If ((obj Is Nothing)) Then
+        obj = New YFiles(func)
+        YFunction._AddToCache("Files", func, obj)
       End If
-      res = New YFiles(func)
-      _FilesCache.Add(func, res)
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YFilesValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackFiles = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackFiles Is Nothing)) Then
+        Me._valueCallbackFiles(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+    Public Overridable Function sendCommand(command As String) As Byte()
+      Dim url As String
+      url = "files.json?a=" + command
+      REM // may throw an exception
+      Return Me._download(url)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reinitializes the filesystem to its clean, unfragmented, empty state.
+    ''' <para>
+    '''   All files previously uploaded are permanently lost.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function format_fs() As Integer
+      Dim json As Byte()
+      Dim res As String
+      json = Me.sendCommand("format")
+      res = Me._json_get_key(json, "res")
+      If Not(res = "ok") Then
+        me._throw( YAPI.IO_ERROR,  "format failed")
+        return YAPI.IO_ERROR
+      end if
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns a list of YFileRecord objects that describe files currently loaded
+    '''   in the filesystem.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="pattern">
+    '''   an optional filter pattern, using star and question marks
+    '''   as wildcards. When an empty pattern is provided, all file records
+    '''   are returned.
+    ''' </param>
+    ''' <returns>
+    '''   a list of <c>YFileRecord</c> objects, containing the file path
+    '''   and name, byte size and 32-bit CRC of the file content.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty list.
+    ''' </para>
+    '''/
+    Public Overridable Function get_list(pattern As String) As List(Of YFileRecord)
+        Dim i_i As Integer
+      Dim json As Byte()
+      Dim filelist As List(Of String) = New List(Of String)()
+      Dim res As List(Of YFileRecord) = New List(Of YFileRecord)()
+      json = Me.sendCommand("dir&f=" + pattern)
+      filelist = Me._json_get_array(json)
+      res.Clear()
+      For i_i = 0 To filelist.Count - 1
+        res.Add(New YFileRecord(filelist(i_i)))
+      Next i_i
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Downloads the requested file and returns a binary buffer with its content.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="pathname">
+    '''   path and name of the file to download
+    ''' </param>
+    ''' <returns>
+    '''   a binary buffer with the file content
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty content.
+    ''' </para>
+    '''/
+    Public Overridable Function download(pathname As String) As Byte()
+      Return Me._download(pathname)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Uploads a file to the filesystem, to the specified full path name.
+    ''' <para>
+    '''   If a file already exists with the same path name, its content is overwritten.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="pathname">
+    '''   path and name of the new file to create
+    ''' </param>
+    ''' <param name="content">
+    '''   binary buffer with the content to set
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function upload(pathname As String, content As Byte()) As Integer
+      Return Me._upload(pathname, content)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Deletes a file, given by its full path name, from the filesystem.
+    ''' <para>
+    '''   Because of filesystem fragmentation, deleting a file may not always
+    '''   free up the whole space used by the file. However, rewriting a file
+    '''   with the same path name will always reuse any space not freed previously.
+    '''   If you need to ensure that no space is taken by previously deleted files,
+    '''   you can use <c>format_fs</c> to fully reinitialize the filesystem.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="pathname">
+    '''   path and name of the file to remove.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function remove(pathname As String) As Integer
+      Dim json As Byte()
+      Dim res As String
+      json = Me.sendCommand("del&f=" + pathname)
+      res  = Me._json_get_key(json, "res")
+      If Not(res = "ok") Then
+        me._throw( YAPI.IO_ERROR,  "unable to remove file")
+        return YAPI.IO_ERROR
+      end if
+      Return YAPI.SUCCESS
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of filesystems started using <c>yFirstFiles()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YFiles</c> object, corresponding to
+    '''   a filesystem currently online, or a <c>null</c> pointer
+    '''   if there are no more filesystems to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextFiles() As YFiles
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YFiles.FindFiles(hwid)
     End Function
 
     '''*
@@ -593,7 +520,7 @@ end if
       Return YFiles.FindFiles(serial + "." + funcId)
     End Function
 
-    REM --- (end of generated code: YFiles implementation)
+    REM --- (end of generated code: YFiles public methods declaration)
 
   End Class
 
@@ -662,9 +589,6 @@ end if
   Public Function yFirstFiles() As YFiles
     Return YFiles.FirstFiles()
   End Function
-
-  Private Sub _FilesCleanup()
-  End Sub
 
 
   REM --- (end of generated code: Files functions)

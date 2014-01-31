@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_led.vb 12324 2013-08-13 15:10:31Z mvuilleu $
+'* $Id: yocto_led.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindLed(), the high-level API for Led functions
 '*
@@ -45,21 +45,15 @@ Imports System.Text
 
 Module yocto_led
 
-  REM --- (return codes)
-  REM --- (end of return codes)
-  
-  REM --- (YLed definitions)
+    REM --- (YLed return codes)
+    REM --- (end of YLed return codes)
+  REM --- (YLed globals)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YLed, ByVal value As String)
-
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_POWER_OFF = 0
   Public Const Y_POWER_ON = 1
   Public Const Y_POWER_INVALID = -1
 
-  Public Const Y_LUMINOSITY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BLINKING_STILL = 0
   Public Const Y_BLINKING_RELAX = 1
   Public Const Y_BLINKING_AWARE = 2
@@ -68,14 +62,11 @@ Module yocto_led
   Public Const Y_BLINKING_PANIC = 5
   Public Const Y_BLINKING_INVALID = -1
 
+  Public Delegate Sub YLedValueCallback(ByVal func As YLed, ByVal value As String)
+  Public Delegate Sub YLedTimedReportCallback(ByVal func As YLed, ByVal measure As YMeasure)
+  REM --- (end of YLed globals)
 
-
-  REM --- (end of YLed definitions)
-
-  REM --- (YLed implementation)
-
-  Private _LedCache As New Hashtable()
-  Private _callback As UpdateCallback
+  REM --- (YLed class start)
 
   '''*
   ''' <summary>
@@ -88,13 +79,14 @@ Module yocto_led
   '''/
   Public Class YLed
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of YLed class start)
+
+    REM --- (YLed definitions)
     Public Const POWER_OFF = 0
     Public Const POWER_ON = 1
     Public Const POWER_INVALID = -1
 
-    Public Const LUMINOSITY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BLINKING_STILL = 0
     Public Const BLINKING_RELAX = 1
     Public Const BLINKING_AWARE = 2
@@ -103,123 +95,47 @@ Module yocto_led
     Public Const BLINKING_PANIC = 5
     Public Const BLINKING_INVALID = -1
 
+    REM --- (end of YLed definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _power As Long
-    Protected _luminosity As Long
-    Protected _blinking As Long
+    REM --- (YLed attributes declaration)
+    Protected _power As Integer
+    Protected _luminosity As Integer
+    Protected _blinking As Integer
+    Protected _valueCallbackLed As YLedValueCallback
+    REM --- (end of YLed attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("Led", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _power = Y_POWER_INVALID
-      _luminosity = Y_LUMINOSITY_INVALID
-      _blinking = Y_BLINKING_INVALID
+      MyBase.New(func)
+      _classname = "Led"
+      REM --- (YLed attributes initialization)
+      _power = POWER_INVALID
+      _luminosity = LUMINOSITY_INVALID
+      _blinking = BLINKING_INVALID
+      _valueCallbackLed = Nothing
+      REM --- (end of YLed attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+  REM --- (YLed private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "power") Then
+        If (member.ivalue > 0) Then _power = 1 Else _power = 0
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "power") Then
-          If (member.ivalue > 0) Then _power = 1 Else _power = 0
-        ElseIf (member.name = "luminosity") Then
-          _luminosity = CLng(member.ivalue)
-        ElseIf (member.name = "blinking") Then
-          _blinking = CLng(member.ivalue)
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the led.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the led
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "luminosity") Then
+        _luminosity = CInt(member.ivalue)
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the led.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the led
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the led (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the led (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "blinking") Then
+        _blinking = CInt(member.ivalue)
+        Return 1
       End If
-      Return _advertisedValue
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of YLed private methods declaration)
+
+    REM --- (YLed public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the current led state.
@@ -236,13 +152,14 @@ Module yocto_led
     ''' </para>
     '''/
     Public Function get_power() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_POWER_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return POWER_INVALID
         End If
       End If
-      Return CType(_power,Integer)
+      Return Me._power
     End Function
+
 
     '''*
     ''' <summary>
@@ -269,7 +186,6 @@ Module yocto_led
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("power", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the current led intensity (in per cent).
@@ -286,13 +202,14 @@ Module yocto_led
     ''' </para>
     '''/
     Public Function get_luminosity() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LUMINOSITY_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LUMINOSITY_INVALID
         End If
       End If
-      Return CType(_luminosity,Integer)
+      Return Me._luminosity
     End Function
+
 
     '''*
     ''' <summary>
@@ -319,7 +236,6 @@ Module yocto_led
       rest_val = Ltrim(Str(newval))
       Return _setAttr("luminosity", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the current led signaling mode.
@@ -338,13 +254,14 @@ Module yocto_led
     ''' </para>
     '''/
     Public Function get_blinking() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_BLINKING_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return BLINKING_INVALID
         End If
       End If
-      Return CType(_blinking,Integer)
+      Return Me._blinking
     End Function
+
 
     '''*
     ''' <summary>
@@ -373,60 +290,6 @@ Module yocto_led
       rest_val = Ltrim(Str(newval))
       Return _setAttr("blinking", rest_val)
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of leds started using <c>yFirstLed()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YLed</c> object, corresponding to
-    '''   a led currently online, or a <c>null</c> pointer
-    '''   if there are no more leds to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextLed() as YLed
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindLed(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
-
     '''*
     ''' <summary>
     '''   Retrieves a led for a given identifier.
@@ -469,14 +332,83 @@ Module yocto_led
     '''   a <c>YLed</c> object allowing you to drive the led.
     ''' </returns>
     '''/
-    Public Shared Function FindLed(ByVal func As String) As YLed
-      Dim res As YLed
-      If (_LedCache.ContainsKey(func)) Then
-        Return CType(_LedCache(func), YLed)
+    Public Shared Function FindLed(func As String) As YLed
+      Dim obj As YLed
+      obj = CType(YFunction._FindFromCache("Led", func), YLed)
+      If ((obj Is Nothing)) Then
+        obj = New YLed(func)
+        YFunction._AddToCache("Led", func, obj)
       End If
-      res = New YLed(func)
-      _LedCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YLedValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackLed = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackLed Is Nothing)) Then
+        Me._valueCallbackLed(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of leds started using <c>yFirstLed()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YLed</c> object, corresponding to
+    '''   a led currently online, or a <c>null</c> pointer
+    '''   if there are no more leds to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextLed() As YLed
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YLed.FindLed(hwid)
     End Function
 
     '''*
@@ -520,7 +452,7 @@ Module yocto_led
       Return YLed.FindLed(serial + "." + funcId)
     End Function
 
-    REM --- (end of YLed implementation)
+    REM --- (end of YLed public methods declaration)
 
   End Class
 
@@ -589,9 +521,6 @@ Module yocto_led
   Public Function yFirstLed() As YLed
     Return YLed.FirstLed()
   End Function
-
-  Private Sub _LedCleanup()
-  End Sub
 
 
   REM --- (end of Led functions)

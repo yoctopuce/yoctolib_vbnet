@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_watchdog.vb 12324 2013-08-13 15:10:31Z mvuilleu $
+'* $Id: yocto_watchdog.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindWatchdog(), the high-level API for Watchdog functions
 '*
@@ -45,23 +45,24 @@ Imports System.Text
 
 Module yocto_watchdog
 
-  REM --- (return codes)
-  REM --- (end of return codes)
-  
-  REM --- (YWatchdog definitions)
-
-  Public Delegate Sub UpdateCallback(ByVal func As YWatchdog, ByVal value As String)
+    REM --- (YWatchdog return codes)
+    REM --- (end of YWatchdog return codes)
+  REM --- (YWatchdog globals)
 
 Public Class YWatchdogDelayedPulse
-  Public target As System.Int64 = YAPI.INVALID_LONG
-  Public ms As System.Int64 = YAPI.INVALID_LONG
-  Public moving As System.Int64 = YAPI.INVALID_LONG
+  Public target As Integer = YAPI.INVALID_INT
+  Public ms As Integer = YAPI.INVALID_INT
+  Public moving As Integer = YAPI.INVALID_UINT
 End Class
 
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
   REM Y_STATE is defined in yocto_api.vb
+  Public Const Y_STATEATPOWERON_UNCHANGED = 0
+  Public Const Y_STATEATPOWERON_A = 1
+  Public Const Y_STATEATPOWERON_B = 2
+  Public Const Y_STATEATPOWERON_INVALID = -1
+
+  Public Const Y_MAXTIMEONSTATEA_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_MAXTIMEONSTATEB_INVALID As Long = YAPI.INVALID_LONG
   REM Y_OUTPUT is defined in yocto_api.vb
   Public Const Y_PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_COUNTDOWN_INVALID As Long = YAPI.INVALID_LONG
@@ -69,15 +70,12 @@ End Class
   REM Y_RUNNING is defined in yocto_api.vb
   Public Const Y_TRIGGERDELAY_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_TRIGGERDURATION_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_DELAYEDPULSETIMER_INVALID = Nothing
+  Public Delegate Sub YWatchdogValueCallback(ByVal func As YWatchdog, ByVal value As String)
+  Public Delegate Sub YWatchdogTimedReportCallback(ByVal func As YWatchdog, ByVal measure As YMeasure)
+  REM --- (end of YWatchdog globals)
 
-  Public Y_DELAYEDPULSETIMER_INVALID As YWatchdogDelayedPulse
-
-  REM --- (end of YWatchdog definitions)
-
-  REM --- (YWatchdog implementation)
-
-  Private _WatchdogCache As New Hashtable()
-  Private _callback As UpdateCallback
+  REM --- (YWatchdog class start)
 
   '''*
   ''' <summary>
@@ -94,17 +92,26 @@ End Class
   '''/
   Public Class YWatchdog
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of YWatchdog class start)
+
+    REM --- (YWatchdog definitions)
     Public Const STATE_A = 0
     Public Const STATE_B = 1
     Public Const STATE_INVALID = -1
 
+    Public Const STATEATPOWERON_UNCHANGED = 0
+    Public Const STATEATPOWERON_A = 1
+    Public Const STATEATPOWERON_B = 2
+    Public Const STATEATPOWERON_INVALID = -1
+
+    Public Const MAXTIMEONSTATEA_INVALID As Long = YAPI.INVALID_LONG
+    Public Const MAXTIMEONSTATEB_INVALID As Long = YAPI.INVALID_LONG
     Public Const OUTPUT_OFF = 0
     Public Const OUTPUT_ON = 1
     Public Const OUTPUT_INVALID = -1
 
     Public Const PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
+    Public Const DELAYEDPULSETIMER_INVALID = Nothing
     Public Const COUNTDOWN_INVALID As Long = YAPI.INVALID_LONG
     Public Const AUTOSTART_OFF = 0
     Public Const AUTOSTART_ON = 1
@@ -116,162 +123,114 @@ End Class
 
     Public Const TRIGGERDELAY_INVALID As Long = YAPI.INVALID_LONG
     Public Const TRIGGERDURATION_INVALID As Long = YAPI.INVALID_LONG
+    REM --- (end of YWatchdog definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _state As Long
-    Protected _output As Long
+    REM --- (YWatchdog attributes declaration)
+    Protected _state As Integer
+    Protected _stateAtPowerOn As Integer
+    Protected _maxTimeOnStateA As Long
+    Protected _maxTimeOnStateB As Long
+    Protected _output As Integer
     Protected _pulseTimer As Long
     Protected _delayedPulseTimer As YWatchdogDelayedPulse
     Protected _countdown As Long
-    Protected _autoStart As Long
-    Protected _running As Long
+    Protected _autoStart As Integer
+    Protected _running As Integer
     Protected _triggerDelay As Long
     Protected _triggerDuration As Long
+    Protected _valueCallbackWatchdog As YWatchdogValueCallback
+    REM --- (end of YWatchdog attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("Watchdog", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _state = Y_STATE_INVALID
-      _output = Y_OUTPUT_INVALID
-      _pulseTimer = Y_PULSETIMER_INVALID
+      MyBase.New(func)
+      _classname = "Watchdog"
+      REM --- (YWatchdog attributes initialization)
+      _state = STATE_INVALID
+      _stateAtPowerOn = STATEATPOWERON_INVALID
+      _maxTimeOnStateA = MAXTIMEONSTATEA_INVALID
+      _maxTimeOnStateB = MAXTIMEONSTATEB_INVALID
+      _output = OUTPUT_INVALID
+      _pulseTimer = PULSETIMER_INVALID
       _delayedPulseTimer = New YWatchdogDelayedPulse()
-      _countdown = Y_COUNTDOWN_INVALID
-      _autoStart = Y_AUTOSTART_INVALID
-      _running = Y_RUNNING_INVALID
-      _triggerDelay = Y_TRIGGERDELAY_INVALID
-      _triggerDuration = Y_TRIGGERDURATION_INVALID
+      _countdown = COUNTDOWN_INVALID
+      _autoStart = AUTOSTART_INVALID
+      _running = RUNNING_INVALID
+      _triggerDelay = TRIGGERDELAY_INVALID
+      _triggerDuration = TRIGGERDURATION_INVALID
+      _valueCallbackWatchdog = Nothing
+      REM --- (end of YWatchdog attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+  REM --- (YWatchdog private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "state") Then
+        If (member.ivalue > 0) Then _state = 1 Else _state = 0
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "state") Then
-          If (member.ivalue > 0) Then _state = 1 Else _state = 0
-        ElseIf (member.name = "output") Then
-          If (member.ivalue > 0) Then _output = 1 Else _output = 0
-        ElseIf (member.name = "pulseTimer") Then
-          _pulseTimer = CLng(member.ivalue)
-        ElseIf (member.name = "delayedPulseTimer") Then
-          If (member.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then 
-             _parse = -1
-             Exit Function
-          End If
-          Dim submemb As TJSONRECORD
-          Dim l As Integer
-          For l=0 To member.membercount-1
-             submemb = member.members(l)
-             If (submemb.name = "moving") Then
-                _delayedPulseTimer.moving = submemb.ivalue
-             ElseIf (submemb.name = "target") Then
-                _delayedPulseTimer.target = submemb.ivalue
-             ElseIf (submemb.name = "ms") Then
-                _delayedPulseTimer.ms = submemb.ivalue
-             End If
-          Next l
-        ElseIf (member.name = "countdown") Then
-          _countdown = CLng(member.ivalue)
-        ElseIf (member.name = "autoStart") Then
-          If (member.ivalue > 0) Then _autoStart = 1 Else _autoStart = 0
-        ElseIf (member.name = "running") Then
-          If (member.ivalue > 0) Then _running = 1 Else _running = 0
-        ElseIf (member.name = "triggerDelay") Then
-          _triggerDelay = CLng(member.ivalue)
-        ElseIf (member.name = "triggerDuration") Then
-          _triggerDuration = CLng(member.ivalue)
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the watchdog.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the watchdog
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "stateAtPowerOn") Then
+        _stateAtPowerOn = CInt(member.ivalue)
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the watchdog.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the watchdog
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the watchdog (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the watchdog (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "maxTimeOnStateA") Then
+        _maxTimeOnStateA = member.ivalue
+        Return 1
       End If
-      Return _advertisedValue
+      If (member.name = "maxTimeOnStateB") Then
+        _maxTimeOnStateB = member.ivalue
+        Return 1
+      End If
+      If (member.name = "output") Then
+        If (member.ivalue > 0) Then _output = 1 Else _output = 0
+        Return 1
+      End If
+      If (member.name = "pulseTimer") Then
+        _pulseTimer = member.ivalue
+        Return 1
+      End If
+      If (member.name = "delayedPulseTimer") Then
+        If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
+            Dim submemb As TJSONRECORD
+            Dim l As Integer
+            For l=0 To member.membercount-1
+               submemb = member.members(l)
+               If (submemb.name = "moving") Then
+                  _delayedPulseTimer.moving = CInt(submemb.ivalue)
+               ElseIf (submemb.name = "target") Then
+                  _delayedPulseTimer.target = CInt(submemb.ivalue)
+               ElseIf (submemb.name = "ms") Then
+                  _delayedPulseTimer.ms = CInt(submemb.ivalue)
+               End If
+            Next l
+        End If
+        Return 1
+      End If
+      If (member.name = "countdown") Then
+        _countdown = member.ivalue
+        Return 1
+      End If
+      If (member.name = "autoStart") Then
+        If (member.ivalue > 0) Then _autoStart = 1 Else _autoStart = 0
+        Return 1
+      End If
+      If (member.name = "running") Then
+        If (member.ivalue > 0) Then _running = 1 Else _running = 0
+        Return 1
+      End If
+      If (member.name = "triggerDelay") Then
+        _triggerDelay = member.ivalue
+        Return 1
+      End If
+      If (member.name = "triggerDuration") Then
+        _triggerDuration = member.ivalue
+        Return 1
+      End If
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of YWatchdog private methods declaration)
+
+    REM --- (YWatchdog public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the state of the watchdog (A for the idle position, B for the active position).
@@ -289,13 +248,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_state() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_STATE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return STATE_INVALID
         End If
       End If
-      Return CType(_state,Integer)
+      Return Me._state
     End Function
+
 
     '''*
     ''' <summary>
@@ -323,7 +283,165 @@ End Class
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("state", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the state of the watchdog at device startup (A for the idle position, B for the active position, UNCHANGED for no change).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_STATEATPOWERON_UNCHANGED</c>, <c>Y_STATEATPOWERON_A</c> and
+    '''   <c>Y_STATEATPOWERON_B</c> corresponding to the state of the watchdog at device startup (A for the
+    '''   idle position, B for the active position, UNCHANGED for no change)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_STATEATPOWERON_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_stateAtPowerOn() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return STATEATPOWERON_INVALID
+        End If
+      End If
+      Return Me._stateAtPowerOn
+    End Function
 
+
+    '''*
+    ''' <summary>
+    '''   Preset the state of the watchdog at device startup (A for the idle position,
+    '''   B for the active position, UNCHANGED for no modification).
+    ''' <para>
+    '''   Remember to call the matching module <c>saveToFlash()</c>
+    '''   method, otherwise this call will have no effect.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>Y_STATEATPOWERON_UNCHANGED</c>, <c>Y_STATEATPOWERON_A</c> and <c>Y_STATEATPOWERON_B</c>
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_stateAtPowerOn(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("stateAtPowerOn", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Retourne the maximum time (ms) allowed for $THEFUNCTIONS$ to stay in state A before automatically switching back in to B state.
+    ''' <para>
+    '''   Zero means no maximum time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_MAXTIMEONSTATEA_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_maxTimeOnStateA() As Long
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return MAXTIMEONSTATEA_INVALID
+        End If
+      End If
+      Return Me._maxTimeOnStateA
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Sets the maximum time (ms) allowed for $THEFUNCTIONS$ to stay in state A before automatically switching back in to B state.
+    ''' <para>
+    '''   Use zero for no maximum time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_maxTimeOnStateA(ByVal newval As Long) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("maxTimeOnStateA", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Retourne the maximum time (ms) allowed for $THEFUNCTIONS$ to stay in state B before automatically switching back in to A state.
+    ''' <para>
+    '''   Zero means no maximum time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_MAXTIMEONSTATEB_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_maxTimeOnStateB() As Long
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return MAXTIMEONSTATEB_INVALID
+        End If
+      End If
+      Return Me._maxTimeOnStateB
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Sets the maximum time (ms) allowed for $THEFUNCTIONS$ to stay in state B before automatically switching back in to A state.
+    ''' <para>
+    '''   Use zero for no maximum time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_maxTimeOnStateB(ByVal newval As Long) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("maxTimeOnStateB", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Returns the output state of the watchdog, when used as a simple switch (single throw).
@@ -341,13 +459,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_output() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_OUTPUT_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return OUTPUT_INVALID
         End If
       End If
-      Return CType(_output,Integer)
+      Return Me._output
     End Function
+
 
     '''*
     ''' <summary>
@@ -375,7 +494,6 @@ End Class
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("output", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the number of milliseconds remaining before the watchdog is returned to idle position
@@ -396,13 +514,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_pulseTimer() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_PULSETIMER_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return PULSETIMER_INVALID
         End If
       End If
-      Return _pulseTimer
+      Return Me._pulseTimer
     End Function
+
 
     Public Function set_pulseTimer(ByVal newval As Long) As Integer
       Dim rest_val As String
@@ -436,15 +555,15 @@ End Class
       rest_val = Ltrim(Str(ms_duration))
       Return _setAttr("pulseTimer", rest_val)
     End Function
-
     Public Function get_delayedPulseTimer() As YWatchdogDelayedPulse
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_DELAYEDPULSETIMER_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return DELAYEDPULSETIMER_INVALID
         End If
       End If
-      Return _delayedPulseTimer
+      Return Me._delayedPulseTimer
     End Function
+
 
     Public Function set_delayedPulseTimer(ByVal newval As YWatchdogDelayedPulse) As Integer
       Dim rest_val As String
@@ -480,7 +599,6 @@ End Class
       rest_val = Ltrim(Str(ms_delay))+":"+Ltrim(Str(ms_duration))
       Return _setAttr("delayedPulseTimer", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the number of milliseconds remaining before a pulse (delayedPulse() call)
@@ -499,12 +617,12 @@ End Class
     ''' </para>
     '''/
     Public Function get_countdown() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_COUNTDOWN_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return COUNTDOWN_INVALID
         End If
       End If
-      Return _countdown
+      Return Me._countdown
     End Function
 
     '''*
@@ -524,13 +642,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_autoStart() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_AUTOSTART_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return AUTOSTART_INVALID
         End If
       End If
-      Return CType(_autoStart,Integer)
+      Return Me._autoStart
     End Function
+
 
     '''*
     ''' <summary>
@@ -560,7 +679,6 @@ End Class
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("autoStart", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the watchdog running state.
@@ -577,13 +695,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_running() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_RUNNING_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return RUNNING_INVALID
         End If
       End If
-      Return CType(_running,Integer)
+      Return Me._running
     End Function
+
 
     '''*
     ''' <summary>
@@ -634,7 +753,6 @@ End Class
       rest_val = "1"
       Return _setAttr("running", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns  the waiting duration before a reset is automatically triggered by the watchdog, in milliseconds.
@@ -652,13 +770,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_triggerDelay() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_TRIGGERDELAY_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return TRIGGERDELAY_INVALID
         End If
       End If
-      Return _triggerDelay
+      Return Me._triggerDelay
     End Function
+
 
     '''*
     ''' <summary>
@@ -685,7 +804,6 @@ End Class
       rest_val = Ltrim(Str(newval))
       Return _setAttr("triggerDelay", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the duration of resets caused by the watchdog, in milliseconds.
@@ -702,13 +820,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_triggerDuration() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_TRIGGERDURATION_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return TRIGGERDURATION_INVALID
         End If
       End If
-      Return _triggerDuration
+      Return Me._triggerDuration
     End Function
+
 
     '''*
     ''' <summary>
@@ -735,60 +854,6 @@ End Class
       rest_val = Ltrim(Str(newval))
       Return _setAttr("triggerDuration", rest_val)
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of watchdog started using <c>yFirstWatchdog()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YWatchdog</c> object, corresponding to
-    '''   a watchdog currently online, or a <c>null</c> pointer
-    '''   if there are no more watchdog to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextWatchdog() as YWatchdog
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindWatchdog(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
-
     '''*
     ''' <summary>
     '''   Retrieves a watchdog for a given identifier.
@@ -831,14 +896,83 @@ End Class
     '''   a <c>YWatchdog</c> object allowing you to drive the watchdog.
     ''' </returns>
     '''/
-    Public Shared Function FindWatchdog(ByVal func As String) As YWatchdog
-      Dim res As YWatchdog
-      If (_WatchdogCache.ContainsKey(func)) Then
-        Return CType(_WatchdogCache(func), YWatchdog)
+    Public Shared Function FindWatchdog(func As String) As YWatchdog
+      Dim obj As YWatchdog
+      obj = CType(YFunction._FindFromCache("Watchdog", func), YWatchdog)
+      If ((obj Is Nothing)) Then
+        obj = New YWatchdog(func)
+        YFunction._AddToCache("Watchdog", func, obj)
       End If
-      res = New YWatchdog(func)
-      _WatchdogCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YWatchdogValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackWatchdog = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackWatchdog Is Nothing)) Then
+        Me._valueCallbackWatchdog(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of watchdog started using <c>yFirstWatchdog()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YWatchdog</c> object, corresponding to
+    '''   a watchdog currently online, or a <c>null</c> pointer
+    '''   if there are no more watchdog to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextWatchdog() As YWatchdog
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YWatchdog.FindWatchdog(hwid)
     End Function
 
     '''*
@@ -882,7 +1016,7 @@ End Class
       Return YWatchdog.FindWatchdog(serial + "." + funcId)
     End Function
 
-    REM --- (end of YWatchdog implementation)
+    REM --- (end of YWatchdog public methods declaration)
 
   End Class
 
@@ -951,9 +1085,6 @@ End Class
   Public Function yFirstWatchdog() As YWatchdog
     Return YWatchdog.FirstWatchdog()
   End Function
-
-  Private Sub _WatchdogCleanup()
-  End Sub
 
 
   REM --- (end of Watchdog functions)

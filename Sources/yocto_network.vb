@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 12337 2013-08-14 15:22:22Z mvuilleu $
+'* $Id: yocto_network.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -45,16 +45,10 @@ Imports System.Text
 
 Module yocto_network
 
-  REM --- (return codes)
-  REM --- (end of return codes)
-  
-  REM --- (YNetwork definitions)
+    REM --- (YNetwork return codes)
+    REM --- (end of YNetwork return codes)
+  REM --- (YNetwork globals)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YNetwork, ByVal value As String)
-
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_READINESS_DOWN = 0
   Public Const Y_READINESS_EXISTS = 1
   Public Const Y_READINESS_LINKED = 2
@@ -75,7 +69,7 @@ Module yocto_network
   Public Const Y_DISCOVERABLE_TRUE = 1
   Public Const Y_DISCOVERABLE_INVALID = -1
 
-  Public Const Y_WWWWATCHDOGDELAY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_WWWWATCHDOGDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALLBACKURL_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKMETHOD_POST = 0
   Public Const Y_CALLBACKMETHOD_GET = 1
@@ -90,17 +84,14 @@ Module yocto_network
   Public Const Y_CALLBACKENCODING_INVALID = -1
 
   Public Const Y_CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_POECURRENT_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_POECURRENT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Delegate Sub YNetworkValueCallback(ByVal func As YNetwork, ByVal value As String)
+  Public Delegate Sub YNetworkTimedReportCallback(ByVal func As YNetwork, ByVal measure As YMeasure)
+  REM --- (end of YNetwork globals)
 
-
-  REM --- (end of YNetwork definitions)
-
-  REM --- (YNetwork implementation)
-
-  Private _NetworkCache As New Hashtable()
-  Private _callback As UpdateCallback
+  REM --- (YNetwork class start)
 
   '''*
   ''' <summary>
@@ -112,8 +103,9 @@ Module yocto_network
   '''/
   Public Class YNetwork
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of YNetwork class start)
+
+    REM --- (YNetwork definitions)
     Public Const READINESS_DOWN = 0
     Public Const READINESS_EXISTS = 1
     Public Const READINESS_LINKED = 2
@@ -134,7 +126,7 @@ Module yocto_network
     Public Const DISCOVERABLE_TRUE = 1
     Public Const DISCOVERABLE_INVALID = -1
 
-    Public Const WWWWATCHDOGDELAY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const WWWWATCHDOGDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALLBACKURL_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKMETHOD_POST = 0
     Public Const CALLBACKMETHOD_GET = 1
@@ -149,13 +141,13 @@ Module yocto_network
     Public Const CALLBACKENCODING_INVALID = -1
 
     Public Const CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
-    Public Const CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const POECURRENT_INVALID As Long = YAPI.INVALID_LONG
+    Public Const CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const POECURRENT_INVALID As Integer = YAPI.INVALID_UINT
+    REM --- (end of YNetwork definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _readiness As Long
+    REM --- (YNetwork attributes declaration)
+    Protected _readiness As Integer
     Protected _macAddress As String
     Protected _ipAddress As String
     Protected _subnetMask As String
@@ -165,183 +157,137 @@ Module yocto_network
     Protected _secondaryDNS As String
     Protected _userPassword As String
     Protected _adminPassword As String
-    Protected _discoverable As Long
-    Protected _wwwWatchdogDelay As Long
+    Protected _discoverable As Integer
+    Protected _wwwWatchdogDelay As Integer
     Protected _callbackUrl As String
-    Protected _callbackMethod As Long
-    Protected _callbackEncoding As Long
+    Protected _callbackMethod As Integer
+    Protected _callbackEncoding As Integer
     Protected _callbackCredentials As String
-    Protected _callbackMinDelay As Long
-    Protected _callbackMaxDelay As Long
-    Protected _poeCurrent As Long
+    Protected _callbackMinDelay As Integer
+    Protected _callbackMaxDelay As Integer
+    Protected _poeCurrent As Integer
+    Protected _valueCallbackNetwork As YNetworkValueCallback
+    REM --- (end of YNetwork attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("Network", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _readiness = Y_READINESS_INVALID
-      _macAddress = Y_MACADDRESS_INVALID
-      _ipAddress = Y_IPADDRESS_INVALID
-      _subnetMask = Y_SUBNETMASK_INVALID
-      _router = Y_ROUTER_INVALID
-      _ipConfig = Y_IPCONFIG_INVALID
-      _primaryDNS = Y_PRIMARYDNS_INVALID
-      _secondaryDNS = Y_SECONDARYDNS_INVALID
-      _userPassword = Y_USERPASSWORD_INVALID
-      _adminPassword = Y_ADMINPASSWORD_INVALID
-      _discoverable = Y_DISCOVERABLE_INVALID
-      _wwwWatchdogDelay = Y_WWWWATCHDOGDELAY_INVALID
-      _callbackUrl = Y_CALLBACKURL_INVALID
-      _callbackMethod = Y_CALLBACKMETHOD_INVALID
-      _callbackEncoding = Y_CALLBACKENCODING_INVALID
-      _callbackCredentials = Y_CALLBACKCREDENTIALS_INVALID
-      _callbackMinDelay = Y_CALLBACKMINDELAY_INVALID
-      _callbackMaxDelay = Y_CALLBACKMAXDELAY_INVALID
-      _poeCurrent = Y_POECURRENT_INVALID
+      MyBase.New(func)
+      _classname = "Network"
+      REM --- (YNetwork attributes initialization)
+      _readiness = READINESS_INVALID
+      _macAddress = MACADDRESS_INVALID
+      _ipAddress = IPADDRESS_INVALID
+      _subnetMask = SUBNETMASK_INVALID
+      _router = ROUTER_INVALID
+      _ipConfig = IPCONFIG_INVALID
+      _primaryDNS = PRIMARYDNS_INVALID
+      _secondaryDNS = SECONDARYDNS_INVALID
+      _userPassword = USERPASSWORD_INVALID
+      _adminPassword = ADMINPASSWORD_INVALID
+      _discoverable = DISCOVERABLE_INVALID
+      _wwwWatchdogDelay = WWWWATCHDOGDELAY_INVALID
+      _callbackUrl = CALLBACKURL_INVALID
+      _callbackMethod = CALLBACKMETHOD_INVALID
+      _callbackEncoding = CALLBACKENCODING_INVALID
+      _callbackCredentials = CALLBACKCREDENTIALS_INVALID
+      _callbackMinDelay = CALLBACKMINDELAY_INVALID
+      _callbackMaxDelay = CALLBACKMAXDELAY_INVALID
+      _poeCurrent = POECURRENT_INVALID
+      _valueCallbackNetwork = Nothing
+      REM --- (end of YNetwork attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+  REM --- (YNetwork private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "readiness") Then
+        _readiness = CInt(member.ivalue)
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "readiness") Then
-          _readiness = CLng(member.ivalue)
-        ElseIf (member.name = "macAddress") Then
-          _macAddress = member.svalue
-        ElseIf (member.name = "ipAddress") Then
-          _ipAddress = member.svalue
-        ElseIf (member.name = "subnetMask") Then
-          _subnetMask = member.svalue
-        ElseIf (member.name = "router") Then
-          _router = member.svalue
-        ElseIf (member.name = "ipConfig") Then
-          _ipConfig = member.svalue
-        ElseIf (member.name = "primaryDNS") Then
-          _primaryDNS = member.svalue
-        ElseIf (member.name = "secondaryDNS") Then
-          _secondaryDNS = member.svalue
-        ElseIf (member.name = "userPassword") Then
-          _userPassword = member.svalue
-        ElseIf (member.name = "adminPassword") Then
-          _adminPassword = member.svalue
-        ElseIf (member.name = "discoverable") Then
-          If (member.ivalue > 0) Then _discoverable = 1 Else _discoverable = 0
-        ElseIf (member.name = "wwwWatchdogDelay") Then
-          _wwwWatchdogDelay = CLng(member.ivalue)
-        ElseIf (member.name = "callbackUrl") Then
-          _callbackUrl = member.svalue
-        ElseIf (member.name = "callbackMethod") Then
-          _callbackMethod = CLng(member.ivalue)
-        ElseIf (member.name = "callbackEncoding") Then
-          _callbackEncoding = CLng(member.ivalue)
-        ElseIf (member.name = "callbackCredentials") Then
-          _callbackCredentials = member.svalue
-        ElseIf (member.name = "callbackMinDelay") Then
-          _callbackMinDelay = CLng(member.ivalue)
-        ElseIf (member.name = "callbackMaxDelay") Then
-          _callbackMaxDelay = CLng(member.ivalue)
-        ElseIf (member.name = "poeCurrent") Then
-          _poeCurrent = CLng(member.ivalue)
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the network interface, corresponding to the network name of the module.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the network interface, corresponding to the network
-    '''   name of the module
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "macAddress") Then
+        _macAddress = member.svalue
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the network interface, corresponding to the network name of the module.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the network interface, corresponding to the network
-    '''   name of the module
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the network interface (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the network interface (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "ipAddress") Then
+        _ipAddress = member.svalue
+        Return 1
       End If
-      Return _advertisedValue
+      If (member.name = "subnetMask") Then
+        _subnetMask = member.svalue
+        Return 1
+      End If
+      If (member.name = "router") Then
+        _router = member.svalue
+        Return 1
+      End If
+      If (member.name = "ipConfig") Then
+        _ipConfig = member.svalue
+        Return 1
+      End If
+      If (member.name = "primaryDNS") Then
+        _primaryDNS = member.svalue
+        Return 1
+      End If
+      If (member.name = "secondaryDNS") Then
+        _secondaryDNS = member.svalue
+        Return 1
+      End If
+      If (member.name = "userPassword") Then
+        _userPassword = member.svalue
+        Return 1
+      End If
+      If (member.name = "adminPassword") Then
+        _adminPassword = member.svalue
+        Return 1
+      End If
+      If (member.name = "discoverable") Then
+        If (member.ivalue > 0) Then _discoverable = 1 Else _discoverable = 0
+        Return 1
+      End If
+      If (member.name = "wwwWatchdogDelay") Then
+        _wwwWatchdogDelay = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "callbackUrl") Then
+        _callbackUrl = member.svalue
+        Return 1
+      End If
+      If (member.name = "callbackMethod") Then
+        _callbackMethod = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "callbackEncoding") Then
+        _callbackEncoding = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "callbackCredentials") Then
+        _callbackCredentials = member.svalue
+        Return 1
+      End If
+      If (member.name = "callbackMinDelay") Then
+        _callbackMinDelay = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "callbackMaxDelay") Then
+        _callbackMaxDelay = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "poeCurrent") Then
+        _poeCurrent = CInt(member.ivalue)
+        Return 1
+      End If
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of YNetwork private methods declaration)
+
+    REM --- (YNetwork public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the current established working mode of the network interface.
     ''' <para>
     '''   Level zero (DOWN_0) means that no hardware link has been detected. Either there is no signal
     '''   on the network cable, or the selected wireless access point cannot be detected.
-    '''   Level 1 (LIVE_1) is reached when the network is detected, but is not yet connected,
+    '''   Level 1 (LIVE_1) is reached when the network is detected, but is not yet connected.
     '''   For a wireless network, this shows that the requested SSID is present.
     '''   Level 2 (LINK_2) is reached when the hardware connection is established.
     '''   For a wired network connection, level 2 means that the cable is attached at both ends.
@@ -366,12 +312,12 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_readiness() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_READINESS_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return READINESS_INVALID
         End If
       End If
-      Return CType(_readiness,Integer)
+      Return Me._readiness
     End Function
 
     '''*
@@ -392,19 +338,19 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_macAddress() As String
-      If (_macAddress = Y_MACADDRESS_INVALID) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_MACADDRESS_INVALID
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return MACADDRESS_INVALID
         End If
       End If
-      Return _macAddress
+      Return Me._macAddress
     End Function
 
     '''*
     ''' <summary>
     '''   Returns the IP address currently in use by the device.
     ''' <para>
-    '''   The adress may have been configured
+    '''   The address may have been configured
     '''   statically, or provided by a DHCP server.
     ''' </para>
     ''' <para>
@@ -418,12 +364,12 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_ipAddress() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_IPADDRESS_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return IPADDRESS_INVALID
         End If
       End If
-      Return _ipAddress
+      Return Me._ipAddress
     End Function
 
     '''*
@@ -442,12 +388,12 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_subnetMask() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_SUBNETMASK_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return SUBNETMASK_INVALID
         End If
       End If
-      Return _subnetMask
+      Return Me._subnetMask
     End Function
 
     '''*
@@ -466,22 +412,23 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_router() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ROUTER_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return ROUTER_INVALID
         End If
       End If
-      Return _router
+      Return Me._router
     End Function
 
     Public Function get_ipConfig() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_IPCONFIG_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return IPCONFIG_INVALID
         End If
       End If
-      Return _ipConfig
+      Return Me._ipConfig
     End Function
+
 
     Public Function set_ipConfig(ByVal newval As String) As Integer
       Dim rest_val As String
@@ -522,7 +469,7 @@ Module yocto_network
     '''/
     Public Function useDHCP(ByVal fallbackIpAddr As String,ByVal fallbackSubnetMaskLen As Integer,ByVal fallbackRouter As String) As Integer
       Dim rest_val As String
-      rest_val = "DHCP:"+fallbackIpAddr+"/"+Str(fallbackSubnetMaskLen)+"/"+fallbackRouter
+      rest_val = "DHCP:" + fallbackIpAddr + "/" + Str(fallbackSubnetMaskLen) + "/" + fallbackRouter
       Return _setAttr("ipConfig", rest_val)
     End Function
 
@@ -555,10 +502,9 @@ Module yocto_network
     '''/
     Public Function useStaticIP(ByVal ipAddress As String,ByVal subnetMaskLen As Integer,ByVal router As String) As Integer
       Dim rest_val As String
-      rest_val = "STATIC:"+ipAddress+"/"+Str(subnetMaskLen)+"/"+router
+      rest_val = "STATIC:" + ipAddress + "/" + Str(subnetMaskLen) + "/" + router
       Return _setAttr("ipConfig", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the IP address of the primary name server to be used by the module.
@@ -575,13 +521,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_primaryDNS() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_PRIMARYDNS_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return PRIMARYDNS_INVALID
         End If
       End If
-      Return _primaryDNS
+      Return Me._primaryDNS
     End Function
+
 
     '''*
     ''' <summary>
@@ -610,7 +557,6 @@ Module yocto_network
       rest_val = newval
       Return _setAttr("primaryDNS", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the IP address of the secondary name server to be used by the module.
@@ -627,17 +573,18 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_secondaryDNS() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_SECONDARYDNS_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return SECONDARYDNS_INVALID
         End If
       End If
-      Return _secondaryDNS
+      Return Me._secondaryDNS
     End Function
+
 
     '''*
     ''' <summary>
-    '''   Changes the IP address of the secondarz name server to be used by the module.
+    '''   Changes the IP address of the secondary name server to be used by the module.
     ''' <para>
     '''   When using DHCP, if a value is specified, it overrides the value received from the DHCP server.
     '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
@@ -646,7 +593,7 @@ Module yocto_network
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a string corresponding to the IP address of the secondarz name server to be used by the module
+    '''   a string corresponding to the IP address of the secondary name server to be used by the module
     ''' </param>
     ''' <para>
     ''' </para>
@@ -662,7 +609,6 @@ Module yocto_network
       rest_val = newval
       Return _setAttr("secondaryDNS", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns a hash string if a password has been set for "user" user,
@@ -681,13 +627,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_userPassword() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_USERPASSWORD_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return USERPASSWORD_INVALID
         End If
       End If
-      Return _userPassword
+      Return Me._userPassword
     End Function
+
 
     '''*
     ''' <summary>
@@ -719,7 +666,6 @@ Module yocto_network
       rest_val = newval
       Return _setAttr("userPassword", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns a hash string if a password has been set for user "admin",
@@ -738,13 +684,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_adminPassword() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADMINPASSWORD_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return ADMINPASSWORD_INVALID
         End If
       End If
-      Return _adminPassword
+      Return Me._adminPassword
     End Function
+
 
     '''*
     ''' <summary>
@@ -776,7 +723,6 @@ Module yocto_network
       rest_val = newval
       Return _setAttr("adminPassword", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the activation state of the multicast announce protocols to allow easy
@@ -796,13 +742,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_discoverable() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_DISCOVERABLE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return DISCOVERABLE_INVALID
         End If
       End If
-      Return CType(_discoverable,Integer)
+      Return Me._discoverable
     End Function
+
 
     '''*
     ''' <summary>
@@ -832,7 +779,6 @@ Module yocto_network
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("discoverable", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the allowed downtime of the WWW link (in seconds) before triggering an automated
@@ -853,20 +799,21 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_wwwWatchdogDelay() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_WWWWATCHDOGDELAY_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return WWWWATCHDOGDELAY_INVALID
         End If
       End If
-      Return CType(_wwwWatchdogDelay,Integer)
+      Return Me._wwwWatchdogDelay
     End Function
+
 
     '''*
     ''' <summary>
     '''   Changes the allowed downtime of the WWW link (in seconds) before triggering an automated
     '''   reboot to try to recover Internet connectivity.
     ''' <para>
-    '''   A zero value disable automated reboot
+    '''   A zero value disables automated reboot
     '''   in case of Internet connectivity loss. The smallest valid non-zero timeout is
     '''   90 seconds.
     ''' </para>
@@ -891,7 +838,6 @@ Module yocto_network
       rest_val = Ltrim(Str(newval))
       Return _setAttr("wwwWatchdogDelay", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the callback URL to notify of significant state changes.
@@ -908,13 +854,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackUrl() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CALLBACKURL_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALLBACKURL_INVALID
         End If
       End If
-      Return _callbackUrl
+      Return Me._callbackUrl
     End Function
+
 
     '''*
     ''' <summary>
@@ -943,7 +890,6 @@ Module yocto_network
       rest_val = newval
       Return _setAttr("callbackUrl", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the HTTP method used to notify callbacks for significant state changes.
@@ -962,13 +908,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackMethod() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CALLBACKMETHOD_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALLBACKMETHOD_INVALID
         End If
       End If
-      Return CType(_callbackMethod,Integer)
+      Return Me._callbackMethod
     End Function
+
 
     '''*
     ''' <summary>
@@ -997,7 +944,6 @@ Module yocto_network
       rest_val = Ltrim(Str(newval))
       Return _setAttr("callbackMethod", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the encoding standard to use for representing notification values.
@@ -1017,13 +963,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackEncoding() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CALLBACKENCODING_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALLBACKENCODING_INVALID
         End If
       End If
-      Return CType(_callbackEncoding,Integer)
+      Return Me._callbackEncoding
     End Function
+
 
     '''*
     ''' <summary>
@@ -1053,7 +1000,6 @@ Module yocto_network
       rest_val = Ltrim(Str(newval))
       Return _setAttr("callbackEncoding", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns a hashed version of the notification callback credentials if set,
@@ -1072,13 +1018,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackCredentials() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CALLBACKCREDENTIALS_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALLBACKCREDENTIALS_INVALID
         End If
       End If
-      Return _callbackCredentials
+      Return Me._callbackCredentials
     End Function
+
 
     '''*
     ''' <summary>
@@ -1144,10 +1091,9 @@ Module yocto_network
     '''/
     Public Function callbackLogin(ByVal username As String,ByVal password As String) As Integer
       Dim rest_val As String
-      rest_val = username+":"+password
+      rest_val = username + ":" + password
       Return _setAttr("callbackCredentials", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the minimum waiting time between two callback notifications, in seconds.
@@ -1164,13 +1110,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackMinDelay() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CALLBACKMINDELAY_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALLBACKMINDELAY_INVALID
         End If
       End If
-      Return CType(_callbackMinDelay,Integer)
+      Return Me._callbackMinDelay
     End Function
+
 
     '''*
     ''' <summary>
@@ -1197,7 +1144,6 @@ Module yocto_network
       rest_val = Ltrim(Str(newval))
       Return _setAttr("callbackMinDelay", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the maximum waiting time between two callback notifications, in seconds.
@@ -1214,13 +1160,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackMaxDelay() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CALLBACKMAXDELAY_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CALLBACKMAXDELAY_INVALID
         End If
       End If
-      Return CType(_callbackMaxDelay,Integer)
+      Return Me._callbackMaxDelay
     End Function
+
 
     '''*
     ''' <summary>
@@ -1247,7 +1194,6 @@ Module yocto_network
       rest_val = Ltrim(Str(newval))
       Return _setAttr("callbackMaxDelay", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the current consumed by the module from Power-over-Ethernet (PoE), in milli-amps.
@@ -1265,92 +1211,14 @@ Module yocto_network
     '''   On failure, throws an exception or returns <c>Y_POECURRENT_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_poeCurrent() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_POECURRENT_INVALID
+    Public Function get_poeCurrent() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return POECURRENT_INVALID
         End If
       End If
-      Return _poeCurrent
+      Return Me._poeCurrent
     End Function
-    '''*
-    ''' <summary>
-    '''   Pings str_host to test the network connectivity.
-    ''' <para>
-    '''   Sends four requests ICMP ECHO_REQUEST from the
-    '''   module to the target str_host. This method returns a string with the result of the
-    '''   4 ICMP ECHO_REQUEST result.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="host">
-    '''   the hostname or the IP address of the target
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   a string with the result of the ping.
-    ''' </returns>
-    '''/
-    public function ping(host as string) as string
-        dim  content as byte()
-        content = Me._download("ping.txt?host="+host)
-        Return YAPI.DefaultEncoding.GetString(content)
-        
-     end function
-
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of network interfaces started using <c>yFirstNetwork()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YNetwork</c> object, corresponding to
-    '''   a network interface currently online, or a <c>null</c> pointer
-    '''   if there are no more network interfaces to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextNetwork() as YNetwork
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindNetwork(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
 
     '''*
     ''' <summary>
@@ -1394,14 +1262,108 @@ Module yocto_network
     '''   a <c>YNetwork</c> object allowing you to drive the network interface.
     ''' </returns>
     '''/
-    Public Shared Function FindNetwork(ByVal func As String) As YNetwork
-      Dim res As YNetwork
-      If (_NetworkCache.ContainsKey(func)) Then
-        Return CType(_NetworkCache(func), YNetwork)
+    Public Shared Function FindNetwork(func As String) As YNetwork
+      Dim obj As YNetwork
+      obj = CType(YFunction._FindFromCache("Network", func), YNetwork)
+      If ((obj Is Nothing)) Then
+        obj = New YNetwork(func)
+        YFunction._AddToCache("Network", func, obj)
       End If
-      res = New YNetwork(func)
-      _NetworkCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YNetworkValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackNetwork = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackNetwork Is Nothing)) Then
+        Me._valueCallbackNetwork(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Pings str_host to test the network connectivity.
+    ''' <para>
+    '''   Sends four ICMP ECHO_REQUEST requests from the
+    '''   module to the target str_host. This method returns a string with the result of the
+    '''   4 ICMP ECHO_REQUEST requests.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="host">
+    '''   the hostname or the IP address of the target
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   a string with the result of the ping.
+    ''' </returns>
+    '''/
+    Public Overridable Function ping(host As String) As String
+      Dim content As Byte()
+      REM // may throw an exception
+      content = Me._download("ping.txt?host=" + host)
+      Return YAPI.DefaultEncoding.GetString(content)
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of network interfaces started using <c>yFirstNetwork()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YNetwork</c> object, corresponding to
+    '''   a network interface currently online, or a <c>null</c> pointer
+    '''   if there are no more network interfaces to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextNetwork() As YNetwork
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YNetwork.FindNetwork(hwid)
     End Function
 
     '''*
@@ -1445,7 +1407,7 @@ Module yocto_network
       Return YNetwork.FindNetwork(serial + "." + funcId)
     End Function
 
-    REM --- (end of YNetwork implementation)
+    REM --- (end of YNetwork public methods declaration)
 
   End Class
 
@@ -1514,9 +1476,6 @@ Module yocto_network
   Public Function yFirstNetwork() As YNetwork
     Return YNetwork.FirstNetwork()
   End Function
-
-  Private Sub _NetworkCleanup()
-  End Sub
 
 
   REM --- (end of Network functions)

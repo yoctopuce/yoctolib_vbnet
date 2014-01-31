@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 12337 2013-08-14 15:22:22Z mvuilleu $
+'* $Id: yocto_wireless.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -45,16 +45,15 @@ Imports System.Text
 
 Module yocto_wireless
 
-  REM --- (generated code: YWireless definitions)
+  REM --- (generated code: YWlanRecord globals)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YWireless, ByVal value As String)
+  REM --- (end of generated code: YWlanRecord globals)
 
+  REM --- (generated code: YWireless globals)
 
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_LINKQUALITY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_SSID_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_CHANNEL_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_CHANNEL_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_SECURITY_UNKNOWN = 0
   Public Const Y_SECURITY_OPEN = 1
   Public Const Y_SECURITY_WEP = 2
@@ -64,41 +63,50 @@ Module yocto_wireless
 
   Public Const Y_MESSAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_WLANCONFIG_INVALID As String = YAPI.INVALID_STRING
+  Public Delegate Sub YWirelessValueCallback(ByVal func As YWireless, ByVal value As String)
+  Public Delegate Sub YWirelessTimedReportCallback(ByVal func As YWireless, ByVal measure As YMeasure)
+  REM --- (end of generated code: YWireless globals)
 
 
-  REM --- (end of generated code: YWireless definitions)
-
-  REM--- (generated code: YWlanRecord implementation)
-
+  REM --- (generated code: YWlanRecord class start)
 
   Public Class YWlanRecord
-
-
-
-    public function get_ssid() as string
-        Return Me._ssid
-     end function
-
-    public function get_channel() as integer
-        Return Me._channel
-     end function
-
-    public function get_security() as string
-        Return Me._sec
-     end function
-
-    public function get_linkQuality() as integer
-        Return Me._rssi
-     end function
-
-
-
-    REM --- (end of generated code: YWlanRecord implementation)
-
+    REM --- (end of generated code: YWlanRecord class start)
+    REM --- (generated code: YWlanRecord definitions)
+    REM --- (end of generated code: YWlanRecord definitions)
+    REM --- (generated code: YWlanRecord attributes)
     Protected _ssid As String
     Protected _channel As Integer
     Protected _sec As String
     Protected _rssi As Integer
+    REM --- (end of generated code: YWlanRecord attributes)
+
+    REM --- (generated code: YWlanRecord private methods declaration)
+
+    REM --- (end of generated code: YWlanRecord private methods declaration)
+
+    REM --- (generated code: YWlanRecord public methods declaration)
+    Public Overridable Function get_ssid() As String
+      Return Me._ssid
+    End Function
+
+    Public Overridable Function get_channel() As Integer
+      Return Me._channel
+    End Function
+
+    Public Overridable Function get_security() As String
+      Return Me._sec
+    End Function
+
+    Public Overridable Function get_linkQuality() As Integer
+      Return Me._rssi
+    End Function
+
+
+
+    REM --- (end of generated code: YWlanRecord public methods declaration)
+
+  
 
     Public Sub New(ByVal data As String)
       Dim p As TJsonParser
@@ -109,31 +117,35 @@ Module yocto_wireless
       node = p.GetChildNode(Nothing, "sec")
       Me._sec = node.Value.svalue
       node = p.GetChildNode(Nothing, "channel")
-      Me._channel = node.Value.ivalue
+      Me._channel = CInt(node.Value.ivalue)
       node = p.GetChildNode(Nothing, "rssi")
-      Me._rssi = node.Value.ivalue
+      Me._rssi = CInt(node.Value.ivalue)
     End Sub
 
-
   End Class
-
   
 
 
 
 
-  REM --- (generated code: YWireless implementation)
+  
+  REM --- (generated code: YWireless class start)
 
-  Private _WirelessCache As New Hashtable()
-  Private _callback As UpdateCallback
-
+  '''*
+  ''' <summary>
+  '''   YWireless functions provides control over wireless network parameters
+  '''   and status for devices that are wireless-enabled.
+  ''' <para>
+  ''' </para>
+  ''' </summary>
+  '''/
   Public Class YWireless
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-    Public Const LINKQUALITY_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    REM --- (end of generated code: YWireless class start)
+    REM --- (generated code: YWireless definitions)
+    Public Const LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const SSID_INVALID As String = YAPI.INVALID_STRING
-    Public Const CHANNEL_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const CHANNEL_INVALID As Integer = YAPI.INVALID_UINT
     Public Const SECURITY_UNKNOWN = 0
     Public Const SECURITY_OPEN = 1
     Public Const SECURITY_WEP = 2
@@ -143,157 +155,88 @@ Module yocto_wireless
 
     Public Const MESSAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const WLANCONFIG_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of generated code: YWireless definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _linkQuality As Long
+
+    REM --- (generated code: YWireless attributes declaration)
+    Protected _linkQuality As Integer
     Protected _ssid As String
-    Protected _channel As Long
-    Protected _security As Long
+    Protected _channel As Integer
+    Protected _security As Integer
     Protected _message As String
     Protected _wlanConfig As String
+    Protected _valueCallbackWireless As YWirelessValueCallback
+    REM --- (end of generated code: YWireless attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("Wireless", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _linkQuality = Y_LINKQUALITY_INVALID
-      _ssid = Y_SSID_INVALID
-      _channel = Y_CHANNEL_INVALID
-      _security = Y_SECURITY_INVALID
-      _message = Y_MESSAGE_INVALID
-      _wlanConfig = Y_WLANCONFIG_INVALID
+      MyBase.new(func)
+      _className = "Wireless"
+      REM --- (generated code: YWireless attributes initialization)
+      _linkQuality = LINKQUALITY_INVALID
+      _ssid = SSID_INVALID
+      _channel = CHANNEL_INVALID
+      _security = SECURITY_INVALID
+      _message = MESSAGE_INVALID
+      _wlanConfig = WLANCONFIG_INVALID
+      _valueCallbackWireless = Nothing
+      REM --- (end of generated code: YWireless attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+      REM --- (generated code: YWireless private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "linkQuality") Then
+        _linkQuality = CInt(member.ivalue)
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "linkQuality") Then
-          _linkQuality = CLng(member.ivalue)
-        ElseIf (member.name = "ssid") Then
-          _ssid = member.svalue
-        ElseIf (member.name = "channel") Then
-          _channel = CLng(member.ivalue)
-        ElseIf (member.name = "security") Then
-          _security = CLng(member.ivalue)
-        ElseIf (member.name = "message") Then
-          _message = member.svalue
-        ElseIf (member.name = "wlanConfig") Then
-          _wlanConfig = member.svalue
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the wireless lan interface.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the wireless lan interface
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "ssid") Then
+        _ssid = member.svalue
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the wireless lan interface.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the wireless lan interface
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the wireless lan interface (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the wireless lan interface (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "channel") Then
+        _channel = CInt(member.ivalue)
+        Return 1
       End If
-      Return _advertisedValue
+      If (member.name = "security") Then
+        _security = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "message") Then
+        _message = member.svalue
+        Return 1
+      End If
+      If (member.name = "wlanConfig") Then
+        _wlanConfig = member.svalue
+        Return 1
+      End If
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of generated code: YWireless private methods declaration)
+
+    REM --- (generated code: YWireless public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the link quality, expressed in per cents.
+    '''   Returns the link quality, expressed in percent.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the link quality, expressed in per cents
+    '''   an integer corresponding to the link quality, expressed in percent
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_LINKQUALITY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_linkQuality() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LINKQUALITY_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return LINKQUALITY_INVALID
         End If
       End If
-      Return CType(_linkQuality,Integer)
+      Return Me._linkQuality
     End Function
 
     '''*
@@ -312,37 +255,36 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Function get_ssid() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_SSID_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return SSID_INVALID
         End If
       End If
-      Return _ssid
+      Return Me._ssid
     End Function
 
     '''*
     ''' <summary>
-    '''   Returns the 802.
+    '''   Returns the 802.11 channel currently used, or 0 when the selected network has not been found.
     ''' <para>
-    '''   11 channel currently used, or 0 when the selected network has not been found.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the 802
+    '''   an integer corresponding to the 802.11 channel currently used, or 0 when the selected network has not been found
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_CHANNEL_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_channel() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CHANNEL_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CHANNEL_INVALID
         End If
       End If
-      Return CType(_channel,Integer)
+      Return Me._channel
     End Function
 
     '''*
@@ -363,46 +305,47 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Function get_security() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_SECURITY_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return SECURITY_INVALID
         End If
       End If
-      Return CType(_security,Integer)
+      Return Me._security
     End Function
 
     '''*
     ''' <summary>
-    '''   Returns the last status message from the wireless interface.
+    '''   Returns the latest status message from the wireless interface.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the last status message from the wireless interface
+    '''   a string corresponding to the latest status message from the wireless interface
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_MESSAGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_message() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_MESSAGE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return MESSAGE_INVALID
         End If
       End If
-      Return _message
+      Return Me._message
     End Function
 
     Public Function get_wlanConfig() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_WLANCONFIG_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return WLANCONFIG_INVALID
         End If
       End If
-      Return _wlanConfig
+      Return Me._wlanConfig
     End Function
+
 
     Public Function set_wlanConfig(ByVal newval As String) As Integer
       Dim rest_val As String
@@ -437,7 +380,7 @@ Module yocto_wireless
     '''/
     Public Function joinNetwork(ByVal ssid As String,ByVal securityKey As String) As Integer
       Dim rest_val As String
-      rest_val = "INFRA:"+ssid+"\\"+securityKey
+      rest_val = "INFRA:" + ssid + "\\" + securityKey
       Return _setAttr("wlanConfig", rest_val)
     End Function
 
@@ -471,96 +414,9 @@ Module yocto_wireless
     '''/
     Public Function adhocNetwork(ByVal ssid As String,ByVal securityKey As String) As Integer
       Dim rest_val As String
-      rest_val = "ADHOC:"+ssid+"\\"+securityKey
+      rest_val = "ADHOC:" + ssid + "\\" + securityKey
       Return _setAttr("wlanConfig", rest_val)
     End Function
-    '''*
-    ''' <summary>
-    '''   Returns a list of YWlanRecord objects which describe detected Wireless networks.
-    ''' <para>
-    '''   This list is not updated when the module is already connected to an acces point (infrastructure mode).
-    '''   To force an update of this list, <c>adhocNetwork()</c> must be called to disconnect
-    '''   the module from the current network. The returned list must be unallocated by caller,
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a list of <c>YWlanRecord</c> objects, containing the SSID, channel,
-    '''   link quality and the type of security of the wireless network.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty list.
-    ''' </para>
-    '''/
-    public function get_detectedWlans() as List(of YWlanRecord)
-        dim  json as byte()
-        dim  list as string()
-        dim  res as List(of YWlanRecord) = new List(of YWlanRecord)()
-        json = Me._download("wlan.json?by=name")
-        list = Me._json_get_array(json)
-        dim i_i as integer
-for i_i=0 to list.Count-1
-res.Add(new YWlanRecord(list(i_i)))
-next i_i
-
-        Return res
-     end function
-
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of wireless lan interfaces started using <c>yFirstWireless()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YWireless</c> object, corresponding to
-    '''   a wireless lan interface currently online, or a <c>null</c> pointer
-    '''   if there are no more wireless lan interfaces to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextWireless() as YWireless
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindWireless(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
-
     '''*
     ''' <summary>
     '''   Retrieves a wireless lan interface for a given identifier.
@@ -603,14 +459,117 @@ next i_i
     '''   a <c>YWireless</c> object allowing you to drive the wireless lan interface.
     ''' </returns>
     '''/
-    Public Shared Function FindWireless(ByVal func As String) As YWireless
-      Dim res As YWireless
-      If (_WirelessCache.ContainsKey(func)) Then
-        Return CType(_WirelessCache(func), YWireless)
+    Public Shared Function FindWireless(func As String) As YWireless
+      Dim obj As YWireless
+      obj = CType(YFunction._FindFromCache("Wireless", func), YWireless)
+      If ((obj Is Nothing)) Then
+        obj = New YWireless(func)
+        YFunction._AddToCache("Wireless", func, obj)
       End If
-      res = New YWireless(func)
-      _WirelessCache.Add(func, res)
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YWirelessValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackWireless = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackWireless Is Nothing)) Then
+        Me._valueCallbackWireless(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns a list of YWlanRecord objects that describe detected Wireless networks.
+    ''' <para>
+    '''   This list is not updated when the module is already connected to an acces point (infrastructure mode).
+    '''   To force an update of this list, <c>adhocNetwork()</c> must be called to disconnect
+    '''   the module from the current network. The returned list must be unallocated by the caller.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a list of <c>YWlanRecord</c> objects, containing the SSID, channel,
+    '''   link quality and the type of security of the wireless network.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty list.
+    ''' </para>
+    '''/
+    Public Overridable Function get_detectedWlans() As List(Of YWlanRecord)
+        Dim i_i As Integer
+      Dim json As Byte()
+      Dim wlanlist As List(Of String) = New List(Of String)()
+      Dim res As List(Of YWlanRecord) = New List(Of YWlanRecord)()
+      REM // may throw an exception
+      json = Me._download("wlan.json?by=name")
+      wlanlist = Me._json_get_array(json)
+      res.Clear()
+      For i_i = 0 To wlanlist.Count - 1
+        res.Add(New YWlanRecord(wlanlist(i_i)))
+      Next i_i
       Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of wireless lan interfaces started using <c>yFirstWireless()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YWireless</c> object, corresponding to
+    '''   a wireless lan interface currently online, or a <c>null</c> pointer
+    '''   if there are no more wireless lan interfaces to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextWireless() As YWireless
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YWireless.FindWireless(hwid)
     End Function
 
     '''*
@@ -654,7 +613,7 @@ next i_i
       Return YWireless.FindWireless(serial + "." + funcId)
     End Function
 
-    REM --- (end of generated code: YWireless implementation)
+    REM --- (end of generated code: YWireless public methods declaration)
 
   End Class
 
@@ -723,9 +682,6 @@ next i_i
   Public Function yFirstWireless() As YWireless
     Return YWireless.FirstWireless()
   End Function
-
-  Private Sub _WirelessCleanup()
-  End Sub
 
 
   REM --- (end of generated code: Wireless functions)

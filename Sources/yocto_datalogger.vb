@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 12326 2013-08-13 15:52:20Z mvuilleu $
+'* $Id: yocto_datalogger.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -51,16 +51,10 @@ Imports System.Runtime.InteropServices
 
 Module yocto_datalogger
 
-  REM --- (generated code: YDataLogger definitions)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YDataLogger, ByVal value As String)
+  REM --- (generated code: YDataLogger globals)
 
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_OLDESTRUNINDEX_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_CURRENTRUNINDEX_INVALID As Integer = YAPI.INVALID_UNSIGNED
-  Public Const Y_SAMPLINGINTERVAL_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_CURRENTRUNINDEX_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TIMEUTC_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_RECORDING_OFF = 0
   Public Const Y_RECORDING_ON = 1
@@ -71,74 +65,47 @@ Module yocto_datalogger
   Public Const Y_CLEARHISTORY_TRUE = 1
   Public Const Y_CLEARHISTORY_INVALID = -1
 
+  Public Delegate Sub YDataLoggerValueCallback(ByVal func As YDataLogger, ByVal value As String)
+  Public Delegate Sub YDataLoggerTimedReportCallback(ByVal func As YDataLogger, ByVal measure As YMeasure)
+  REM --- (end of generated code: YDataLogger globals)
 
 
-  REM --- (end of generated code: YDataLogger definitions)
+  Public Class YOldDataStream
+    Inherits YDataStream
+    Protected _dataLogger As YDataLogger
+    Protected _timeStamp As Long
+    Protected _interval As Long
 
-  Public Const Y_DATA_INVALID = YAPI.INVALID_DOUBLE
-
-
-  Public Class YDataStream
-
-    Protected dataLogger As YDataLogger
-    Protected runNo As Integer
-    Protected timeStamp As Long
-    Protected interval As Long
-    Protected utcStamp As Long
-    Protected nRows As Integer
-    Protected nCols As Integer
-    Protected columnNames As List(Of String)
-    Protected values(,) As Double
-
-    Public Sub New(ByVal parent As YDataLogger, ByVal run As Integer, ByVal stamp As Integer, ByVal utc As Long, ByVal itv As Integer)
-      dataLogger = parent
-      runNo = run
-      timeStamp = stamp
-      utcStamp = utc
-      interval = itv
-      nRows = 0
-      nCols = 0
-      columnNames = New List(Of String)
-      values = Nothing
+    Public Sub New(parent As YDataLogger, run As Integer, ByVal stamp As Integer, ByVal utc As Long, ByVal itv As Integer)
+      MyBase.new(parent)
+      _dataLogger = parent
+      _runNo = run
+      _timeStamp = stamp
+      _utcStamp = CUInt(utc)
+      _interval = itv
+      _samplesPerHour = CInt((3600 / _interval))
+      _isClosed = True
+      _minVal = DATA_INVALID
+      _avgVal = DATA_INVALID
+      _maxVal = DATA_INVALID
     End Sub
 
     Protected Overridable Overloads Sub Dispose()
-      columnNames = Nothing
-      values = Nothing
+      _columnNames = Nothing
+      _values = Nothing
     End Sub
 
-    '''*
-    ''' <summary>
-    '''   Returns the run index of the data stream.
-    ''' <para>
-    '''   A run can be made of
-    '''   multiple datastreams, for different time intervals.
-    ''' </para>
-    ''' <para>
-    '''   This method does not cause any access to the device, as the value
-    '''   is preloaded in the object at instantiation time.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an unsigned number corresponding to the run index.
-    ''' </returns>
-    '''/
-    Public Function get_runIndex() As Integer
-      get_runIndex = runNo
-    End Function
 
     '''*
     ''' <summary>
-    '''   Returns the start time of the data stream, relative to the beginning
-    '''   of the run.
+    '''   Returns the relative start time of the data stream, measured in seconds.
     ''' <para>
-    '''   If you need an absolute time, use <c>get_startTimeUTC()</c>.
-    ''' </para>
-    ''' <para>
-    '''   This method does not cause any access to the device, as the value
-    '''   is preloaded in the object at instantiation time.
+    '''   For recent firmwares, the value is relative to the present time,
+    '''   which means the value is always negative.
+    '''   If the device uses a firmware older than version 13000, value is
+    '''   relative to the start of the time the device was powered on, and
+    '''   is always positive.
+    '''   If you need an absolute UTC timestamp, use <c>get_startTimeUTC()</c>.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -149,34 +116,9 @@ Module yocto_datalogger
     '''   stream.
     ''' </returns>
     '''/
-    Public Function get_startTime() As Integer
-      get_startTime = CInt(timeStamp)
+    Public Overloads Function get_startTime() As Integer
+      get_startTime = CInt(_timeStamp)
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the start time of the data stream, relative to the Jan 1, 1970.
-    ''' <para>
-    '''   If the UTC time was not set in the datalogger at the time of the recording
-    '''   of this data stream, this method returns 0.
-    ''' </para>
-    ''' <para>
-    '''   This method does not cause any access to the device, as the value
-    '''   is preloaded in the object at instantiation time.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an unsigned number corresponding to the number of seconds
-    '''   between the Jan 1, 1970 and the beginning of this data
-    '''   stream (i.e. Unix time representation of the absolute time).
-    ''' </returns>
-    '''/
-    Public Function get_startTimeUTC() As Long
-      get_startTimeUTC = utcStamp
-    End Function
-
     '''*
     ''' <summary>
     '''   Returns the number of seconds elapsed between  two consecutive
@@ -197,370 +139,202 @@ Module yocto_datalogger
     '''   an unsigned number corresponding to a number of seconds.
     ''' </returns>
     '''/
-    Public Function get_dataSamplesInterval() As Integer
-      get_dataSamplesInterval = CInt(interval)
+    Public Overloads Function get_dataSamplesInterval() As Integer
+      get_dataSamplesInterval = CInt(_interval)
     End Function
 
-    '''*
-    ''' <summary>
-    '''   Returns the number of data rows present in this stream.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    '''   This method fetches the whole data stream from the device,
-    '''   if not yet done.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an unsigned number corresponding to the number of rows.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns zero.
-    ''' </para>
-    '''/
-    Public Function get_rowCount() As Integer
-      If (nRows = 0) Then loadStream()
-      get_rowCount = nRows
-    End Function
 
-    '''*
-    ''' <summary>
-    '''   Returns the number of data columns present in this stream.
-    ''' <para>
-    '''   The meaning of the values present in each column can be obtained
-    '''   using the method <c>get_columnNames()</c>.
-    ''' </para>
-    ''' <para>
-    '''   This method fetches the whole data stream from the device,
-    '''   if not yet done.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an unsigned number corresponding to the number of rows.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns zero.
-    ''' </para>
-    '''/
-    Public Function get_columnCount() As Integer
-      If (nCols = 0) Then loadStream()
-      get_columnCount = nCols
-    End Function
+    Private Overloads Function loadStream() As Integer
+      Dim json As TJsonParser = Nothing
+      Dim res, count As Integer
+      Dim root, el As TJSONRECORD
+      Dim name As String
+      Dim coldiv As List(Of Integer) = New List(Of Integer)
+      Dim coltype As List(Of Integer) = New List(Of Integer)
+      Dim udat As List(Of UInteger) = New List(Of UInteger)
+      Dim dat As List(Of Double) = New List(Of Double)
+      Dim colscl As List(Of Double) = New List(Of Double)
+      Dim colofs As List(Of Integer) = New List(Of Integer)
+      Dim caltyp As List(Of Integer) = New List(Of Integer)
+      Dim calhdl As List(Of yCalibrationHandler) = New List(Of yCalibrationHandler)
+      Dim calpar As List(Of List(Of Integer)) = New List(Of List(Of Integer))
+      Dim calraw As List(Of List(Of Double)) = New List(Of List(Of Double))
+      Dim calref As List(Of List(Of Double)) = New List(Of List(Of Double))
+      Dim x, i, j As Integer
+      Dim value As Double
+      Dim sdat As String
 
-    '''*
-    ''' <summary>
-    '''   Returns the title (or meaning) of each data column present in this stream.
-    ''' <para>
-    '''   In most case, the title of the data column is the hardware identifier
-    '''   of the sensor that produced the data. For archived streams created by
-    '''   summarizing a high-resolution data stream, there can be a suffix appended
-    '''   to the sensor identifier, such as _min for the minimum value, _avg for the
-    '''   average value and _max for the maximal value.
-    ''' </para>
-    ''' <para>
-    '''   This method fetches the whole data stream from the device,
-    '''   if not yet done.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a list containing as many strings as there are columns in the
-    '''   data stream.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty array.
-    ''' </para>
-    '''/
-    Public Function get_columnNames() As List(Of String)
-      If (columnNames.Count = 0) Then loadStream()
-      get_columnNames = columnNames
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the whole data set contained in the stream, as a bidimensional
-    '''   table of numbers.
-    ''' <para>
-    '''   The meaning of the values present in each column can be obtained
-    '''   using the method <c>get_columnNames()</c>.
-    ''' </para>
-    ''' <para>
-    '''   This method fetches the whole data stream from the device,
-    '''   if not yet done.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a list containing as many elements as there are rows in the
-    '''   data stream. Each row itself is a list of floating-point
-    '''   numbers.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty array.
-    ''' </para>
-    '''/
-    Public Function get_dataRows() As Array
-      If (values Is Nothing) Then loadStream()
-      get_dataRows = values
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns a single measure from the data stream, specified by its
-    '''   row and column index.
-    ''' <para>
-    '''   The meaning of the values present in each column can be obtained
-    '''   using the method get_columnNames().
-    ''' </para>
-    ''' <para>
-    '''   This method fetches the whole data stream from the device,
-    '''   if not yet done.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="row">
-    '''   row index
-    ''' </param>
-    ''' <param name="col">
-    '''   column index
-    ''' </param>
-    ''' <returns>
-    '''   a floating-point number
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns Y_DATA_INVALID.
-    ''' </para>
-    '''/
-    Public Function get_data(ByVal row As Integer, ByVal col As Integer) As Double
-      If (values Is Nothing) Then loadStream()
-
-      If (row >= nRows Or row < 0) Then
-        get_data = Y_DATA_INVALID
+      res = _dataLogger.getData(_runNo, _timeStamp, json)
+      If (res <> YAPI_SUCCESS) Then
+        loadStream = res
         Exit Function
       End If
 
-      If (col >= nCols Or col < 0) Then
-        get_data = Y_DATA_INVALID
-        Exit Function
-      End If
+      _nRows = 0
+      _nCols = 0
+      _columnNames.Clear()
 
-      get_data = values(row, col)
-    End Function
+      root = json.GetRootNode()
+      For i = 0 To root.membercount - 1
 
-        Private Function loadStream() As Integer
+        el = root.members(i)
+        name = el.name
+        If (name = "time") Then
 
-
-            Dim json As TJsonParser = Nothing
-            Dim res, count As Integer
-            Dim root, el As TJSONRECORD
-            Dim name As String
-            Dim coldiv As List(Of Integer) = New List(Of Integer)
-            Dim coltype As List(Of Integer) = New List(Of Integer)
-            Dim udat As List(Of UInteger) = New List(Of UInteger)
-            Dim dat As List(Of Double) = New List(Of Double)
-            Dim colscl As List(Of Double) = New List(Of Double)
-            Dim colofs As List(Of Integer) = New List(Of Integer)
-            Dim caltyp As List(Of Integer) = New List(Of Integer)
-            Dim calhdl As List(Of yCalibrationHandler) = New List(Of yCalibrationHandler)
-            Dim calpar As List(Of Integer()) = New List(Of Integer())
-            Dim calraw As List(Of Double()) = New List(Of Double())
-            Dim calref As List(Of Double()) = New List(Of Double())
-
-
-            Dim x, y, i, j As Integer
-            Dim value As Double
-            Dim sdat As String
-
-            res = dataLogger.getData(runNo, timeStamp, json)
-            If (res <> YAPI_SUCCESS) Then
-                loadStream = res
-                Exit Function
+          _timeStamp = el.ivalue
+        ElseIf (name = "UTC") Then
+          _utcStamp = CUInt(el.ivalue)
+        ElseIf (name = "interval") Then
+          _interval = el.ivalue
+        ElseIf (name = "nRows") Then
+          _nRows = CInt(el.ivalue)
+        ElseIf (name = "keys") Then
+          _nCols = el.itemcount
+          For j = 0 To _nCols - 1
+            _columnNames.Add(el.items(j).svalue)
+          Next j
+        ElseIf (name = "div") Then
+          _nCols = el.itemcount
+          For j = 0 To _nCols - 1
+            coldiv.Add(CInt(el.items(j).ivalue))
+          Next j
+        ElseIf (name = "type") Then
+          _nCols = el.itemcount
+          For j = 0 To _nCols - 1
+            coltype.Add(CInt(el.items(j).ivalue))
+          Next j
+        ElseIf (name = "scal") Then
+          _nCols = el.itemcount
+          For j = 0 To _nCols - 1
+            colscl.Add(el.items(j).ivalue / 65536.0)
+            If coltype(j) <> 0 Then
+              colofs.Add(-32767)
+            Else
+              colofs.Add(0)
             End If
-
-            nRows = 0
-            nCols = 0
-            columnNames.Clear()
-            ReDim values(0, 0)
-
-
-            root = json.GetRootNode()
-            For i = 0 To root.membercount - 1
-
-                el = root.members(i)
-                name = el.name
-                If (name = "time") Then
-
-                    timeStamp = el.ivalue
-                ElseIf (name = "UTC") Then
-                    utcStamp = el.ivalue
-                ElseIf (name = "interval") Then
-                    interval = el.ivalue
-                ElseIf (name = "nRows") Then
-                    nRows = el.ivalue
-                ElseIf (name = "keys") Then
-                    nCols = el.itemcount
-                    For j = 0 To nCols - 1
-                        columnNames.Add(el.items(j).svalue)
-                    Next j
-                ElseIf (name = "div") Then
-                    nCols = el.itemcount
-                    For j = 0 To nCols - 1
-                        coldiv.Add(el.items(j).ivalue)
-                    Next j
-                ElseIf (name = "type") Then
-                    nCols = el.itemcount
-                    For j = 0 To nCols - 1
-                        coltype.Add(el.items(j).ivalue)
-                    Next j
-                ElseIf (name = "scal") Then
-                    nCols = el.itemcount
-                    For j = 0 To nCols - 1
-                        colscl.Add(el.items(j).ivalue / 65536.0)
-                        If coltype(j) <> 0 Then
-                            colofs.Add(-32767)
-                        Else
-                            colofs.Add(0)
-                        End If
-                    Next j
-                ElseIf (name = "cal") Then
-                    nCols = el.itemcount
-                    For j = 0 To nCols - 1
-                        Dim calibration_Str As String = el.items(j).svalue
-                        Dim cur_calpar() As Integer = Nothing
-                        Dim cur_calraw() As Double = Nothing
-                        Dim cur_calref() As Double = Nothing
-                        Dim calibType As Integer = YAPI._decodeCalibrationPoints(calibration_Str, cur_calpar, cur_calraw, cur_calref, colscl(j), colofs(j))
-                        caltyp.Add(calibType)
-                        calhdl.Add(YAPI._getCalibrationHandler(calibType))
-                        calpar.Add(cur_calpar)
-                        calraw.Add(cur_calraw)
-                        calref.Add(cur_calref)
-                    Next j
-                ElseIf (name = "data") Then
-                    If (colscl.Count <= 0) Then
-                        For j = 0 To nCols - 1
-                            colscl.Add(1.0 / coldiv(j))
-                            If (coltype(j) <> 0) Then
-                                colofs.Add(-32767)
-                            Else
-                                colofs.Add(0)
-                            End If
-                        Next j
-                    End If
-                    count = el.itemcount
-                    udat.Clear()
-                    If (el.recordtype = TJSONRECORDTYPE.JSON_STRING) Then
-                        sdat = el.svalue
-                        Dim p As Integer = 0
-                        While (p < sdat.Length)
-                            Dim val As UInteger
-                            Dim c As UInteger = CUInt(Asc(sdat.Substring(p, 1)))
-                            p += 1
-                            If (c >= 97) Then REM 97 ='a'
-                                Dim srcpos As Integer = CInt((udat.Count - 1 - (c - 97)))
-                                If (srcpos < 0) Then
-                                    dataLogger.throw_friend(YAPI_IO_ERROR, "Unexpected JSON reply format")
-                                    Return YAPI_IO_ERROR
-                                End If
-                                val = udat.ElementAt(srcpos)
-                            Else
-                                If (p + 2 > sdat.Length) Then
-                                    dataLogger.throw_friend(YAPI_IO_ERROR, "Unexpected JSON reply format")
-                                    Return YAPI_IO_ERROR
-                                End If
-                                val = CUInt(c - 48) REM 48='0'
-                                c = CUInt(Asc(sdat.Substring(p, 1)))
-                                p += 1
-                                val += CUInt(c - 48) << 5
-                                c = CUInt(Asc(sdat.Substring(p, 1)))
-                                p += 1
-                                If (c = 122) Then REM 122 ='z'
-                                    c = 92 REM 92 ='\'
-                                End If
-                                val += CUInt(c - 48) << 10
-                            End If
-                            udat.Add(val)
-                        End While
-                    Else
-                        count = el.itemcount
-                        For j = 0 To count - 1
-                            Dim tmp As UInteger = CUInt(el.items(j).ivalue)
-                            udat.Add(tmp)
-                        Next
-                    End If
-
-
-                    ReDim values(nRows, nCols)
-                    x = 0
-                    y = 0
-                    For Each uval As Integer In udat
-                        If coltype(x) < 2 Then
-                            value = (uval + colofs(x)) * colscl(x)
-                        Else
-                            value = YAPI._decimalToDouble(uval - 32767)
-                        End If
-                        If (caltyp(x) > 0 And calhdl(x) <> Nothing) Then
-                            Dim handler As yCalibrationHandler = calhdl(x)
-                            If (caltyp(x) <= 10) Then
-                                value = handler((uval + coldiv(x)) / coldiv(x), caltyp(x), calpar(x), calraw(x), calref(x))
-                            ElseIf (caltyp(x) > 20) Then
-                                value = handler(value, caltyp(x), calpar(x), calraw(x), calref(x))
-                            End If
-                        End If
-                        values(y, x) = value
-                        x = x + 1
-                        If (x = nCols) Then
-                            x = 0
-                            y = y + 1
-                        End If
-                    Next
+          Next j
+        ElseIf (name = "cal") Then
+          _nCols = el.itemcount
+          For j = 0 To _nCols - 1
+            Dim calibration_Str As String = el.items(j).svalue
+            Dim cur_calpar As List(Of Integer) = Nothing
+            Dim cur_calraw As List(Of Double) = Nothing
+            Dim cur_calref As List(Of Double) = Nothing
+            Dim calibType As Integer = 0
+            caltyp.Add(calibType)
+            calhdl.Add(YAPI._getCalibrationHandler(calibType))
+            calpar.Add(cur_calpar)
+            calraw.Add(cur_calraw)
+            calref.Add(cur_calref)
+          Next j
+        ElseIf (name = "data") Then
+          If (colscl.Count <= 0) Then
+            For j = 0 To _nCols - 1
+              colscl.Add(1.0 / coldiv(j))
+              If (coltype(j) <> 0) Then
+                colofs.Add(-32767)
+              Else
+                colofs.Add(0)
+              End If
+            Next j
+          End If
+          count = el.itemcount
+          udat.Clear()
+          If (el.recordtype = TJSONRECORDTYPE.JSON_STRING) Then
+            sdat = el.svalue
+            Dim p As Integer = 0
+            While (p < sdat.Length)
+              Dim val As UInteger
+              Dim c As UInteger = CUInt(Asc(sdat.Substring(p, 1)))
+              p += 1
+              If (c >= 97) Then REM 97 ='a'
+                Dim srcpos As Integer = CInt((udat.Count - 1 - (c - 97)))
+                If (srcpos < 0) Then
+                  _dataLogger.throw_friend(YAPI_IO_ERROR, "Unexpected JSON reply format")
+                  Return YAPI_IO_ERROR
                 End If
-            Next i
+                val = udat.ElementAt(srcpos)
+              Else
+                If (p + 2 > sdat.Length) Then
+                  _dataLogger.throw_friend(YAPI_IO_ERROR, "Unexpected JSON reply format")
+                  Return YAPI_IO_ERROR
+                End If
+                val = CUInt(c - 48) REM 48='0'
+                c = CUInt(Asc(sdat.Substring(p, 1)))
+                p += 1
+                val += CUInt(c - 48) << 5
+                c = CUInt(Asc(sdat.Substring(p, 1)))
+                p += 1
+                If (c = 122) Then REM 122 ='z'
+                  c = 92 REM 92 ='\'
+                End If
+                val += CUInt(c - 48) << 10
+              End If
+              udat.Add(val)
+            End While
+          Else
+            count = el.itemcount
+            For j = 0 To count - 1
+              Dim tmp As UInteger = CUInt(el.items(j).ivalue)
+              udat.Add(tmp)
+            Next
+          End If
 
-            json = Nothing
 
-            loadStream = YAPI_SUCCESS
-        End Function
+          _values = New List(Of List(Of Double))()
+          dat = New List(Of Double)()
+          x = 0
+          For Each uval As Integer In udat
+            If coltype(x) < 2 Then
+              value = (uval + colofs(x)) * colscl(x)
+            Else
+              value = YAPI._decimalToDouble(uval - 32767)
+            End If
+            If (caltyp(x) > 0 And calhdl(x) <> Nothing) Then
+              Dim handler As yCalibrationHandler = calhdl(x)
+              If (caltyp(x) <= 10) Then
+                value = handler((uval + coldiv(x)) / coldiv(x), caltyp(x), calpar(x), calraw(x), calref(x))
+              ElseIf (caltyp(x) > 20) Then
+                value = handler(value, caltyp(x), calpar(x), calraw(x), calref(x))
+              End If
+            End If
+            dat.Add(value)
+            x = x + 1
+            If (x = _nCols) Then
+              _values.Add(dat)
+              dat.Clear()
+              x = 0
+            End If
+          Next
+        End If
+      Next i
+
+      json = Nothing
+
+      loadStream = YAPI_SUCCESS
+    End Function
 
 
   End Class
 
-  REM --- (end of generated code: DataLogger functions declaration)
-
-  REM --- (generated code: YDataLogger implementation)
-
-  Private _DataLoggerCache As New Hashtable()
-  Private _callback As UpdateCallback
+ REM --- (generated code: YDataLogger class start)
 
   '''*
   ''' <summary>
   '''   Yoctopuce sensors include a non-volatile memory capable of storing ongoing measured
   '''   data automatically, without requiring a permanent connection to a computer.
   ''' <para>
-  '''   The Yoctopuce application programming interface includes functions to control
-  '''   how this internal data logger works.
-  '''   Beacause the sensors do not include a battery, they do not have an absolute time
-  '''   reference. Therefore, measures are simply indexed by the absolute run number
-  '''   and time relative to the start of the run. Every new power up starts a new run.
-  '''   It is however possible to setup an absolute UTC time by software at a given time,
-  '''   so that the data logger keeps track of it until it is next powered off.
+  '''   The DataLogger function controls the global parameters of the internal data
+  '''   logger.
   ''' </para>
   ''' </summary>
   '''/
   Public Class YDataLogger
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
-    Public Const OLDESTRUNINDEX_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const CURRENTRUNINDEX_INVALID As Integer = YAPI.INVALID_UNSIGNED
-    Public Const SAMPLINGINTERVAL_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    REM --- (end of generated code: YDataLogger class start)
+
+    REM --- (generated code: YDataLogger definitions)
+    Public Const CURRENTRUNINDEX_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TIMEUTC_INVALID As Long = YAPI.INVALID_LONG
     Public Const RECORDING_OFF = 0
     Public Const RECORDING_ON = 1
@@ -574,164 +348,59 @@ Module yocto_datalogger
     Public Const CLEARHISTORY_TRUE = 1
     Public Const CLEARHISTORY_INVALID = -1
 
+    REM --- (end of generated code: YDataLogger definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _oldestRunIndex As Long
-    Protected _currentRunIndex As Long
-    Protected _samplingInterval As Long
+    REM --- (generated code: YDataLogger attributes declaration)
+    Protected _currentRunIndex As Integer
     Protected _timeUTC As Long
-    Protected _recording As Long
-    Protected _autoStart As Long
-    Protected _clearHistory As Long
-
+    Protected _recording As Integer
+    Protected _autoStart As Integer
+    Protected _clearHistory As Integer
+    Protected _valueCallbackDataLogger As YDataLoggerValueCallback
+    REM --- (end of generated code: YDataLogger attributes declaration)
+    Protected _dataLoggerURL As String
     Public Sub New(ByVal func As String)
-      MyBase.new("DataLogger", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _oldestRunIndex = Y_OLDESTRUNINDEX_INVALID
-      _currentRunIndex = Y_CURRENTRUNINDEX_INVALID
-      _samplingInterval = Y_SAMPLINGINTERVAL_INVALID
-      _timeUTC = Y_TIMEUTC_INVALID
-      _recording = Y_RECORDING_INVALID
-      _autoStart = Y_AUTOSTART_INVALID
-      _clearHistory = Y_CLEARHISTORY_INVALID
+      MyBase.new(func)
+      _className = "DataLogger"
+      REM --- (generated code: YDataLogger attributes initialization)
+      _currentRunIndex = CURRENTRUNINDEX_INVALID
+      _timeUTC = TIMEUTC_INVALID
+      _recording = RECORDING_INVALID
+      _autoStart = AUTOSTART_INVALID
+      _clearHistory = CLEARHISTORY_INVALID
+      _valueCallbackDataLogger = Nothing
+      REM --- (end of generated code: YDataLogger attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+    REM --- (generated code: YDataLogger private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "currentRunIndex") Then
+        _currentRunIndex = CInt(member.ivalue)
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "oldestRunIndex") Then
-          _oldestRunIndex = CLng(member.ivalue)
-        ElseIf (member.name = "currentRunIndex") Then
-          _currentRunIndex = CLng(member.ivalue)
-        ElseIf (member.name = "samplingInterval") Then
-          _samplingInterval = CLng(member.ivalue)
-        ElseIf (member.name = "timeUTC") Then
-          _timeUTC = CLng(member.ivalue)
-        ElseIf (member.name = "recording") Then
-          If (member.ivalue > 0) Then _recording = 1 Else _recording = 0
-        ElseIf (member.name = "autoStart") Then
-          If (member.ivalue > 0) Then _autoStart = 1 Else _autoStart = 0
-        ElseIf (member.name = "clearHistory") Then
-          If (member.ivalue > 0) Then _clearHistory = 1 Else _clearHistory = 0
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the data logger.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the data logger
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "timeUTC") Then
+        _timeUTC = member.ivalue
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the data logger.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the data logger
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the data logger (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the data logger (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "recording") Then
+        If (member.ivalue > 0) Then _recording = 1 Else _recording = 0
+        Return 1
       End If
-      Return _advertisedValue
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the index of the oldest run for which the non-volatile memory still holds recorded data.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the index of the oldest run for which the non-volatile memory still
-    '''   holds recorded data
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_OLDESTRUNINDEX_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_oldestRunIndex() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_OLDESTRUNINDEX_INVALID
-        End If
+      If (member.name = "autoStart") Then
+        If (member.ivalue > 0) Then _autoStart = 1 Else _autoStart = 0
+        Return 1
       End If
-      Return CType(_oldestRunIndex,Integer)
+      If (member.name = "clearHistory") Then
+        If (member.ivalue > 0) Then _clearHistory = 1 Else _clearHistory = 0
+        Return 1
+      End If
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of generated code: YDataLogger private methods declaration)
+
+    REM --- (generated code: YDataLogger public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the current run number, corresponding to the number of times the module was
@@ -750,27 +419,12 @@ Module yocto_datalogger
     ''' </para>
     '''/
     Public Function get_currentRunIndex() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CURRENTRUNINDEX_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CURRENTRUNINDEX_INVALID
         End If
       End If
-      Return CType(_currentRunIndex,Integer)
-    End Function
-
-    Public Function get_samplingInterval() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_SAMPLINGINTERVAL_INVALID
-        End If
-      End If
-      Return CType(_samplingInterval,Integer)
-    End Function
-
-    Public Function set_samplingInterval(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("samplingInterval", rest_val)
+      Return Me._currentRunIndex
     End Function
 
     '''*
@@ -789,13 +443,14 @@ Module yocto_datalogger
     ''' </para>
     '''/
     Public Function get_timeUTC() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_TIMEUTC_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return TIMEUTC_INVALID
         End If
       End If
-      Return _timeUTC
+      Return Me._timeUTC
     End Function
+
 
     '''*
     ''' <summary>
@@ -822,7 +477,6 @@ Module yocto_datalogger
       rest_val = Ltrim(Str(newval))
       Return _setAttr("timeUTC", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the current activation state of the data logger.
@@ -840,13 +494,14 @@ Module yocto_datalogger
     ''' </para>
     '''/
     Public Function get_recording() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_RECORDING_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return RECORDING_INVALID
         End If
       End If
-      Return CType(_recording,Integer)
+      Return Me._recording
     End Function
+
 
     '''*
     ''' <summary>
@@ -874,7 +529,6 @@ Module yocto_datalogger
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("recording", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the default activation state of the data logger on power up.
@@ -892,13 +546,14 @@ Module yocto_datalogger
     ''' </para>
     '''/
     Public Function get_autoStart() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_AUTOSTART_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return AUTOSTART_INVALID
         End If
       End If
-      Return CType(_autoStart,Integer)
+      Return Me._autoStart
     End Function
+
 
     '''*
     ''' <summary>
@@ -928,75 +583,21 @@ Module yocto_datalogger
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("autoStart", rest_val)
     End Function
-
     Public Function get_clearHistory() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_CLEARHISTORY_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return CLEARHISTORY_INVALID
         End If
       End If
-      Return CType(_clearHistory,Integer)
+      Return Me._clearHistory
     End Function
+
 
     Public Function set_clearHistory(ByVal newval As Integer) As Integer
       Dim rest_val As String
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("clearHistory", rest_val)
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of data loggers started using <c>yFirstDataLogger()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YDataLogger</c> object, corresponding to
-    '''   a data logger currently online, or a <c>null</c> pointer
-    '''   if there are no more data loggers to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextDataLogger() as YDataLogger
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindDataLogger(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
-
     '''*
     ''' <summary>
     '''   Retrieves a data logger for a given identifier.
@@ -1039,14 +640,139 @@ Module yocto_datalogger
     '''   a <c>YDataLogger</c> object allowing you to drive the data logger.
     ''' </returns>
     '''/
-    Public Shared Function FindDataLogger(ByVal func As String) As YDataLogger
-      Dim res As YDataLogger
-      If (_DataLoggerCache.ContainsKey(func)) Then
-        Return CType(_DataLoggerCache(func), YDataLogger)
+    Public Shared Function FindDataLogger(func As String) As YDataLogger
+      Dim obj As YDataLogger
+      obj = CType(YFunction._FindFromCache("DataLogger", func), YDataLogger)
+      If ((obj Is Nothing)) Then
+        obj = New YDataLogger(func)
+        YFunction._AddToCache("DataLogger", func, obj)
       End If
-      res = New YDataLogger(func)
-      _DataLoggerCache.Add(func, res)
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YDataLoggerValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackDataLogger = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackDataLogger Is Nothing)) Then
+        Me._valueCallbackDataLogger(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Clears the data logger memory and discards all recorded data streams.
+    ''' <para>
+    '''   This method also resets the current run index to zero.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function forgetAllDataStreams() As Integer
+      Return Me.set_clearHistory(CLEARHISTORY_TRUE)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns a list of YDataSet objects that can be used to retrieve
+    '''   all measures stored by the data logger.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   This function only works if the device uses a recent firmware,
+    '''   as YDataSet objects are not supported by firmwares older than
+    '''   version 13000.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a list of YDataSet object.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty list.
+    ''' </para>
+    '''/
+    Public Overridable Function get_dataSets() As List(Of YDataSet)
+      Return Me.parse_dataSets(Me._download("logger.json"))
+    End Function
+
+    Public Overridable Function parse_dataSets(json As Byte()) As List(Of YDataSet)
+        Dim i_i As Integer
+      Dim dslist As List(Of String) = New List(Of String)()
+      Dim res As List(Of YDataSet) = New List(Of YDataSet)()
+      REM // may throw an exception
+      dslist = Me._json_get_array(json)
+      res.Clear()
+      For i_i = 0 To dslist.Count - 1
+        res.Add(New YDataSet(Me, dslist(i_i)))
+      Next i_i
       Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of data loggers started using <c>yFirstDataLogger()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YDataLogger</c> object, corresponding to
+    '''   a data logger currently online, or a <c>null</c> pointer
+    '''   if there are no more data loggers to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextDataLogger() As YDataLogger
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YDataLogger.FindDataLogger(hwid)
     End Function
 
     '''*
@@ -1090,9 +816,8 @@ Module yocto_datalogger
       Return YDataLogger.FindDataLogger(serial + "." + funcId)
     End Function
 
-    REM --- (end of generated code: YDataLogger implementation)
+    REM --- (end of generated code: YDataLogger public methods declaration)
 
-    Protected _dataLoggerURL As String
 
     Public Function getData(ByVal runIdx As Long, ByVal timeIdx As Long, ByRef jsondata As TJsonParser) As Integer
 
@@ -1122,18 +847,18 @@ Module yocto_datalogger
       res = dev.HTTPRequest(query, buffer, errmsg)
       REM make sure a device scan does not solve the issue
       If (YISERR(res)) Then
-      res = yapiUpdateDeviceList(1, errmsg)
-      If (YISERR(res)) Then
-        getData = res
-        Exit Function
-      End If
+        res = yapiUpdateDeviceList(1, errmsg)
+        If (YISERR(res)) Then
+          getData = res
+          Exit Function
+        End If
 
-      res = dev.HTTPRequest("GET " + _dataLoggerURL + " HTTP/1.1" + Chr(13) + Chr(10) + Chr(13) + Chr(10), buffer, errmsg)
-      If (YISERR(res)) Then
-        _throw(res, errmsg)
-        getData = res
-        Exit Function
-      End If
+        res = dev.HTTPRequest("GET " + _dataLoggerURL + " HTTP/1.1" + Chr(13) + Chr(10) + Chr(13) + Chr(10), buffer, errmsg)
+        If (YISERR(res)) Then
+          _throw(res, errmsg)
+          getData = res
+          Exit Function
+        End If
       End If
 
       Try
@@ -1152,31 +877,22 @@ Module yocto_datalogger
       getData = YAPI_SUCCESS
     End Function
 
-    '''*
-    ''' <summary>
-    '''   Clears the data logger memory and discards all recorded data streams.
-    ''' <para>
-    '''   This method also resets the current run index to zero.
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function forgetAllDataStreams() As Integer
-      forgetAllDataStreams = set_clearHistory(Y_CLEARHISTORY_TRUE)
-    End Function
 
     '''*
     ''' <summary>
-    '''   Builds a list of all data streams hold by the data logger.
+    '''   Builds a list of all data streams hold by the data logger (legacy method).
     ''' <para>
     '''   The caller must pass by reference an empty array to hold YDataStream
     '''   objects, and the function fills it with objects describing available
     '''   data sequences.
+    ''' </para>
+    ''' <para>
+    '''   This is the old way to retrieve data from the DataLogger.
+    '''   For new applications, you should rather use <c>get_dataSets()</c>
+    '''   method, or call directly <c>get_recordedData()</c> on the
+    '''   sensor object.
+    ''' </para>
+    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="v">
@@ -1194,20 +910,33 @@ Module yocto_datalogger
       Dim j As TJsonParser = Nothing
       Dim i, res As Integer
       Dim root, el As TJSONRECORD
+      Dim ds As List(Of YDataStream)
 
       v.Clear()
       res = getData(0, 0, j)
       If (res <> YAPI_SUCCESS) Then
-        get_dataStreams = res
-        Exit Function
+        Return res
+      End If
+      root = j.GetRootNode()
+      If (root.itemcount = 0) Then
+        Return YAPI_SUCCESS
       End If
 
-      root = j.GetRootNode()
-      For i = 0 To root.itemcount - 1
-        el = root.items(i)
-        v.Add(New YDataStream(Me, el.items(0).ivalue, el.items(1).ivalue, el.items(2).ivalue, el.items(3).ivalue))
-      Next i
-
+      If root.items.ElementAt(0).recordtype = TJSONRECORDTYPE.JSON_ARRAY Then
+        For i = 0 To root.itemcount - 1
+          el = root.items(i)
+          v.Add(New YOldDataStream(Me, CInt(el.items(0).ivalue), CInt(el.items(1).ivalue), el.items(2).ivalue, CInt(el.items(3).ivalue)))
+        Next i
+      Else
+        Dim json_buffer As String = j.convertToString(root, False)
+        Dim sets As List(Of YDataSet) = parse_dataSets(YAPI.DefaultEncoding.GetBytes(json_buffer))
+        For sj As Integer = 0 To sets.Count - 1 Step 1
+          ds = sets.ElementAt(sj).get_privateDataStreams()
+          For si As Integer = 0 To ds.Count - 1 Step 1
+            v.Add(ds.ElementAt(si))
+          Next si
+        Next sj
+      End If
       j = Nothing
       get_dataStreams = YAPI_SUCCESS
     End Function
@@ -1218,7 +947,7 @@ Module yocto_datalogger
     End Sub
 
   End Class
-
+  
   REM --- (generated code: DataLogger functions)
 
   '''*
@@ -1285,13 +1014,8 @@ Module yocto_datalogger
     Return YDataLogger.FirstDataLogger()
   End Function
 
-  Private Sub _DataLoggerCleanup()
-  End Sub
-
 
   REM --- (end of generated code: DataLogger functions)
-
-
 
 
 End Module

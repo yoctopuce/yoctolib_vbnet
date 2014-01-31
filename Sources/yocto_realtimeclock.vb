@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_realtimeclock.vb 12324 2013-08-13 15:10:31Z mvuilleu $
+'* $Id: yocto_realtimeclock.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '*
@@ -45,16 +45,10 @@ Imports System.Text
 
 Module yocto_realtimeclock
 
-  REM --- (return codes)
-  REM --- (end of return codes)
-  
-  REM --- (YRealTimeClock definitions)
+    REM --- (YRealTimeClock return codes)
+    REM --- (end of YRealTimeClock return codes)
+  REM --- (YRealTimeClock globals)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YRealTimeClock, ByVal value As String)
-
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_UNIXTIME_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_DATETIME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_UTCOFFSET_INVALID As Integer = YAPI.INVALID_INT
@@ -62,14 +56,11 @@ Module yocto_realtimeclock
   Public Const Y_TIMESET_TRUE = 1
   Public Const Y_TIMESET_INVALID = -1
 
+  Public Delegate Sub YRealTimeClockValueCallback(ByVal func As YRealTimeClock, ByVal value As String)
+  Public Delegate Sub YRealTimeClockTimedReportCallback(ByVal func As YRealTimeClock, ByVal measure As YMeasure)
+  REM --- (end of YRealTimeClock globals)
 
-
-  REM --- (end of YRealTimeClock definitions)
-
-  REM --- (YRealTimeClock implementation)
-
-  Private _RealTimeClockCache As New Hashtable()
-  Private _callback As UpdateCallback
+  REM --- (YRealTimeClock class start)
 
   '''*
   ''' <summary>
@@ -84,8 +75,9 @@ Module yocto_realtimeclock
   '''/
   Public Class YRealTimeClock
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of YRealTimeClock class start)
+
+    REM --- (YRealTimeClock definitions)
     Public Const UNIXTIME_INVALID As Long = YAPI.INVALID_LONG
     Public Const DATETIME_INVALID As String = YAPI.INVALID_STRING
     Public Const UTCOFFSET_INVALID As Integer = YAPI.INVALID_INT
@@ -93,127 +85,53 @@ Module yocto_realtimeclock
     Public Const TIMESET_TRUE = 1
     Public Const TIMESET_INVALID = -1
 
+    REM --- (end of YRealTimeClock definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
+    REM --- (YRealTimeClock attributes declaration)
     Protected _unixTime As Long
     Protected _dateTime As String
-    Protected _utcOffset As Long
-    Protected _timeSet As Long
+    Protected _utcOffset As Integer
+    Protected _timeSet As Integer
+    Protected _valueCallbackRealTimeClock As YRealTimeClockValueCallback
+    REM --- (end of YRealTimeClock attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("RealTimeClock", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _unixTime = Y_UNIXTIME_INVALID
-      _dateTime = Y_DATETIME_INVALID
-      _utcOffset = Y_UTCOFFSET_INVALID
-      _timeSet = Y_TIMESET_INVALID
+      MyBase.New(func)
+      _classname = "RealTimeClock"
+      REM --- (YRealTimeClock attributes initialization)
+      _unixTime = UNIXTIME_INVALID
+      _dateTime = DATETIME_INVALID
+      _utcOffset = UTCOFFSET_INVALID
+      _timeSet = TIMESET_INVALID
+      _valueCallbackRealTimeClock = Nothing
+      REM --- (end of YRealTimeClock attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+  REM --- (YRealTimeClock private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "unixTime") Then
+        _unixTime = member.ivalue
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "unixTime") Then
-          _unixTime = CLng(member.ivalue)
-        ElseIf (member.name = "dateTime") Then
-          _dateTime = member.svalue
-        ElseIf (member.name = "utcOffset") Then
-          _utcOffset = member.ivalue
-        ElseIf (member.name = "timeSet") Then
-          If (member.ivalue > 0) Then _timeSet = 1 Else _timeSet = 0
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the clock.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the clock
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "dateTime") Then
+        _dateTime = member.svalue
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the clock.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the clock
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the clock (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the clock (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "utcOffset") Then
+        _utcOffset = CInt(member.ivalue)
+        Return 1
       End If
-      Return _advertisedValue
+      If (member.name = "timeSet") Then
+        If (member.ivalue > 0) Then _timeSet = 1 Else _timeSet = 0
+        Return 1
+      End If
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of YRealTimeClock private methods declaration)
+
+    REM --- (YRealTimeClock public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the current time in Unix format (number of elapsed seconds since Jan 1st, 1970).
@@ -230,13 +148,14 @@ Module yocto_realtimeclock
     ''' </para>
     '''/
     Public Function get_unixTime() As Long
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_UNIXTIME_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return UNIXTIME_INVALID
         End If
       End If
-      Return _unixTime
+      Return Me._unixTime
     End Function
+
 
     '''*
     ''' <summary>
@@ -265,7 +184,6 @@ Module yocto_realtimeclock
       rest_val = Ltrim(Str(newval))
       Return _setAttr("unixTime", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the current time in the form "YYYY/MM/DD hh:mm:ss"
@@ -280,12 +198,12 @@ Module yocto_realtimeclock
     ''' </para>
     '''/
     Public Function get_dateTime() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_DATETIME_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return DATETIME_INVALID
         End If
       End If
-      Return _dateTime
+      Return Me._dateTime
     End Function
 
     '''*
@@ -304,13 +222,14 @@ Module yocto_realtimeclock
     ''' </para>
     '''/
     Public Function get_utcOffset() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_UTCOFFSET_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return UTCOFFSET_INVALID
         End If
       End If
-      Return CType(_utcOffset,Integer)
+      Return Me._utcOffset
     End Function
+
 
     '''*
     ''' <summary>
@@ -340,7 +259,6 @@ Module yocto_realtimeclock
       rest_val = Ltrim(Str(newval))
       Return _setAttr("utcOffset", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns true if the clock has been set, and false otherwise.
@@ -358,66 +276,13 @@ Module yocto_realtimeclock
     ''' </para>
     '''/
     Public Function get_timeSet() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_TIMESET_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return TIMESET_INVALID
         End If
       End If
-      Return CType(_timeSet,Integer)
+      Return Me._timeSet
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of clocks started using <c>yFirstRealTimeClock()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YRealTimeClock</c> object, corresponding to
-    '''   a clock currently online, or a <c>null</c> pointer
-    '''   if there are no more clocks to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextRealTimeClock() as YRealTimeClock
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindRealTimeClock(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
 
     '''*
     ''' <summary>
@@ -461,14 +326,83 @@ Module yocto_realtimeclock
     '''   a <c>YRealTimeClock</c> object allowing you to drive the clock.
     ''' </returns>
     '''/
-    Public Shared Function FindRealTimeClock(ByVal func As String) As YRealTimeClock
-      Dim res As YRealTimeClock
-      If (_RealTimeClockCache.ContainsKey(func)) Then
-        Return CType(_RealTimeClockCache(func), YRealTimeClock)
+    Public Shared Function FindRealTimeClock(func As String) As YRealTimeClock
+      Dim obj As YRealTimeClock
+      obj = CType(YFunction._FindFromCache("RealTimeClock", func), YRealTimeClock)
+      If ((obj Is Nothing)) Then
+        obj = New YRealTimeClock(func)
+        YFunction._AddToCache("RealTimeClock", func, obj)
       End If
-      res = New YRealTimeClock(func)
-      _RealTimeClockCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YRealTimeClockValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackRealTimeClock = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackRealTimeClock Is Nothing)) Then
+        Me._valueCallbackRealTimeClock(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of clocks started using <c>yFirstRealTimeClock()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YRealTimeClock</c> object, corresponding to
+    '''   a clock currently online, or a <c>null</c> pointer
+    '''   if there are no more clocks to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextRealTimeClock() As YRealTimeClock
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YRealTimeClock.FindRealTimeClock(hwid)
     End Function
 
     '''*
@@ -512,7 +446,7 @@ Module yocto_realtimeclock
       Return YRealTimeClock.FindRealTimeClock(serial + "." + funcId)
     End Function
 
-    REM --- (end of YRealTimeClock implementation)
+    REM --- (end of YRealTimeClock public methods declaration)
 
   End Class
 
@@ -581,9 +515,6 @@ Module yocto_realtimeclock
   Public Function yFirstRealTimeClock() As YRealTimeClock
     Return YRealTimeClock.FirstRealTimeClock()
   End Function
-
-  Private Sub _RealTimeClockCleanup()
-  End Sub
 
 
   REM --- (end of RealTimeClock functions)

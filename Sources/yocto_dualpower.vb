@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_dualpower.vb 12324 2013-08-13 15:10:31Z mvuilleu $
+'* $Id: yocto_dualpower.vb 14798 2014-01-31 14:58:42Z seb $
 '*
 '* Implements yFindDualPower(), the high-level API for DualPower functions
 '*
@@ -45,16 +45,10 @@ Imports System.Text
 
 Module yocto_dualpower
 
-  REM --- (return codes)
-  REM --- (end of return codes)
-  
-  REM --- (YDualPower definitions)
+    REM --- (YDualPower return codes)
+    REM --- (end of YDualPower return codes)
+  REM --- (YDualPower globals)
 
-  Public Delegate Sub UpdateCallback(ByVal func As YDualPower, ByVal value As String)
-
-
-  Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_POWERSTATE_OFF = 0
   Public Const Y_POWERSTATE_FROM_USB = 1
   Public Const Y_POWERSTATE_FROM_EXT = 2
@@ -66,15 +60,12 @@ Module yocto_dualpower
   Public Const Y_POWERCONTROL_OFF = 3
   Public Const Y_POWERCONTROL_INVALID = -1
 
-  Public Const Y_EXTVOLTAGE_INVALID As Integer = YAPI.INVALID_UNSIGNED
+  Public Const Y_EXTVOLTAGE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Delegate Sub YDualPowerValueCallback(ByVal func As YDualPower, ByVal value As String)
+  Public Delegate Sub YDualPowerTimedReportCallback(ByVal func As YDualPower, ByVal measure As YMeasure)
+  REM --- (end of YDualPower globals)
 
-
-  REM --- (end of YDualPower definitions)
-
-  REM --- (YDualPower implementation)
-
-  Private _DualPowerCache As New Hashtable()
-  Private _callback As UpdateCallback
+  REM --- (YDualPower class start)
 
   '''*
   ''' <summary>
@@ -89,8 +80,9 @@ Module yocto_dualpower
   '''/
   Public Class YDualPower
     Inherits YFunction
-    Public Const LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
-    Public Const ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of YDualPower class start)
+
+    REM --- (YDualPower definitions)
     Public Const POWERSTATE_OFF = 0
     Public Const POWERSTATE_FROM_USB = 1
     Public Const POWERSTATE_FROM_EXT = 2
@@ -102,124 +94,48 @@ Module yocto_dualpower
     Public Const POWERCONTROL_OFF = 3
     Public Const POWERCONTROL_INVALID = -1
 
-    Public Const EXTVOLTAGE_INVALID As Integer = YAPI.INVALID_UNSIGNED
+    Public Const EXTVOLTAGE_INVALID As Integer = YAPI.INVALID_UINT
+    REM --- (end of YDualPower definitions)
 
-    Protected _logicalName As String
-    Protected _advertisedValue As String
-    Protected _powerState As Long
-    Protected _powerControl As Long
-    Protected _extVoltage As Long
+    REM --- (YDualPower attributes declaration)
+    Protected _powerState As Integer
+    Protected _powerControl As Integer
+    Protected _extVoltage As Integer
+    Protected _valueCallbackDualPower As YDualPowerValueCallback
+    REM --- (end of YDualPower attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new("DualPower", func)
-      _logicalName = Y_LOGICALNAME_INVALID
-      _advertisedValue = Y_ADVERTISEDVALUE_INVALID
-      _powerState = Y_POWERSTATE_INVALID
-      _powerControl = Y_POWERCONTROL_INVALID
-      _extVoltage = Y_EXTVOLTAGE_INVALID
+      MyBase.New(func)
+      _classname = "DualPower"
+      REM --- (YDualPower attributes initialization)
+      _powerState = POWERSTATE_INVALID
+      _powerControl = POWERCONTROL_INVALID
+      _extVoltage = EXTVOLTAGE_INVALID
+      _valueCallbackDualPower = Nothing
+      REM --- (end of YDualPower attributes initialization)
     End Sub
 
-    Protected Overrides Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
+  REM --- (YDualPower private methods declaration)
+
+    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "powerState") Then
+        _powerState = CInt(member.ivalue)
+        Return 1
       End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        If (member.name = "logicalName") Then
-          _logicalName = member.svalue
-        ElseIf (member.name = "advertisedValue") Then
-          _advertisedValue = member.svalue
-        ElseIf (member.name = "powerState") Then
-          _powerState = CLng(member.ivalue)
-        ElseIf (member.name = "powerControl") Then
-          _powerControl = CLng(member.ivalue)
-        ElseIf (member.name = "extVoltage") Then
-          _extVoltage = CLng(member.ivalue)
-        End If
-      Next i
-      Return 0
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the logical name of the power control.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the logical name of the power control
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_logicalName() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_LOGICALNAME_INVALID
-        End If
+      If (member.name = "powerControl") Then
+        _powerControl = CInt(member.ivalue)
+        Return 1
       End If
-      Return _logicalName
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the logical name of the power control.
-    ''' <para>
-    '''   You can use <c>yCheckLogicalName()</c>
-    '''   prior to this call to make sure that your parameter is valid.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the logical name of the power control
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_logicalName(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("logicalName", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the power control (no more than 6 characters).
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the current value of the power control (no more than 6 characters)
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_advertisedValue() As String
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_ADVERTISEDVALUE_INVALID
-        End If
+      If (member.name = "extVoltage") Then
+        _extVoltage = CInt(member.ivalue)
+        Return 1
       End If
-      Return _advertisedValue
+      Return MyBase._parseAttr(member)
     End Function
 
+    REM --- (end of YDualPower private methods declaration)
+
+    REM --- (YDualPower public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the current power source for module functions that require lots of current.
@@ -238,12 +154,12 @@ Module yocto_dualpower
     ''' </para>
     '''/
     Public Function get_powerState() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_POWERSTATE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return POWERSTATE_INVALID
         End If
       End If
-      Return CType(_powerState,Integer)
+      Return Me._powerState
     End Function
 
     '''*
@@ -264,13 +180,14 @@ Module yocto_dualpower
     ''' </para>
     '''/
     Public Function get_powerControl() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_POWERCONTROL_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return POWERCONTROL_INVALID
         End If
       End If
-      Return CType(_powerControl,Integer)
+      Return Me._powerControl
     End Function
+
 
     '''*
     ''' <summary>
@@ -299,7 +216,6 @@ Module yocto_dualpower
       rest_val = Ltrim(Str(newval))
       Return _setAttr("powerControl", rest_val)
     End Function
-
     '''*
     ''' <summary>
     '''   Returns the measured voltage on the external power source, in millivolts.
@@ -316,66 +232,13 @@ Module yocto_dualpower
     ''' </para>
     '''/
     Public Function get_extVoltage() As Integer
-      If (_cacheExpiration <= YAPI.GetTickCount()) Then
-        If (YISERR(load(YAPI.DefaultCacheValidity))) Then
-          Return Y_EXTVOLTAGE_INVALID
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+          Return EXTVOLTAGE_INVALID
         End If
       End If
-      Return CType(_extVoltage,Integer)
+      Return Me._extVoltage
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of dual power controls started using <c>yFirstDualPower()</c>.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a pointer to a <c>YDualPower</c> object, corresponding to
-    '''   a dual power control currently online, or a <c>null</c> pointer
-    '''   if there are no more dual power controls to enumerate.
-    ''' </returns>
-    '''/
-    Public Function nextDualPower() as YDualPower
-      Dim hwid As String =""
-      If (YISERR(_nextFunction(hwid))) Then
-        Return Nothing
-      End If
-      If (hwid="") Then
-        Return Nothing
-      End If
-      Return yFindDualPower(hwid)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   comment from .
-    ''' <para>
-    '''   yc definition
-    ''' </para>
-    ''' </summary>
-    '''/
-  Public Overloads Sub registerValueCallback(ByVal callback As UpdateCallback)
-   If (callback IsNot Nothing) Then
-     registerFuncCallback(Me)
-   Else
-     unregisterFuncCallback(Me)
-   End If
-   _callback = callback
-  End Sub
-
-  Public Sub set_callback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Sub setCallback(ByVal callback As UpdateCallback)
-    registerValueCallback(callback)
-  End Sub
-
-  Public Overrides Sub advertiseValue(ByVal value As String)
-    If (_callback IsNot Nothing) Then _callback(Me, value)
-  End Sub
-
 
     '''*
     ''' <summary>
@@ -419,14 +282,83 @@ Module yocto_dualpower
     '''   a <c>YDualPower</c> object allowing you to drive the power control.
     ''' </returns>
     '''/
-    Public Shared Function FindDualPower(ByVal func As String) As YDualPower
-      Dim res As YDualPower
-      If (_DualPowerCache.ContainsKey(func)) Then
-        Return CType(_DualPowerCache(func), YDualPower)
+    Public Shared Function FindDualPower(func As String) As YDualPower
+      Dim obj As YDualPower
+      obj = CType(YFunction._FindFromCache("DualPower", func), YDualPower)
+      If ((obj Is Nothing)) Then
+        obj = New YDualPower(func)
+        YFunction._AddToCache("DualPower", func, obj)
       End If
-      res = New YDualPower(func)
-      _DualPowerCache.Add(func, res)
-      Return res
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every change of advertised value.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and the character string describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerValueCallback(callback As YDualPowerValueCallback) As Integer
+      Dim val As String
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateValueCallbackList(Me , True)
+      Else
+        YFunction._UpdateValueCallbackList(Me , False)
+      End If
+      Me._valueCallbackDualPower = callback
+      REM // Immediately invoke value callback with current value
+      If (Not (callback Is Nothing) And Me.isOnline()) Then
+        val = Me._advertisedValue
+        If (Not (val = "")) Then
+          Me._invokeValueCallback(val)
+        End If
+      End If
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeValueCallback(value As String) As Integer
+      If (Not (Me._valueCallbackDualPower Is Nothing)) Then
+        Me._valueCallbackDualPower(Me, value)
+      Else
+        MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of dual power controls started using <c>yFirstDualPower()</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YDualPower</c> object, corresponding to
+    '''   a dual power control currently online, or a <c>null</c> pointer
+    '''   if there are no more dual power controls to enumerate.
+    ''' </returns>
+    '''/
+    Public Function nextDualPower() As YDualPower
+      Dim hwid As String = ""
+      If (YISERR(_nextFunction(hwid))) Then
+        Return Nothing
+      End If
+      If (hwid = "") Then
+        Return Nothing
+      End If
+      Return YDualPower.FindDualPower(hwid)
     End Function
 
     '''*
@@ -470,7 +402,7 @@ Module yocto_dualpower
       Return YDualPower.FindDualPower(serial + "." + funcId)
     End Function
 
-    REM --- (end of YDualPower implementation)
+    REM --- (end of YDualPower public methods declaration)
 
   End Class
 
@@ -539,9 +471,6 @@ Module yocto_dualpower
   Public Function yFirstDualPower() As YDualPower
     Return YDualPower.FirstDualPower()
   End Function
-
-  Private Sub _DualPowerCleanup()
-  End Sub
 
 
   REM --- (end of DualPower functions)
