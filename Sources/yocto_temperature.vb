@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_temperature.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -146,7 +146,7 @@ Module yocto_temperature
     '''/
     Public Function get_sensorType() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SENSORTYPE_INVALID
         End If
       End If

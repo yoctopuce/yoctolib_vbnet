@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorled.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_colorled.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindColorLed(), the high-level API for ColorLed functions
 '*
@@ -184,7 +184,7 @@ End Class
     '''/
     Public Function get_rgbColor() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RGBCOLOR_INVALID
         End If
       End If
@@ -235,7 +235,7 @@ End Class
     '''/
     Public Function get_hslColor() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return HSLCOLOR_INVALID
         End If
       End If
@@ -271,7 +271,7 @@ End Class
     End Function
     Public Function get_rgbMove() As YColorLedMove
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RGBMOVE_INVALID
         End If
       End If
@@ -315,7 +315,7 @@ End Class
     End Function
     Public Function get_hslMove() As YColorLedMove
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return HSLMOVE_INVALID
         End If
       End If
@@ -374,7 +374,7 @@ End Class
     '''/
     Public Function get_rgbColorAtPowerOn() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RGBCOLORATPOWERON_INVALID
         End If
       End If

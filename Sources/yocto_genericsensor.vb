@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_genericsensor.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_genericsensor.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '*
@@ -170,7 +170,7 @@ Module yocto_genericsensor
     '''/
     Public Function get_signalValue() As Double
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALVALUE_INVALID
         End If
       End If
@@ -194,7 +194,7 @@ Module yocto_genericsensor
     '''/
     Public Function get_signalUnit() As String
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALUNIT_INVALID
         End If
       End If
@@ -218,7 +218,7 @@ Module yocto_genericsensor
     '''/
     Public Function get_signalRange() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALRANGE_INVALID
         End If
       End If
@@ -268,7 +268,7 @@ Module yocto_genericsensor
     '''/
     Public Function get_valueRange() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return VALUERANGE_INVALID
         End If
       End If

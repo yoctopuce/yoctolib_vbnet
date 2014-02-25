@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_servo.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_servo.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindServo(), the high-level API for Servo functions
 '*
@@ -162,7 +162,7 @@ End Class
     '''/
     Public Function get_position() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return POSITION_INVALID
         End If
       End If
@@ -212,7 +212,7 @@ End Class
     '''/
     Public Function get_range() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RANGE_INVALID
         End If
       End If
@@ -267,7 +267,7 @@ End Class
     '''/
     Public Function get_neutral() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return NEUTRAL_INVALID
         End If
       End If
@@ -306,7 +306,7 @@ End Class
     End Function
     Public Function get_move() As YServoMove
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MOVE_INVALID
         End If
       End If

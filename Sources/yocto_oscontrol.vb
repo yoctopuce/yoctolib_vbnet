@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_oscontrol.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_oscontrol.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindOsControl(), the high-level API for OsControl functions
 '*
@@ -119,7 +119,7 @@ Module yocto_oscontrol
     '''/
     Public Function get_shutdownCountdown() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SHUTDOWNCOUNTDOWN_INVALID
         End If
       End If

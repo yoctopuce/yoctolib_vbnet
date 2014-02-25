@@ -1,2 +1,1 @@
-- add YAPI.RegisterHubDiscoveryCallback and YAPI.TriggerHubDiscovery
-- minor bug fixes
+Release Candidate for v1.10

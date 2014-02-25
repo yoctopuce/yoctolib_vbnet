@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_hubport.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_hubport.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindHubPort(), the high-level API for HubPort functions
 '*
@@ -153,7 +153,7 @@ Module yocto_hubport
     '''/
     Public Function get_enabled() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ENABLED_INVALID
         End If
       End If
@@ -206,7 +206,7 @@ Module yocto_hubport
     '''/
     Public Function get_portState() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PORTSTATE_INVALID
         End If
       End If
@@ -232,7 +232,7 @@ Module yocto_hubport
     '''/
     Public Function get_baudRate() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BAUDRATE_INVALID
         End If
       End If

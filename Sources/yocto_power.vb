@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_power.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_power.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindPower(), the high-level API for Power functions
 '*
@@ -136,7 +136,7 @@ Module yocto_power
     '''/
     Public Function get_cosPhi() As Double
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COSPHI_INVALID
         End If
       End If
@@ -168,7 +168,7 @@ Module yocto_power
     '''/
     Public Function get_meter() As Double
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return METER_INVALID
         End If
       End If
@@ -192,7 +192,7 @@ Module yocto_power
     '''/
     Public Function get_meterTimer() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return METERTIMER_INVALID
         End If
       End If
@@ -331,6 +331,23 @@ Module yocto_power
         MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Resets the energy counter.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function reset() As Integer
+      Return Me.set_meter(0)
     End Function
 
 

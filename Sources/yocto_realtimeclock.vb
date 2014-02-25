@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_realtimeclock.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_realtimeclock.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '*
@@ -149,7 +149,7 @@ Module yocto_realtimeclock
     '''/
     Public Function get_unixTime() As Long
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return UNIXTIME_INVALID
         End If
       End If
@@ -199,7 +199,7 @@ Module yocto_realtimeclock
     '''/
     Public Function get_dateTime() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DATETIME_INVALID
         End If
       End If
@@ -223,7 +223,7 @@ Module yocto_realtimeclock
     '''/
     Public Function get_utcOffset() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return UTCOFFSET_INVALID
         End If
       End If
@@ -277,7 +277,7 @@ Module yocto_realtimeclock
     '''/
     Public Function get_timeSet() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return TIMESET_INVALID
         End If
       End If

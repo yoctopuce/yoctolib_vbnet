@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_wireless.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -232,7 +232,7 @@ Module yocto_wireless
     '''/
     Public Function get_linkQuality() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LINKQUALITY_INVALID
         End If
       End If
@@ -256,7 +256,7 @@ Module yocto_wireless
     '''/
     Public Function get_ssid() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SSID_INVALID
         End If
       End If
@@ -280,7 +280,7 @@ Module yocto_wireless
     '''/
     Public Function get_channel() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CHANNEL_INVALID
         End If
       End If
@@ -306,7 +306,7 @@ Module yocto_wireless
     '''/
     Public Function get_security() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SECURITY_INVALID
         End If
       End If
@@ -330,7 +330,7 @@ Module yocto_wireless
     '''/
     Public Function get_message() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MESSAGE_INVALID
         End If
       End If
@@ -339,7 +339,7 @@ Module yocto_wireless
 
     Public Function get_wlanConfig() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return WLANCONFIG_INVALID
         End If
       End If

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_network.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -313,7 +313,7 @@ Module yocto_network
     '''/
     Public Function get_readiness() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return READINESS_INVALID
         End If
       End If
@@ -339,7 +339,7 @@ Module yocto_network
     '''/
     Public Function get_macAddress() As String
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MACADDRESS_INVALID
         End If
       End If
@@ -365,7 +365,7 @@ Module yocto_network
     '''/
     Public Function get_ipAddress() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return IPADDRESS_INVALID
         End If
       End If
@@ -389,7 +389,7 @@ Module yocto_network
     '''/
     Public Function get_subnetMask() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SUBNETMASK_INVALID
         End If
       End If
@@ -413,7 +413,7 @@ Module yocto_network
     '''/
     Public Function get_router() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ROUTER_INVALID
         End If
       End If
@@ -422,7 +422,7 @@ Module yocto_network
 
     Public Function get_ipConfig() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return IPCONFIG_INVALID
         End If
       End If
@@ -522,7 +522,7 @@ Module yocto_network
     '''/
     Public Function get_primaryDNS() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PRIMARYDNS_INVALID
         End If
       End If
@@ -574,7 +574,7 @@ Module yocto_network
     '''/
     Public Function get_secondaryDNS() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SECONDARYDNS_INVALID
         End If
       End If
@@ -628,7 +628,7 @@ Module yocto_network
     '''/
     Public Function get_userPassword() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return USERPASSWORD_INVALID
         End If
       End If
@@ -685,7 +685,7 @@ Module yocto_network
     '''/
     Public Function get_adminPassword() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ADMINPASSWORD_INVALID
         End If
       End If
@@ -743,7 +743,7 @@ Module yocto_network
     '''/
     Public Function get_discoverable() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISCOVERABLE_INVALID
         End If
       End If
@@ -800,7 +800,7 @@ Module yocto_network
     '''/
     Public Function get_wwwWatchdogDelay() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return WWWWATCHDOGDELAY_INVALID
         End If
       End If
@@ -855,7 +855,7 @@ Module yocto_network
     '''/
     Public Function get_callbackUrl() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKURL_INVALID
         End If
       End If
@@ -909,7 +909,7 @@ Module yocto_network
     '''/
     Public Function get_callbackMethod() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKMETHOD_INVALID
         End If
       End If
@@ -964,7 +964,7 @@ Module yocto_network
     '''/
     Public Function get_callbackEncoding() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKENCODING_INVALID
         End If
       End If
@@ -1019,7 +1019,7 @@ Module yocto_network
     '''/
     Public Function get_callbackCredentials() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKCREDENTIALS_INVALID
         End If
       End If
@@ -1111,7 +1111,7 @@ Module yocto_network
     '''/
     Public Function get_callbackMinDelay() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKMINDELAY_INVALID
         End If
       End If
@@ -1161,7 +1161,7 @@ Module yocto_network
     '''/
     Public Function get_callbackMaxDelay() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKMAXDELAY_INVALID
         End If
       End If
@@ -1213,7 +1213,7 @@ Module yocto_network
     '''/
     Public Function get_poeCurrent() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return POECURRENT_INVALID
         End If
       End If

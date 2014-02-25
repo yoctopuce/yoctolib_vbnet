@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_datalogger.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -420,7 +420,7 @@ Module yocto_datalogger
     '''/
     Public Function get_currentRunIndex() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CURRENTRUNINDEX_INVALID
         End If
       End If
@@ -444,7 +444,7 @@ Module yocto_datalogger
     '''/
     Public Function get_timeUTC() As Long
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return TIMEUTC_INVALID
         End If
       End If
@@ -495,7 +495,7 @@ Module yocto_datalogger
     '''/
     Public Function get_recording() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RECORDING_INVALID
         End If
       End If
@@ -547,7 +547,7 @@ Module yocto_datalogger
     '''/
     Public Function get_autoStart() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return AUTOSTART_INVALID
         End If
       End If
@@ -585,7 +585,7 @@ Module yocto_datalogger
     End Function
     Public Function get_clearHistory() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CLEARHISTORY_INVALID
         End If
       End If

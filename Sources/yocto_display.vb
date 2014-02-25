@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_display.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -1070,7 +1070,7 @@ end enum
     '''/
     Public Function get_enabled() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ENABLED_INVALID
         End If
       End If
@@ -1120,7 +1120,7 @@ end enum
     '''/
     Public Function get_startupSeq() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return STARTUPSEQ_INVALID
         End If
       End If
@@ -1172,7 +1172,7 @@ end enum
     '''/
     Public Function get_brightness() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BRIGHTNESS_INVALID
         End If
       End If
@@ -1226,7 +1226,7 @@ end enum
     '''/
     Public Function get_orientation() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ORIENTATION_INVALID
         End If
       End If
@@ -1279,7 +1279,7 @@ end enum
     '''/
     Public Function get_displayWidth() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISPLAYWIDTH_INVALID
         End If
       End If
@@ -1303,7 +1303,7 @@ end enum
     '''/
     Public Function get_displayHeight() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISPLAYHEIGHT_INVALID
         End If
       End If
@@ -1328,7 +1328,7 @@ end enum
     '''/
     Public Function get_displayType() As Integer
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISPLAYTYPE_INVALID
         End If
       End If
@@ -1352,7 +1352,7 @@ end enum
     '''/
     Public Function get_layerWidth() As Integer
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LAYERWIDTH_INVALID
         End If
       End If
@@ -1376,7 +1376,7 @@ end enum
     '''/
     Public Function get_layerHeight() As Integer
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LAYERHEIGHT_INVALID
         End If
       End If
@@ -1400,7 +1400,7 @@ end enum
     '''/
     Public Function get_layerCount() As Integer
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LAYERCOUNT_INVALID
         End If
       End If
@@ -1409,7 +1409,7 @@ end enum
 
     Public Function get_command() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

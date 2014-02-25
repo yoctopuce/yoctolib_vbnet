@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_dualpower.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_dualpower.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindDualPower(), the high-level API for DualPower functions
 '*
@@ -155,7 +155,7 @@ Module yocto_dualpower
     '''/
     Public Function get_powerState() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return POWERSTATE_INVALID
         End If
       End If
@@ -181,7 +181,7 @@ Module yocto_dualpower
     '''/
     Public Function get_powerControl() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return POWERCONTROL_INVALID
         End If
       End If
@@ -233,7 +233,7 @@ Module yocto_dualpower
     '''/
     Public Function get_extVoltage() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return EXTVOLTAGE_INVALID
         End If
       End If

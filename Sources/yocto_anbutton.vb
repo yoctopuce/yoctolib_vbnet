@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_anbutton.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_anbutton.vb 15039 2014-02-24 11:22:11Z seb $
 '*
 '* Implements yFindAnButton(), the high-level API for AnButton functions
 '*
@@ -212,7 +212,7 @@ Module yocto_anbutton
     '''/
     Public Function get_calibratedValue() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALIBRATEDVALUE_INVALID
         End If
       End If
@@ -236,7 +236,7 @@ Module yocto_anbutton
     '''/
     Public Function get_rawValue() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RAWVALUE_INVALID
         End If
       End If
@@ -260,7 +260,7 @@ Module yocto_anbutton
     '''/
     Public Function get_analogCalibration() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ANALOGCALIBRATION_INVALID
         End If
       End If
@@ -312,7 +312,7 @@ Module yocto_anbutton
     '''/
     Public Function get_calibrationMax() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALIBRATIONMAX_INVALID
         End If
       End If
@@ -367,7 +367,7 @@ Module yocto_anbutton
     '''/
     Public Function get_calibrationMin() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALIBRATIONMIN_INVALID
         End If
       End If
@@ -422,7 +422,7 @@ Module yocto_anbutton
     '''/
     Public Function get_sensitivity() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SENSITIVITY_INVALID
         End If
       End If
@@ -478,7 +478,7 @@ Module yocto_anbutton
     '''/
     Public Function get_isPressed() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ISPRESSED_INVALID
         End If
       End If
@@ -504,7 +504,7 @@ Module yocto_anbutton
     '''/
     Public Function get_lastTimePressed() As Long
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LASTTIMEPRESSED_INVALID
         End If
       End If
@@ -530,7 +530,7 @@ Module yocto_anbutton
     '''/
     Public Function get_lastTimeReleased() As Long
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LASTTIMERELEASED_INVALID
         End If
       End If
@@ -552,7 +552,7 @@ Module yocto_anbutton
     '''/
     Public Function get_pulseCounter() As Long
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PULSECOUNTER_INVALID
         End If
       End If
@@ -563,25 +563,6 @@ Module yocto_anbutton
     Public Function set_pulseCounter(ByVal newval As Long) As Integer
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
-      Return _setAttr("pulseCounter", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the pulse counter value as well as his timer
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function resetCounter() As Integer
-      Dim rest_val As String
-      rest_val = "0"
       Return _setAttr("pulseCounter", rest_val)
     End Function
     '''*
@@ -599,7 +580,7 @@ Module yocto_anbutton
     '''/
     Public Function get_pulseTimer() As Long
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DEFAULTCACHEVALIDITY) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PULSETIMER_INVALID
         End If
       End If
@@ -701,6 +682,21 @@ Module yocto_anbutton
         MyBase._invokeValueCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the pulse counter value as well as his timer
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function resetCounter() As Integer
+      Return Me.set_pulseCounter(0)
     End Function
 
 
