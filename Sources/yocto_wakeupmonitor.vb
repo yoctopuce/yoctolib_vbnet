@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupmonitor.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_wakeupmonitor.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -52,24 +52,24 @@ Module yocto_wakeupmonitor
   Public Const Y_POWERDURATION_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_SLEEPCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_NEXTWAKEUP_INVALID As Long = YAPI.INVALID_LONG
-  Public Const Y_WAKEUPREASON_USBPOWER = 0
-  Public Const Y_WAKEUPREASON_EXTPOWER = 1
-  Public Const Y_WAKEUPREASON_ENDOFSLEEP = 2
-  Public Const Y_WAKEUPREASON_EXTSIG1 = 3
-  Public Const Y_WAKEUPREASON_EXTSIG2 = 4
-  Public Const Y_WAKEUPREASON_EXTSIG3 = 5
-  Public Const Y_WAKEUPREASON_EXTSIG4 = 6
-  Public Const Y_WAKEUPREASON_SCHEDULE1 = 7
-  Public Const Y_WAKEUPREASON_SCHEDULE2 = 8
-  Public Const Y_WAKEUPREASON_SCHEDULE3 = 9
-  Public Const Y_WAKEUPREASON_SCHEDULE4 = 10
-  Public Const Y_WAKEUPREASON_SCHEDULE5 = 11
-  Public Const Y_WAKEUPREASON_SCHEDULE6 = 12
-  Public Const Y_WAKEUPREASON_INVALID = -1
+  Public Const Y_WAKEUPREASON_USBPOWER As Integer = 0
+  Public Const Y_WAKEUPREASON_EXTPOWER As Integer = 1
+  Public Const Y_WAKEUPREASON_ENDOFSLEEP As Integer = 2
+  Public Const Y_WAKEUPREASON_EXTSIG1 As Integer = 3
+  Public Const Y_WAKEUPREASON_EXTSIG2 As Integer = 4
+  Public Const Y_WAKEUPREASON_EXTSIG3 As Integer = 5
+  Public Const Y_WAKEUPREASON_EXTSIG4 As Integer = 6
+  Public Const Y_WAKEUPREASON_SCHEDULE1 As Integer = 7
+  Public Const Y_WAKEUPREASON_SCHEDULE2 As Integer = 8
+  Public Const Y_WAKEUPREASON_SCHEDULE3 As Integer = 9
+  Public Const Y_WAKEUPREASON_SCHEDULE4 As Integer = 10
+  Public Const Y_WAKEUPREASON_SCHEDULE5 As Integer = 11
+  Public Const Y_WAKEUPREASON_SCHEDULE6 As Integer = 12
+  Public Const Y_WAKEUPREASON_INVALID As Integer = -1
 
-  Public Const Y_WAKEUPSTATE_SLEEPING = 0
-  Public Const Y_WAKEUPSTATE_AWAKE = 1
-  Public Const Y_WAKEUPSTATE_INVALID = -1
+  Public Const Y_WAKEUPSTATE_SLEEPING As Integer = 0
+  Public Const Y_WAKEUPSTATE_AWAKE As Integer = 1
+  Public Const Y_WAKEUPSTATE_INVALID As Integer = -1
 
   Public Const Y_RTCTIME_INVALID As Long = YAPI.INVALID_LONG
   Public Delegate Sub YWakeUpMonitorValueCallback(ByVal func As YWakeUpMonitor, ByVal value As String)
@@ -94,24 +94,24 @@ Module yocto_wakeupmonitor
     Public Const POWERDURATION_INVALID As Integer = YAPI.INVALID_INT
     Public Const SLEEPCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
     Public Const NEXTWAKEUP_INVALID As Long = YAPI.INVALID_LONG
-    Public Const WAKEUPREASON_USBPOWER = 0
-    Public Const WAKEUPREASON_EXTPOWER = 1
-    Public Const WAKEUPREASON_ENDOFSLEEP = 2
-    Public Const WAKEUPREASON_EXTSIG1 = 3
-    Public Const WAKEUPREASON_EXTSIG2 = 4
-    Public Const WAKEUPREASON_EXTSIG3 = 5
-    Public Const WAKEUPREASON_EXTSIG4 = 6
-    Public Const WAKEUPREASON_SCHEDULE1 = 7
-    Public Const WAKEUPREASON_SCHEDULE2 = 8
-    Public Const WAKEUPREASON_SCHEDULE3 = 9
-    Public Const WAKEUPREASON_SCHEDULE4 = 10
-    Public Const WAKEUPREASON_SCHEDULE5 = 11
-    Public Const WAKEUPREASON_SCHEDULE6 = 12
-    Public Const WAKEUPREASON_INVALID = -1
+    Public Const WAKEUPREASON_USBPOWER As Integer = 0
+    Public Const WAKEUPREASON_EXTPOWER As Integer = 1
+    Public Const WAKEUPREASON_ENDOFSLEEP As Integer = 2
+    Public Const WAKEUPREASON_EXTSIG1 As Integer = 3
+    Public Const WAKEUPREASON_EXTSIG2 As Integer = 4
+    Public Const WAKEUPREASON_EXTSIG3 As Integer = 5
+    Public Const WAKEUPREASON_EXTSIG4 As Integer = 6
+    Public Const WAKEUPREASON_SCHEDULE1 As Integer = 7
+    Public Const WAKEUPREASON_SCHEDULE2 As Integer = 8
+    Public Const WAKEUPREASON_SCHEDULE3 As Integer = 9
+    Public Const WAKEUPREASON_SCHEDULE4 As Integer = 10
+    Public Const WAKEUPREASON_SCHEDULE5 As Integer = 11
+    Public Const WAKEUPREASON_SCHEDULE6 As Integer = 12
+    Public Const WAKEUPREASON_INVALID As Integer = -1
 
-    Public Const WAKEUPSTATE_SLEEPING = 0
-    Public Const WAKEUPSTATE_AWAKE = 1
-    Public Const WAKEUPSTATE_INVALID = -1
+    Public Const WAKEUPSTATE_SLEEPING As Integer = 0
+    Public Const WAKEUPSTATE_AWAKE As Integer = 1
+    Public Const WAKEUPSTATE_INVALID As Integer = -1
 
     Public Const RTCTIME_INVALID As Long = YAPI.INVALID_LONG
     REM --- (end of YWakeUpMonitor definitions)
@@ -142,7 +142,7 @@ Module yocto_wakeupmonitor
       REM --- (end of YWakeUpMonitor attributes initialization)
     End Sub
 
-  REM --- (YWakeUpMonitor private methods declaration)
+    REM --- (YWakeUpMonitor private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "powerDuration") Then
@@ -462,9 +462,9 @@ Module yocto_wakeupmonitor
     Public Overloads Function registerValueCallback(callback As YWakeUpMonitorValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackWakeUpMonitor = callback
       REM // Immediately invoke value callback with current value

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_temperature.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -49,18 +49,18 @@ Module yocto_temperature
     REM --- (end of YTemperature return codes)
   REM --- (YTemperature globals)
 
-  Public Const Y_SENSORTYPE_DIGITAL = 0
-  Public Const Y_SENSORTYPE_TYPE_K = 1
-  Public Const Y_SENSORTYPE_TYPE_E = 2
-  Public Const Y_SENSORTYPE_TYPE_J = 3
-  Public Const Y_SENSORTYPE_TYPE_N = 4
-  Public Const Y_SENSORTYPE_TYPE_R = 5
-  Public Const Y_SENSORTYPE_TYPE_S = 6
-  Public Const Y_SENSORTYPE_TYPE_T = 7
-  Public Const Y_SENSORTYPE_PT100_4WIRES = 8
-  Public Const Y_SENSORTYPE_PT100_3WIRES = 9
-  Public Const Y_SENSORTYPE_PT100_2WIRES = 10
-  Public Const Y_SENSORTYPE_INVALID = -1
+  Public Const Y_SENSORTYPE_DIGITAL As Integer = 0
+  Public Const Y_SENSORTYPE_TYPE_K As Integer = 1
+  Public Const Y_SENSORTYPE_TYPE_E As Integer = 2
+  Public Const Y_SENSORTYPE_TYPE_J As Integer = 3
+  Public Const Y_SENSORTYPE_TYPE_N As Integer = 4
+  Public Const Y_SENSORTYPE_TYPE_R As Integer = 5
+  Public Const Y_SENSORTYPE_TYPE_S As Integer = 6
+  Public Const Y_SENSORTYPE_TYPE_T As Integer = 7
+  Public Const Y_SENSORTYPE_PT100_4WIRES As Integer = 8
+  Public Const Y_SENSORTYPE_PT100_3WIRES As Integer = 9
+  Public Const Y_SENSORTYPE_PT100_2WIRES As Integer = 10
+  Public Const Y_SENSORTYPE_INVALID As Integer = -1
 
   Public Delegate Sub YTemperatureValueCallback(ByVal func As YTemperature, ByVal value As String)
   Public Delegate Sub YTemperatureTimedReportCallback(ByVal func As YTemperature, ByVal measure As YMeasure)
@@ -81,18 +81,18 @@ Module yocto_temperature
     REM --- (end of YTemperature class start)
 
     REM --- (YTemperature definitions)
-    Public Const SENSORTYPE_DIGITAL = 0
-    Public Const SENSORTYPE_TYPE_K = 1
-    Public Const SENSORTYPE_TYPE_E = 2
-    Public Const SENSORTYPE_TYPE_J = 3
-    Public Const SENSORTYPE_TYPE_N = 4
-    Public Const SENSORTYPE_TYPE_R = 5
-    Public Const SENSORTYPE_TYPE_S = 6
-    Public Const SENSORTYPE_TYPE_T = 7
-    Public Const SENSORTYPE_PT100_4WIRES = 8
-    Public Const SENSORTYPE_PT100_3WIRES = 9
-    Public Const SENSORTYPE_PT100_2WIRES = 10
-    Public Const SENSORTYPE_INVALID = -1
+    Public Const SENSORTYPE_DIGITAL As Integer = 0
+    Public Const SENSORTYPE_TYPE_K As Integer = 1
+    Public Const SENSORTYPE_TYPE_E As Integer = 2
+    Public Const SENSORTYPE_TYPE_J As Integer = 3
+    Public Const SENSORTYPE_TYPE_N As Integer = 4
+    Public Const SENSORTYPE_TYPE_R As Integer = 5
+    Public Const SENSORTYPE_TYPE_S As Integer = 6
+    Public Const SENSORTYPE_TYPE_T As Integer = 7
+    Public Const SENSORTYPE_PT100_4WIRES As Integer = 8
+    Public Const SENSORTYPE_PT100_3WIRES As Integer = 9
+    Public Const SENSORTYPE_PT100_2WIRES As Integer = 10
+    Public Const SENSORTYPE_INVALID As Integer = -1
 
     REM --- (end of YTemperature definitions)
 
@@ -112,7 +112,7 @@ Module yocto_temperature
       REM --- (end of YTemperature attributes initialization)
     End Sub
 
-  REM --- (YTemperature private methods declaration)
+    REM --- (YTemperature private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "sensorType") Then
@@ -260,9 +260,9 @@ Module yocto_temperature
     Public Overloads Function registerValueCallback(callback As YTemperatureValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackTemperature = callback
       REM // Immediately invoke value callback with current value
@@ -304,9 +304,9 @@ Module yocto_temperature
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YTemperatureTimedReportCallback) As Integer
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me , True)
+        YFunction._UpdateTimedReportCallbackList(Me, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me , False)
+        YFunction._UpdateTimedReportCallbackList(Me, False)
       End If
       Me._timedReportCallbackTemperature = callback
       Return 0

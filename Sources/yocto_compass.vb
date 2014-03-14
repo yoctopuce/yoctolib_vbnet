@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_compass.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_compass.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindCompass(), the high-level API for Compass functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -49,10 +49,10 @@ Module yocto_compass
     REM --- (end of YCompass return codes)
   REM --- (YCompass globals)
 
-  Public Const Y_AXIS_X = 0
-  Public Const Y_AXIS_Y = 1
-  Public Const Y_AXIS_Z = 2
-  Public Const Y_AXIS_INVALID = -1
+  Public Const Y_AXIS_X As Integer = 0
+  Public Const Y_AXIS_Y As Integer = 1
+  Public Const Y_AXIS_Z As Integer = 2
+  Public Const Y_AXIS_INVALID As Integer = -1
 
   Public Const Y_MAGNETICHEADING_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Delegate Sub YCompassValueCallback(ByVal func As YCompass, ByVal value As String)
@@ -74,10 +74,10 @@ Module yocto_compass
     REM --- (end of YCompass class start)
 
     REM --- (YCompass definitions)
-    Public Const AXIS_X = 0
-    Public Const AXIS_Y = 1
-    Public Const AXIS_Z = 2
-    Public Const AXIS_INVALID = -1
+    Public Const AXIS_X As Integer = 0
+    Public Const AXIS_Y As Integer = 1
+    Public Const AXIS_Z As Integer = 2
+    Public Const AXIS_INVALID As Integer = -1
 
     Public Const MAGNETICHEADING_INVALID As Double = YAPI.INVALID_DOUBLE
     REM --- (end of YCompass definitions)
@@ -100,7 +100,7 @@ Module yocto_compass
       REM --- (end of YCompass attributes initialization)
     End Sub
 
-  REM --- (YCompass private methods declaration)
+    REM --- (YCompass private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "axis") Then
@@ -223,9 +223,9 @@ Module yocto_compass
     Public Overloads Function registerValueCallback(callback As YCompassValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackCompass = callback
       REM // Immediately invoke value callback with current value
@@ -267,9 +267,9 @@ Module yocto_compass
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YCompassTimedReportCallback) As Integer
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me , True)
+        YFunction._UpdateTimedReportCallbackList(Me, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me , False)
+        YFunction._UpdateTimedReportCallbackList(Me, False)
       End If
       Me._timedReportCallbackCompass = callback
       Return 0

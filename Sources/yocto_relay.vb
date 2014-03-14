@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_relay.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_relay.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindRelay(), the high-level API for Relay functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -56,17 +56,17 @@ Public Class YRelayDelayedPulse
 End Class
 
   REM Y_STATE is defined in yocto_api.vb
-  Public Const Y_STATEATPOWERON_UNCHANGED = 0
-  Public Const Y_STATEATPOWERON_A = 1
-  Public Const Y_STATEATPOWERON_B = 2
-  Public Const Y_STATEATPOWERON_INVALID = -1
+  Public Const Y_STATEATPOWERON_UNCHANGED As Integer = 0
+  Public Const Y_STATEATPOWERON_A As Integer = 1
+  Public Const Y_STATEATPOWERON_B As Integer = 2
+  Public Const Y_STATEATPOWERON_INVALID As Integer = -1
 
   Public Const Y_MAXTIMEONSTATEA_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_MAXTIMEONSTATEB_INVALID As Long = YAPI.INVALID_LONG
   REM Y_OUTPUT is defined in yocto_api.vb
   Public Const Y_PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_COUNTDOWN_INVALID As Long = YAPI.INVALID_LONG
-  Public Const Y_DELAYEDPULSETIMER_INVALID = Nothing
+  Public ReadOnly Y_DELAYEDPULSETIMER_INVALID As YRelayDelayedPulse = Nothing
   Public Delegate Sub YRelayValueCallback(ByVal func As YRelay, ByVal value As String)
   Public Delegate Sub YRelayTimedReportCallback(ByVal func As YRelay, ByVal measure As YMeasure)
   REM --- (end of YRelay globals)
@@ -91,23 +91,23 @@ End Class
     REM --- (end of YRelay class start)
 
     REM --- (YRelay definitions)
-    Public Const STATE_A = 0
-    Public Const STATE_B = 1
-    Public Const STATE_INVALID = -1
+    Public Const STATE_A As Integer = 0
+    Public Const STATE_B As Integer = 1
+    Public Const STATE_INVALID As Integer = -1
 
-    Public Const STATEATPOWERON_UNCHANGED = 0
-    Public Const STATEATPOWERON_A = 1
-    Public Const STATEATPOWERON_B = 2
-    Public Const STATEATPOWERON_INVALID = -1
+    Public Const STATEATPOWERON_UNCHANGED As Integer = 0
+    Public Const STATEATPOWERON_A As Integer = 1
+    Public Const STATEATPOWERON_B As Integer = 2
+    Public Const STATEATPOWERON_INVALID As Integer = -1
 
     Public Const MAXTIMEONSTATEA_INVALID As Long = YAPI.INVALID_LONG
     Public Const MAXTIMEONSTATEB_INVALID As Long = YAPI.INVALID_LONG
-    Public Const OUTPUT_OFF = 0
-    Public Const OUTPUT_ON = 1
-    Public Const OUTPUT_INVALID = -1
+    Public Const OUTPUT_OFF As Integer = 0
+    Public Const OUTPUT_ON As Integer = 1
+    Public Const OUTPUT_INVALID As Integer = -1
 
     Public Const PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
-    Public Const DELAYEDPULSETIMER_INVALID = Nothing
+    Public ReadOnly DELAYEDPULSETIMER_INVALID As YRelayDelayedPulse = Nothing
     Public Const COUNTDOWN_INVALID As Long = YAPI.INVALID_LONG
     REM --- (end of YRelay definitions)
 
@@ -139,7 +139,7 @@ End Class
       REM --- (end of YRelay attributes initialization)
     End Sub
 
-  REM --- (YRelay private methods declaration)
+    REM --- (YRelay private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "state") Then
@@ -168,18 +168,18 @@ End Class
       End If
       If (member.name = "delayedPulseTimer") Then
         If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-            Dim submemb As TJSONRECORD
-            Dim l As Integer
-            For l=0 To member.membercount-1
-               submemb = member.members(l)
-               If (submemb.name = "moving") Then
-                  _delayedPulseTimer.moving = CInt(submemb.ivalue)
-               ElseIf (submemb.name = "target") Then
-                  _delayedPulseTimer.target = CInt(submemb.ivalue)
-               ElseIf (submemb.name = "ms") Then
-                  _delayedPulseTimer.ms = CInt(submemb.ivalue)
-               End If
-            Next l
+          Dim submemb As TJSONRECORD
+          Dim l As Integer
+          For l = 0 To member.membercount - 1
+            submemb = member.members(l)
+            If (submemb.name = "moving") Then
+              _delayedPulseTimer.moving = CInt(submemb.ivalue)
+            ElseIf (submemb.name = "target") Then
+              _delayedPulseTimer.target = CInt(submemb.ivalue)
+            ElseIf (submemb.name = "ms") Then
+              _delayedPulseTimer.ms = CInt(submemb.ivalue)
+            End If
+          Next l
         End If
         Return 1
       End If
@@ -528,7 +528,7 @@ End Class
 
     Public Function set_delayedPulseTimer(ByVal newval As YRelayDelayedPulse) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(newval.target))+":"+Ltrim(Str(newval.ms))
+      rest_val = Ltrim(Str(newval.target)) + ":" + Ltrim(Str(newval.ms))
       Return _setAttr("delayedPulseTimer", rest_val)
     End Function
 
@@ -555,9 +555,9 @@ End Class
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function delayedPulse(ByVal ms_delay As Integer,ByVal ms_duration As Integer) As Integer
+    Public Function delayedPulse(ByVal ms_delay As Integer, ByVal ms_duration As Integer) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(ms_delay))+":"+Ltrim(Str(ms_duration))
+      rest_val = Ltrim(Str(ms_delay)) + ":" + Ltrim(Str(ms_duration))
       Return _setAttr("delayedPulseTimer", rest_val)
     End Function
     '''*
@@ -659,9 +659,9 @@ End Class
     Public Overloads Function registerValueCallback(callback As YRelayValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackRelay = callback
       REM // Immediately invoke value callback with current value

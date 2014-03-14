@@ -74,11 +74,17 @@
     <Compile Include="..\..\Sources\yocto_api.vb">
       <Link>yocto\yocto_api.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_accelerometer.vb">
+      <Link>yocto\yocto_accelerometer.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_anbutton.vb">
       <Link>yocto\yocto_anbutton.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_carbondioxide.vb">
       <Link>yocto\yocto_carbondioxide.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_compass.vb">
+      <Link>yocto\yocto_compass.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_colorled.vb">
       <Link>yocto\yocto_colorled.vb</Link>
@@ -90,7 +96,7 @@
       <Link>yocto\yocto_datalogger.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_digitalio.vb">
-      <Link>yocto\yocto_datalogger.vb</Link>
+      <Link>yocto\yocto_digitalio.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_display.vb">
       <Link>yocto\yocto_display.vb</Link>
@@ -104,6 +110,9 @@
     <Compile Include="..\..\Sources\yocto_genericsensor.vb">
       <Link>yocto\yocto_genericsensor.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_gyro.vb">
+      <Link>yocto\yocto_gyro.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_hubport.vb">
       <Link>yocto\yocto_hubport.vb</Link>
     </Compile>
@@ -115,6 +124,9 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_lightsensor.vb">
       <Link>yocto\yocto_lightsensor.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_magnetometer.vb">
+      <Link>yocto\yocto_magnetometer.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_network.vb">
       <Link>yocto\yocto_network.vb</Link>
@@ -128,8 +140,17 @@
     <Compile Include="..\..\Sources\yocto_pressure.vb">
       <Link>yocto\yocto_pressure.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_pwmoutput.vb">
+      <Link>yocto\yocto_pwmoutput.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_pwmpowersource.vb">
+      <Link>yocto\yocto_pwmpowersource.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_realtimeclock.vb">
       <Link>yocto\yocto_realtimeclock.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_refframe.vb">
+      <Link>yocto\yocto_refframe.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_relay.vb">
       <Link>yocto\yocto_relay.vb</Link>
@@ -139,6 +160,9 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_temperature.vb">
       <Link>yocto\yocto_temperature.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_tilt.vb">
+      <Link>yocto\yocto_tilt.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_voc.vb">
       <Link>yocto\yocto_voc.vb</Link>

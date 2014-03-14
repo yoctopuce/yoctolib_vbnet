@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_api.vb 15376 2014-03-10 16:22:13Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -174,14 +174,14 @@ Module yocto_api
           End If
         Case TJSONRECORDTYPE.JSON_STRUCT
           buffer = buffer + "{"
-          For i = 0 To p.Value.membercount - 1
+          For i As Integer = 0 To p.Value.membercount - 1
             If (i > 0) Then buffer = buffer + ","
             buffer = buffer + Me.convertToString(p.Value.members(i), True)
           Next i
           buffer = buffer + "}"
         Case TJSONRECORDTYPE.JSON_ARRAY
           buffer = buffer + "["
-          For i = 0 To p.Value.itemcount - 1
+          For i As Integer = 0 To p.Value.itemcount - 1
             If (i > 0) Then buffer = buffer + ","
             buffer = buffer + Me.convertToString(p.Value.items(i), False)
           Next i
@@ -503,13 +503,13 @@ Module yocto_api
     Private Sub freestructure(ByRef p As TJSONRECORD)
       Select Case p.recordtype
         Case TJSONRECORDTYPE.JSON_STRUCT
-          For i = p.membercount - 1 To 0 Step -1
+          For i As Integer = p.membercount - 1 To 0 Step -1
             freestructure(p.members(i))
           Next i
           ReDim p.members(0)
 
         Case TJSONRECORDTYPE.JSON_ARRAY
-          For i = p.itemcount - 1 To 0 Step -1
+          For i As Integer = p.itemcount - 1 To 0 Step -1
             freestructure(p.items(i))
           Next i
           ReDim p.items(0)
@@ -555,11 +555,11 @@ Module yocto_api
       If p Is Nothing Then p = data
 
       If (p.Value.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-        For i = 0 To p.Value.membercount - 1
+        For i As Integer = 0 To p.Value.membercount - 1
           res.Add(Me.convertToString(p.Value.members(i), False))
         Next i
       ElseIf (p.Value.recordtype = TJSONRECORDTYPE.JSON_ARRAY) Then
-        For i = 0 To p.Value.itemcount - 1
+        For i As Integer = 0 To p.Value.itemcount - 1
           res.Add(Me.convertToString(p.Value.items(i), False))
         Next i
       End If
@@ -567,43 +567,43 @@ Module yocto_api
     End Function
   End Class
 
-  Public Const YOCTO_API_VERSION_STR = "1.10"
-  Public Const YOCTO_API_VERSION_BCD = &H110
-  Public Const YOCTO_API_BUILD_NO = "15061"
+  Public Const YOCTO_API_VERSION_STR As String = "1.10"
+  Public Const YOCTO_API_VERSION_BCD As Integer = &H110
+  Public Const YOCTO_API_BUILD_NO As String = "15466"
 
-  Public Const YOCTO_DEFAULT_PORT = 4444
-  Public Const YOCTO_VENDORID = &H24E0
-  Public Const YOCTO_DEVID_FACTORYBOOT = 1
-  Public Const YOCTO_DEVID_BOOTLOADER = 2
+  Public Const YOCTO_DEFAULT_PORT As Integer = 4444
+  Public Const YOCTO_VENDORID As Integer = &H24E0
+  Public Const YOCTO_DEVID_FACTORYBOOT As Integer = 1
+  Public Const YOCTO_DEVID_BOOTLOADER As Integer = 2
 
-  Public Const YOCTO_ERRMSG_LEN = 256
-  Public Const YOCTO_MANUFACTURER_LEN = 20
-  Public Const YOCTO_SERIAL_LEN = 20
-  Public Const YOCTO_BASE_SERIAL_LEN = 8
-  Public Const YOCTO_PRODUCTNAME_LEN = 28
-  Public Const YOCTO_FIRMWARE_LEN = 22
-  Public Const YOCTO_LOGICAL_LEN = 20
-  Public Const YOCTO_FUNCTION_LEN = 20
-  Public Const YOCTO_PUBVAL_SIZE = 6 ' Size of the data (can be non null terminated)
-  Public Const YOCTO_PUBVAL_LEN = 16 ' Temporary storage, > YOCTO_PUBVAL_SIZE
-  Public Const YOCTO_PASS_LEN = 20
-  Public Const YOCTO_REALM_LEN = 20
-  Public Const INVALID_YHANDLE = 0
-  Public Const yUnknowSize = 1024
+  Public Const YOCTO_ERRMSG_LEN As Integer = 256
+  Public Const YOCTO_MANUFACTURER_LEN As Integer = 20
+  Public Const YOCTO_SERIAL_LEN As Integer = 20
+  Public Const YOCTO_BASE_SERIAL_LEN As Integer = 8
+  Public Const YOCTO_PRODUCTNAME_LEN As Integer = 28
+  Public Const YOCTO_FIRMWARE_LEN As Integer = 22
+  Public Const YOCTO_LOGICAL_LEN As Integer = 20
+  Public Const YOCTO_FUNCTION_LEN As Integer = 20
+  Public Const YOCTO_PUBVAL_SIZE As Integer = 6 ' Size of the data (can be non null terminated)
+  Public Const YOCTO_PUBVAL_LEN As Integer = 16 ' Temporary storage, > YOCTO_PUBVAL_SIZE
+  Public Const YOCTO_PASS_LEN As Integer = 20
+  Public Const YOCTO_REALM_LEN As Integer = 20
+  Public Const INVALID_YHANDLE As Integer = 0
+  Public Const yUnknowSize As Integer = 1024
 
   REM Global definitions for YRelay,YDatalogger an YWatchdog class
-  Public Const Y_STATE_A = 0
-  Public Const Y_STATE_B = 1
-  Public Const Y_STATE_INVALID = -1
-  Public Const Y_OUTPUT_OFF = 0
-  Public Const Y_OUTPUT_ON = 1
-  Public Const Y_OUTPUT_INVALID = -1
-  Public Const Y_AUTOSTART_OFF = 0
-  Public Const Y_AUTOSTART_ON = 1
-  Public Const Y_AUTOSTART_INVALID = -1
-  Public Const Y_RUNNING_OFF = 0
-  Public Const Y_RUNNING_ON = 1
-  Public Const Y_RUNNING_INVALID = -1
+  Public Const Y_STATE_A As Integer = 0
+  Public Const Y_STATE_B As Integer = 1
+  Public Const Y_STATE_INVALID As Integer = -1
+  Public Const Y_OUTPUT_OFF As Integer = 0
+  Public Const Y_OUTPUT_ON As Integer = 1
+  Public Const Y_OUTPUT_INVALID As Integer = -1
+  Public Const Y_AUTOSTART_OFF As Integer = 0
+  Public Const Y_AUTOSTART_ON As Integer = 1
+  Public Const Y_AUTOSTART_INVALID As Integer = -1
+  Public Const Y_RUNNING_OFF As Integer = 0
+  Public Const Y_RUNNING_ON As Integer = 1
+  Public Const Y_RUNNING_INVALID As Integer = -1
 
 
 
@@ -636,20 +636,20 @@ Module yocto_api
 
     REM --- (generated code: YFunction return codes)
     REM Yoctopuce error codes, also used by default as function return value
-    Public Const SUCCESS = 0                    REM everything worked allright
-    Public Const NOT_INITIALIZED = -1           REM call yInitAPI() first !
-    Public Const INVALID_ARGUMENT = -2          REM one of the arguments passed to the function is invalid
-    Public Const NOT_SUPPORTED = -3             REM the operation attempted is (currently) not supported
-    Public Const DEVICE_NOT_FOUND = -4          REM the requested device is not reachable
-    Public Const VERSION_MISMATCH = -5          REM the device firmware is incompatible with this API version
-    Public Const DEVICE_BUSY = -6               REM the device is busy with another task and cannot answer
-    Public Const TIMEOUT = -7                   REM the device took too long to provide an answer
-    Public Const IO_ERROR = -8                  REM there was an I/O problem while talking to the device
-    Public Const NO_MORE_DATA = -9              REM there is no more data to read from
-    Public Const EXHAUSTED = -10                REM you have run out of a limited ressource, check the documentation
-    Public Const DOUBLE_ACCES = -11             REM you have two process that try to acces to the same device
-    Public Const UNAUTHORIZED = -12             REM unauthorized access to password-protected device
-    Public Const RTC_NOT_READY = -13            REM real-time clock has not been initialized (or time was lost)
+    Public Const SUCCESS As Integer = 0         REM everything worked allright
+    Public Const NOT_INITIALIZED As Integer = -1 REM call yInitAPI() first !
+    Public Const INVALID_ARGUMENT As Integer = -2 REM one of the arguments passed to the function is invalid
+    Public Const NOT_SUPPORTED As Integer = -3  REM the operation attempted is (currently) not supported
+    Public Const DEVICE_NOT_FOUND As Integer = -4 REM the requested device is not reachable
+    Public Const VERSION_MISMATCH As Integer = -5 REM the device firmware is incompatible with this API version
+    Public Const DEVICE_BUSY As Integer = -6    REM the device is busy with another task and cannot answer
+    Public Const TIMEOUT As Integer = -7        REM the device took too long to provide an answer
+    Public Const IO_ERROR As Integer = -8       REM there was an I/O problem while talking to the device
+    Public Const NO_MORE_DATA As Integer = -9   REM there is no more data to read from
+    Public Const EXHAUSTED As Integer = -10     REM you have run out of a limited ressource, check the documentation
+    Public Const DOUBLE_ACCES As Integer = -11  REM you have two process that try to acces to the same device
+    Public Const UNAUTHORIZED As Integer = -12  REM unauthorized access to password-protected device
+    Public Const RTC_NOT_READY As Integer = -13 REM real-time clock has not been initialized (or time was lost)
 
     REM --- (end of generated code: YFunction return codes)
 
@@ -1170,7 +1170,7 @@ Module yocto_api
       Dim errBuffer As New StringBuilder(YOCTO_ERRMSG_LEN)
       Dim res As YRETCODE
       Dim ev As DataEvent
-  
+
       errBuffer.Length = 0
       res = _yapiHandleEvents(errBuffer)
 
@@ -1259,7 +1259,9 @@ Module yocto_api
     '''*
     ''' <summary>
     '''   Force a hub discovery, if a callback as been registered with <c>yRegisterDeviceRemovalCallback</c> it
-    '''   will be called for each net work hub that will respond to the discovery
+    '''   will be called for each net work hub that will respond to the discovery.
+    ''' <para>
+    ''' </para>
     ''' </summary>
     ''' <param name="errmsg">
     '''   a string passed by reference to receive any error message.
@@ -1481,7 +1483,7 @@ Module yocto_api
     <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=YOCTO_FIRMWARE_LEN)> Public firmware As String
     Dim beacon As yu8
   End Structure
-  Public Const YIOHDL_SIZE = 8
+  Public Const YIOHDL_SIZE As Integer = 8
   <StructLayout(LayoutKind.Sequential, pack:=1, CharSet:=CharSet.Ansi)> _
   Public Structure YIOHDL
     <MarshalAs(UnmanagedType.U1, SizeConst:=YIOHDL_SIZE)> Public raw As yu8
@@ -1528,20 +1530,20 @@ Module yocto_api
   REM --- (generated code: YFunction globals)
 
   REM Yoctopuce error codes, also used by default as function return value
-  Public Const YAPI_SUCCESS = 0                    REM everything worked allright
-  Public Const YAPI_NOT_INITIALIZED = -1           REM call yInitAPI() first !
-  Public Const YAPI_INVALID_ARGUMENT = -2          REM one of the arguments passed to the function is invalid
-  Public Const YAPI_NOT_SUPPORTED = -3             REM the operation attempted is (currently) not supported
-  Public Const YAPI_DEVICE_NOT_FOUND = -4          REM the requested device is not reachable
-  Public Const YAPI_VERSION_MISMATCH = -5          REM the device firmware is incompatible with this API version
-  Public Const YAPI_DEVICE_BUSY = -6               REM the device is busy with another task and cannot answer
-  Public Const YAPI_TIMEOUT = -7                   REM the device took too long to provide an answer
-  Public Const YAPI_IO_ERROR = -8                  REM there was an I/O problem while talking to the device
-  Public Const YAPI_NO_MORE_DATA = -9              REM there is no more data to read from
-  Public Const YAPI_EXHAUSTED = -10                REM you have run out of a limited ressource, check the documentation
-  Public Const YAPI_DOUBLE_ACCES = -11             REM you have two process that try to acces to the same device
-  Public Const YAPI_UNAUTHORIZED = -12             REM unauthorized access to password-protected device
-  Public Const YAPI_RTC_NOT_READY = -13            REM real-time clock has not been initialized (or time was lost)
+  Public Const YAPI_SUCCESS As Integer = 0         REM everything worked allright
+  Public Const YAPI_NOT_INITIALIZED As Integer = -1 REM call yInitAPI() first !
+  Public Const YAPI_INVALID_ARGUMENT As Integer = -2 REM one of the arguments passed to the function is invalid
+  Public Const YAPI_NOT_SUPPORTED As Integer = -3  REM the operation attempted is (currently) not supported
+  Public Const YAPI_DEVICE_NOT_FOUND As Integer = -4 REM the requested device is not reachable
+  Public Const YAPI_VERSION_MISMATCH As Integer = -5 REM the device firmware is incompatible with this API version
+  Public Const YAPI_DEVICE_BUSY As Integer = -6    REM the device is busy with another task and cannot answer
+  Public Const YAPI_TIMEOUT As Integer = -7        REM the device took too long to provide an answer
+  Public Const YAPI_IO_ERROR As Integer = -8       REM there was an I/O problem while talking to the device
+  Public Const YAPI_NO_MORE_DATA As Integer = -9   REM there is no more data to read from
+  Public Const YAPI_EXHAUSTED As Integer = -10     REM you have run out of a limited ressource, check the documentation
+  Public Const YAPI_DOUBLE_ACCES As Integer = -11  REM you have two process that try to acces to the same device
+  Public Const YAPI_UNAUTHORIZED As Integer = -12  REM unauthorized access to password-protected device
+  Public Const YAPI_RTC_NOT_READY As Integer = -13 REM real-time clock has not been initialized (or time was lost)
 
   Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
@@ -1556,22 +1558,22 @@ Module yocto_api
   Public Const Y_PRODUCTID_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_PRODUCTRELEASE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_FIRMWARERELEASE_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_PERSISTENTSETTINGS_LOADED = 0
-  Public Const Y_PERSISTENTSETTINGS_SAVED = 1
-  Public Const Y_PERSISTENTSETTINGS_MODIFIED = 2
-  Public Const Y_PERSISTENTSETTINGS_INVALID = -1
+  Public Const Y_PERSISTENTSETTINGS_LOADED As Integer = 0
+  Public Const Y_PERSISTENTSETTINGS_SAVED As Integer = 1
+  Public Const Y_PERSISTENTSETTINGS_MODIFIED As Integer = 2
+  Public Const Y_PERSISTENTSETTINGS_INVALID As Integer = -1
 
   Public Const Y_LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_BEACON_OFF = 0
-  Public Const Y_BEACON_ON = 1
-  Public Const Y_BEACON_INVALID = -1
+  Public Const Y_BEACON_OFF As Integer = 0
+  Public Const Y_BEACON_ON As Integer = 1
+  Public Const Y_BEACON_INVALID As Integer = -1
 
   Public Const Y_UPTIME_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_USBCURRENT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_REBOOTCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
-  Public Const Y_USBBANDWIDTH_SIMPLE = 0
-  Public Const Y_USBBANDWIDTH_DOUBLE = 1
-  Public Const Y_USBBANDWIDTH_INVALID = -1
+  Public Const Y_USBBANDWIDTH_SIMPLE As Integer = 0
+  Public Const Y_USBBANDWIDTH_DOUBLE As Integer = 1
+  Public Const Y_USBBANDWIDTH_INVALID As Integer = -1
 
   Public Delegate Sub YModuleLogCallback(ByVal modul As YModule, ByVal logline As String)
   Public Delegate Sub YModuleValueCallback(ByVal func As YModule, ByVal value As String)
@@ -1862,9 +1864,9 @@ Module yocto_api
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
       
       REM // decode sequence header to extract data
-      Me._runNo = encoded.ElementAt(0) + (((encoded.ElementAt(1)) << (16)))
-      Me._utcStamp = encoded.ElementAt(2) + (((encoded.ElementAt(3)) << (16)))
-      val = encoded.ElementAt(4)
+      Me._runNo = encoded(0) + (((encoded(1)) << (16)))
+      Me._utcStamp = encoded(2) + (((encoded(3)) << (16)))
+      val = encoded(4)
       Me._isAvg = (((val) And (&H100)) = 0)
       Me._samplesPerHour = ((val) And (&Hff))
       If (((val) And (&H100)) <> 0) Then
@@ -1875,16 +1877,16 @@ Module yocto_api
         End If
       End If
       
-      val = encoded.ElementAt(5)
+      val = encoded(5)
       If (val > 32767) Then
         val = val - 65536
       End If
       Me._decimals = val
       Me._offset = val
-      Me._scale = encoded.ElementAt(6)
+      Me._scale = encoded(6)
       Me._isScal = (Me._scale <> 0)
       
-      val = encoded.ElementAt(7)
+      val = encoded(7)
       Me._isClosed = (val <> &Hffff)
       If (val = &Hffff) Then
         val = 0
@@ -1902,7 +1904,7 @@ Module yocto_api
         End While
       End If
       iCalib = dataset.get_calibration()
-      Me._caltyp = iCalib.ElementAt(0)
+      Me._caltyp = iCalib(0)
       If (Me._caltyp <> 0) Then
         Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
         Me._calpar.Clear()
@@ -1910,8 +1912,8 @@ Module yocto_api
         Me._calref.Clear()
         i = 1
         While (i + 1 < iCalib.Count)
-          iRaw = iCalib.ElementAt(i)
-          iRef = iCalib.ElementAt(i + 1)
+          iRaw = iCalib(i)
+          iRef = iCalib(i + 1)
           Me._calpar.Add(iRaw)
           Me._calpar.Add(iRef)
           If (Me._isScal) Then
@@ -1943,9 +1945,9 @@ Module yocto_api
       End If
       REM // decode min/avg/max values for the sequence
       If (Me._nRows > 0) Then
-        Me._minVal = Me._decodeVal(encoded.ElementAt(8))
-        Me._maxVal = Me._decodeVal(encoded.ElementAt(9))
-        Me._avgVal = Me._decodeAvg(encoded.ElementAt(10) + (((encoded.ElementAt(11)) << (16))), Me._nRows)
+        Me._minVal = Me._decodeVal(encoded(8))
+        Me._maxVal = Me._decodeVal(encoded(9))
+        Me._avgVal = Me._decodeAvg(encoded(10) + (((encoded(11)) << (16))), Me._nRows)
       End If
       Return 0
     End Function
@@ -1961,9 +1963,9 @@ Module yocto_api
       If (Me._isAvg) Then
         While (idx + 3 < udat.Count)
           dat.Clear()
-          dat.Add(Me._decodeVal(udat.ElementAt(idx)))
-          dat.Add(Me._decodeAvg(udat.ElementAt(idx + 2) + (((udat.ElementAt(idx + 3)) << (16))), 1))
-          dat.Add(Me._decodeVal(udat.ElementAt(idx + 1)))
+          dat.Add(Me._decodeVal(udat(idx)))
+          dat.Add(Me._decodeAvg(udat(idx + 2) + (((udat(idx + 3)) << (16))), 1))
+          dat.Add(Me._decodeVal(udat(idx + 1)))
           Me._values.Add(New List(Of Double)(dat))
           idx = idx + 4
         End While
@@ -1971,14 +1973,14 @@ Module yocto_api
         If (Me._isScal) Then
           While (idx < udat.Count)
             dat.Clear()
-            dat.Add(Me._decodeVal(udat.ElementAt(idx)))
+            dat.Add(Me._decodeVal(udat(idx)))
             Me._values.Add(New List(Of Double)(dat))
             idx = idx + 1
           End While
         Else
           While (idx + 1 < udat.Count)
             dat.Clear()
-            dat.Add(Me._decodeAvg(udat.ElementAt(idx) + (((udat.ElementAt(idx + 1)) << (16))), 1))
+            dat.Add(Me._decodeAvg(udat(idx) + (((udat(idx + 1)) << (16))), 1))
             Me._values.Add(New List(Of Double)(dat))
             idx = idx + 2
           End While
@@ -2365,10 +2367,10 @@ Module yocto_api
       If (row >= Me._values.Count) Then
         Return DATA_INVALID
       End If
-      If (col >= Me._values.ElementAt(row).Count) Then
+      If (col >= Me._values(row).Count) Then
         Return DATA_INVALID
       End If
-      Return Me._values.ElementAt(row).ElementAt(col)
+      Return Me._values(row)(col)
     End Function
 
 
@@ -2635,7 +2637,7 @@ Module yocto_api
 
 
     Protected Function _parse(data As String) As Integer
-      Dim p As TJsonParser = New TJsonParser(data, False)
+      Dim p As TJsonParser
       Dim node As TJSONRECORD
       Dim arr As TJSONRECORD
       Dim stream As YDataStream
@@ -2645,6 +2647,18 @@ Module yocto_api
       Dim summaryTotalAvg As Double = 0
       Dim startTime As UInt32
       Dim endtime As UInt32
+
+      If Not (YAPI.ExceptionsDisabled) Then
+        p = New TJsonParser(data, False)
+      Else
+        Try
+          p = New TJsonParser(data, False)
+        Catch E As Exception
+          Return YAPI_NOT_SUPPORTED
+          Exit Function
+        End Try
+      End If
+
 
       node = CType(p.GetChildNode(Nothing, "id"), TJSONRECORD)
       _functionId = node.svalue
@@ -2683,7 +2697,7 @@ Module yocto_api
           End If
         End If
       Next i
-      If (_streams.Count > 0) Then
+      If (_streams.Count > 0) And (summaryTotalTime > 0) Then
         REM update time boundaries with actual data
         stream = _streams.ElementAt(_streams.Count - 1)
         endtime = CUInt(stream.get_startTimeUTC() + stream.get_duration())
@@ -2736,7 +2750,7 @@ Module yocto_api
         End If
         Return Me._parse(strdata)
       End If
-      stream = Me._streams.ElementAt(Me._progress)
+      stream = Me._streams(Me._progress)
       stream.parse(data)
       dataRows = stream.get_dataRows()
       Me._progress = Me._progress + 1
@@ -2745,7 +2759,7 @@ Module yocto_api
       End If
       tim = CType(stream.get_startTimeUTC(), Double)
       itv = stream.get_dataSamplesInterval()
-      nCols = dataRows.ElementAt(0).Count
+      nCols = dataRows(0).Count
       minCol = 0
       If (nCols > 2) Then
         avgCol = 1
@@ -2760,7 +2774,7 @@ Module yocto_api
       
       For i_i = 0 To dataRows.Count - 1
         If ((tim >= Me._startTime) And ((Me._endTime = 0) Or (tim <= Me._endTime))) Then
-          Me._measures.Add(New YMeasure(tim - itv, tim, dataRows(i_i).ElementAt(minCol), dataRows(i_i).ElementAt(avgCol), dataRows(i_i).ElementAt(maxCol)))
+          Me._measures.Add(New YMeasure(tim - itv, tim, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
           tim = tim + itv
         End If
       Next i_i
@@ -2937,7 +2951,7 @@ Module yocto_api
         If (Me._progress >= Me._streams.Count) Then
           Return 100
         Else
-          stream = Me._streams.ElementAt(Me._progress)
+          stream = Me._streams(Me._progress)
           url = stream.get_url()
         End If
       End If
@@ -3108,7 +3122,7 @@ Module yocto_api
       Dim requestbuf As IntPtr = IntPtr.Zero
       Dim buffer As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
       Dim preply As IntPtr = IntPtr.Zero
-      Dim replysize = 0
+      Dim replysize As Integer = 0
       Dim res As YRETCODE
 
       iohdl.raw = 0  REM dummy, useless init to avoid compiler warning
@@ -3451,7 +3465,7 @@ Module yocto_api
       Dim neededsize, maxsize As Integer
       Dim p As IntPtr
 
-      Const n_element = 1
+      Const n_element As Integer = 1
       Dim pdata(n_element) As Integer
 
       res = _getDescriptor(fundescr, errmsg)
@@ -3957,9 +3971,9 @@ Module yocto_api
     Public Overridable Function registerValueCallback(callback As YFunctionValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackFunction = callback
       REM // Immediately invoke value callback with current value
@@ -4043,7 +4057,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns a short text that describes the function in the form <c>TYPE(NAME)=SERIAL&#46;FUNCTIONID</c>.
+    '''   Returns a short text that describes unambiguously the instance of the function in the form <c>TYPE(NAME)=SERIAL&#46;FUNCTIONID</c>.
     ''' <para>
     '''   More precisely,
     '''   <c>TYPE</c>       is the type of the function,
@@ -4328,7 +4342,19 @@ Module yocto_api
       Dim node As Nullable(Of TJSONRECORD)
 
       Dim st As String = YAPI.DefaultEncoding.GetString(data)
-      Dim p As TJsonParser = New TJsonParser(st, False)
+      Dim p As TJsonParser
+
+      If Not (YAPI.ExceptionsDisabled) Then
+        p = New TJsonParser(st)
+      Else
+        Try
+          p = New TJsonParser(st)
+        Catch E As Exception
+          Return ""
+          Exit Function
+        End Try
+      End If
+
       node = p.GetChildNode(Nothing, key)
 
       Return node.Value.svalue
@@ -4336,7 +4362,20 @@ Module yocto_api
 
     Protected Function _json_get_array(ByVal data As Byte()) As List(Of String)
       Dim st As String = YAPI.DefaultEncoding.GetString(data)
-      Dim p As TJsonParser = New TJsonParser(st, False)
+      Dim p As TJsonParser
+
+      If Not (YAPI.ExceptionsDisabled) Then
+        p = New TJsonParser(st)
+      Else
+        Try
+          p = New TJsonParser(st)
+        Catch E As Exception
+          Return Nothing
+          Exit Function
+        End Try
+      End If
+
+
       Return p.GetAllChilds(Nothing)
     End Function
 
@@ -4616,22 +4655,22 @@ Module yocto_api
     Public Const PRODUCTID_INVALID As Integer = YAPI.INVALID_UINT
     Public Const PRODUCTRELEASE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const FIRMWARERELEASE_INVALID As String = YAPI.INVALID_STRING
-    Public Const PERSISTENTSETTINGS_LOADED = 0
-    Public Const PERSISTENTSETTINGS_SAVED = 1
-    Public Const PERSISTENTSETTINGS_MODIFIED = 2
-    Public Const PERSISTENTSETTINGS_INVALID = -1
+    Public Const PERSISTENTSETTINGS_LOADED As Integer = 0
+    Public Const PERSISTENTSETTINGS_SAVED As Integer = 1
+    Public Const PERSISTENTSETTINGS_MODIFIED As Integer = 2
+    Public Const PERSISTENTSETTINGS_INVALID As Integer = -1
 
     Public Const LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const BEACON_OFF = 0
-    Public Const BEACON_ON = 1
-    Public Const BEACON_INVALID = -1
+    Public Const BEACON_OFF As Integer = 0
+    Public Const BEACON_ON As Integer = 1
+    Public Const BEACON_INVALID As Integer = -1
 
     Public Const UPTIME_INVALID As Long = YAPI.INVALID_LONG
     Public Const USBCURRENT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const REBOOTCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
-    Public Const USBBANDWIDTH_SIMPLE = 0
-    Public Const USBBANDWIDTH_DOUBLE = 1
-    Public Const USBBANDWIDTH_INVALID = -1
+    Public Const USBBANDWIDTH_SIMPLE As Integer = 0
+    Public Const USBBANDWIDTH_DOUBLE As Integer = 1
+    Public Const USBBANDWIDTH_INVALID As Integer = -1
 
     REM --- (end of generated code: YModule definitions)
 
@@ -5430,9 +5469,9 @@ Module yocto_api
     Public Overloads Function registerValueCallback(callback As YModuleValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackModule = callback
       REM // Immediately invoke value callback with current value
@@ -6275,9 +6314,9 @@ Module yocto_api
     Public Overloads Function registerValueCallback(callback As YSensorValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackSensor = callback
       REM // Immediately invoke value callback with current value
@@ -6338,19 +6377,19 @@ Module yocto_api
       End If
       
       REM // Save variable format (scale for scalar, or decimal exponent)
-      Me._isScal = (iCalib.ElementAt(1) > 0)
+      Me._isScal = (iCalib(1) > 0)
       If (Me._isScal) Then
-        Me._offset = iCalib.ElementAt(0)
+        Me._offset = iCalib(0)
         If (Me._offset > 32767) Then
           Me._offset = Me._offset - 65536
         End If
-        Me._scale = iCalib.ElementAt(1)
+        Me._scale = iCalib(1)
         Me._decexp = 0
       Else
         Me._offset = 0
         Me._scale = 1
         Me._decexp = 1.0
-        position = iCalib.ElementAt(0)
+        position = iCalib(0)
         While (position > 0)
           Me._decexp = Me._decexp * 10
           position = position - 1
@@ -6363,7 +6402,7 @@ Module yocto_api
         Return 0
       End If
       
-      Me._caltyp = iCalib.ElementAt(2)
+      Me._caltyp = iCalib(2)
       Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
       REM // parse calibration points
       position = 3
@@ -6384,8 +6423,8 @@ Module yocto_api
       Me._calraw.Clear()
       Me._calref.Clear()
       While (position + 1 < maxpos)
-        iRaw = iCalib.ElementAt(position)
-        iRef = iCalib.ElementAt(position + 1)
+        iRaw = iCalib(position)
+        iRef = iCalib(position + 1)
         Me._calpar.Add(iRaw)
         Me._calpar.Add(iRef)
         If (Me._isScal) Then
@@ -6474,9 +6513,9 @@ Module yocto_api
     '''/
     Public Overridable Function registerTimedReportCallback(callback As YSensorTimedReportCallback) As Integer
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me , True)
+        YFunction._UpdateTimedReportCallbackList(Me, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me , False)
+        YFunction._UpdateTimedReportCallbackList(Me, False)
       End If
       Me._timedReportCallbackSensor = callback
       Return 0
@@ -6516,6 +6555,12 @@ Module yocto_api
     '''   array of floating point numbers, corresponding to the corrected
     '''   values for the correction points.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function calibrateFromPoints(rawValues As List(Of Double), refValues As List(Of Double)) As Integer
       Dim rest_val As String
@@ -6610,8 +6655,8 @@ Module yocto_api
         res = "" + Convert.ToString(npt)
         idx = 0
         While (idx < npt)
-          iRaw = CType(Math.Round(rawValues.ElementAt(idx) * Me._scale - Me._offset), Integer)
-          iRef = CType(Math.Round(refValues.ElementAt(idx) * Me._scale - Me._offset), Integer)
+          iRaw = CType(Math.Round(rawValues(idx) * Me._scale - Me._offset), Integer)
+          iRef = CType(Math.Round(refValues(idx) * Me._scale - Me._offset), Integer)
           res = "" +  res + "," + Convert.ToString( iRaw) + "," + Convert.ToString(iRef)
           idx = idx + 1
         End While
@@ -6620,8 +6665,8 @@ Module yocto_api
         res = "" + Convert.ToString(10 + npt)
         idx = 0
         While (idx < npt)
-          iRaw = CType(YAPI._doubleToDecimal(rawValues.ElementAt(idx)), Integer)
-          iRef = CType(YAPI._doubleToDecimal(refValues.ElementAt(idx)), Integer)
+          iRaw = CType(YAPI._doubleToDecimal(rawValues(idx)), Integer)
+          iRef = CType(YAPI._doubleToDecimal(refValues(idx)), Integer)
           res = "" +  res + "," + Convert.ToString( iRaw) + "," + Convert.ToString(iRef)
           idx = idx + 1
         End While
@@ -6664,12 +6709,12 @@ Module yocto_api
       If (startTime = 0) Then
         startTime = endTime
       End If
-      If (report.ElementAt(0) > 0) Then
+      If (report(0) > 0) Then
         REM
-        minRaw = report.ElementAt(1) + &H100 * report.ElementAt(2)
-        maxRaw = report.ElementAt(3) + &H100 * report.ElementAt(4)
-        avgRaw = report.ElementAt(5) + &H100 * report.ElementAt(6) + &H10000 * report.ElementAt(7)
-        byteVal = report.ElementAt(8)
+        minRaw = report(1) + &H100 * report(2)
+        maxRaw = report(3) + &H100 * report(4)
+        avgRaw = report(5) + &H100 * report(6) + &H10000 * report(7)
+        byteVal = report(8)
         If (((byteVal) And (&H80)) = 0) Then
           avgRaw = avgRaw + &H1000000 * byteVal
         Else
@@ -6685,7 +6730,7 @@ Module yocto_api
         byteVal = 0
         i = 1
         While (i < report.Count)
-          byteVal = report.ElementAt(i)
+          byteVal = report(i)
           avgRaw = avgRaw + poww * byteVal
           poww = poww * &H100
           i = i + 1
@@ -7150,7 +7195,7 @@ Module yocto_api
   Private Sub native_yFunctionUpdateCallback(ByVal fundescr As YFUN_DESCR, ByVal data As IntPtr)
     Dim ev As DataEvent
     If (Not (data = IntPtr.Zero)) Then
-      For i = 0 To YFunction._ValueCallbackList.Count - 1
+      For i As Integer = 0 To YFunction._ValueCallbackList.Count - 1
         If (YFunction._ValueCallbackList(i).get_functionDescriptor() = fundescr) Then
           ev = New DataEvent(YFunction._ValueCallbackList(i), Marshal.PtrToStringAnsi(data))
           _DataEvents.Add(ev)
@@ -7167,7 +7212,7 @@ Module yocto_api
     Dim report As List(Of Integer)
     Dim intlen As Integer = CInt(len)
     Dim p As Integer
-    For i = 0 To YFunction._TimedReportCallbackList.Count - 1
+    For i As Integer = 0 To YFunction._TimedReportCallbackList.Count - 1
       If (YFunction._TimedReportCallbackList(i).get_functionDescriptor() = fundescr) Then
         ReDim data(intlen)
         Marshal.Copy(rawdata, data, 0, intlen)
@@ -7517,7 +7562,9 @@ Module yocto_api
   '''*
   ''' <summary>
   '''   Force a hub discovery, if a callback as been registered with <c>yRegisterDeviceRemovalCallback</c> it
-  '''   will be called for each net work hub that will respond to the discovery
+  '''   will be called for each net work hub that will respond to the discovery.
+  ''' <para>
+  ''' </para>
   ''' </summary>
   ''' <param name="errmsg">
   '''   a string passed by reference to receive any error message.

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_files.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -287,9 +287,9 @@ Module yocto_files
     Public Overloads Function registerValueCallback(callback As YFilesValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackFiles = callback
       REM // Immediately invoke value callback with current value

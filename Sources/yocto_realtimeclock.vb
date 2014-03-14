@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_realtimeclock.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_realtimeclock.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -52,9 +52,9 @@ Module yocto_realtimeclock
   Public Const Y_UNIXTIME_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_DATETIME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_UTCOFFSET_INVALID As Integer = YAPI.INVALID_INT
-  Public Const Y_TIMESET_FALSE = 0
-  Public Const Y_TIMESET_TRUE = 1
-  Public Const Y_TIMESET_INVALID = -1
+  Public Const Y_TIMESET_FALSE As Integer = 0
+  Public Const Y_TIMESET_TRUE As Integer = 1
+  Public Const Y_TIMESET_INVALID As Integer = -1
 
   Public Delegate Sub YRealTimeClockValueCallback(ByVal func As YRealTimeClock, ByVal value As String)
   Public Delegate Sub YRealTimeClockTimedReportCallback(ByVal func As YRealTimeClock, ByVal measure As YMeasure)
@@ -81,9 +81,9 @@ Module yocto_realtimeclock
     Public Const UNIXTIME_INVALID As Long = YAPI.INVALID_LONG
     Public Const DATETIME_INVALID As String = YAPI.INVALID_STRING
     Public Const UTCOFFSET_INVALID As Integer = YAPI.INVALID_INT
-    Public Const TIMESET_FALSE = 0
-    Public Const TIMESET_TRUE = 1
-    Public Const TIMESET_INVALID = -1
+    Public Const TIMESET_FALSE As Integer = 0
+    Public Const TIMESET_TRUE As Integer = 1
+    Public Const TIMESET_INVALID As Integer = -1
 
     REM --- (end of YRealTimeClock definitions)
 
@@ -107,7 +107,7 @@ Module yocto_realtimeclock
       REM --- (end of YRealTimeClock attributes initialization)
     End Sub
 
-  REM --- (YRealTimeClock private methods declaration)
+    REM --- (YRealTimeClock private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "unixTime") Then
@@ -357,9 +357,9 @@ Module yocto_realtimeclock
     Public Overloads Function registerValueCallback(callback As YRealTimeClockValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackRealTimeClock = callback
       REM // Immediately invoke value callback with current value

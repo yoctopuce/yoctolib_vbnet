@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_led.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_led.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindLed(), the high-level API for Led functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -49,18 +49,18 @@ Module yocto_led
     REM --- (end of YLed return codes)
   REM --- (YLed globals)
 
-  Public Const Y_POWER_OFF = 0
-  Public Const Y_POWER_ON = 1
-  Public Const Y_POWER_INVALID = -1
+  Public Const Y_POWER_OFF As Integer = 0
+  Public Const Y_POWER_ON As Integer = 1
+  Public Const Y_POWER_INVALID As Integer = -1
 
   Public Const Y_LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_BLINKING_STILL = 0
-  Public Const Y_BLINKING_RELAX = 1
-  Public Const Y_BLINKING_AWARE = 2
-  Public Const Y_BLINKING_RUN = 3
-  Public Const Y_BLINKING_CALL = 4
-  Public Const Y_BLINKING_PANIC = 5
-  Public Const Y_BLINKING_INVALID = -1
+  Public Const Y_BLINKING_STILL As Integer = 0
+  Public Const Y_BLINKING_RELAX As Integer = 1
+  Public Const Y_BLINKING_AWARE As Integer = 2
+  Public Const Y_BLINKING_RUN As Integer = 3
+  Public Const Y_BLINKING_CALL As Integer = 4
+  Public Const Y_BLINKING_PANIC As Integer = 5
+  Public Const Y_BLINKING_INVALID As Integer = -1
 
   Public Delegate Sub YLedValueCallback(ByVal func As YLed, ByVal value As String)
   Public Delegate Sub YLedTimedReportCallback(ByVal func As YLed, ByVal measure As YMeasure)
@@ -82,18 +82,18 @@ Module yocto_led
     REM --- (end of YLed class start)
 
     REM --- (YLed definitions)
-    Public Const POWER_OFF = 0
-    Public Const POWER_ON = 1
-    Public Const POWER_INVALID = -1
+    Public Const POWER_OFF As Integer = 0
+    Public Const POWER_ON As Integer = 1
+    Public Const POWER_INVALID As Integer = -1
 
     Public Const LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const BLINKING_STILL = 0
-    Public Const BLINKING_RELAX = 1
-    Public Const BLINKING_AWARE = 2
-    Public Const BLINKING_RUN = 3
-    Public Const BLINKING_CALL = 4
-    Public Const BLINKING_PANIC = 5
-    Public Const BLINKING_INVALID = -1
+    Public Const BLINKING_STILL As Integer = 0
+    Public Const BLINKING_RELAX As Integer = 1
+    Public Const BLINKING_AWARE As Integer = 2
+    Public Const BLINKING_RUN As Integer = 3
+    Public Const BLINKING_CALL As Integer = 4
+    Public Const BLINKING_PANIC As Integer = 5
+    Public Const BLINKING_INVALID As Integer = -1
 
     REM --- (end of YLed definitions)
 
@@ -115,7 +115,7 @@ Module yocto_led
       REM --- (end of YLed attributes initialization)
     End Sub
 
-  REM --- (YLed private methods declaration)
+    REM --- (YLed private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "power") Then
@@ -363,9 +363,9 @@ Module yocto_led
     Public Overloads Function registerValueCallback(callback As YLedValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackLed = callback
       REM // Immediately invoke value callback with current value

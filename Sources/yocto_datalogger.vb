@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_datalogger.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -56,14 +56,14 @@ Module yocto_datalogger
 
   Public Const Y_CURRENTRUNINDEX_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TIMEUTC_INVALID As Long = YAPI.INVALID_LONG
-  Public Const Y_RECORDING_OFF = 0
-  Public Const Y_RECORDING_ON = 1
-  Public Const Y_RECORDING_INVALID = -1
+  Public Const Y_RECORDING_OFF As Integer = 0
+  Public Const Y_RECORDING_ON As Integer = 1
+  Public Const Y_RECORDING_INVALID As Integer = -1
 
   REM Y_AUTOSTART is defined in yocto_api.vb
-  Public Const Y_CLEARHISTORY_FALSE = 0
-  Public Const Y_CLEARHISTORY_TRUE = 1
-  Public Const Y_CLEARHISTORY_INVALID = -1
+  Public Const Y_CLEARHISTORY_FALSE As Integer = 0
+  Public Const Y_CLEARHISTORY_TRUE As Integer = 1
+  Public Const Y_CLEARHISTORY_INVALID As Integer = -1
 
   Public Delegate Sub YDataLoggerValueCallback(ByVal func As YDataLogger, ByVal value As String)
   Public Delegate Sub YDataLoggerTimedReportCallback(ByVal func As YDataLogger, ByVal measure As YMeasure)
@@ -336,17 +336,17 @@ Module yocto_datalogger
     REM --- (generated code: YDataLogger definitions)
     Public Const CURRENTRUNINDEX_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TIMEUTC_INVALID As Long = YAPI.INVALID_LONG
-    Public Const RECORDING_OFF = 0
-    Public Const RECORDING_ON = 1
-    Public Const RECORDING_INVALID = -1
+    Public Const RECORDING_OFF As Integer = 0
+    Public Const RECORDING_ON As Integer = 1
+    Public Const RECORDING_INVALID As Integer = -1
 
-    Public Const AUTOSTART_OFF = 0
-    Public Const AUTOSTART_ON = 1
-    Public Const AUTOSTART_INVALID = -1
+    Public Const AUTOSTART_OFF As Integer = 0
+    Public Const AUTOSTART_ON As Integer = 1
+    Public Const AUTOSTART_INVALID As Integer = -1
 
-    Public Const CLEARHISTORY_FALSE = 0
-    Public Const CLEARHISTORY_TRUE = 1
-    Public Const CLEARHISTORY_INVALID = -1
+    Public Const CLEARHISTORY_FALSE As Integer = 0
+    Public Const CLEARHISTORY_TRUE As Integer = 1
+    Public Const CLEARHISTORY_INVALID As Integer = -1
 
     REM --- (end of generated code: YDataLogger definitions)
 
@@ -671,9 +671,9 @@ Module yocto_datalogger
     Public Overloads Function registerValueCallback(callback As YDataLoggerValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackDataLogger = callback
       REM // Immediately invoke value callback with current value

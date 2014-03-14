@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_servo.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_servo.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindServo(), the high-level API for Servo functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -56,9 +56,18 @@ Public Class YServoMove
 End Class
 
   Public Const Y_POSITION_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_ENABLED_FALSE As Integer = 0
+  Public Const Y_ENABLED_TRUE As Integer = 1
+  Public Const Y_ENABLED_INVALID As Integer = -1
+
   Public Const Y_RANGE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_NEUTRAL_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_MOVE_INVALID = Nothing
+  Public Const Y_POSITIONATPOWERON_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_ENABLEDATPOWERON_FALSE As Integer = 0
+  Public Const Y_ENABLEDATPOWERON_TRUE As Integer = 1
+  Public Const Y_ENABLEDATPOWERON_INVALID As Integer = -1
+
+  Public ReadOnly Y_MOVE_INVALID As YServoMove = Nothing
   Public Delegate Sub YServoValueCallback(ByVal func As YServo, ByVal value As String)
   Public Delegate Sub YServoTimedReportCallback(ByVal func As YServo, ByVal measure As YMeasure)
   REM --- (end of YServo globals)
@@ -82,16 +91,28 @@ End Class
 
     REM --- (YServo definitions)
     Public Const POSITION_INVALID As Integer = YAPI.INVALID_INT
+    Public Const ENABLED_FALSE As Integer = 0
+    Public Const ENABLED_TRUE As Integer = 1
+    Public Const ENABLED_INVALID As Integer = -1
+
     Public Const RANGE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const NEUTRAL_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const MOVE_INVALID = Nothing
+    Public ReadOnly MOVE_INVALID As YServoMove = Nothing
+    Public Const POSITIONATPOWERON_INVALID As Integer = YAPI.INVALID_INT
+    Public Const ENABLEDATPOWERON_FALSE As Integer = 0
+    Public Const ENABLEDATPOWERON_TRUE As Integer = 1
+    Public Const ENABLEDATPOWERON_INVALID As Integer = -1
+
     REM --- (end of YServo definitions)
 
     REM --- (YServo attributes declaration)
     Protected _position As Integer
+    Protected _enabled As Integer
     Protected _range As Integer
     Protected _neutral As Integer
     Protected _move As YServoMove
+    Protected _positionAtPowerOn As Integer
+    Protected _enabledAtPowerOn As Integer
     Protected _valueCallbackServo As YServoValueCallback
     REM --- (end of YServo attributes declaration)
 
@@ -100,18 +121,25 @@ End Class
       _classname = "Servo"
       REM --- (YServo attributes initialization)
       _position = POSITION_INVALID
+      _enabled = ENABLED_INVALID
       _range = RANGE_INVALID
       _neutral = NEUTRAL_INVALID
       _move = New YServoMove()
+      _positionAtPowerOn = POSITIONATPOWERON_INVALID
+      _enabledAtPowerOn = ENABLEDATPOWERON_INVALID
       _valueCallbackServo = Nothing
       REM --- (end of YServo attributes initialization)
     End Sub
 
-  REM --- (YServo private methods declaration)
+    REM --- (YServo private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "position") Then
         _position = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "enabled") Then
+        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
         Return 1
       End If
       If (member.name = "range") Then
@@ -124,19 +152,27 @@ End Class
       End If
       If (member.name = "move") Then
         If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-            Dim submemb As TJSONRECORD
-            Dim l As Integer
-            For l=0 To member.membercount-1
-               submemb = member.members(l)
-               If (submemb.name = "moving") Then
-                  _move.moving = CInt(submemb.ivalue)
-               ElseIf (submemb.name = "target") Then
-                  _move.target = CInt(submemb.ivalue)
-               ElseIf (submemb.name = "ms") Then
-                  _move.ms = CInt(submemb.ivalue)
-               End If
-            Next l
+          Dim submemb As TJSONRECORD
+          Dim l As Integer
+          For l = 0 To member.membercount - 1
+            submemb = member.members(l)
+            If (submemb.name = "moving") Then
+              _move.moving = CInt(submemb.ivalue)
+            ElseIf (submemb.name = "target") Then
+              _move.target = CInt(submemb.ivalue)
+            ElseIf (submemb.name = "ms") Then
+              _move.ms = CInt(submemb.ivalue)
+            End If
+          Next l
         End If
+        Return 1
+      End If
+      If (member.name = "positionAtPowerOn") Then
+        _positionAtPowerOn = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "enabledAtPowerOn") Then
+        If (member.ivalue > 0) Then _enabledAtPowerOn = 1 Else _enabledAtPowerOn = 0
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -194,6 +230,56 @@ End Class
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("position", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the state of the servos.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the state of the servos
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_ENABLED_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_enabled() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return ENABLED_INVALID
+        End If
+      End If
+      Return Me._enabled
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Stops or starts the servo.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_enabled(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("enabled", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -316,7 +402,7 @@ End Class
 
     Public Function set_move(ByVal newval As YServoMove) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(newval.target))+":"+Ltrim(Str(newval.ms))
+      rest_val = Ltrim(Str(newval.target)) + ":" + Ltrim(Str(newval.ms))
       Return _setAttr("move", rest_val)
     End Function
 
@@ -343,10 +429,115 @@ End Class
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function move(ByVal target As Integer,ByVal ms_duration As Integer) As Integer
+    Public Function move(ByVal target As Integer, ByVal ms_duration As Integer) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(target))+":"+Ltrim(Str(ms_duration))
+      rest_val = Ltrim(Str(target)) + ":" + Ltrim(Str(ms_duration))
       Return _setAttr("move", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the servo position at device power up.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the servo position at device power up
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_POSITIONATPOWERON_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_positionAtPowerOn() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return POSITIONATPOWERON_INVALID
+        End If
+      End If
+      Return Me._positionAtPowerOn
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Configure the servo position at device power up.
+    ''' <para>
+    '''   Remember to call the matching
+    '''   module <c>saveToFlash()</c> method, otherwise this call will have no effect.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_positionAtPowerOn(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("positionAtPowerOn", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the servo signal generator state at power up.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_ENABLEDATPOWERON_FALSE</c> or <c>Y_ENABLEDATPOWERON_TRUE</c>, according to the servo
+    '''   signal generator state at power up
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_ENABLEDATPOWERON_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_enabledAtPowerOn() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return ENABLEDATPOWERON_INVALID
+        End If
+      End If
+      Return Me._enabledAtPowerOn
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Configure the servo signal generator state at power up.
+    ''' <para>
+    '''   Remember to call the matching module <c>saveToFlash()</c>
+    '''   method, otherwise this call will have no effect.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_ENABLEDATPOWERON_FALSE</c> or <c>Y_ENABLEDATPOWERON_TRUE</c>
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_enabledAtPowerOn(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("enabledAtPowerOn", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -421,9 +612,9 @@ End Class
     Public Overloads Function registerValueCallback(callback As YServoValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackServo = callback
       REM // Immediately invoke value callback with current value

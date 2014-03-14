@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_dualpower.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_dualpower.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindDualPower(), the high-level API for DualPower functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -49,16 +49,16 @@ Module yocto_dualpower
     REM --- (end of YDualPower return codes)
   REM --- (YDualPower globals)
 
-  Public Const Y_POWERSTATE_OFF = 0
-  Public Const Y_POWERSTATE_FROM_USB = 1
-  Public Const Y_POWERSTATE_FROM_EXT = 2
-  Public Const Y_POWERSTATE_INVALID = -1
+  Public Const Y_POWERSTATE_OFF As Integer = 0
+  Public Const Y_POWERSTATE_FROM_USB As Integer = 1
+  Public Const Y_POWERSTATE_FROM_EXT As Integer = 2
+  Public Const Y_POWERSTATE_INVALID As Integer = -1
 
-  Public Const Y_POWERCONTROL_AUTO = 0
-  Public Const Y_POWERCONTROL_FROM_USB = 1
-  Public Const Y_POWERCONTROL_FROM_EXT = 2
-  Public Const Y_POWERCONTROL_OFF = 3
-  Public Const Y_POWERCONTROL_INVALID = -1
+  Public Const Y_POWERCONTROL_AUTO As Integer = 0
+  Public Const Y_POWERCONTROL_FROM_USB As Integer = 1
+  Public Const Y_POWERCONTROL_FROM_EXT As Integer = 2
+  Public Const Y_POWERCONTROL_OFF As Integer = 3
+  Public Const Y_POWERCONTROL_INVALID As Integer = -1
 
   Public Const Y_EXTVOLTAGE_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YDualPowerValueCallback(ByVal func As YDualPower, ByVal value As String)
@@ -83,16 +83,16 @@ Module yocto_dualpower
     REM --- (end of YDualPower class start)
 
     REM --- (YDualPower definitions)
-    Public Const POWERSTATE_OFF = 0
-    Public Const POWERSTATE_FROM_USB = 1
-    Public Const POWERSTATE_FROM_EXT = 2
-    Public Const POWERSTATE_INVALID = -1
+    Public Const POWERSTATE_OFF As Integer = 0
+    Public Const POWERSTATE_FROM_USB As Integer = 1
+    Public Const POWERSTATE_FROM_EXT As Integer = 2
+    Public Const POWERSTATE_INVALID As Integer = -1
 
-    Public Const POWERCONTROL_AUTO = 0
-    Public Const POWERCONTROL_FROM_USB = 1
-    Public Const POWERCONTROL_FROM_EXT = 2
-    Public Const POWERCONTROL_OFF = 3
-    Public Const POWERCONTROL_INVALID = -1
+    Public Const POWERCONTROL_AUTO As Integer = 0
+    Public Const POWERCONTROL_FROM_USB As Integer = 1
+    Public Const POWERCONTROL_FROM_EXT As Integer = 2
+    Public Const POWERCONTROL_OFF As Integer = 3
+    Public Const POWERCONTROL_INVALID As Integer = -1
 
     Public Const EXTVOLTAGE_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YDualPower definitions)
@@ -115,7 +115,7 @@ Module yocto_dualpower
       REM --- (end of YDualPower attributes initialization)
     End Sub
 
-  REM --- (YDualPower private methods declaration)
+    REM --- (YDualPower private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "powerState") Then
@@ -313,9 +313,9 @@ Module yocto_dualpower
     Public Overloads Function registerValueCallback(callback As YDualPowerValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackDualPower = callback
       REM // Immediately invoke value callback with current value

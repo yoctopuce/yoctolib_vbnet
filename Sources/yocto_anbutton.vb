@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_anbutton.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_anbutton.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindAnButton(), the high-level API for AnButton functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -51,16 +51,16 @@ Module yocto_anbutton
 
   Public Const Y_CALIBRATEDVALUE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_RAWVALUE_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_ANALOGCALIBRATION_OFF = 0
-  Public Const Y_ANALOGCALIBRATION_ON = 1
-  Public Const Y_ANALOGCALIBRATION_INVALID = -1
+  Public Const Y_ANALOGCALIBRATION_OFF As Integer = 0
+  Public Const Y_ANALOGCALIBRATION_ON As Integer = 1
+  Public Const Y_ANALOGCALIBRATION_INVALID As Integer = -1
 
   Public Const Y_CALIBRATIONMAX_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALIBRATIONMIN_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_SENSITIVITY_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_ISPRESSED_FALSE = 0
-  Public Const Y_ISPRESSED_TRUE = 1
-  Public Const Y_ISPRESSED_INVALID = -1
+  Public Const Y_ISPRESSED_FALSE As Integer = 0
+  Public Const Y_ISPRESSED_TRUE As Integer = 1
+  Public Const Y_ISPRESSED_INVALID As Integer = -1
 
   Public Const Y_LASTTIMEPRESSED_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
@@ -91,16 +91,16 @@ Module yocto_anbutton
     REM --- (YAnButton definitions)
     Public Const CALIBRATEDVALUE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const RAWVALUE_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const ANALOGCALIBRATION_OFF = 0
-    Public Const ANALOGCALIBRATION_ON = 1
-    Public Const ANALOGCALIBRATION_INVALID = -1
+    Public Const ANALOGCALIBRATION_OFF As Integer = 0
+    Public Const ANALOGCALIBRATION_ON As Integer = 1
+    Public Const ANALOGCALIBRATION_INVALID As Integer = -1
 
     Public Const CALIBRATIONMAX_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALIBRATIONMIN_INVALID As Integer = YAPI.INVALID_UINT
     Public Const SENSITIVITY_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const ISPRESSED_FALSE = 0
-    Public Const ISPRESSED_TRUE = 1
-    Public Const ISPRESSED_INVALID = -1
+    Public Const ISPRESSED_FALSE As Integer = 0
+    Public Const ISPRESSED_TRUE As Integer = 1
+    Public Const ISPRESSED_INVALID As Integer = -1
 
     Public Const LASTTIMEPRESSED_INVALID As Long = YAPI.INVALID_LONG
     Public Const LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
@@ -142,7 +142,7 @@ Module yocto_anbutton
       REM --- (end of YAnButton attributes initialization)
     End Sub
 
-  REM --- (YAnButton private methods declaration)
+    REM --- (YAnButton private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "calibratedValue") Then
@@ -660,9 +660,9 @@ Module yocto_anbutton
     Public Overloads Function registerValueCallback(callback As YAnButtonValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackAnButton = callback
       REM // Immediately invoke value callback with current value

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_tilt.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_tilt.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindTilt(), the high-level API for Tilt functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -49,10 +49,10 @@ Module yocto_tilt
     REM --- (end of YTilt return codes)
   REM --- (YTilt globals)
 
-  Public Const Y_AXIS_X = 0
-  Public Const Y_AXIS_Y = 1
-  Public Const Y_AXIS_Z = 2
-  Public Const Y_AXIS_INVALID = -1
+  Public Const Y_AXIS_X As Integer = 0
+  Public Const Y_AXIS_Y As Integer = 1
+  Public Const Y_AXIS_Z As Integer = 2
+  Public Const Y_AXIS_INVALID As Integer = -1
 
   Public Delegate Sub YTiltValueCallback(ByVal func As YTilt, ByVal value As String)
   Public Delegate Sub YTiltTimedReportCallback(ByVal func As YTilt, ByVal measure As YMeasure)
@@ -73,10 +73,10 @@ Module yocto_tilt
     REM --- (end of YTilt class start)
 
     REM --- (YTilt definitions)
-    Public Const AXIS_X = 0
-    Public Const AXIS_Y = 1
-    Public Const AXIS_Z = 2
-    Public Const AXIS_INVALID = -1
+    Public Const AXIS_X As Integer = 0
+    Public Const AXIS_Y As Integer = 1
+    Public Const AXIS_Z As Integer = 2
+    Public Const AXIS_INVALID As Integer = -1
 
     REM --- (end of YTilt definitions)
 
@@ -96,7 +96,7 @@ Module yocto_tilt
       REM --- (end of YTilt attributes initialization)
     End Sub
 
-  REM --- (YTilt private methods declaration)
+    REM --- (YTilt private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "axis") Then
@@ -191,9 +191,9 @@ Module yocto_tilt
     Public Overloads Function registerValueCallback(callback As YTiltValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackTilt = callback
       REM // Immediately invoke value callback with current value
@@ -235,9 +235,9 @@ Module yocto_tilt
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YTiltTimedReportCallback) As Integer
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me , True)
+        YFunction._UpdateTimedReportCallbackList(Me, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me , False)
+        YFunction._UpdateTimedReportCallbackList(Me, False)
       End If
       Me._timedReportCallbackTilt = callback
       Return 0

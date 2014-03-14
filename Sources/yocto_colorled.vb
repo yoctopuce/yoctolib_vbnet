@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorled.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_colorled.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindColorLed(), the high-level API for ColorLed functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -58,8 +58,8 @@ End Class
   Public Const Y_RGBCOLOR_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_HSLCOLOR_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_RGBCOLORATPOWERON_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_RGBMOVE_INVALID = Nothing
-  Public Const Y_HSLMOVE_INVALID = Nothing
+  Public ReadOnly Y_RGBMOVE_INVALID As YColorLedMove = Nothing
+  Public ReadOnly Y_HSLMOVE_INVALID As YColorLedMove = Nothing
   Public Delegate Sub YColorLedValueCallback(ByVal func As YColorLed, ByVal value As String)
   Public Delegate Sub YColorLedTimedReportCallback(ByVal func As YColorLed, ByVal measure As YMeasure)
   REM --- (end of YColorLed globals)
@@ -85,8 +85,8 @@ End Class
     REM --- (YColorLed definitions)
     Public Const RGBCOLOR_INVALID As Integer = YAPI.INVALID_UINT
     Public Const HSLCOLOR_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const RGBMOVE_INVALID = Nothing
-    Public Const HSLMOVE_INVALID = Nothing
+    Public ReadOnly RGBMOVE_INVALID As YColorLedMove = Nothing
+    Public ReadOnly HSLMOVE_INVALID As YColorLedMove = Nothing
     Public Const RGBCOLORATPOWERON_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YColorLed definitions)
 
@@ -112,7 +112,7 @@ End Class
       REM --- (end of YColorLed attributes initialization)
     End Sub
 
-  REM --- (YColorLed private methods declaration)
+    REM --- (YColorLed private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "rgbColor") Then
@@ -125,35 +125,35 @@ End Class
       End If
       If (member.name = "rgbMove") Then
         If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-            Dim submemb As TJSONRECORD
-            Dim l As Integer
-            For l=0 To member.membercount-1
-               submemb = member.members(l)
-               If (submemb.name = "moving") Then
-                  _rgbMove.moving = CInt(submemb.ivalue)
-               ElseIf (submemb.name = "target") Then
-                  _rgbMove.target = CInt(submemb.ivalue)
-               ElseIf (submemb.name = "ms") Then
-                  _rgbMove.ms = CInt(submemb.ivalue)
-               End If
-            Next l
+          Dim submemb As TJSONRECORD
+          Dim l As Integer
+          For l = 0 To member.membercount - 1
+            submemb = member.members(l)
+            If (submemb.name = "moving") Then
+              _rgbMove.moving = CInt(submemb.ivalue)
+            ElseIf (submemb.name = "target") Then
+              _rgbMove.target = CInt(submemb.ivalue)
+            ElseIf (submemb.name = "ms") Then
+              _rgbMove.ms = CInt(submemb.ivalue)
+            End If
+          Next l
         End If
         Return 1
       End If
       If (member.name = "hslMove") Then
         If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-            Dim submemb As TJSONRECORD
-            Dim l As Integer
-            For l=0 To member.membercount-1
-               submemb = member.members(l)
-               If (submemb.name = "moving") Then
-                  _hslMove.moving = CInt(submemb.ivalue)
-               ElseIf (submemb.name = "target") Then
-                  _hslMove.target = CInt(submemb.ivalue)
-               ElseIf (submemb.name = "ms") Then
-                  _hslMove.ms = CInt(submemb.ivalue)
-               End If
-            Next l
+          Dim submemb As TJSONRECORD
+          Dim l As Integer
+          For l = 0 To member.membercount - 1
+            submemb = member.members(l)
+            If (submemb.name = "moving") Then
+              _hslMove.moving = CInt(submemb.ivalue)
+            ElseIf (submemb.name = "target") Then
+              _hslMove.target = CInt(submemb.ivalue)
+            ElseIf (submemb.name = "ms") Then
+              _hslMove.ms = CInt(submemb.ivalue)
+            End If
+          Next l
         End If
         Return 1
       End If
@@ -281,7 +281,7 @@ End Class
 
     Public Function set_rgbMove(ByVal newval As YColorLedMove) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(newval.target))+":"+Ltrim(Str(newval.ms))
+      rest_val = Ltrim(Str(newval.target)) + ":" + Ltrim(Str(newval.ms))
       Return _setAttr("rgbMove", rest_val)
     End Function
 
@@ -308,9 +308,9 @@ End Class
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function rgbMove(ByVal rgb_target As Integer,ByVal ms_duration As Integer) As Integer
+    Public Function rgbMove(ByVal rgb_target As Integer, ByVal ms_duration As Integer) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(rgb_target))+":"+Ltrim(Str(ms_duration))
+      rest_val = Ltrim(Str(rgb_target)) + ":" + Ltrim(Str(ms_duration))
       Return _setAttr("rgbMove", rest_val)
     End Function
     Public Function get_hslMove() As YColorLedMove
@@ -325,7 +325,7 @@ End Class
 
     Public Function set_hslMove(ByVal newval As YColorLedMove) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(newval.target))+":"+Ltrim(Str(newval.ms))
+      rest_val = Ltrim(Str(newval.target)) + ":" + Ltrim(Str(newval.ms))
       Return _setAttr("hslMove", rest_val)
     End Function
 
@@ -352,9 +352,9 @@ End Class
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function hslMove(ByVal hsl_target As Integer,ByVal ms_duration As Integer) As Integer
+    Public Function hslMove(ByVal hsl_target As Integer, ByVal ms_duration As Integer) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(hsl_target))+":"+Ltrim(Str(ms_duration))
+      rest_val = Ltrim(Str(hsl_target)) + ":" + Ltrim(Str(ms_duration))
       Return _setAttr("hslMove", rest_val)
     End Function
     '''*
@@ -483,9 +483,9 @@ End Class
     Public Overloads Function registerValueCallback(callback As YColorLedValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackColorLed = callback
       REM // Immediately invoke value callback with current value

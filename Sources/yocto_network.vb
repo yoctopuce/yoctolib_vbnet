@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_network.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -49,12 +49,12 @@ Module yocto_network
     REM --- (end of YNetwork return codes)
   REM --- (YNetwork globals)
 
-  Public Const Y_READINESS_DOWN = 0
-  Public Const Y_READINESS_EXISTS = 1
-  Public Const Y_READINESS_LINKED = 2
-  Public Const Y_READINESS_LAN_OK = 3
-  Public Const Y_READINESS_WWW_OK = 4
-  Public Const Y_READINESS_INVALID = -1
+  Public Const Y_READINESS_DOWN As Integer = 0
+  Public Const Y_READINESS_EXISTS As Integer = 1
+  Public Const Y_READINESS_LINKED As Integer = 2
+  Public Const Y_READINESS_LAN_OK As Integer = 3
+  Public Const Y_READINESS_WWW_OK As Integer = 4
+  Public Const Y_READINESS_INVALID As Integer = -1
 
   Public Const Y_MACADDRESS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_IPADDRESS_INVALID As String = YAPI.INVALID_STRING
@@ -65,23 +65,23 @@ Module yocto_network
   Public Const Y_SECONDARYDNS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_USERPASSWORD_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADMINPASSWORD_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_DISCOVERABLE_FALSE = 0
-  Public Const Y_DISCOVERABLE_TRUE = 1
-  Public Const Y_DISCOVERABLE_INVALID = -1
+  Public Const Y_DISCOVERABLE_FALSE As Integer = 0
+  Public Const Y_DISCOVERABLE_TRUE As Integer = 1
+  Public Const Y_DISCOVERABLE_INVALID As Integer = -1
 
   Public Const Y_WWWWATCHDOGDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALLBACKURL_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_CALLBACKMETHOD_POST = 0
-  Public Const Y_CALLBACKMETHOD_GET = 1
-  Public Const Y_CALLBACKMETHOD_PUT = 2
-  Public Const Y_CALLBACKMETHOD_INVALID = -1
+  Public Const Y_CALLBACKMETHOD_POST As Integer = 0
+  Public Const Y_CALLBACKMETHOD_GET As Integer = 1
+  Public Const Y_CALLBACKMETHOD_PUT As Integer = 2
+  Public Const Y_CALLBACKMETHOD_INVALID As Integer = -1
 
-  Public Const Y_CALLBACKENCODING_FORM = 0
-  Public Const Y_CALLBACKENCODING_JSON = 1
-  Public Const Y_CALLBACKENCODING_JSON_ARRAY = 2
-  Public Const Y_CALLBACKENCODING_CSV = 3
-  Public Const Y_CALLBACKENCODING_YOCTO_API = 4
-  Public Const Y_CALLBACKENCODING_INVALID = -1
+  Public Const Y_CALLBACKENCODING_FORM As Integer = 0
+  Public Const Y_CALLBACKENCODING_JSON As Integer = 1
+  Public Const Y_CALLBACKENCODING_JSON_ARRAY As Integer = 2
+  Public Const Y_CALLBACKENCODING_CSV As Integer = 3
+  Public Const Y_CALLBACKENCODING_YOCTO_API As Integer = 4
+  Public Const Y_CALLBACKENCODING_INVALID As Integer = -1
 
   Public Const Y_CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
@@ -106,12 +106,12 @@ Module yocto_network
     REM --- (end of YNetwork class start)
 
     REM --- (YNetwork definitions)
-    Public Const READINESS_DOWN = 0
-    Public Const READINESS_EXISTS = 1
-    Public Const READINESS_LINKED = 2
-    Public Const READINESS_LAN_OK = 3
-    Public Const READINESS_WWW_OK = 4
-    Public Const READINESS_INVALID = -1
+    Public Const READINESS_DOWN As Integer = 0
+    Public Const READINESS_EXISTS As Integer = 1
+    Public Const READINESS_LINKED As Integer = 2
+    Public Const READINESS_LAN_OK As Integer = 3
+    Public Const READINESS_WWW_OK As Integer = 4
+    Public Const READINESS_INVALID As Integer = -1
 
     Public Const MACADDRESS_INVALID As String = YAPI.INVALID_STRING
     Public Const IPADDRESS_INVALID As String = YAPI.INVALID_STRING
@@ -122,23 +122,23 @@ Module yocto_network
     Public Const SECONDARYDNS_INVALID As String = YAPI.INVALID_STRING
     Public Const USERPASSWORD_INVALID As String = YAPI.INVALID_STRING
     Public Const ADMINPASSWORD_INVALID As String = YAPI.INVALID_STRING
-    Public Const DISCOVERABLE_FALSE = 0
-    Public Const DISCOVERABLE_TRUE = 1
-    Public Const DISCOVERABLE_INVALID = -1
+    Public Const DISCOVERABLE_FALSE As Integer = 0
+    Public Const DISCOVERABLE_TRUE As Integer = 1
+    Public Const DISCOVERABLE_INVALID As Integer = -1
 
     Public Const WWWWATCHDOGDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALLBACKURL_INVALID As String = YAPI.INVALID_STRING
-    Public Const CALLBACKMETHOD_POST = 0
-    Public Const CALLBACKMETHOD_GET = 1
-    Public Const CALLBACKMETHOD_PUT = 2
-    Public Const CALLBACKMETHOD_INVALID = -1
+    Public Const CALLBACKMETHOD_POST As Integer = 0
+    Public Const CALLBACKMETHOD_GET As Integer = 1
+    Public Const CALLBACKMETHOD_PUT As Integer = 2
+    Public Const CALLBACKMETHOD_INVALID As Integer = -1
 
-    Public Const CALLBACKENCODING_FORM = 0
-    Public Const CALLBACKENCODING_JSON = 1
-    Public Const CALLBACKENCODING_JSON_ARRAY = 2
-    Public Const CALLBACKENCODING_CSV = 3
-    Public Const CALLBACKENCODING_YOCTO_API = 4
-    Public Const CALLBACKENCODING_INVALID = -1
+    Public Const CALLBACKENCODING_FORM As Integer = 0
+    Public Const CALLBACKENCODING_JSON As Integer = 1
+    Public Const CALLBACKENCODING_JSON_ARRAY As Integer = 2
+    Public Const CALLBACKENCODING_CSV As Integer = 3
+    Public Const CALLBACKENCODING_YOCTO_API As Integer = 4
+    Public Const CALLBACKENCODING_INVALID As Integer = -1
 
     Public Const CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
@@ -196,7 +196,7 @@ Module yocto_network
       REM --- (end of YNetwork attributes initialization)
     End Sub
 
-  REM --- (YNetwork private methods declaration)
+    REM --- (YNetwork private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "readiness") Then
@@ -467,7 +467,7 @@ Module yocto_network
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function useDHCP(ByVal fallbackIpAddr As String,ByVal fallbackSubnetMaskLen As Integer,ByVal fallbackRouter As String) As Integer
+    Public Function useDHCP(ByVal fallbackIpAddr As String, ByVal fallbackSubnetMaskLen As Integer, ByVal fallbackRouter As String) As Integer
       Dim rest_val As String
       rest_val = "DHCP:" + fallbackIpAddr + "/" + Str(fallbackSubnetMaskLen) + "/" + fallbackRouter
       Return _setAttr("ipConfig", rest_val)
@@ -500,7 +500,7 @@ Module yocto_network
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function useStaticIP(ByVal ipAddress As String,ByVal subnetMaskLen As Integer,ByVal router As String) As Integer
+    Public Function useStaticIP(ByVal ipAddress As String, ByVal subnetMaskLen As Integer, ByVal router As String) As Integer
       Dim rest_val As String
       rest_val = "STATIC:" + ipAddress + "/" + Str(subnetMaskLen) + "/" + router
       Return _setAttr("ipConfig", rest_val)
@@ -1089,7 +1089,7 @@ Module yocto_network
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function callbackLogin(ByVal username As String,ByVal password As String) As Integer
+    Public Function callbackLogin(ByVal username As String, ByVal password As String) As Integer
       Dim rest_val As String
       rest_val = username + ":" + password
       Return _setAttr("callbackCredentials", rest_val)
@@ -1293,9 +1293,9 @@ Module yocto_network
     Public Overloads Function registerValueCallback(callback As YNetworkValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackNetwork = callback
       REM // Immediately invoke value callback with current value

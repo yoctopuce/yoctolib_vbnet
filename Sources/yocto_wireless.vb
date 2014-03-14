@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_wireless.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -54,12 +54,12 @@ Module yocto_wireless
   Public Const Y_LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_SSID_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CHANNEL_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_SECURITY_UNKNOWN = 0
-  Public Const Y_SECURITY_OPEN = 1
-  Public Const Y_SECURITY_WEP = 2
-  Public Const Y_SECURITY_WPA = 3
-  Public Const Y_SECURITY_WPA2 = 4
-  Public Const Y_SECURITY_INVALID = -1
+  Public Const Y_SECURITY_UNKNOWN As Integer = 0
+  Public Const Y_SECURITY_OPEN As Integer = 1
+  Public Const Y_SECURITY_WEP As Integer = 2
+  Public Const Y_SECURITY_WPA As Integer = 3
+  Public Const Y_SECURITY_WPA2 As Integer = 4
+  Public Const Y_SECURITY_INVALID As Integer = -1
 
   Public Const Y_MESSAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_WLANCONFIG_INVALID As String = YAPI.INVALID_STRING
@@ -146,12 +146,12 @@ Module yocto_wireless
     Public Const LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const SSID_INVALID As String = YAPI.INVALID_STRING
     Public Const CHANNEL_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const SECURITY_UNKNOWN = 0
-    Public Const SECURITY_OPEN = 1
-    Public Const SECURITY_WEP = 2
-    Public Const SECURITY_WPA = 3
-    Public Const SECURITY_WPA2 = 4
-    Public Const SECURITY_INVALID = -1
+    Public Const SECURITY_UNKNOWN As Integer = 0
+    Public Const SECURITY_OPEN As Integer = 1
+    Public Const SECURITY_WEP As Integer = 2
+    Public Const SECURITY_WPA As Integer = 3
+    Public Const SECURITY_WPA2 As Integer = 4
+    Public Const SECURITY_INVALID As Integer = -1
 
     Public Const MESSAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const WLANCONFIG_INVALID As String = YAPI.INVALID_STRING
@@ -378,7 +378,7 @@ Module yocto_wireless
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function joinNetwork(ByVal ssid As String,ByVal securityKey As String) As Integer
+    Public Function joinNetwork(ByVal ssid As String, ByVal securityKey As String) As Integer
       Dim rest_val As String
       rest_val = "INFRA:" + ssid + "\\" + securityKey
       Return _setAttr("wlanConfig", rest_val)
@@ -412,7 +412,7 @@ Module yocto_wireless
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function adhocNetwork(ByVal ssid As String,ByVal securityKey As String) As Integer
+    Public Function adhocNetwork(ByVal ssid As String, ByVal securityKey As String) As Integer
       Dim rest_val As String
       rest_val = "ADHOC:" + ssid + "\\" + securityKey
       Return _setAttr("wlanConfig", rest_val)
@@ -490,9 +490,9 @@ Module yocto_wireless
     Public Overloads Function registerValueCallback(callback As YWirelessValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackWireless = callback
       REM // Immediately invoke value callback with current value

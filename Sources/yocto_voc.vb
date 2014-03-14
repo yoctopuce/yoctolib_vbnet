@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voc.vb 14798 2014-01-31 14:58:42Z seb $
+'* $Id: yocto_voc.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindVoc(), the high-level API for Voc functions
 '*
@@ -10,24 +10,24 @@
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
 '*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
 '*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
 '*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
@@ -84,7 +84,7 @@ Module yocto_voc
       REM --- (end of YVoc attributes initialization)
     End Sub
 
-  REM --- (YVoc private methods declaration)
+    REM --- (YVoc private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       Return MyBase._parseAttr(member)
@@ -166,9 +166,9 @@ Module yocto_voc
     Public Overloads Function registerValueCallback(callback As YVocValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackVoc = callback
       REM // Immediately invoke value callback with current value
@@ -210,9 +210,9 @@ Module yocto_voc
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YVocTimedReportCallback) As Integer
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me , True)
+        YFunction._UpdateTimedReportCallbackList(Me, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me , False)
+        YFunction._UpdateTimedReportCallbackList(Me, False)
       End If
       Me._timedReportCallbackVoc = callback
       Return 0

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 15039 2014-02-24 11:22:11Z seb $
+'* $Id: yocto_display.vb 15259 2014-03-06 10:21:05Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -45,11 +45,11 @@ Imports System.Text
 
 Module yocto_display
 
-  Public Const Y_NB_MAX_DISPLAY_LAYER = 10
+  Public Const Y_NB_MAX_DISPLAY_LAYER As Integer = 10
 
   REM --- (generated code: YDisplayLayer globals)
 
- Public Enum   Y_ALIGN
+ Public Enum  Y_ALIGN
   TOP_LEFT = 0
   CENTER_LEFT = 1
   BASELINE_LEFT = 2
@@ -71,24 +71,24 @@ end enum
   REM --- (end of generated code: YDisplayLayer globals)
   REM --- (generated code: YDisplay globals)
 
-  Public Const Y_ENABLED_FALSE = 0
-  Public Const Y_ENABLED_TRUE = 1
-  Public Const Y_ENABLED_INVALID = -1
+  Public Const Y_ENABLED_FALSE As Integer = 0
+  Public Const Y_ENABLED_TRUE As Integer = 1
+  Public Const Y_ENABLED_INVALID As Integer = -1
 
   Public Const Y_STARTUPSEQ_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_ORIENTATION_LEFT = 0
-  Public Const Y_ORIENTATION_UP = 1
-  Public Const Y_ORIENTATION_RIGHT = 2
-  Public Const Y_ORIENTATION_DOWN = 3
-  Public Const Y_ORIENTATION_INVALID = -1
+  Public Const Y_ORIENTATION_LEFT As Integer = 0
+  Public Const Y_ORIENTATION_UP As Integer = 1
+  Public Const Y_ORIENTATION_RIGHT As Integer = 2
+  Public Const Y_ORIENTATION_DOWN As Integer = 3
+  Public Const Y_ORIENTATION_INVALID As Integer = -1
 
   Public Const Y_DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_DISPLAYTYPE_MONO = 0
-  Public Const Y_DISPLAYTYPE_GRAY = 1
-  Public Const Y_DISPLAYTYPE_RGB = 2
-  Public Const Y_DISPLAYTYPE_INVALID = -1
+  Public Const Y_DISPLAYTYPE_MONO As Integer = 0
+  Public Const Y_DISPLAYTYPE_GRAY As Integer = 1
+  Public Const Y_DISPLAYTYPE_RGB As Integer = 2
+  Public Const Y_DISPLAYTYPE_INVALID As Integer = -1
 
   Public Const Y_LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
@@ -936,24 +936,24 @@ end enum
     REM --- (end of generated code: YDisplay class start)
 
     REM --- (generated code: YDisplay definitions)
-    Public Const ENABLED_FALSE = 0
-    Public Const ENABLED_TRUE = 1
-    Public Const ENABLED_INVALID = -1
+    Public Const ENABLED_FALSE As Integer = 0
+    Public Const ENABLED_TRUE As Integer = 1
+    Public Const ENABLED_INVALID As Integer = -1
 
     Public Const STARTUPSEQ_INVALID As String = YAPI.INVALID_STRING
     Public Const BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const ORIENTATION_LEFT = 0
-    Public Const ORIENTATION_UP = 1
-    Public Const ORIENTATION_RIGHT = 2
-    Public Const ORIENTATION_DOWN = 3
-    Public Const ORIENTATION_INVALID = -1
+    Public Const ORIENTATION_LEFT As Integer = 0
+    Public Const ORIENTATION_UP As Integer = 1
+    Public Const ORIENTATION_RIGHT As Integer = 2
+    Public Const ORIENTATION_DOWN As Integer = 3
+    Public Const ORIENTATION_INVALID As Integer = -1
 
     Public Const DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const DISPLAYTYPE_MONO = 0
-    Public Const DISPLAYTYPE_GRAY = 1
-    Public Const DISPLAYTYPE_RGB = 2
-    Public Const DISPLAYTYPE_INVALID = -1
+    Public Const DISPLAYTYPE_MONO As Integer = 0
+    Public Const DISPLAYTYPE_GRAY As Integer = 1
+    Public Const DISPLAYTYPE_RGB As Integer = 2
+    Public Const DISPLAYTYPE_INVALID As Integer = -1
 
     Public Const LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
@@ -1495,9 +1495,9 @@ end enum
     Public Overloads Function registerValueCallback(callback As YDisplayValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateValueCallbackList(Me , True)
+        YFunction._UpdateValueCallbackList(Me, True)
       Else
-        YFunction._UpdateValueCallbackList(Me , False)
+        YFunction._UpdateValueCallbackList(Me, False)
       End If
       Me._valueCallbackDisplay = callback
       REM // Immediately invoke value callback with current value
@@ -1856,7 +1856,7 @@ end enum
 
     Public Function get_displayLayer(layerId As Integer) As YDisplayLayer
       Dim i As Integer
-      Dim layercount = get_layerCount()
+      Dim layercount As Integer = get_layerCount()
 
       If ((layerId < 0) Or (layerId >= layercount)) Then
         _throw(-1, "invalid DisplayLayer index, valid values are [0.." + (layercount - 1).ToString() + "]")
