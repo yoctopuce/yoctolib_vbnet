@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 15376 2014-03-10 16:22:13Z seb $
+'* $Id: yocto_api.vb 16091 2014-05-08 12:10:31Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -569,7 +569,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "15466"
+  Public Const YOCTO_API_BUILD_NO As String = "16182"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2464,7 +2464,7 @@ Module yocto_api
     '''   Returns the end time of the measure, relative to the Jan 1, 1970 UTC
     '''   (Unix timestamp).
     ''' <para>
-    '''   When the recording rate is higher then 1 sample
+    '''   When the recording rate is higher than 1 sample
     '''   per second, the timestamp may have a fractional part.
     ''' </para>
     ''' <para>
@@ -3555,7 +3555,7 @@ Module yocto_api
         Next
       End If
 
-      request = request + uchangeval + " " + Chr(13) + Chr(10) + Chr(13) + Chr(10)
+      request = request + uchangeval + "&. " + Chr(13) + Chr(10) + Chr(13) + Chr(10)
       _buildSetRequest = YAPI_SUCCESS
     End Function
 
@@ -3600,7 +3600,9 @@ Module yocto_api
           Exit Function
         End If
       End If
-      _cacheExpiration = 0
+      If (_cacheExpiration <> 0) Then
+        _cacheExpiration = CULng(YAPI.GetTickCount())
+      End If
       _setAttr = YAPI_SUCCESS
     End Function
 
@@ -4100,7 +4102,7 @@ Module yocto_api
     '''   Returns the unique hardware identifier of the function in the form <c>SERIAL.FUNCTIONID</c>.
     ''' <para>
     '''   The unique hardware identifier is composed of the device serial
-    '''   number and of the hardware identifier of the function. (for example <c>RELAYLO1-123456.relay1</c>)
+    '''   number and of the hardware identifier of the function (for example <c>RELAYLO1-123456.relay1</c>).
     ''' </para>
     ''' <para>
     ''' </para>
@@ -4999,14 +5001,17 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   todo
+    '''   Registers a device log callback function.
+    ''' <para>
+    '''   This callback will be called each time
+    '''   that a module sends a new log message. Mostly useful to debug a Yoctopuce module.
+    ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a null pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and the character string describing
-    '''   the new advertised value.
+    '''   arguments: the module object that emitted the log message, and the character string containing the log.
     ''' @noreturn
     ''' </param>
     '''/
@@ -5385,35 +5390,6 @@ Module yocto_api
       Return Me._usbBandwidth
     End Function
 
-
-    '''*
-    ''' <summary>
-    '''   Changes the number of USB interfaces used by the module.
-    ''' <para>
-    '''   You must reboot the module
-    '''   after changing this setting.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   either <c>Y_USBBANDWIDTH_SIMPLE</c> or <c>Y_USBBANDWIDTH_DOUBLE</c>, according to the number of USB
-    '''   interfaces used by the module
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_usbBandwidth(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("usbBandwidth", rest_val)
-    End Function
     '''*
     ''' <summary>
     '''   Allows you to find a module from its serial number or from its logical name.
@@ -6655,8 +6631,8 @@ Module yocto_api
         res = "" + Convert.ToString(npt)
         idx = 0
         While (idx < npt)
-          iRaw = CType(Math.Round(rawValues(idx) * Me._scale - Me._offset), Integer)
-          iRef = CType(Math.Round(refValues(idx) * Me._scale - Me._offset), Integer)
+          iRaw = CType(Math.Round(rawValues(idx) * Me._scale + Me._offset), Integer)
+          iRef = CType(Math.Round(refValues(idx) * Me._scale + Me._offset), Integer)
           res = "" +  res + "," + Convert.ToString( iRaw) + "," + Convert.ToString(iRef)
           idx = idx + 1
         End While

@@ -77,6 +77,9 @@
     <Compile Include="..\..\Sources\yocto_accelerometer.vb">
       <Link>yocto\yocto_accelerometer.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_altitude.vb">
+      <Link>yocto\yocto_altitude.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_anbutton.vb">
       <Link>yocto\yocto_anbutton.vb</Link>
     </Compile>
@@ -127,6 +130,9 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_magnetometer.vb">
       <Link>yocto\yocto_magnetometer.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_motor.vb">
+      <Link>yocto\yocto_motor.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_network.vb">
       <Link>yocto\yocto_network.vb</Link>

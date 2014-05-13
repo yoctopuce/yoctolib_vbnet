@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: pic24config.php 15411 2014-03-13 12:08:37Z mvuilleu $
+'* $Id: yocto_pwmoutput.vb 15529 2014-03-20 17:54:15Z seb $
 '*
 '* Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '*
@@ -219,14 +219,14 @@ Module yocto_pwmoutput
 
     '''*
     ''' <summary>
-    '''   Configures the PWMs duty cyle.
+    '''   Changes the PWM duty cycle, in per cents.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a floating point number
+    '''   a floating point number corresponding to the PWM duty cycle, in per cents
     ''' </param>
     ''' <para>
     ''' </para>
@@ -244,14 +244,14 @@ Module yocto_pwmoutput
     End Function
     '''*
     ''' <summary>
-    '''   Returns the PWMs dutty cyle as a floating point number between 0 an 1.
+    '''   Returns the PWM duty cycle, in per cents.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the PWMs dutty cyle as a floating point number between 0 an 1
+    '''   a floating point number corresponding to the PWM duty cycle, in per cents
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_DUTYCYCLE_INVALID</c>.
@@ -269,7 +269,7 @@ Module yocto_pwmoutput
 
     '''*
     ''' <summary>
-    '''   Configures the PWM pluses length.
+    '''   Changes the PWM pulse length, in milliseconds.
     ''' <para>
     '''   A pulse length cannot be longer than period, otherwise it is truncated.
     ''' </para>
@@ -277,7 +277,7 @@ Module yocto_pwmoutput
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a floating point number
+    '''   a floating point number corresponding to the PWM pulse length, in milliseconds
     ''' </param>
     ''' <para>
     ''' </para>
@@ -344,7 +344,7 @@ Module yocto_pwmoutput
 
     '''*
     ''' <summary>
-    '''   Configures the PWM frequency.
+    '''   Changes the PWM frequency.
     ''' <para>
     '''   The duty cycle is kept unchanged thanks to an
     '''   automatic pulse width change.
@@ -353,7 +353,7 @@ Module yocto_pwmoutput
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer
+    '''   an integer corresponding to the PWM frequency
     ''' </param>
     ''' <para>
     ''' </para>
@@ -372,14 +372,14 @@ Module yocto_pwmoutput
 
     '''*
     ''' <summary>
-    '''   Configures the PWM period.
+    '''   Changes the PWM period.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a floating point number
+    '''   a floating point number corresponding to the PWM period
     ''' </param>
     ''' <para>
     ''' </para>
@@ -397,14 +397,14 @@ Module yocto_pwmoutput
     End Function
     '''*
     ''' <summary>
-    '''   Returns the PWM period in nonaseconde.
+    '''   Returns the PWM period in milliseconds.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the PWM period in nonaseconde
+    '''   a floating point number corresponding to the PWM period in milliseconds
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_PERIOD_INVALID</c>.
@@ -436,7 +436,7 @@ Module yocto_pwmoutput
     End Function
     '''*
     ''' <summary>
-    '''   Returns the state of the PWMs at device power on.
+    '''   Returns the state of the PWM at device power on.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -444,7 +444,7 @@ Module yocto_pwmoutput
     ''' </summary>
     ''' <returns>
     '''   either <c>Y_ENABLEDATPOWERON_FALSE</c> or <c>Y_ENABLEDATPOWERON_TRUE</c>, according to the state of
-    '''   the PWMs at device power on
+    '''   the PWM at device power on
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_ENABLEDATPOWERON_INVALID</c>.
@@ -462,7 +462,7 @@ Module yocto_pwmoutput
 
     '''*
     ''' <summary>
-    '''   Configures the state of PWM at device power on.
+    '''   Changes the state of the PWM at device power on.
     ''' <para>
     '''   Remember to call the matching module <c>saveToFlash()</c>
     '''   method, otherwise this call will have no effect.
@@ -471,7 +471,8 @@ Module yocto_pwmoutput
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_ENABLEDATPOWERON_FALSE</c> or <c>Y_ENABLEDATPOWERON_TRUE</c>
+    '''   either <c>Y_ENABLEDATPOWERON_FALSE</c> or <c>Y_ENABLEDATPOWERON_TRUE</c>, according to the state of
+    '''   the PWM at device power on
     ''' </param>
     ''' <para>
     ''' </para>
@@ -490,7 +491,7 @@ Module yocto_pwmoutput
 
     '''*
     ''' <summary>
-    '''   Configures the PWMs duty cycle at device power on.
+    '''   Changes the PWM duty cycle at device power on.
     ''' <para>
     '''   Remember to call the matching
     '''   module <c>saveToFlash()</c> method, otherwise this call will have no effect.
@@ -499,7 +500,7 @@ Module yocto_pwmoutput
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a floating point number
+    '''   a floating point number corresponding to the PWM duty cycle at device power on
     ''' </param>
     ''' <para>
     ''' </para>
@@ -517,16 +518,13 @@ Module yocto_pwmoutput
     End Function
     '''*
     ''' <summary>
-    '''   Returns the PWMs duty cycle at device power on as a floating point number between 0.0 and 100.
-    ''' <para>
-    '''   0%
-    ''' </para>
+    '''   Returns the PWMs duty cycle at device power on as a floating point number between 0 and 100
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a floating point number corresponding to the PWMs duty cycle at device power on as a floating point
-    '''   number between 0.0 and 100
+    '''   number between 0 and 100
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_DUTYCYCLEATPOWERON_INVALID</c>.
@@ -640,8 +638,10 @@ Module yocto_pwmoutput
 
     '''*
     ''' <summary>
-    '''   Performs a smooth change of the pulse duration toward a given value.
+    '''   Performs a smooth transistion of the pulse duration toward a given value.
     ''' <para>
+    '''   Any period,
+    '''   frequency, duty cycle or pulse width change will cancel any ongoing transition process.
     ''' </para>
     ''' </summary>
     ''' <param name="ms_target">
