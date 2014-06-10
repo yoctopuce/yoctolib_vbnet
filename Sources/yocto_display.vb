@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_display.vb 16340 2014-05-30 10:41:54Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -1522,6 +1522,10 @@ end enum
     '''*
     ''' <summary>
     '''   Clears the display screen and resets all display layers to their default state.
+    ''' <para>
+    '''   Using this function in a sequence will kill the sequence play-back. Don't use that
+    '''   function to reset the display at sequence start-up.
+    ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupmonitor.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_wakeupmonitor.vb 16424 2014-06-04 14:26:41Z seb $
 '*
 '* Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '*
@@ -537,7 +537,7 @@ Module yocto_wakeupmonitor
     ''' </para>
     ''' </summary>
     ''' <param name="secUntilWakeUp">
-    '''   sleep duration, in secondes
+    '''   number of seconds before next wake up
     ''' </param>
     ''' <param name="secBeforeSleep">
     '''   number of seconds before going into sleep mode

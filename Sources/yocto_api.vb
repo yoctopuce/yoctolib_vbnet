@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 16091 2014-05-08 12:10:31Z seb $
+'* $Id: yocto_api.vb 16246 2014-05-16 12:09:39Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -569,7 +569,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "16182"
+  Public Const YOCTO_API_BUILD_NO As String = "16490"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -3873,6 +3873,10 @@ Module yocto_api
     '''/
     Public Function set_logicalName(ByVal newval As String) As Integer
       Dim rest_val As String
+      If Not YAPI.CheckLogicalName(newval) Then
+        _throw(YAPI.INVALID_ARGUMENT, "Invalid name :" + newval)
+        Return YAPI.INVALID_ARGUMENT
+      End If
       rest_val = newval
       Return _setAttr("logicalName", rest_val)
     End Function
