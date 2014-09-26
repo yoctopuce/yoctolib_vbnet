@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_hubport.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_hubport.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindHubPort(), the high-level API for HubPort functions
 '*
@@ -47,6 +47,8 @@ Module yocto_hubport
 
     REM --- (YHubPort return codes)
     REM --- (end of YHubPort return codes)
+    REM --- (YHubPort dlldef)
+    REM --- (end of YHubPort dlldef)
   REM --- (YHubPort globals)
 
   Public Const Y_ENABLED_FALSE As Integer = 0

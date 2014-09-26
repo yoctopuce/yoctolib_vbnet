@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_wireless.vb 17594 2014-09-10 21:15:55Z mvuilleu $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -352,71 +352,6 @@ Module yocto_wireless
       rest_val = newval
       Return _setAttr("wlanConfig", rest_val)
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the configuration of the wireless lan interface to connect to an existing
-    '''   access point (infrastructure mode).
-    ''' <para>
-    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="ssid">
-    '''   the name of the network to connect to
-    ''' </param>
-    ''' <param name="securityKey">
-    '''   the network key, as a character string
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function joinNetwork(ByVal ssid As String, ByVal securityKey As String) As Integer
-      Dim rest_val As String
-      rest_val = "INFRA:" + ssid + "\\" + securityKey
-      Return _setAttr("wlanConfig", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the configuration of the wireless lan interface to create an ad-hoc
-    '''   wireless network, without using an access point.
-    ''' <para>
-    '''   If a security key is specified,
-    '''   the network is protected by WEP128, since WPA is not standardized for
-    '''   ad-hoc networks.
-    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="ssid">
-    '''   the name of the network to connect to
-    ''' </param>
-    ''' <param name="securityKey">
-    '''   the network key, as a character string
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function adhocNetwork(ByVal ssid As String, ByVal securityKey As String) As Integer
-      Dim rest_val As String
-      rest_val = "ADHOC:" + ssid + "\\" + securityKey
-      Return _setAttr("wlanConfig", rest_val)
-    End Function
     '''*
     ''' <summary>
     '''   Retrieves a wireless lan interface for a given identifier.
@@ -516,6 +451,99 @@ Module yocto_wireless
 
     '''*
     ''' <summary>
+    '''   Changes the configuration of the wireless lan interface to connect to an existing
+    '''   access point (infrastructure mode).
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="ssid">
+    '''   the name of the network to connect to
+    ''' </param>
+    ''' <param name="securityKey">
+    '''   the network key, as a character string
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function joinNetwork(ssid As String, securityKey As String) As Integer
+      Return Me.set_wlanConfig("INFRA:" +  ssid + "\\" + securityKey)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the configuration of the wireless lan interface to create an ad-hoc
+    '''   wireless network, without using an access point.
+    ''' <para>
+    '''   On the YoctoHub-Wireless-g,
+    '''   it is best to use softAPNetworkInstead(), which emulates an access point
+    '''   (Soft AP) which is more efficient and more widely supported than ad-hoc networks.
+    ''' </para>
+    ''' <para>
+    '''   When a security key is specified for an ad-hoc network, the network is protected
+    '''   by a WEP40 key (5 characters or 10 hexadecimal digits) or WEP128 key (13 characters
+    '''   or 26 hexadecimal digits). It is recommended to use a well-randomized WEP128 key
+    '''   using 26 hexadecimal digits to maximize security.
+    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module
+    '''   to apply this setting.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="ssid">
+    '''   the name of the network to connect to
+    ''' </param>
+    ''' <param name="securityKey">
+    '''   the network key, as a character string
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function adhocNetwork(ssid As String, securityKey As String) As Integer
+      Return Me.set_wlanConfig("ADHOC:" +  ssid + "\\" + securityKey)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the configuration of the wireless lan interface to create a new wireless
+    '''   network by emulating a WiFi access point (Soft AP).
+    ''' <para>
+    '''   This function can only be
+    '''   used with the YoctoHub-Wireless-g.
+    ''' </para>
+    ''' <para>
+    '''   When a security key is specified for a SoftAP network, the network is protected
+    '''   by a WEP40 key (5 characters or 10 hexadecimal digits) or WEP128 key (13 characters
+    '''   or 26 hexadecimal digits). It is recommended to use a well-randomized WEP128 key
+    '''   using 26 hexadecimal digits to maximize security.
+    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="ssid">
+    '''   the name of the network to connect to
+    ''' </param>
+    ''' <param name="securityKey">
+    '''   the network key, as a character string
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function softAPNetwork(ssid As String, securityKey As String) As Integer
+      Return Me.set_wlanConfig("SOFTAP:" +  ssid + "\\" + securityKey)
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Returns a list of YWlanRecord objects that describe detected Wireless networks.
     ''' <para>
     '''   This list is not updated when the module is already connected to an acces point (infrastructure mode).
@@ -534,7 +562,7 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Overridable Function get_detectedWlans() As List(Of YWlanRecord)
-        Dim i_i As Integer
+      Dim i_i As Integer
       Dim json As Byte()
       Dim wlanlist As List(Of String) = New List(Of String)()
       Dim res As List(Of YWlanRecord) = New List(Of YWlanRecord)()

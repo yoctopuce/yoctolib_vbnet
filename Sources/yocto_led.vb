@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_led.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_led.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindLed(), the high-level API for Led functions
 '*
@@ -47,6 +47,8 @@ Module yocto_led
 
     REM --- (YLed return codes)
     REM --- (end of YLed return codes)
+    REM --- (YLed dlldef)
+    REM --- (end of YLed dlldef)
   REM --- (YLed globals)
 
   Public Const Y_POWER_OFF As Integer = 0

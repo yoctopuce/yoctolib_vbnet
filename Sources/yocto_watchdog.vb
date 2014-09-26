@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_watchdog.vb 15434 2014-03-14 06:37:47Z mvuilleu $
+'* $Id: yocto_watchdog.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindWatchdog(), the high-level API for Watchdog functions
 '*
@@ -47,6 +47,8 @@ Module yocto_watchdog
 
     REM --- (YWatchdog return codes)
     REM --- (end of YWatchdog return codes)
+    REM --- (YWatchdog dlldef)
+    REM --- (end of YWatchdog dlldef)
   REM --- (YWatchdog globals)
 
 Public Class YWatchdogDelayedPulse

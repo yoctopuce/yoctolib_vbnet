@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_altitude.vb 16185 2014-05-12 16:00:20Z seb $
+'* $Id: yocto_altitude.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindAltitude(), the high-level API for Altitude functions
 '*
@@ -47,6 +47,8 @@ Module yocto_altitude
 
     REM --- (YAltitude return codes)
     REM --- (end of YAltitude return codes)
+    REM --- (YAltitude dlldef)
+    REM --- (end of YAltitude dlldef)
   REM --- (YAltitude globals)
 
   Public Const Y_QNH_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -92,7 +94,7 @@ Module yocto_altitude
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "qnh") Then
-        _qnh = member.ivalue / 65536.0
+        _qnh = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       Return MyBase._parseAttr(member)

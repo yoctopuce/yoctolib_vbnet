@@ -146,6 +146,9 @@
     <Compile Include="..\..\Sources\yocto_pressure.vb">
       <Link>yocto\yocto_pressure.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_pwminput.vb">
+      <Link>yocto\yocto_pwmoutput.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_pwmoutput.vb">
       <Link>yocto\yocto_pwmoutput.vb</Link>
     </Compile>
@@ -160,6 +163,9 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_relay.vb">
       <Link>yocto\yocto_relay.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_serialport.vb">
+      <Link>yocto\yocto_serialport.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_servo.vb">
       <Link>yocto\yocto_servo.vb</Link>
@@ -231,7 +237,7 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

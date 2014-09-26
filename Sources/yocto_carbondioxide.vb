@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_carbondioxide.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_carbondioxide.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '*
@@ -47,6 +47,8 @@ Module yocto_carbondioxide
 
     REM --- (YCarbonDioxide return codes)
     REM --- (end of YCarbonDioxide return codes)
+    REM --- (YCarbonDioxide dlldef)
+    REM --- (end of YCarbonDioxide dlldef)
   REM --- (YCarbonDioxide globals)
 
   Public Delegate Sub YCarbonDioxideValueCallback(ByVal func As YCarbonDioxide, ByVal value As String)

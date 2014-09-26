@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_files.vb 17674 2014-09-16 16:18:58Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -320,7 +320,7 @@ Module yocto_files
 
     '''*
     ''' <summary>
-    '''   Reinitializes the filesystem to its clean, unfragmented, empty state.
+    '''   Reinitialize the filesystem to its clean, unfragmented, empty state.
     ''' <para>
     '''   All files previously uploaded are permanently lost.
     ''' </para>
@@ -365,7 +365,7 @@ Module yocto_files
     ''' </para>
     '''/
     Public Overridable Function get_list(pattern As String) As List(Of YFileRecord)
-        Dim i_i As Integer
+      Dim i_i As Integer
       Dim json As Byte()
       Dim filelist As List(Of String) = New List(Of String)()
       Dim res As List(Of YFileRecord) = New List(Of YFileRecord)()

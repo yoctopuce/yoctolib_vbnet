@@ -3,9 +3,7 @@
   Dim caledit(5) As TextBox
   Dim rawedit(5) As TextBox
 
-
   Public Sub New()
-
     ' This call is required by the designer.
     InitializeComponent()
 
@@ -73,7 +71,7 @@
     Dim currentDevice As YModule
     Dim fctcount As Integer
     Dim fctName, fctFullName As String
-    Dim fct As YFunction
+    Dim fct As YSensor
 
     If devicesList.Items.Count > 0 Then
       devicesList.Enabled = True
@@ -86,7 +84,6 @@
     functionsList.Enabled = devicesList.Enabled
 
     If Not (devicesList.Enabled) Then
-
       unsupported_warning.Visible = False
       nosensorfunction.Visible = False
       Exit Sub  ' no device at all connected
@@ -100,22 +97,12 @@
       ' device capabilities inventory
       fctcount = currentDevice.functionCount()
       For i = 0 To fctcount - 1
-
         fctName = currentDevice.functionId(i)
         fctFullName = currentDevice.get_serialNumber() + "." + fctName
-        fct = Nothing
-        ' We have to have handle each sensor type independtly, (sorry about that)
-        If (fctName.IndexOf("temperature") = 0) Then fct = CType(YTemperature.FindTemperature(fctFullName), YFunction)
-        If (fctName.IndexOf("humidity") = 0) Then fct = CType(YHumidity.FindHumidity(fctFullName), YFunction)
-        If (fctName.IndexOf("pressure") = 0) Then fct = CType(YPressure.FindPressure(fctFullName), YFunction)
-        If (fctName.IndexOf("lightSensor") = 0) Then fct = CType(YLightSensor.FindLightSensor(fctFullName), YFunction)
-        If (fctName.IndexOf("carbonDioxide") = 0) Then fct = CType(YCarbonDioxide.FindCarbonDioxide(fctFullName), YFunction)
-        If (fctName.IndexOf("voltage") = 0) Then fct = CType(YVoltage.FindVoltage(fctFullName), YFunction)
-        If (fctName.IndexOf("current") = 0) Then fct = CType(YCurrent.FindCurrent(fctFullName), YFunction)
+        fct = YSensor.FindSensor(fctFullName)
         ' add the function in the second drop down
-        If Not (fct Is Nothing) Then functionsList.Items.Add(fct)
+        If (fct.isOnline()) Then functionsList.Items.Add(fct)
       Next i
-
     End If
 
     If functionsList.Items.Count > 0 Then
@@ -126,11 +113,10 @@
 
     If (functionsList.Enabled) Then functionsList.SelectedIndex = 0
     refreshFctUI(True)
-
   End Sub
 
   Private Sub refreshFctUI(newone As Boolean)
-    Dim fct As YFunction
+    Dim fct As YSensor
     Dim i As Integer
 
     nosensorfunction.Visible = False
@@ -150,49 +136,34 @@
       Exit Sub
     End If
 
-    fct = CType(functionsList.Items(functionsList.SelectedIndex), YFunction)
+    fct = CType(functionsList.Items(functionsList.SelectedIndex), YSensor)
     If (newone) Then
       ' enable the ui
       EnableCalibrationUI(True)
       For i = 0 To 4
-
         caledit(i).Text = ""
         caledit(i).BackColor = System.Drawing.SystemColors.Window
         rawedit(i).Text = ""
         rawedit(i).BackColor = System.Drawing.SystemColors.Window
-
-
-        If (TypeOf fct Is YTemperature) Then DisplayTemperatureCalPoints(CType(fct, YTemperature))
-        If (TypeOf fct Is YPressure) Then DisplayPressureCalPoints(CType(fct, YPressure))
-        If (TypeOf fct Is YHumidity) Then DisplayHumidityCalPoints(CType(fct, YHumidity))
-        If (TypeOf fct Is YLightSensor) Then DisplayLightSensorCalPoints(CType(fct, YLightSensor))
-        If (TypeOf fct Is YCarbonDioxide) Then DisplayCarbonDioxideCalPoints(CType(fct, YCarbonDioxide))
-        If (TypeOf fct Is YVoltage) Then DisplayVoltageCalPoints(CType(fct, YVoltage))
-        If (TypeOf fct Is YCurrent) Then DisplayCurrentCalPoints(CType(fct, YCurrent))
+        DisplayCalPoints(fct)
       Next i
     End If
-    If (fct.isOnline()) Then
-
-      If (TypeOf fct Is YTemperature) Then DisplayTemperature(CType(fct, YTemperature))
-      If (TypeOf fct Is YPressure) Then DisplayPressure(CType(fct, YPressure))
-      If (TypeOf fct Is YHumidity) Then DisplayHumidity(CType(fct, YHumidity))
-      If (TypeOf fct Is YLightSensor) Then DisplayLightSensor(CType(fct, YLightSensor))
-      If (TypeOf fct Is YCarbonDioxide) Then DisplayCarbonDioxide(CType(fct, YCarbonDioxide))
-      If (TypeOf fct Is YVoltage) Then DisplayVoltage(CType(fct, YVoltage))
-      If (TypeOf fct Is YCurrent) Then DisplayCurrent(CType(fct, YCurrent))
-    End If
+    If (fct.isOnline()) Then displayValue(fct)
   End Sub
 
-  Private Sub displayValue(value As Double, rawvalue As Double, resolution As Double, valunit As String)
+  Private Sub displayValue(fct As YSensor)
 
     Dim Format As String
+    Dim value As Double = fct.get_currentValue()
+    Dim rawvalue As Double = fct.get_currentRawValue()
+    Dim resolution As Double = fct.get_resolution()
+    Dim valunit As String = fct.get_unit()
 
     ' displays the sensor value on the ui
     ValueDisplayUnits.Text = valunit
 
-    If (resolution <> YTemperature.RESOLUTION_INVALID) Then
+    If (resolution <> YSensor.RESOLUTION_INVALID) Then
       'if resolution is available on the device the use it to  round the value
-
       Format = "F" + (-CInt(Math.Round(Math.Log10(resolution)))).ToString()
       RawValueDisplay.Text = "(raw value: " + (resolution * Math.Round(rawvalue / resolution)).ToString(Format) + ")"
       ValueDisplay.Text = (resolution * Math.Round(value / resolution)).ToString(Format)
@@ -207,7 +178,6 @@
     Dim i As Integer
 
     For i = 0 To 4
-
       caledit(i).Enabled = state
       rawedit(i).Enabled = state
       If Not (state) Then
@@ -221,15 +191,16 @@
     CalibratedLabel.Enabled = state
     saveBtn.Enabled = state
     cancelBtn.Enabled = state
-
-
   End Sub
 
-  Private Sub DisplayCalPoints(ValuesRaw As List(Of Double), ValuesCal As List(Of Double), resolution As Double)
+  Private Sub DisplayCalPoints(fct As YSensor)
+    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
+    Dim ValuesCal As List(Of Double) = New List(Of Double)()
     Dim i As Integer
-    ' little trick: if resolution is not available on the device, the
-    ' calibration in not available either
-    If resolution = YTemperature.RESOLUTION_INVALID Then
+    Dim retcode As Integer
+
+    retcode = fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
+    If retcode = YAPI.NOT_SUPPORTED Then
       EnableCalibrationUI(False)
       unsupported_warning.Visible = True
       Exit Sub
@@ -238,13 +209,12 @@
     ' display the calibration points
     unsupported_warning.Visible = False
     For i = 0 To ValuesRaw.Count - 1
-      caledit(i).Text = ValuesCal(i).ToString()
-      rawedit(i).Text = ValuesRaw(i).ToString()
+      caledit(i).Text = YAPI._floatToStr(ValuesCal(i))
+      rawedit(i).Text = YAPI._floatToStr(ValuesRaw(i))
       rawedit(i).BackColor = System.Drawing.Color.FromArgb(&HA0, &HFF, &HA0)
       caledit(i).BackColor = System.Drawing.Color.FromArgb(&HA0, &HFF, &HA0)
     Next i
   End Sub
-
 
   Private Sub Timer1_Tick(sender As System.Object, e As System.EventArgs) Handles Timer1.Tick
     Dim errmsg As String = ""
@@ -257,96 +227,12 @@
     refreshFctUI(False)
   End Sub
 
-  ' this the weak point of the API, methods get_currentValue,
-  ' get_resolution,  get_unit etc... are present in all sensor classes, but 
-  ' are  not inherited from the parent class (to keep the object model
-  ' simple) we have to handle them independtly for each sensor type.
-
-  Private Sub DisplayTemperature(fct As YTemperature)
-    displayValue(fct.get_currentValue(), fct.get_currentRawValue(), fct.get_resolution(), fct.get_unit())
-  End Sub
-
-  Private Sub DisplayPressure(fct As YPressure)
-    displayValue(fct.get_currentValue(), fct.get_currentRawValue(), fct.get_resolution(), fct.get_unit())
-  End Sub
-
-  Private Sub DisplayHumidity(fct As YHumidity)
-    displayValue(fct.get_currentValue(), fct.get_currentRawValue(), fct.get_resolution(), fct.get_unit())
-  End Sub
-
-  Private Sub DisplayLightSensor(fct As YLightSensor)
-    displayValue(fct.get_currentValue(), fct.get_currentRawValue(), fct.get_resolution(), fct.get_unit())
-  End Sub
-
-  Private Sub DisplayCarbonDioxide(fct As YCarbonDioxide)
-    displayValue(fct.get_currentValue(), fct.get_currentRawValue(), fct.get_resolution(), fct.get_unit())
-  End Sub
-
-  Private Sub DisplayVoltage(fct As YVoltage)
-    displayValue(fct.get_currentValue(), fct.get_currentRawValue(), fct.get_resolution(), fct.get_unit())
-  End Sub
-
-  Private Sub DisplayCurrent(fct As YCurrent)
-    displayValue(fct.get_currentValue(), fct.get_currentRawValue(), fct.get_resolution(), fct.get_unit())
-  End Sub
-
-  Private Sub DisplayTemperatureCalPoints(fct As YTemperature)
-    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
-    Dim ValuesCal As List(Of Double) = New List(Of Double)()
-    fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
-    DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
-  End Sub
-
-  Private Sub DisplayPressureCalPoints(fct As YPressure)
-    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
-    Dim ValuesCal As List(Of Double) = New List(Of Double)()
-    fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
-    DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
-  End Sub
-
-  Private Sub DisplayHumidityCalPoints(fct As YHumidity)
-    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
-    Dim ValuesCal As List(Of Double) = New List(Of Double)()
-    fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
-    DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
-  End Sub
-
-  Private Sub DisplayLightSensorCalPoints(fct As YLightSensor)
-    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
-    Dim ValuesCal As List(Of Double) = New List(Of Double)()
-    fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
-    DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
-  End Sub
-
-  Private Sub DisplayCarbonDioxideCalPoints(fct As YCarbonDioxide)
-    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
-    Dim ValuesCal As List(Of Double) = New List(Of Double)()
-    fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
-    DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
-  End Sub
-
-  Private Sub DisplayVoltageCalPoints(fct As YVoltage)
-    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
-    Dim ValuesCal As List(Of Double) = New List(Of Double)()
-    fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
-    DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
-  End Sub
-
-  Private Sub DisplayCurrentCalPoints(fct As YCurrent)
-    Dim ValuesRaw As List(Of Double) = New List(Of Double)()
-    Dim ValuesCal As List(Of Double) = New List(Of Double)()
-    fct.loadCalibrationPoints(ValuesRaw, ValuesCal)
-    DisplayCalPoints(ValuesRaw, ValuesCal, fct.get_resolution())
-  End Sub
-
-
   Private Sub cancelBtn_Click(sender As System.Object, e As System.EventArgs) Handles cancelBtn.Click
     ' reload the device configuration from the flash
     Dim m As YModule = CType(devicesList.Items(devicesList.SelectedIndex), YModule)
     If (m.isOnline()) Then m.revertFromFlash()
     refreshFctUI(True)
   End Sub
-
 
   Private Sub saveBtn_Click(sender As System.Object, e As System.EventArgs) Handles saveBtn.Click
     ' saves the device current configuration into flash
@@ -361,23 +247,24 @@
   Private Sub CalibrationChange(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles R4.Leave, R3.Leave, R2.Leave, R1.Leave, R0.Leave, C4.Leave, C3.Leave, C2.Leave, C1.Leave, C0.Leave
     Dim ValuesRaw As List(Of Double) = New List(Of Double)()
     Dim ValuesCal As List(Of Double) = New List(Of Double)()
-    Dim fct As YFunction
-    Dim stopplz As Boolean = False
+    Dim ParseRaw As List(Of Integer) = New List(Of Integer)()
+    Dim ParseCal As List(Of Integer) = New List(Of Integer)()
+    Dim fct As YSensor
     Dim i As Integer = 0
     Dim j As Integer = 0
 
     If (functionsList.SelectedIndex < 0) Then Exit Sub
 
     Try
-      While ((caledit(i).Text <> "") And (rawedit(i).Text <> "") And (i < 5) And Not (stopplz))
-        ValuesCal.Add(Convert.ToDouble(caledit(i).Text))
-        ValuesRaw.Add(Convert.ToDouble(rawedit(i).Text))
+      While ((caledit(i).Text <> "") And (rawedit(i).Text <> "") And (i < 5))
+        ParseRaw = YAPI._decodeFloats(rawedit(i).Text)
+        ParseCal = YAPI._decodeFloats(caledit(i).Text)
+        If (ParseRaw.Count <> 1) Or (ParseCal.Count <> 1) Then Exit While
         If (i > 0) Then
-          If ValuesRaw(i) <= ValuesRaw(i - 1) Then
-            stopplz = True
-            i = i - 1
-          End If
+          If ParseRaw(0) / 1000.0 <= ValuesRaw(i - 1) Then Exit While
         End If
+        ValuesRaw.Add(ParseRaw(0) / 1000.0)
+        ValuesCal.Add(ParseCal(0) / 1000.0)
         i = i + 1
       End While
     Catch ex As Exception
@@ -389,9 +276,6 @@
 
     While ValuesRaw.Count > ValuesCal.Count
       ValuesRaw.RemoveAt(ValuesRaw.Count - 1)
-
-
-
     End While
 
     ' some ui cosmetics: correct values are turned to green
@@ -406,17 +290,8 @@
     Next j
 
     ' send the calibration point to the device
-    fct = CType(functionsList.Items(functionsList.SelectedIndex), YFunction)
-    If fct.isOnline() Then
-      If (TypeOf fct Is YTemperature) Then CType(fct, YTemperature).calibrateFromPoints(ValuesRaw, ValuesCal)
-      If (TypeOf fct Is YPressure) Then CType(fct, YHumidity).calibrateFromPoints(ValuesRaw, ValuesCal)
-      If (TypeOf fct Is YLightSensor) Then CType(fct, YLightSensor).calibrateFromPoints(ValuesRaw, ValuesCal)
-      If (TypeOf fct Is YCarbonDioxide) Then CType(fct, YCarbonDioxide).calibrateFromPoints(ValuesRaw, ValuesCal)
-      If (TypeOf fct Is YVoltage) Then CType(fct, YVoltage).calibrateFromPoints(ValuesRaw, ValuesCal)
-      If (TypeOf fct Is YCurrent) Then CType(fct, YCurrent).calibrateFromPoints(ValuesRaw, ValuesCal)
-      If (TypeOf fct Is YHumidity) Then CType(fct, YHumidity).calibrateFromPoints(ValuesRaw, ValuesCal)
-    End If
-
+    fct = CType(functionsList.Items(functionsList.SelectedIndex), YSensor)
+    If fct.isOnline() Then fct.calibrateFromPoints(ValuesRaw, ValuesCal)    
   End Sub
 
   Private Sub devicesList_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles devicesList.SelectedIndexChanged

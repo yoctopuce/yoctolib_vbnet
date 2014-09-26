@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 16340 2014-05-30 10:41:54Z seb $
+'* $Id: yocto_display.vb 17498 2014-09-03 19:21:24Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -98,20 +98,6 @@ end enum
   Public Delegate Sub YDisplayTimedReportCallback(ByVal func As YDisplay, ByVal measure As YMeasure)
   REM --- (end of generated code: YDisplay globals)
 
-
-  Private Function yapiBoolToStr(b As Boolean) As String
-    If b Then Return "1" Else Return "0"
-  End Function
-
-  Private Function yapiIntToHex(h As Integer, width As Integer) As String
-    Dim res As String
-    res = h.ToString("X")
-    While (Len(res) < width)
-      res = "0" + res
-    End While
-    Return res
-  End Function
-
   REM --- (generated code: YDisplayLayer class start)
 
   '''*
@@ -202,7 +188,7 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function selectColorPen(color As Integer) As Integer
-      Return Me.command_push("c" + yapiIntToHex(color,06))
+      Return Me.command_push("c" + YAPI._intToHex(color,06))
     End Function
 
     '''*
@@ -234,11 +220,11 @@ end enum
     '''*
     ''' <summary>
     '''   Selects an eraser instead of a pen for all subsequent drawing functions,
-    '''   except for text drawing and bitmap copy functions.
+    '''   except for bitmap copy functions.
     ''' <para>
-    '''   Any point drawn
-    '''   using the eraser becomes transparent (as when the layer is empty),
-    '''   showing the other layers beneath it.
+    '''   Any point drawn using the eraser
+    '''   becomes transparent (as when the layer is empty), showing the other
+    '''   layers beneath it.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -276,7 +262,7 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function setAntialiasingMode(mode As Boolean) As Integer
-      Return Me.command_push("a" + yapiBoolToStr(mode))
+      Return Me.command_push("a" + YAPI._boolToStr(mode))
     End Function
 
     '''*
@@ -690,7 +676,7 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function setConsoleWordWrap(wordwrap As Boolean) As Integer
-      Return Me.command_push("w" + yapiBoolToStr(wordwrap))
+      Return Me.command_push("w" + YAPI._boolToStr(wordwrap))
     End Function
 
     '''*

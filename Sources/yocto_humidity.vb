@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_humidity.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_humidity.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindHumidity(), the high-level API for Humidity functions
 '*
@@ -47,6 +47,8 @@ Module yocto_humidity
 
     REM --- (YHumidity return codes)
     REM --- (end of YHumidity return codes)
+    REM --- (YHumidity dlldef)
+    REM --- (end of YHumidity dlldef)
   REM --- (YHumidity globals)
 
   Public Delegate Sub YHumidityValueCallback(ByVal func As YHumidity, ByVal value As String)

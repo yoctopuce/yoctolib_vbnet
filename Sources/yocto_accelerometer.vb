@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_accelerometer.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_accelerometer.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindAccelerometer(), the high-level API for Accelerometer functions
 '*
@@ -47,11 +47,17 @@ Module yocto_accelerometer
 
     REM --- (YAccelerometer return codes)
     REM --- (end of YAccelerometer return codes)
+    REM --- (YAccelerometer dlldef)
+    REM --- (end of YAccelerometer dlldef)
   REM --- (YAccelerometer globals)
 
   Public Const Y_XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_GRAVITYCANCELLATION_OFF As Integer = 0
+  Public Const Y_GRAVITYCANCELLATION_ON As Integer = 1
+  Public Const Y_GRAVITYCANCELLATION_INVALID As Integer = -1
+
   Public Delegate Sub YAccelerometerValueCallback(ByVal func As YAccelerometer, ByVal value As String)
   Public Delegate Sub YAccelerometerTimedReportCallback(ByVal func As YAccelerometer, ByVal measure As YMeasure)
   REM --- (end of YAccelerometer globals)
@@ -74,12 +80,17 @@ Module yocto_accelerometer
     Public Const XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const GRAVITYCANCELLATION_OFF As Integer = 0
+    Public Const GRAVITYCANCELLATION_ON As Integer = 1
+    Public Const GRAVITYCANCELLATION_INVALID As Integer = -1
+
     REM --- (end of YAccelerometer definitions)
 
     REM --- (YAccelerometer attributes declaration)
     Protected _xValue As Double
     Protected _yValue As Double
     Protected _zValue As Double
+    Protected _gravityCancellation As Integer
     Protected _valueCallbackAccelerometer As YAccelerometerValueCallback
     Protected _timedReportCallbackAccelerometer As YAccelerometerTimedReportCallback
     REM --- (end of YAccelerometer attributes declaration)
@@ -91,6 +102,7 @@ Module yocto_accelerometer
       _xValue = XVALUE_INVALID
       _yValue = YVALUE_INVALID
       _zValue = ZVALUE_INVALID
+      _gravityCancellation = GRAVITYCANCELLATION_INVALID
       _valueCallbackAccelerometer = Nothing
       _timedReportCallbackAccelerometer = Nothing
       REM --- (end of YAccelerometer attributes initialization)
@@ -100,15 +112,19 @@ Module yocto_accelerometer
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "xValue") Then
-        _xValue = member.ivalue / 65536.0
+        _xValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "yValue") Then
-        _yValue = member.ivalue / 65536.0
+        _yValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "zValue") Then
-        _zValue = member.ivalue / 65536.0
+        _zValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
+      If (member.name = "gravityCancellation") Then
+        If (member.ivalue > 0) Then _gravityCancellation = 1 Else _gravityCancellation = 0
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -189,6 +205,21 @@ Module yocto_accelerometer
       Return Me._zValue
     End Function
 
+    Public Function get_gravityCancellation() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return GRAVITYCANCELLATION_INVALID
+        End If
+      End If
+      Return Me._gravityCancellation
+    End Function
+
+
+    Public Function set_gravityCancellation(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("gravityCancellation", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves an accelerometer for a given identifier.

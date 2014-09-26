@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupmonitor.vb 16424 2014-06-04 14:26:41Z seb $
+'* $Id: yocto_wakeupmonitor.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '*
@@ -47,6 +47,8 @@ Module yocto_wakeupmonitor
 
     REM --- (YWakeUpMonitor return codes)
     REM --- (end of YWakeUpMonitor return codes)
+    REM --- (YWakeUpMonitor dlldef)
+    REM --- (end of YWakeUpMonitor dlldef)
   REM --- (YWakeUpMonitor globals)
 
   Public Const Y_POWERDURATION_INVALID As Integer = YAPI.INVALID_INT
@@ -56,15 +58,8 @@ Module yocto_wakeupmonitor
   Public Const Y_WAKEUPREASON_EXTPOWER As Integer = 1
   Public Const Y_WAKEUPREASON_ENDOFSLEEP As Integer = 2
   Public Const Y_WAKEUPREASON_EXTSIG1 As Integer = 3
-  Public Const Y_WAKEUPREASON_EXTSIG2 As Integer = 4
-  Public Const Y_WAKEUPREASON_EXTSIG3 As Integer = 5
-  Public Const Y_WAKEUPREASON_EXTSIG4 As Integer = 6
-  Public Const Y_WAKEUPREASON_SCHEDULE1 As Integer = 7
-  Public Const Y_WAKEUPREASON_SCHEDULE2 As Integer = 8
-  Public Const Y_WAKEUPREASON_SCHEDULE3 As Integer = 9
-  Public Const Y_WAKEUPREASON_SCHEDULE4 As Integer = 10
-  Public Const Y_WAKEUPREASON_SCHEDULE5 As Integer = 11
-  Public Const Y_WAKEUPREASON_SCHEDULE6 As Integer = 12
+  Public Const Y_WAKEUPREASON_SCHEDULE1 As Integer = 4
+  Public Const Y_WAKEUPREASON_SCHEDULE2 As Integer = 5
   Public Const Y_WAKEUPREASON_INVALID As Integer = -1
 
   Public Const Y_WAKEUPSTATE_SLEEPING As Integer = 0
@@ -98,15 +93,8 @@ Module yocto_wakeupmonitor
     Public Const WAKEUPREASON_EXTPOWER As Integer = 1
     Public Const WAKEUPREASON_ENDOFSLEEP As Integer = 2
     Public Const WAKEUPREASON_EXTSIG1 As Integer = 3
-    Public Const WAKEUPREASON_EXTSIG2 As Integer = 4
-    Public Const WAKEUPREASON_EXTSIG3 As Integer = 5
-    Public Const WAKEUPREASON_EXTSIG4 As Integer = 6
-    Public Const WAKEUPREASON_SCHEDULE1 As Integer = 7
-    Public Const WAKEUPREASON_SCHEDULE2 As Integer = 8
-    Public Const WAKEUPREASON_SCHEDULE3 As Integer = 9
-    Public Const WAKEUPREASON_SCHEDULE4 As Integer = 10
-    Public Const WAKEUPREASON_SCHEDULE5 As Integer = 11
-    Public Const WAKEUPREASON_SCHEDULE6 As Integer = 12
+    Public Const WAKEUPREASON_SCHEDULE1 As Integer = 4
+    Public Const WAKEUPREASON_SCHEDULE2 As Integer = 5
     Public Const WAKEUPREASON_INVALID As Integer = -1
 
     Public Const WAKEUPSTATE_SLEEPING As Integer = 0
@@ -333,10 +321,8 @@ Module yocto_wakeupmonitor
     ''' </summary>
     ''' <returns>
     '''   a value among <c>Y_WAKEUPREASON_USBPOWER</c>, <c>Y_WAKEUPREASON_EXTPOWER</c>,
-    '''   <c>Y_WAKEUPREASON_ENDOFSLEEP</c>, <c>Y_WAKEUPREASON_EXTSIG1</c>, <c>Y_WAKEUPREASON_EXTSIG2</c>,
-    '''   <c>Y_WAKEUPREASON_EXTSIG3</c>, <c>Y_WAKEUPREASON_EXTSIG4</c>, <c>Y_WAKEUPREASON_SCHEDULE1</c>,
-    '''   <c>Y_WAKEUPREASON_SCHEDULE2</c>, <c>Y_WAKEUPREASON_SCHEDULE3</c>, <c>Y_WAKEUPREASON_SCHEDULE4</c>,
-    '''   <c>Y_WAKEUPREASON_SCHEDULE5</c> and <c>Y_WAKEUPREASON_SCHEDULE6</c> corresponding to the latest wake up reason
+    '''   <c>Y_WAKEUPREASON_ENDOFSLEEP</c>, <c>Y_WAKEUPREASON_EXTSIG1</c>, <c>Y_WAKEUPREASON_SCHEDULE1</c>
+    '''   and <c>Y_WAKEUPREASON_SCHEDULE2</c> corresponding to the latest wake up reason
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_WAKEUPREASON_INVALID</c>.

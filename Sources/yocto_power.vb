@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_power.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_power.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindPower(), the high-level API for Power functions
 '*
@@ -47,6 +47,8 @@ Module yocto_power
 
     REM --- (YPower return codes)
     REM --- (end of YPower return codes)
+    REM --- (YPower dlldef)
+    REM --- (end of YPower dlldef)
   REM --- (YPower globals)
 
   Public Const Y_COSPHI_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -100,11 +102,11 @@ Module yocto_power
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "cosPhi") Then
-        _cosPhi = member.ivalue / 65536.0
+        _cosPhi = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "meter") Then
-        _meter = member.ivalue / 65536.0
+        _meter = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "meterTimer") Then

@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_datalogger.vb 17674 2014-09-16 16:18:58Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -61,6 +61,10 @@ Module yocto_datalogger
   Public Const Y_RECORDING_INVALID As Integer = -1
 
   REM Y_AUTOSTART is defined in yocto_api.vb
+  Public Const Y_BEACONDRIVEN_OFF As Integer = 0
+  Public Const Y_BEACONDRIVEN_ON As Integer = 1
+  Public Const Y_BEACONDRIVEN_INVALID As Integer = -1
+
   Public Const Y_CLEARHISTORY_FALSE As Integer = 0
   Public Const Y_CLEARHISTORY_TRUE As Integer = 1
   Public Const Y_CLEARHISTORY_INVALID As Integer = -1
@@ -344,6 +348,10 @@ Module yocto_datalogger
     Public Const AUTOSTART_ON As Integer = 1
     Public Const AUTOSTART_INVALID As Integer = -1
 
+    Public Const BEACONDRIVEN_OFF As Integer = 0
+    Public Const BEACONDRIVEN_ON As Integer = 1
+    Public Const BEACONDRIVEN_INVALID As Integer = -1
+
     Public Const CLEARHISTORY_FALSE As Integer = 0
     Public Const CLEARHISTORY_TRUE As Integer = 1
     Public Const CLEARHISTORY_INVALID As Integer = -1
@@ -355,6 +363,7 @@ Module yocto_datalogger
     Protected _timeUTC As Long
     Protected _recording As Integer
     Protected _autoStart As Integer
+    Protected _beaconDriven As Integer
     Protected _clearHistory As Integer
     Protected _valueCallbackDataLogger As YDataLoggerValueCallback
     REM --- (end of generated code: YDataLogger attributes declaration)
@@ -367,6 +376,7 @@ Module yocto_datalogger
       _timeUTC = TIMEUTC_INVALID
       _recording = RECORDING_INVALID
       _autoStart = AUTOSTART_INVALID
+      _beaconDriven = BEACONDRIVEN_INVALID
       _clearHistory = CLEARHISTORY_INVALID
       _valueCallbackDataLogger = Nothing
       REM --- (end of generated code: YDataLogger attributes initialization)
@@ -389,6 +399,10 @@ Module yocto_datalogger
       End If
       If (member.name = "autoStart") Then
         If (member.ivalue > 0) Then _autoStart = 1 Else _autoStart = 0
+        Return 1
+      End If
+      If (member.name = "beaconDriven") Then
+        If (member.ivalue > 0) Then _beaconDriven = 1 Else _beaconDriven = 0
         Return 1
       End If
       If (member.name = "clearHistory") Then
@@ -583,6 +597,59 @@ Module yocto_datalogger
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("autoStart", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Return true if the data logger is synchronised with the localization beacon.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_BEACONDRIVEN_OFF</c> or <c>Y_BEACONDRIVEN_ON</c>
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BEACONDRIVEN_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_beaconDriven() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return BEACONDRIVEN_INVALID
+        End If
+      End If
+      Return Me._beaconDriven
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the type of synchronisation of the data logger.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_BEACONDRIVEN_OFF</c> or <c>Y_BEACONDRIVEN_ON</c>, according to the type of
+    '''   synchronisation of the data logger
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_beaconDriven(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("beaconDriven", rest_val)
+    End Function
     Public Function get_clearHistory() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
@@ -739,7 +806,7 @@ Module yocto_datalogger
     End Function
 
     Public Overridable Function parse_dataSets(json As Byte()) As List(Of YDataSet)
-        Dim i_i As Integer
+      Dim i_i As Integer
       Dim dslist As List(Of String) = New List(Of String)()
       Dim res As List(Of YDataSet) = New List(Of YDataSet)()
       REM // may throw an exception

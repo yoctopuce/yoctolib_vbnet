@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_current.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_current.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindCurrent(), the high-level API for Current functions
 '*
@@ -47,6 +47,8 @@ Module yocto_current
 
     REM --- (YCurrent return codes)
     REM --- (end of YCurrent return codes)
+    REM --- (YCurrent dlldef)
+    REM --- (end of YCurrent dlldef)
   REM --- (YCurrent globals)
 
   Public Delegate Sub YCurrentValueCallback(ByVal func As YCurrent, ByVal value As String)

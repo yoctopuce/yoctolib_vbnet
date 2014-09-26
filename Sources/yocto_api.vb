@@ -1,35 +1,35 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 16246 2014-05-16 12:09:39Z seb $
+'* $Id: yocto_api.vb 17816 2014-09-24 14:47:30Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
 '*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
 '*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
@@ -569,7 +569,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "16490"
+  Public Const YOCTO_API_BUILD_NO As String = "17849"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -590,6 +590,8 @@ Module yocto_api
   Public Const YOCTO_REALM_LEN As Integer = 20
   Public Const INVALID_YHANDLE As Integer = 0
   Public Const yUnknowSize As Integer = 1024
+
+  Public Const YOCTO_CALIB_TYPE_OFS As Integer = 30
 
   REM Global definitions for YRelay,YDatalogger an YWatchdog class
   Public Const Y_STATE_A As Integer = 0
@@ -636,7 +638,7 @@ Module yocto_api
 
     REM --- (generated code: YFunction return codes)
     REM Yoctopuce error codes, also used by default as function return value
-    Public Const SUCCESS As Integer = 0         REM everything worked allright
+    Public Const SUCCESS As Integer = 0         REM everything worked all right
     Public Const NOT_INITIALIZED As Integer = -1 REM call yInitAPI() first !
     Public Const INVALID_ARGUMENT As Integer = -2 REM one of the arguments passed to the function is invalid
     Public Const NOT_SUPPORTED As Integer = -3  REM the operation attempted is (currently) not supported
@@ -646,10 +648,11 @@ Module yocto_api
     Public Const TIMEOUT As Integer = -7        REM the device took too long to provide an answer
     Public Const IO_ERROR As Integer = -8       REM there was an I/O problem while talking to the device
     Public Const NO_MORE_DATA As Integer = -9   REM there is no more data to read from
-    Public Const EXHAUSTED As Integer = -10     REM you have run out of a limited ressource, check the documentation
-    Public Const DOUBLE_ACCES As Integer = -11  REM you have two process that try to acces to the same device
+    Public Const EXHAUSTED As Integer = -10     REM you have run out of a limited resource, check the documentation
+    Public Const DOUBLE_ACCES As Integer = -11  REM you have two process that try to access to the same device
     Public Const UNAUTHORIZED As Integer = -12  REM unauthorized access to password-protected device
     Public Const RTC_NOT_READY As Integer = -13 REM real-time clock has not been initialized (or time was lost)
+    Public Const FILE_NOT_FOUND As Integer = -14 REM the file is not found
 
     REM --- (end of generated code: YFunction return codes)
 
@@ -659,6 +662,7 @@ Module yocto_api
     Public Shared Sub handlersCleanUp()
       _CalibHandlers.Clear()
     End Sub
+
 
 
     Public Shared Function _getCalibrationHandler(ByVal calType As Integer) As yCalibrationHandler
@@ -675,6 +679,15 @@ Module yocto_api
     End Function
 
 
+
+    Public Shared Function _checkFirmware(ByVal serial As String, ByVal rev As String, ByVal path As String) As String
+      Return ""
+    End Function
+
+
+    Public Shared Function _flattenJsonStruct(current_settings As Byte()) As Byte()
+      Return Nothing
+    End Function
 
 
     Private Shared ReadOnly decexp() As Double = {
@@ -706,7 +719,7 @@ Module yocto_api
     End Function
 
     REM Convert standard double-precision floats to Yoctopuce 16-bit decimal floats
-    REM 
+    REM
     Public Shared Function _doubleToDecimal(ByVal val As Double) As Integer
       Dim negate As Integer = 0
       Dim comp As Double
@@ -782,6 +795,96 @@ Module yocto_api
     End Function
 
 
+    Public Shared Function _decodeFloats(ByVal sdat As String) As List(Of Integer)
+      Dim idat As New List(Of Integer)()
+      For p As Integer = 0 To sdat.Length - 1 Step 0
+        Dim val As Integer = 0
+        Dim sign As Integer = 1
+        Dim dec As Integer = 0
+        Dim decInc As Integer = 0
+        Dim c As Integer
+        c = Asc(sdat.Substring(p, 1))
+        p += 1
+        While c <> 45 And (c < 48 Or c > 57) REM 45='-', 48='0', 57='9'
+          If p > sdat.Length Then
+            Return idat
+          End If
+          c = Asc(sdat.Substring(p, 1))
+          p += 1
+        End While
+        If c = 45 Then REM 45='-'
+          If p > sdat.Length Then
+            Return idat
+          End If
+          sign = -sign
+          c = Asc(sdat.Substring(p, 1))
+          p += 1
+        End If
+        While (c >= 48 And c <= 57) Or c = 46 REM 48='0', 57='9', 46='.'
+          If c = 46 Then REM 46='.'
+            decInc = 1
+          Else
+            val = val * 10 + c - 48 REM 48='0'
+            dec += decInc
+          End If
+          If p < sdat.Length Then
+            c = Asc(sdat.Substring(p, 1))
+            p += 1
+          Else
+            c = 0
+          End If
+        End While
+        If dec < 3 Then
+          If dec = 0 Then
+            val *= 1000
+          ElseIf dec = 1 Then
+            val *= 100
+          Else
+            val *= 10
+          End If
+        End If
+        idat.Add(sign * val)
+      Next p
+      Return idat
+    End Function
+
+    Public Shared Function _floatToStr(ByVal value As Double) As String
+      Dim res As String = ""
+      Dim rounded As Integer
+      Dim decim As Integer
+
+      rounded = CInt(Math.Round(value * 1000))
+      If (rounded < 0) Then
+        res = "-"
+        rounded = -rounded
+      End If
+      res += Convert.ToString(rounded \ 1000)
+      decim = rounded Mod 1000
+      If decim > 0 Then
+        res += "."
+        If (decim < 100) Then res += "0"
+        If (decim < 10) Then res += "0"
+        If (decim Mod 10) = 0 Then decim \= 10
+        If (decim Mod 10) = 0 Then decim \= 10
+        res += Convert.ToString(decim)
+      End If
+      Return res
+    End Function
+
+    Public Shared Function _boolToStr(b As Boolean) As String
+      If b Then Return "1" Else Return "0"
+    End Function
+
+    Public Shared Function _intToHex(h As Integer, width As Integer) As String
+      Dim res As String
+      res = h.ToString("X")
+      While (Len(res) < width)
+        res = "0" + res
+      End While
+      Return res
+    End Function
+
+
     Public Shared Sub RegisterCalibrationHandler(ByVal calibType As Integer, ByVal callback As yCalibrationHandler)
 
       Dim key As String
@@ -795,14 +898,18 @@ Module yocto_api
       Dim x, adj As Double
       Dim x2, adj2 As Double
 
-
-      npt = calibType Mod 10
       x = rawValues(0)
       adj = refValues(0) - x
       i = 0
 
-      If (npt > rawValues.Count) Then npt = rawValues.Count
-      If (npt > refValues.Count) Then npt = refValues.Count + 1
+      If (calibType < YOCTO_CALIB_TYPE_OFS) Then
+        npt = calibType Mod 10
+        If (npt > rawValues.Count) Then npt = rawValues.Count
+        If (npt > refValues.Count) Then npt = refValues.Count
+      Else
+        npt = refValues.Count
+      End If
+
       While ((rawValue > rawValues(i)) And (i + 1 < npt))
         i = i + 1
         x2 = x
@@ -921,6 +1028,7 @@ Module yocto_api
       For i = 1 To 20
         RegisterCalibrationHandler(i, AddressOf yLinearCalibrationHandler)
       Next i
+      RegisterCalibrationHandler(YOCTO_CALIB_TYPE_OFS, AddressOf yLinearCalibrationHandler)
 
       apiInitialized = True
       InitAPI = res
@@ -986,7 +1094,7 @@ Module yocto_api
     '''   reach, the URL parameter should look like:
     ''' </para>
     ''' <para>
-    '''   <c>http://username:password@adresse:port</c>
+    '''   <c>http://username:password@address:port</c>
     ''' </para>
     ''' <para>
     '''   You can call <i>RegisterHub</i> several times to connect to several machines.
@@ -1530,7 +1638,7 @@ Module yocto_api
   REM --- (generated code: YFunction globals)
 
   REM Yoctopuce error codes, also used by default as function return value
-  Public Const YAPI_SUCCESS As Integer = 0         REM everything worked allright
+  Public Const YAPI_SUCCESS As Integer = 0         REM everything worked all right
   Public Const YAPI_NOT_INITIALIZED As Integer = -1 REM call yInitAPI() first !
   Public Const YAPI_INVALID_ARGUMENT As Integer = -2 REM one of the arguments passed to the function is invalid
   Public Const YAPI_NOT_SUPPORTED As Integer = -3  REM the operation attempted is (currently) not supported
@@ -1540,10 +1648,11 @@ Module yocto_api
   Public Const YAPI_TIMEOUT As Integer = -7        REM the device took too long to provide an answer
   Public Const YAPI_IO_ERROR As Integer = -8       REM there was an I/O problem while talking to the device
   Public Const YAPI_NO_MORE_DATA As Integer = -9   REM there is no more data to read from
-  Public Const YAPI_EXHAUSTED As Integer = -10     REM you have run out of a limited ressource, check the documentation
-  Public Const YAPI_DOUBLE_ACCES As Integer = -11  REM you have two process that try to acces to the same device
+  Public Const YAPI_EXHAUSTED As Integer = -10     REM you have run out of a limited resource, check the documentation
+  Public Const YAPI_DOUBLE_ACCES As Integer = -11  REM you have two process that try to access to the same device
   Public Const YAPI_UNAUTHORIZED As Integer = -12  REM unauthorized access to password-protected device
   Public Const YAPI_RTC_NOT_READY As Integer = -13 REM real-time clock has not been initialized (or time was lost)
+  Public Const YAPI_FILE_NOT_FOUND As Integer = -14 REM the file is not found
 
   Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
@@ -1571,10 +1680,7 @@ Module yocto_api
   Public Const Y_UPTIME_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_USBCURRENT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_REBOOTCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
-  Public Const Y_USBBANDWIDTH_SIMPLE As Integer = 0
-  Public Const Y_USBBANDWIDTH_DOUBLE As Integer = 1
-  Public Const Y_USBBANDWIDTH_INVALID As Integer = -1
-
+  Public Const Y_USERVAR_INVALID As Integer = YAPI.INVALID_INT
   Public Delegate Sub YModuleLogCallback(ByVal modul As YModule, ByVal logline As String)
   Public Delegate Sub YModuleValueCallback(ByVal func As YModule, ByVal value As String)
   Public Delegate Sub YModuleTimedReportCallback(ByVal func As YModule, ByVal measure As YMeasure)
@@ -1594,6 +1700,10 @@ Module yocto_api
   Public Delegate Sub YSensorValueCallback(ByVal func As YSensor, ByVal value As String)
   Public Delegate Sub YSensorTimedReportCallback(ByVal func As YSensor, ByVal measure As YMeasure)
   REM --- (end of generated code: YSensor globals)
+
+  REM --- (generated code: YFirmwareUpdate globals)
+
+  REM --- (end of generated code: YFirmwareUpdate globals)
 
   REM --- (generated code: YDataStream globals)
 
@@ -1674,6 +1784,134 @@ Module yocto_api
 
 
 
+  REM --- (generated code: YFirmwareUpdate class start)
+
+  '''*
+  ''' <summary>
+  '''   The YFirmwareUpdate class let you control the firmware update of a Yoctopuce
+  '''   module.
+  ''' <para>
+  '''   This class should not be instantiate directly, instead the method
+  '''   <c>updateFirmware</c> should be called to get an instance of YFirmwareUpdate.
+  ''' </para>
+  ''' </summary>
+  '''/
+  Public Class YFirmwareUpdate
+    REM --- (end of generated code: YFirmwareUpdate class start)
+    REM --- (generated code: YFirmwareUpdate definitions)
+    REM --- (end of generated code: YFirmwareUpdate definitions)
+    Public Const DATA_INVALID As Double = YAPI.INVALID_DOUBLE
+
+    REM --- (generated code: YFirmwareUpdate attributes declaration)
+    Protected _serial As String
+    Protected _settings As Byte()
+    Protected _firmwarepath As String
+    Protected _progress_msg As String
+    Protected _progress As Integer
+    REM --- (end of generated code: YFirmwareUpdate attributes declaration)
+
+    Public Sub New(serial As String, path As String, settings As Byte())
+      _serial = serial
+      _firmwarepath = path
+      _settings = settings
+      REM --- (generated code: YFirmwareUpdate attributes initialization)
+      _progress = 0
+      REM --- (end of generated code: YFirmwareUpdate attributes initialization)
+    End Sub
+
+
+    REM --- (generated code: YFirmwareUpdate private methods declaration)
+
+    REM --- (end of generated code: YFirmwareUpdate private methods declaration)
+
+    REM --- (generated code: YFirmwareUpdate public methods declaration)
+    Public Overridable Function _processMore(newupdate As Integer) As Integer
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim res As Integer = 0
+      Dim serial As String
+      Dim firmwarepath As String
+      Dim settings As String
+      serial = Me._serial
+      firmwarepath = Me._firmwarepath
+      settings = YAPI.DefaultEncoding.GetString(Me._settings)
+      res = _yapiUpdateFirmware(new StringBuilder(serial), new StringBuilder(firmwarepath), new StringBuilder(settings), newupdate, errmsg)
+      Me._progress = res
+      Me._progress_msg = errmsg.ToString()
+      Return res
+    End Function
+
+    Public Overridable Function get_progress() As Integer
+      Dim m As YModule
+      Me._processMore(0)
+      If ((Me._progress = 100) And ((Me._settings).Length <> 0)) Then
+        m = YModule.FindModule(Me._serial)
+        If (m.isOnline()) Then
+          REM
+          m.set_allSettings(Me._settings)
+          ReDim Me._settings(0-1)
+        End If
+      End If
+      Return Me._progress
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the last progress message of the firmware update process.
+    ''' <para>
+    '''   If an error occur during the
+    '''   firmware update process the error message is returned
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an string  with the last progress message, or the error message.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_progressMessage() As String
+      Return Me._progress_msg
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Start the firmware update process.
+    ''' <para>
+    '''   This method start the firmware update process in background. This method
+    '''   return immediately. The progress of the firmware update can be monitored with methods <c>get_progress()</c>
+    '''   and <c>get_progressMessage()</c>.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer in the range 0 to 100 (percentage of completion),
+    '''   or a negative error code in case of failure.
+    ''' </returns>
+    ''' <para>
+    '''   On failure returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function startUpdate() As Integer
+      Me._processMore(1)
+      Return Me._progress
+    End Function
+
+
+
+    REM --- (end of generated code: YFirmwareUpdate public methods declaration)
+
+
+  End Class
+
+  REM --- (generated code: FirmwareUpdate functions)
+
+
+  REM --- (end of generated code: FirmwareUpdate functions)
+
+
+
+
+
   REM --- (generated code: YDataStream class start)
 
   '''*
@@ -1710,6 +1948,7 @@ Module yocto_api
     Protected _isClosed As Boolean
     Protected _isAvg As Boolean
     Protected _isScal As Boolean
+    Protected _isScal32 As Boolean
     Protected _decimals As Integer
     Protected _offset As Double
     Protected _scale As Double
@@ -1723,7 +1962,7 @@ Module yocto_api
     Protected _calraw As List(Of Double)
     Protected _calref As List(Of Double)
     Protected _values As List(Of List(Of Double))
-    REM --- (end of generated code: YDataStream attributes declaration)    
+    REM --- (end of generated code: YDataStream attributes declaration)
     Protected _calhdl As yCalibrationHandler
 
     Public Sub New(parent As YFunction)
@@ -1775,77 +2014,7 @@ Module yocto_api
       _calref = New List(Of Double)()
       _values = New List(Of List(Of Double))()
       REM --- (end of generated code: YDataStream attributes initialization)
-      REM decode sequence header to extract data
-      _runNo = encoded.ElementAt(0) + (encoded.ElementAt(1) << 16)
-      _utcStamp = CUInt(encoded.ElementAt(2) + CUInt(encoded.ElementAt(3) << 16))
-      _isAvg = (encoded.ElementAt(4) And &H100) = 0
-      _samplesPerHour = encoded.ElementAt(4) And &HFF
-      If ((encoded.ElementAt(4) And &H100) <> 0) Then
-        _samplesPerHour *= 3600
-      ElseIf ((encoded.ElementAt(4) And &H200) <> 0) Then
-        _samplesPerHour *= 60
-      End If
-      _decimals = encoded.ElementAt(5)
-      _offset = encoded.ElementAt(5)
-      _scale = encoded.ElementAt(6)
-      _isScal = (_scale <> 0)
-      _isClosed = (encoded.ElementAt(7) <> &HFFFF)
-      If (_isClosed) Then
-        _nRows = encoded.ElementAt(7)
-      Else
-        _nRows = 0
-      End If
-      _duration = CInt((_nRows * 3600 + (_samplesPerHour / 2)) / _samplesPerHour)
-
-      REM precompute decoding parameters
-      _decexp = 1.0
-      For i As Integer = 0 To _decimals - 1 Step 1
-        _decexp *= 10.0
-      Next i
-      _columnNames = New List(Of String)()
-      _calpar = New List(Of Integer)()
-      _calraw = New List(Of Double)()
-      _calref = New List(Of Double)()
-      _values = New List(Of List(Of Double))()
-      Dim calib As List(Of Integer) = dataset.get_calibration()
-      _caltyp = calib.ElementAt(0)
-      If (_caltyp > 0) Then
-        _calhdl = YAPI._getCalibrationHandler(_caltyp)
-        For i As Integer = 1 To calib.Count - 1 Step 1
-          Dim ival As Integer = calib.ElementAt(i)
-          Dim fval As Double
-          If (_caltyp <= 10) Then
-            fval = (ival - _offset) / _scale
-          Else
-            fval = YAPI._decimalToDouble(ival)
-          End If
-          _calpar.Add(ival)
-          If ((i And 1) <> 0) Then
-            _calraw.Add(fval)
-          Else
-            _calref.Add(fval)
-          End If
-        Next i
-      End If
-
-      REM preload column names for backward-compatibility
-      _functionId = dataset.get_functionId()
-      If (_isAvg) Then
-        _columnNames.Add(_functionId + "_min")
-        _columnNames.Add(_functionId + "_avg")
-        _columnNames.Add(_functionId + "_max")
-        _nCols = 3
-      Else
-        _columnNames.Add(_functionId)
-        _nCols = 1
-      End If
-
-      REM decode min/avg/max values for the sequence
-      If (_nRows > 0) Then
-        _minVal = _decodeVal(encoded.ElementAt(8))
-        _maxVal = _decodeVal(encoded.ElementAt(9))
-        _avgVal = _decodeAvg(encoded.ElementAt(10) + (encoded.ElementAt(11) << 16), _nRows)
-      End If
+      _initFromDataSet(dataset, encoded)
     End Sub
 
     REM --- (generated code: YDataStream private methods declaration)
@@ -1856,13 +2025,13 @@ Module yocto_api
     Public Overridable Function _initFromDataSet(dataset As YDataSet, encoded As List(Of Integer)) As Integer
       Dim val As Integer = 0
       Dim i As Integer = 0
+      Dim maxpos As Integer = 0
       Dim iRaw As Integer = 0
       Dim iRef As Integer = 0
       Dim fRaw As Double = 0
       Dim fRef As Double = 0
       Dim duration_float As Double = 0
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
-      
       REM // decode sequence header to extract data
       Me._runNo = encoded(0) + (((encoded(1)) << (16)))
       Me._utcStamp = encoded(2) + (((encoded(3)) << (16)))
@@ -1876,7 +2045,6 @@ Module yocto_api
           Me._samplesPerHour = Me._samplesPerHour * 60
         End If
       End If
-      
       val = encoded(5)
       If (val > 32767) Then
         val = val - 65536
@@ -1885,7 +2053,7 @@ Module yocto_api
       Me._offset = val
       Me._scale = encoded(6)
       Me._isScal = (Me._scale <> 0)
-      
+      Me._isScal32 = (encoded.Count >= 14)
       val = encoded(7)
       Me._isClosed = (val <> &Hffff)
       If (val = &Hffff) Then
@@ -1907,28 +2075,47 @@ Module yocto_api
       Me._caltyp = iCalib(0)
       If (Me._caltyp <> 0) Then
         Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
+        maxpos = iCalib.Count
         Me._calpar.Clear()
         Me._calraw.Clear()
         Me._calref.Clear()
-        i = 1
-        While (i + 1 < iCalib.Count)
-          iRaw = iCalib(i)
-          iRef = iCalib(i + 1)
-          Me._calpar.Add(iRaw)
-          Me._calpar.Add(iRef)
-          If (Me._isScal) Then
-            fRaw = iRaw
-            fRaw = (fRaw - Me._offset) / Me._scale
-            fRef = iRef
-            fRef = (fRef - Me._offset) / Me._scale
+        If (Me._isScal32) Then
+          i = 1
+          While (i < maxpos)
+            Me._calpar.Add(iCalib(i))
+            i = i + 1
+          End While
+          i = 1
+          While (i + 1 < maxpos)
+            fRaw = iCalib(i)
+            fRaw = fRaw / 1000.0
+            fRef = iCalib(i + 1)
+            fRef = fRef / 1000.0
             Me._calraw.Add(fRaw)
             Me._calref.Add(fRef)
-          Else
-            Me._calraw.Add(YAPI._decimalToDouble(iRaw))
-            Me._calref.Add(YAPI._decimalToDouble(iRef))
-          End If
-          i = i + 2
-        End While
+            i = i + 2
+          End While
+        Else
+          i = 1
+          While (i + 1 < maxpos)
+            iRaw = iCalib(i)
+            iRef = iCalib(i + 1)
+            Me._calpar.Add(iRaw)
+            Me._calpar.Add(iRef)
+            If (Me._isScal) Then
+              fRaw = iRaw
+              fRaw = (fRaw - Me._offset) / Me._scale
+              fRef = iRef
+              fRef = (fRef - Me._offset) / Me._scale
+              Me._calraw.Add(fRaw)
+              Me._calref.Add(fRef)
+            Else
+              Me._calraw.Add(YAPI._decimalToDouble(iRaw))
+              Me._calref.Add(YAPI._decimalToDouble(iRef))
+            End If
+            i = i + 2
+          End While
+        End If
       End If
       REM // preload column names for backward-compatibility
       Me._functionId = dataset.get_functionId()
@@ -1945,9 +2132,15 @@ Module yocto_api
       End If
       REM // decode min/avg/max values for the sequence
       If (Me._nRows > 0) Then
-        Me._minVal = Me._decodeVal(encoded(8))
-        Me._maxVal = Me._decodeVal(encoded(9))
-        Me._avgVal = Me._decodeAvg(encoded(10) + (((encoded(11)) << (16))), Me._nRows)
+        If (Me._isScal32) Then
+          Me._avgVal = Me._decodeAvg(encoded(8) + (((((encoded(9)) Xor (&H8000))) << (16))), 1)
+          Me._minVal = Me._decodeVal(encoded(10) + (((encoded(11)) << (16))))
+          Me._maxVal = Me._decodeVal(encoded(12) + (((encoded(13)) << (16))))
+        Else
+          Me._minVal = Me._decodeVal(encoded(8))
+          Me._maxVal = Me._decodeVal(encoded(9))
+          Me._avgVal = Me._decodeAvg(encoded(10) + (((encoded(11)) << (16))), Me._nRows)
+        End If
       End If
       Return 0
     End Function
@@ -1963,14 +2156,21 @@ Module yocto_api
       If (Me._isAvg) Then
         While (idx + 3 < udat.Count)
           dat.Clear()
-          dat.Add(Me._decodeVal(udat(idx)))
-          dat.Add(Me._decodeAvg(udat(idx + 2) + (((udat(idx + 3)) << (16))), 1))
-          dat.Add(Me._decodeVal(udat(idx + 1)))
+          If (Me._isScal32) Then
+            dat.Add(Me._decodeVal(udat(idx + 2) + (((udat(idx + 3)) << (16)))))
+            dat.Add(Me._decodeAvg(udat(idx) + (((((udat(idx + 1)) Xor (&H8000))) << (16))), 1))
+            dat.Add(Me._decodeVal(udat(idx + 4) + (((udat(idx + 5)) << (16)))))
+            idx = idx + 6
+          Else
+            dat.Add(Me._decodeVal(udat(idx)))
+            dat.Add(Me._decodeAvg(udat(idx + 2) + (((udat(idx + 3)) << (16))), 1))
+            dat.Add(Me._decodeVal(udat(idx + 1)))
+            idx = idx + 4
+          End If
           Me._values.Add(New List(Of Double)(dat))
-          idx = idx + 4
         End While
       Else
-        If (Me._isScal) Then
+        If (Me._isScal And Not (Me._isScal32)) Then
           While (idx < udat.Count)
             dat.Clear()
             dat.Add(Me._decodeVal(udat(idx)))
@@ -1980,7 +2180,7 @@ Module yocto_api
         Else
           While (idx + 1 < udat.Count)
             dat.Clear()
-            dat.Add(Me._decodeAvg(udat(idx) + (((udat(idx + 1)) << (16))), 1))
+            dat.Add(Me._decodeAvg(udat(idx) + (((((udat(idx + 1)) Xor (&H8000))) << (16))), 1))
             Me._values.Add(New List(Of Double)(dat))
             idx = idx + 2
           End While
@@ -2006,10 +2206,14 @@ Module yocto_api
     Public Overridable Function _decodeVal(w As Integer) As Double
       Dim val As Double = 0
       val = w
-      If (Me._isScal) Then
-        val = (val - Me._offset) / Me._scale
+      If (Me._isScal32) Then
+        val = val / 1000.0
       Else
-        val = YAPI._decimalToDouble(w)
+        If (Me._isScal) Then
+          val = (val - Me._offset) / Me._scale
+        Else
+          val = YAPI._decimalToDouble(w)
+        End If
       End If
       If (Me._caltyp <> 0) Then
         val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
@@ -2020,10 +2224,14 @@ Module yocto_api
     Public Overridable Function _decodeAvg(dw As Integer, count As Integer) As Double
       Dim val As Double = 0
       val = dw
-      If (Me._isScal) Then
-        val = (val / (100 * count) - Me._offset) / Me._scale
+      If (Me._isScal32) Then
+        val = val / 1000.0
       Else
-        val = val / (count * Me._decexp)
+        If (Me._isScal) Then
+          val = (val / (100 * count) - Me._offset) / Me._scale
+        Else
+          val = val / (count * Me._decexp)
+        End If
       End If
       If (Me._caltyp <> 0) Then
         val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
@@ -2387,6 +2595,7 @@ Module yocto_api
 
 
 
+
   REM --- (generated code: YMeasure class start)
 
   '''*
@@ -2559,7 +2768,7 @@ Module yocto_api
   ''' <para>
   '''   They can be used
   '''   to load data points with a progress report. When the YDataSet object is
-  '''   instanciated by the <c>get_recordedData()</c>  function, no data is
+  '''   instantiated by the <c>get_recordedData()</c>  function, no data is
   '''   yet loaded from the module. It is only when the <c>loadMore()</c>
   '''   method is called over and over than data will be effectively loaded
   '''   from the dataLogger.
@@ -2638,6 +2847,7 @@ Module yocto_api
 
     Protected Function _parse(data As String) As Integer
       Dim p As TJsonParser
+      Dim obj As Object
       Dim node As TJSONRECORD
       Dim arr As TJSONRECORD
       Dim stream As YDataStream
@@ -2645,8 +2855,8 @@ Module yocto_api
       Dim summaryMaxVal As Double = -Double.MaxValue
       Dim summaryTotalTime As Double = 0
       Dim summaryTotalAvg As Double = 0
-      Dim startTime As UInt32
-      Dim endtime As UInt32
+      Dim startTime As Long
+      Dim endtime As Long
 
       If Not (YAPI.ExceptionsDisabled) Then
         p = New TJsonParser(data, False)
@@ -2664,8 +2874,15 @@ Module yocto_api
       _functionId = node.svalue
       node = CType(p.GetChildNode(Nothing, "unit"), TJSONRECORD)
       _unit = node.svalue
-      node = CType(p.GetChildNode(Nothing, "cal"), TJSONRECORD)
-      _calib = YAPI._decodeWords(node.svalue)
+      obj = p.GetChildNode(Nothing, "calib")
+      If (Not (obj Is Nothing)) Then
+        node = CType(obj, TJSONRECORD)
+        _calib = YAPI._decodeFloats(node.svalue)
+        _calib(0) = _calib(0) \ 1000
+      Else
+        node = CType(p.GetChildNode(Nothing, "cal"), TJSONRECORD)
+        _calib = YAPI._decodeWords(node.svalue)
+      End If
       arr = CType(p.GetChildNode(Nothing, "streams"), TJSONRECORD)
       _streams = New List(Of YDataStream)()
       _preview = New List(Of YMeasure)()
@@ -2700,8 +2917,8 @@ Module yocto_api
       If (_streams.Count > 0) And (summaryTotalTime > 0) Then
         REM update time boundaries with actual data
         stream = _streams.ElementAt(_streams.Count - 1)
-        endtime = CUInt(stream.get_startTimeUTC() + stream.get_duration())
-        startTime = CUInt((_streams.ElementAt(0).get_startTimeUTC() - stream.get_dataSamplesIntervalMs() / 1000))
+        endtime = stream.get_startTimeUTC() + stream.get_duration()
+        startTime = _streams.ElementAt(0).get_startTimeUTC() - CLng(stream.get_dataSamplesIntervalMs() / 1000)
         If (_startTime < startTime) Then
           _startTime = startTime
         End If
@@ -2728,7 +2945,7 @@ Module yocto_api
     End Function
 
     Public Overridable Function processMore(progress As Integer, data As Byte()) As Integer
-        Dim i_i As Integer
+      Dim i_i As Integer
       Dim stream As YDataStream
       Dim dataRows As List(Of List(Of Double)) = New List(Of List(Of Double))()
       Dim strdata As String
@@ -2759,6 +2976,9 @@ Module yocto_api
       End If
       tim = CType(stream.get_startTimeUTC(), Double)
       itv = stream.get_dataSamplesInterval()
+      If (tim < itv) Then
+        tim = itv
+      End If
       nCols = dataRows(0).Count
       minCol = 0
       If (nCols > 2) Then
@@ -2775,8 +2995,8 @@ Module yocto_api
       For i_i = 0 To dataRows.Count - 1
         If ((tim >= Me._startTime) And ((Me._endTime = 0) Or (tim <= Me._endTime))) Then
           Me._measures.Add(New YMeasure(tim - itv, tim, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
-          tim = tim + itv
         End If
+        tim = tim + itv
       Next i_i
       
       Return Me.get_progress()
@@ -2903,7 +3123,7 @@ Module yocto_api
     '''   Returns the progress of the downloads of the measures from the data logger,
     '''   on a scale from 0 to 100.
     ''' <para>
-    '''   When the object is instanciated by <c>get_dataSet</c>,
+    '''   When the object is instantiated by <c>get_dataSet</c>,
     '''   the progress is zero. Each time <c>loadMore()</c> is invoked, the progress
     '''   is updated, to reach the value 100 only once all measures have been loaded.
     ''' </para>
@@ -3296,7 +3516,7 @@ Module yocto_api
           Exit Function
         End If
 
-        count = CInt(neededsize / Marshal.SizeOf(i))  REM  i is an 32 bits integer 
+        count = CInt(neededsize / Marshal.SizeOf(i))  REM  i is an 32 bits integer
         ReDim Preserve ids(count)
         Marshal.Copy(p, ids, 0, count)
         For i = 0 To count - 1
@@ -4259,7 +4479,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a number corresponding to the code of the latest error that occured while
+    '''   a number corresponding to the code of the latest error that occurred while
     '''   using the function object
     ''' </returns>
     '''/
@@ -4371,10 +4591,10 @@ Module yocto_api
       Dim p As TJsonParser
 
       If Not (YAPI.ExceptionsDisabled) Then
-        p = New TJsonParser(st)
+        p = New TJsonParser(st, False)
       Else
         Try
-          p = New TJsonParser(st)
+          p = New TJsonParser(st, False)
         Catch E As Exception
           Return Nothing
           Exit Function
@@ -4402,7 +4622,7 @@ Module yocto_api
     '''   By default, whenever accessing a device, all function attributes
     '''   are kept in cache for the standard duration (5 ms). This method can be
     '''   used to temporarily mark the cache as valid for a longer period, in order
-    '''   to reduce network trafic for instance.
+    '''   to reduce network traffic for instance.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -4674,10 +4894,7 @@ Module yocto_api
     Public Const UPTIME_INVALID As Long = YAPI.INVALID_LONG
     Public Const USBCURRENT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const REBOOTCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
-    Public Const USBBANDWIDTH_SIMPLE As Integer = 0
-    Public Const USBBANDWIDTH_DOUBLE As Integer = 1
-    Public Const USBBANDWIDTH_INVALID As Integer = -1
-
+    Public Const USERVAR_INVALID As Integer = YAPI.INVALID_INT
     REM --- (end of generated code: YModule definitions)
 
     REM --- (generated code: YModule attributes declaration)
@@ -4692,7 +4909,7 @@ Module yocto_api
     Protected _upTime As Long
     Protected _usbCurrent As Integer
     Protected _rebootCountdown As Integer
-    Protected _usbBandwidth As Integer
+    Protected _userVar As Integer
     Protected _valueCallbackModule As YModuleValueCallback
     Protected _logCallback As YModuleLogCallback
     REM --- (end of generated code: YModule attributes declaration)
@@ -4712,7 +4929,7 @@ Module yocto_api
       _upTime = UPTIME_INVALID
       _usbCurrent = USBCURRENT_INVALID
       _rebootCountdown = REBOOTCOUNTDOWN_INVALID
-      _usbBandwidth = USBBANDWIDTH_INVALID
+      _userVar = USERVAR_INVALID
       _valueCallbackModule = Nothing
       _logCallback = Nothing
       REM --- (end of generated code: YModule attributes initialization)
@@ -4765,8 +4982,8 @@ Module yocto_api
         _rebootCountdown = CInt(member.ivalue)
         Return 1
       End If
-      If (member.name = "usbBandwidth") Then
-        _usbBandwidth = CInt(member.ivalue)
+      If (member.name = "userVar") Then
+        _userVar = CInt(member.ivalue)
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -4829,7 +5046,7 @@ Module yocto_api
       Dim fundescr As YFUN_DESCR
       Dim devdescr As YDEV_DESCR
 
-      REM retrieve device object 
+      REM retrieve device object
       res = _getDevice(dev, errmsg)
       If (YISERR(res)) Then
         _throw(res, errmsg)
@@ -5371,29 +5588,56 @@ Module yocto_api
     End Function
     '''*
     ''' <summary>
-    '''   Returns the number of USB interfaces used by the module.
+    '''   Returns the value previously stored in this attribute.
     ''' <para>
+    '''   On startup and after a device reboot, the value is always reset to zero.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_USBBANDWIDTH_SIMPLE</c> or <c>Y_USBBANDWIDTH_DOUBLE</c>, according to the number of USB
-    '''   interfaces used by the module
+    '''   an integer corresponding to the value previously stored in this attribute
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_USBBANDWIDTH_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_USERVAR_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_usbBandwidth() As Integer
+    Public Function get_userVar() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return USBBANDWIDTH_INVALID
+          Return USERVAR_INVALID
         End If
       End If
-      Return Me._usbBandwidth
+      Return Me._userVar
     End Function
 
+
+    '''*
+    ''' <summary>
+    '''   Returns the value previously stored in this attribute.
+    ''' <para>
+    '''   On startup and after a device reboot, the value is always reset to zero.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_userVar(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("userVar", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Allows you to find a module from its serial number or from its logical name.
@@ -5552,6 +5796,668 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Test if the byn file is valid for this module.
+    ''' <para>
+    '''   This method is useful to test if the module need to be updated.
+    '''   It's possible to pass an directory instead of a file. In this case this method return the path of
+    '''   the most recent
+    '''   appropriate byn file. If the parameter onlynew is true the function will discard firmware that are
+    '''   older or equal to
+    '''   the installed firmware.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="path">
+    '''   the path of a byn file or a directory that contain byn files
+    ''' </param>
+    ''' <param name="onlynew">
+    '''   return only files that are strictly newer
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   : the path of the byn file to use or a empty string if no byn files match the requirement
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a string that start with "error:".
+    ''' </para>
+    '''/
+    Public Overridable Function checkFirmware(path As String, onlynew As Boolean) As String
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim smallbuff As StringBuilder = New StringBuilder(1024)
+      Dim bigbuff As StringBuilder
+      Dim buffsize As Integer = 0
+      Dim fullsize As Integer
+      Dim res As Integer = 0
+      Dim firmware_path As String
+      Dim serial As String
+      Dim release As String
+      If (onlynew) Then
+        release = Me.get_firmwareRelease()
+      Else
+        release = ""
+      End If
+      REM //may throw an exception
+      serial = Me._serial
+      fullsize = 0
+      res = _yapiCheckFirmware(new StringBuilder(serial), new StringBuilder(release), new StringBuilder(path), smallbuff, 1024, fullsize, errmsg)
+      If (res < 0) Then
+        firmware_path = "error:" + errmsg.ToString()
+        Return "error:" + errmsg.ToString()
+      End If
+      If (fullsize <= 1024) Then
+        firmware_path = smallbuff.ToString()
+      Else
+        buffsize = fullsize
+        bigbuff = New StringBuilder(buffsize)
+        res = _yapiCheckFirmware(new StringBuilder(serial), new StringBuilder(release), new StringBuilder(path), bigbuff, buffsize, fullsize, errmsg)
+        If (res < 0) Then
+          Me._throw(YAPI.INVALID_ARGUMENT, errmsg.ToString())
+          firmware_path = "error:" + errmsg.ToString()
+        Else
+          firmware_path = bigbuff.ToString()
+        End If
+        bigbuff = Nothing
+      End If
+      Return firmware_path
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Prepare a firmware upgrade of the module.
+    ''' <para>
+    '''   This method return a object <c>YFirmwareUpdate</c> which
+    '''   will handle the firmware upgrade process.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="path">
+    '''   the path of the byn file to use.
+    ''' </param>
+    ''' <returns>
+    '''   : A object <c>YFirmwareUpdate</c>.
+    ''' </returns>
+    '''/
+    Public Overridable Function updateFirmware(path As String) As YFirmwareUpdate
+      Dim serial As String
+      Dim settings As Byte()
+      REM // may throw an exception
+      serial = Me.get_serialNumber()
+      settings = Me.get_allSettings()
+      Return New YFirmwareUpdate(serial, path, settings)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns all the setting of the module.
+    ''' <para>
+    '''   Useful to backup all the logical name and calibrations parameters
+    '''   of a connected module.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a binary buffer with all settings.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns  <c>YAPI_INVALID_STRING</c>.
+    ''' </para>
+    '''/
+    Public Overridable Function get_allSettings() As Byte()
+      REM // may throw an exception
+      Return Me._download("api.json")
+    End Function
+
+    Public Overridable Function _flattenJsonStruct(jsoncomplex As Byte()) As Byte()
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim smallbuff As StringBuilder = New StringBuilder(1024)
+      Dim bigbuff As StringBuilder
+      Dim buffsize As Integer = 0
+      Dim fullsize As Integer
+      Dim res As Integer = 0
+      Dim jsonflat As String
+      Dim jsoncomplexstr As String
+      fullsize = 0
+      jsoncomplexstr = YAPI.DefaultEncoding.GetString(jsoncomplex)
+      res = _yapiGetAllJsonKeys(new StringBuilder(jsoncomplexstr), smallbuff, 1024, fullsize, errmsg)
+      If (res < 0) Then
+        Me._throw(YAPI.INVALID_ARGUMENT, errmsg.ToString())
+        jsonflat = "error:" + errmsg.ToString()
+        Return YAPI.DefaultEncoding.GetBytes(jsonflat)
+      End If
+      If (fullsize <= 1024) Then
+        jsonflat = smallbuff.ToString()
+      Else
+        buffsize = fullsize
+        bigbuff = New StringBuilder(buffsize)
+        res = _yapiGetAllJsonKeys(new StringBuilder(jsoncomplexstr), bigbuff, buffsize, fullsize, errmsg)
+        If (res < 0) Then
+          Me._throw(YAPI.INVALID_ARGUMENT, errmsg.ToString())
+          jsonflat = "error:" + errmsg.ToString()
+        Else
+          jsonflat = bigbuff.ToString()
+        End If
+        bigbuff = Nothing
+      End If
+      Return YAPI.DefaultEncoding.GetBytes(jsonflat)
+    End Function
+
+    Public Overridable Function calibVersion(cparams As String) As Integer
+      If (cparams = "0,") Then
+        Return 3
+      End If
+      If (cparams.IndexOf(",") >= 0) Then
+        If (cparams.IndexOf(" ") > 0) Then
+          Return 3
+        Else
+          Return 1
+        End If
+      End If
+      If (cparams = "" Or cparams = "0") Then
+        Return 1
+      End If
+      If (((cparams).Length < 2) Or (cparams.IndexOf(".") >= 0)) Then
+        Return 0
+      Else
+        Return 2
+      End If
+    End Function
+
+    Public Overridable Function calibScale(unit_name As String, sensorType As String) As Integer
+      If (unit_name = "g" Or unit_name = "gauss" Or unit_name = "W") Then
+        Return 1000
+      End If
+      If (unit_name = "C") Then
+        If (sensorType = "") Then
+          Return 16
+        End If
+        If (Convert.ToInt32(sensorType) < 8) Then
+          Return 16
+        Else
+          Return 100
+        End If
+      End If
+      If (unit_name = "m" Or unit_name = "deg") Then
+        Return 10
+      End If
+      Return 1
+    End Function
+
+    Public Overridable Function calibOffset(unit_name As String) As Integer
+      If (unit_name = "% RH" Or unit_name = "mbar" Or unit_name = "lx") Then
+        Return 0
+      End If
+      Return 32767
+    End Function
+
+    Public Overridable Function calibConvert(param As String, calibrationParam As String, unit_name As String, sensorType As String) As String
+      Dim i_i As Integer
+      Dim paramVer As Integer = 0
+      Dim funVer As Integer = 0
+      Dim funScale As Integer = 0
+      Dim funOffset As Integer = 0
+      Dim paramScale As Integer = 0
+      Dim paramOffset As Integer = 0
+      Dim words As List(Of Integer) = New List(Of Integer)()
+      Dim words_str As List(Of String) = New List(Of String)()
+      Dim calibData As List(Of Double) = New List(Of Double)()
+      Dim iCalib As List(Of Integer) = New List(Of Integer)()
+      Dim calibType As Integer = 0
+      Dim i As Integer = 0
+      Dim maxSize As Integer = 0
+      Dim ratio As Double = 0
+      Dim nPoints As Integer = 0
+      Dim wordVal As Double = 0
+      REM // Initial guess for parameter encoding
+      paramVer = Me.calibVersion(param)
+      funVer = Me.calibVersion(calibrationParam)
+      funScale = Me.calibScale(unit_name, sensorType)
+      funOffset = Me.calibOffset(unit_name)
+      paramScale = funScale
+      paramOffset = funOffset
+      If (funVer < 3) Then
+        REM
+        If (funVer = 2) Then
+          words = YAPI._decodeWords(calibrationParam)
+          If ((words(0) = 1366) And (words(1) = 12500)) Then
+            REM
+            funScale = 1
+            funOffset = 0
+          Else
+            funScale = words(1)
+            funOffset = words(0)
+          End If
+        Else
+          If (funVer = 1) Then
+            If (calibrationParam = "" Or (Convert.ToInt32(calibrationParam) > 10)) Then
+              funScale = 0
+            End If
+          End If
+        End If
+      End If
+      calibData.Clear()
+      calibType = 0
+      If (paramVer < 3) Then
+        REM
+        If (paramVer = 2) Then
+          words = YAPI._decodeWords(param)
+          If ((words(0) = 1366) And (words(1) = 12500)) Then
+            REM
+            paramScale = 1
+            paramOffset = 0
+          Else
+            paramScale = words(1)
+            paramOffset = words(0)
+          End If
+          If ((words.Count >= 3) And (words(2) > 0)) Then
+            maxSize = 3 + 2 * ((words(2)) Mod (10))
+            If (maxSize > words.Count) Then
+              maxSize = words.Count
+            End If
+            i = 3
+            While (i < maxSize)
+              calibData.Add(CType(words(i), Double))
+              i = i + 1
+            End While
+          End If
+        Else
+          If (paramVer = 1) Then
+            words_str = new List(Of String)(param.Split(new Char() {","c}))
+            For i_i = 0 To words_str.Count - 1
+              words.Add(Convert.ToInt32(words_str(i_i)))
+            Next i_i
+            If (param = "" Or (words(0) > 10)) Then
+              paramScale = 0
+            End If
+            If ((words.Count > 0) And (words(0) > 0)) Then
+              maxSize = 1 + 2 * ((words(0)) Mod (10))
+              If (maxSize > words.Count) Then
+                maxSize = words.Count
+              End If
+              i = 1
+              While (i < maxSize)
+                calibData.Add(CType(words(i), Double))
+                i = i + 1
+              End While
+            End If
+          Else
+            If (paramVer = 0) Then
+              ratio = Double.Parse(param)
+              If (ratio > 0) Then
+                calibData.Add(0.0)
+                calibData.Add(0.0)
+                calibData.Add(Math.Round(65535 / ratio))
+                calibData.Add(65535.0)
+              End If
+            End If
+          End If
+        End If
+        i = 0
+        While (i < calibData.Count)
+          If (paramScale > 0) Then
+            REM
+            calibData( i) = (calibData(i) - paramOffset) / paramScale
+          Else
+            REM
+            calibData( i) = YAPI._decimalToDouble(CType(Math.Round(calibData(i)), Integer))
+          End If
+          i = i + 1
+        End While
+      Else
+        REM
+        iCalib = YAPI._decodeFloats(param)
+        calibType = CType(Math.Round(iCalib(0) / 1000.0), Integer)
+        If (calibType >= 30) Then
+          calibType = calibType - 30
+        End If
+        i = 1
+        While (i < iCalib.Count)
+          calibData.Add(iCalib(i) / 1000.0)
+          i = i + 1
+        End While
+      End If
+      If (funVer >= 3) Then
+        REM
+        If (calibData.Count = 0) Then
+          param = "0,"
+        Else
+          param = (30 + calibType).ToString()
+          i = 0
+          While (i < calibData.Count)
+            If (((i) And (1)) > 0) Then
+              param = param + ":"
+            Else
+              param = param + " "
+            End If
+            param = param + (CType(Math.Round(calibData(i) * 1000.0 / 1000.0), Integer)).ToString()
+            i = i + 1
+          End While
+          param = param + ","
+        End If
+      Else
+        If (funVer >= 1) Then
+          REM
+          nPoints = (calibData.Count \ 2)
+          param = (nPoints).ToString()
+          i = 0
+          While (i < 2 * nPoints)
+            If (funScale = 0) Then
+              wordVal = YAPI._doubleToDecimal(CType(Math.Round(calibData(i)), Integer))
+            Else
+              wordVal = calibData(i) * funScale + funOffset
+            End If
+            param = param + "," + (Math.Round(wordVal)).ToString()
+            i = i + 1
+          End While
+        Else
+          REM
+          If (calibData.Count = 4) Then
+            param = (Math.Round(1000 * (calibData(3) - calibData(1)) / calibData(2) - calibData(0))).ToString()
+          End If
+        End If
+      End If
+      Return param
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Restore all the setting of the module.
+    ''' <para>
+    '''   Useful to restore all the logical name and calibrations parameters
+    '''   of a module from a backup.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="settings">
+    '''   a binary buffer with all settings.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function set_allSettings(settings As Byte()) As Integer
+      Dim i_i As Integer
+      Dim restoreLast As List(Of String) = New List(Of String)()
+      Dim old_json_flat As Byte()
+      Dim old_dslist As List(Of String) = New List(Of String)()
+      Dim old_jpath As List(Of String) = New List(Of String)()
+      Dim old_jpath_len As List(Of Integer) = New List(Of Integer)()
+      Dim old_val As List(Of String) = New List(Of String)()
+      Dim actualSettings As Byte()
+      Dim new_dslist As List(Of String) = New List(Of String)()
+      Dim new_jpath As List(Of String) = New List(Of String)()
+      Dim new_jpath_len As List(Of Integer) = New List(Of Integer)()
+      Dim new_val As List(Of String) = New List(Of String)()
+      Dim cpos As Integer = 0
+      Dim eqpos As Integer = 0
+      Dim leng As Integer = 0
+      Dim i As Integer = 0
+      Dim j As Integer = 0
+      Dim njpath As String
+      Dim jpath As String
+      Dim fun As String
+      Dim attr As String
+      Dim value As String
+      Dim url As String
+      Dim tmp As String
+      Dim new_calib As String
+      Dim sensorType As String
+      Dim unit_name As String
+      Dim newval As String
+      Dim old_calib As String
+      Dim do_update As Boolean
+      Dim found As Boolean
+      old_json_flat = Me._flattenJsonStruct(settings)
+      old_dslist = Me._json_get_array(old_json_flat)
+      
+      
+      
+      For i_i = 0 To old_dslist.Count - 1
+        REM
+        leng = (old_dslist(i_i)).Length
+        old_dslist(i_i) = (old_dslist(i_i)).Substring( 1, leng - 2)
+        REM
+        leng = (old_dslist(i_i)).Length
+        eqpos = old_dslist(i_i).IndexOf("=")
+        If ((eqpos < 0) Or (leng = 0)) Then
+          Me._throw(YAPI.INVALID_ARGUMENT, "Invalid settings")
+          Return YAPI.INVALID_ARGUMENT
+        End If
+        jpath = (old_dslist(i_i)).Substring( 0, eqpos)
+        eqpos = eqpos + 1
+        value = (old_dslist(i_i)).Substring( eqpos, leng - eqpos)
+        old_jpath.Add(jpath)
+        old_jpath_len.Add((jpath).Length)
+        old_val.Add(value)
+      Next i_i
+      
+      
+      
+      REM // may throw an exception
+      actualSettings = Me._download("api.json")
+      actualSettings = Me._flattenJsonStruct(actualSettings)
+      new_dslist = Me._json_get_array(actualSettings)
+      
+      
+      
+      For i_i = 0 To new_dslist.Count - 1
+        REM
+        leng = (new_dslist(i_i)).Length
+        new_dslist(i_i) = (new_dslist(i_i)).Substring( 1, leng - 2)
+        REM
+        leng = (new_dslist(i_i)).Length
+        eqpos = new_dslist(i_i).IndexOf("=")
+        If ((eqpos < 0) Or (leng = 0)) Then
+          Me._throw(YAPI.INVALID_ARGUMENT, "Invalid settings")
+          Return YAPI.INVALID_ARGUMENT
+        End If
+        jpath = (new_dslist(i_i)).Substring( 0, eqpos)
+        eqpos = eqpos + 1
+        value = (new_dslist(i_i)).Substring( eqpos, leng - eqpos)
+        new_jpath.Add(jpath)
+        new_jpath_len.Add((jpath).Length)
+        new_val.Add(value)
+      Next i_i
+      
+      
+      
+      
+      i = 0
+      While (i < new_jpath.Count)
+        njpath = new_jpath(i)
+        leng = (njpath).Length
+        cpos = njpath.IndexOf("/")
+        If ((cpos < 0) Or (leng = 0)) Then
+          Continue While
+        End If
+        fun = (njpath).Substring( 0, cpos)
+        cpos = cpos + 1
+        attr = (njpath).Substring( cpos, leng - cpos)
+        do_update = True
+        If (fun = "services") Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "firmwareRelease")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "usbCurrent")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "upTime")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "persistentSettings")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "adminPassword")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "userPassword")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "rebootCountdown")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "advertisedValue")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "poeCurrent")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "readiness")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "ipAddress")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "subnetMask")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "router")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "linkQuality")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "ssid")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "channel")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "security")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "message")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "currentValue")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "currentRawValue")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "currentRunIndex")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "pulseTimer")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "lastTimePressed")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "lastTimeReleased")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "filesCount")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "freeSpace")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "timeUTC")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "rtcTime")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "unixTime")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "dateTime")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "rawValue")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "lastMsg")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "delayedPulseTimer")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "rxCount")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "txCount")) Then
+          do_update = False
+        End If
+        If ((do_update) And (attr = "msgCount")) Then
+          do_update = False
+        End If
+        If (do_update) Then
+          If (attr = "calibrationParam") Then
+            old_calib = ""
+            unit_name = ""
+            sensorType = ""
+            new_calib = new_val(i)
+            j = 0
+            found = False
+            While ((j < old_jpath.Count) And Not (found))
+              If ((new_jpath_len(i) = old_jpath_len(j)) And (new_jpath(i) = old_jpath(j))) Then
+                found = True
+                old_calib = old_val(j)
+              End If
+              j = j + 1
+            End While
+            tmp = fun + "/unit"
+            j = 0
+            found = False
+            While ((j < new_jpath.Count) And Not (found))
+              If (tmp = new_jpath(j)) Then
+                found = True
+                unit_name = new_jpath(j)
+              End If
+              j = j + 1
+            End While
+            tmp = fun + "/sensorType"
+            j = 0
+            found = False
+            While ((j < new_jpath.Count) And Not (found))
+              If (tmp = new_jpath(j)) Then
+                found = True
+                sensorType = new_jpath(j)
+              End If
+              j = j + 1
+            End While
+            newval = Me.calibConvert(new_val(i), old_calib, unit_name, sensorType)
+            url = "api/" + fun + ".json?" + attr + "=" + newval
+            Me._download(url)
+          Else
+            j = 0
+            found = False
+            While ((j < old_jpath_len.Count) And Not (found))
+              If ((new_jpath_len(i) = old_jpath_len(j)) And (new_jpath(i) = old_jpath(j))) Then
+                found = True
+                url = "api/" + fun + ".json?" + attr + "=" + old_val(j)
+                If (attr = "resolution") Then
+                  restoreLast.Add(url)
+                Else
+                  Me._download(url)
+                End If
+              End If
+              j = j + 1
+            End While
+          End If
+        End If
+        i = i + 1
+      End While
+      
+      For i_i = 0 To restoreLast.Count - 1
+        Me._download(restoreLast(i_i))
+      Next i_i
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Downloads the specified built-in file and returns a binary buffer with its content.
     ''' <para>
     ''' </para>
@@ -5563,7 +6469,7 @@ Module yocto_api
     '''   a binary buffer with the file content
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns an empty content.
+    '''   On failure, throws an exception or returns  <c>YAPI_INVALID_STRING</c>.
     ''' </para>
     '''/
     Public Overridable Function download(pathname As String) As Byte()
@@ -5582,6 +6488,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a binary buffer with module icon, in png format.
+    '''   On failure, throws an exception or returns  <c>YAPI_INVALID_STRING</c>.
     ''' </returns>
     '''/
     Public Overridable Function get_icon2d() As Byte()
@@ -5601,6 +6508,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a string with last logs of the module.
+    '''   On failure, throws an exception or returns  <c>YAPI_INVALID_STRING</c>.
     ''' </returns>
     '''/
     Public Overridable Function get_lastLogs() As String
@@ -5778,6 +6686,7 @@ Module yocto_api
     Protected _scale As Double
     Protected _decexp As Double
     Protected _isScal As Boolean
+    Protected _isScal32 As Boolean
     Protected _caltyp As Integer
     Protected _calpar As List(Of Integer)
     Protected _calraw As List(Of Double)
@@ -5821,19 +6730,19 @@ Module yocto_api
         Return 1
       End If
       If (member.name = "currentValue") Then
-        _currentValue = member.ivalue / 65536.0
+        _currentValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "lowestValue") Then
-        _lowestValue = member.ivalue / 65536.0
+        _lowestValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "highestValue") Then
-        _highestValue = member.ivalue / 65536.0
+        _highestValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "currentRawValue") Then
-        _currentRawValue = member.ivalue / 65536.0
+        _currentRawValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "logFrequency") Then
@@ -5849,7 +6758,7 @@ Module yocto_api
         Return 1
       End If
       If (member.name = "resolution") Then
-        If (member.ivalue > 100) Then _resolution = 1.0 / Math.Round(65536.0 / member.ivalue) Else _resolution = 0.001 / Math.Round(67.0 / member.ivalue)
+        _resolution = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -5884,14 +6793,15 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the current value of the measure.
+    '''   Returns the current value of the measure, in the specified unit, as a floating point number.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the current value of the measure
+    '''   a floating point number corresponding to the current value of the measure, in the specified unit,
+    '''   as a floating point number
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_CURRENTVALUE_INVALID</c>.
@@ -6018,14 +6928,15 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the uncalibrated, unrounded raw value returned by the sensor.
+    '''   Returns the uncalibrated, unrounded raw value returned by the sensor, in the specified unit, as a floating point number.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the uncalibrated, unrounded raw value returned by the sensor
+    '''   a floating point number corresponding to the uncalibrated, unrounded raw value returned by the
+    '''   sensor, in the specified unit, as a floating point number
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_CURRENTRAWVALUE_INVALID</c>.
@@ -6326,103 +7237,136 @@ Module yocto_api
       Dim iRef As Integer = 0
       Dim fRaw As Double = 0
       Dim fRef As Double = 0
+      Me._caltyp = -1
+      Me._scale = -1
+      Me._isScal32 = False
+      Me._calpar.Clear()
+      Me._calraw.Clear()
+      Me._calref.Clear()
       REM // Store inverted resolution, to provide better rounding
       If (Me._resolution > 0) Then
         Me._iresol = Math.Round(1.0 / Me._resolution)
       Else
-        Return 0
+        Me._iresol = 10000
+        Me._resolution = 0.0001
       End If
-      
-      Me._scale = -1
-      Me._calpar.Clear()
-      Me._calraw.Clear()
-      Me._calref.Clear()
-      
       REM // Old format: supported when there is no calibration
       If (Me._calibrationParam = "" Or Me._calibrationParam = "0") Then
         Me._caltyp = 0
         Return 0
       End If
-      REM // Old format: calibrated value will be provided by the device
       If (Me._calibrationParam.IndexOf(",") >= 0) Then
-        Me._caltyp = -1
-        Return 0
-      End If
-      REM // New format, decode parameters
-      iCalib = YAPI._decodeWords(Me._calibrationParam)
-      REM // In case of unknown format, calibrated value will be provided by the device
-      If (iCalib.Count < 2) Then
-        Me._caltyp = -1
-        Return 0
-      End If
-      
-      REM // Save variable format (scale for scalar, or decimal exponent)
-      Me._isScal = (iCalib(1) > 0)
-      If (Me._isScal) Then
-        Me._offset = iCalib(0)
-        If (Me._offset > 32767) Then
-          Me._offset = Me._offset - 65536
+        REM
+        iCalib = YAPI._decodeFloats(Me._calibrationParam)
+        Me._caltyp = (iCalib(0) \ 1000)
+        If (Me._caltyp > 0) Then
+          If (Me._caltyp < YOCTO_CALIB_TYPE_OFS) Then
+            REM
+            Me._caltyp = -1
+            Return 0
+          End If
+          Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
+          If (Not (Not (Me._calhdl Is Nothing))) Then
+            REM
+            Me._caltyp = -1
+            Return 0
+          End If
         End If
-        Me._scale = iCalib(1)
-        Me._decexp = 0
-      Else
+        REM
+        Me._isScal = True
+        Me._isScal32 = True
         Me._offset = 0
-        Me._scale = 1
-        Me._decexp = 1.0
-        position = iCalib(0)
-        While (position > 0)
-          Me._decexp = Me._decexp * 10
-          position = position - 1
-        End While
-      End If
-      
-      REM // Shortcut when there is no calibration parameter
-      If (iCalib.Count = 2) Then
-        Me._caltyp = 0
-        Return 0
-      End If
-      
-      Me._caltyp = iCalib(2)
-      Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
-      REM // parse calibration points
-      position = 3
-      If (Me._caltyp <= 10) Then
-        maxpos = Me._caltyp
-      Else
-        If (Me._caltyp <= 20) Then
-          maxpos = Me._caltyp - 10
-        Else
-          maxpos = 5
-        End If
-      End If
-      maxpos = 3 + 2 * maxpos
-      If (maxpos > iCalib.Count) Then
+        Me._scale = 1000
         maxpos = iCalib.Count
-      End If
-      Me._calpar.Clear()
-      Me._calraw.Clear()
-      Me._calref.Clear()
-      While (position + 1 < maxpos)
-        iRaw = iCalib(position)
-        iRef = iCalib(position + 1)
-        Me._calpar.Add(iRaw)
-        Me._calpar.Add(iRef)
-        If (Me._isScal) Then
-          fRaw = iRaw
-          fRaw = (fRaw - Me._offset) / Me._scale
-          fRef = iRef
-          fRef = (fRef - Me._offset) / Me._scale
+        Me._calpar.Clear()
+        position = 1
+        While (position < maxpos)
+          Me._calpar.Add(iCalib(position))
+          position = position + 1
+        End While
+        Me._calraw.Clear()
+        Me._calref.Clear()
+        position = 1
+        While (position + 1 < maxpos)
+          fRaw = iCalib(position)
+          fRaw = fRaw / 1000.0
+          fRef = iCalib(position + 1)
+          fRef = fRef / 1000.0
           Me._calraw.Add(fRaw)
           Me._calref.Add(fRef)
-        Else
-          Me._calraw.Add(YAPI._decimalToDouble(iRaw))
-          Me._calref.Add(YAPI._decimalToDouble(iRef))
+          position = position + 2
+        End While
+      Else
+        REM
+        iCalib = YAPI._decodeWords(Me._calibrationParam)
+        REM
+        If (iCalib.Count < 2) Then
+          Me._caltyp = -1
+          Return 0
         End If
-        position = position + 2
-      End While
-      
-      
-      
+        REM
+        Me._isScal = (iCalib(1) > 0)
+        If (Me._isScal) Then
+          Me._offset = iCalib(0)
+          If (Me._offset > 32767) Then
+            Me._offset = Me._offset - 65536
+          End If
+          Me._scale = iCalib(1)
+          Me._decexp = 0
+        Else
+          Me._offset = 0
+          Me._scale = 1
+          Me._decexp = 1.0
+          position = iCalib(0)
+          While (position > 0)
+            Me._decexp = Me._decexp * 10
+            position = position - 1
+          End While
+        End If
+        REM
+        If (iCalib.Count = 2) Then
+          Me._caltyp = 0
+          Return 0
+        End If
+        Me._caltyp = iCalib(2)
+        Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
+        REM
+        If (Me._caltyp <= 10) Then
+          maxpos = Me._caltyp
+        Else
+          If (Me._caltyp <= 20) Then
+            maxpos = Me._caltyp - 10
+          Else
+            maxpos = 5
+          End If
+        End If
+        maxpos = 3 + 2 * maxpos
+        If (maxpos > iCalib.Count) Then
+          maxpos = iCalib.Count
+        End If
+        Me._calpar.Clear()
+        Me._calraw.Clear()
+        Me._calref.Clear()
+        position = 3
+        While (position + 1 < maxpos)
+          iRaw = iCalib(position)
+          iRef = iCalib(position + 1)
+          Me._calpar.Add(iRaw)
+          Me._calpar.Add(iRef)
+          If (Me._isScal) Then
+            fRaw = iRaw
+            fRaw = (fRaw - Me._offset) / Me._scale
+            fRef = iRef
+            fRef = (fRef - Me._offset) / Me._scale
+            Me._calraw.Add(fRaw)
+            Me._calref.Add(fRef)
+          Else
+            Me._calraw.Add(YAPI._decimalToDouble(iRaw))
+            Me._calref.Add(YAPI._decimalToDouble(iRef))
+          End If
+          position = position + 2
+        End While
+      End If
       Return 0
     End Function
 
@@ -6574,19 +7518,17 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function loadCalibrationPoints(rawValues As List(Of Double), refValues As List(Of Double)) As Integer
-        Dim i_i As Integer
+      Dim i_i As Integer
       rawValues.Clear()
       refValues.Clear()
-      
       REM // Load function parameters if not yet loaded
       If (Me._scale = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return YAPI.DEVICE_NOT_FOUND
         End If
       End If
-      
       If (Me._caltyp < 0) Then
-        Me._throw(YAPI.NOT_SUPPORTED, "Device does not support new calibration parameters. Please upgrade your firmware")
+        Me._throw(YAPI.NOT_SUPPORTED, "Calibration parameters format mismatch. Please upgrade your library or firmware.")
         Return YAPI.NOT_SUPPORTED
       End If
       rawValues.Clear()
@@ -6606,50 +7548,56 @@ Module yocto_api
       Dim idx As Integer = 0
       Dim iRaw As Integer = 0
       Dim iRef As Integer = 0
-      
       npt = rawValues.Count
       If (npt <> refValues.Count) Then
         Me._throw(YAPI.INVALID_ARGUMENT, "Invalid calibration parameters (size mismatch)")
         Return YAPI.INVALID_STRING
       End If
-      
       REM // Shortcut when building empty calibration parameters
       If (npt = 0) Then
         Return "0"
       End If
-      
       REM // Load function parameters if not yet loaded
       If (Me._scale = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return YAPI.INVALID_STRING
         End If
       End If
-      
       REM // Detect old firmware
       If ((Me._caltyp < 0) Or (Me._scale < 0)) Then
-        Me._throw(YAPI.NOT_SUPPORTED, "Device does not support new calibration parameters. Please upgrade your firmware")
+        Me._throw(YAPI.NOT_SUPPORTED, "Calibration parameters format mismatch. Please upgrade your library or firmware.")
         Return "0"
       End If
-      If (Me._isScal) Then
+      If (Me._isScal32) Then
         REM
-        res = "" + Convert.ToString(npt)
+        res = "" + Convert.ToString(YOCTO_CALIB_TYPE_OFS)
         idx = 0
         While (idx < npt)
-          iRaw = CType(Math.Round(rawValues(idx) * Me._scale + Me._offset), Integer)
-          iRef = CType(Math.Round(refValues(idx) * Me._scale + Me._offset), Integer)
-          res = "" +  res + "," + Convert.ToString( iRaw) + "," + Convert.ToString(iRef)
+          res = "" +  res + "," + YAPI._floatToStr( rawValues(idx)) + "," + YAPI._floatToStr(refValues(idx))
           idx = idx + 1
         End While
       Else
-        REM
-        res = "" + Convert.ToString(10 + npt)
-        idx = 0
-        While (idx < npt)
-          iRaw = CType(YAPI._doubleToDecimal(rawValues(idx)), Integer)
-          iRef = CType(YAPI._doubleToDecimal(refValues(idx)), Integer)
-          res = "" +  res + "," + Convert.ToString( iRaw) + "," + Convert.ToString(iRef)
-          idx = idx + 1
-        End While
+        If (Me._isScal) Then
+          REM
+          res = "" + Convert.ToString(npt)
+          idx = 0
+          While (idx < npt)
+            iRaw = CType(Math.Round(rawValues(idx) * Me._scale + Me._offset), Integer)
+            iRef = CType(Math.Round(refValues(idx) * Me._scale + Me._offset), Integer)
+            res = "" +  res + "," + Convert.ToString( iRaw) + "," + Convert.ToString(iRef)
+            idx = idx + 1
+          End While
+        Else
+          REM
+          res = "" + Convert.ToString(10 + npt)
+          idx = 0
+          While (idx < npt)
+            iRaw = CType(YAPI._doubleToDecimal(rawValues(idx)), Integer)
+            iRef = CType(YAPI._doubleToDecimal(refValues(idx)), Integer)
+            res = "" +  res + "," + Convert.ToString( iRaw) + "," + Convert.ToString(iRef)
+            idx = idx + 1
+          End While
+        End If
       End If
       Return res
     End Function
@@ -6677,56 +7625,134 @@ Module yocto_api
       Dim minRaw As Integer = 0
       Dim avgRaw As Integer = 0
       Dim maxRaw As Integer = 0
+      Dim sublen As Integer = 0
+      Dim difRaw As Integer = 0
       Dim startTime As Double = 0
       Dim endTime As Double = 0
       Dim minVal As Double = 0
       Dim avgVal As Double = 0
       Dim maxVal As Double = 0
-      
       startTime = Me._prevTimedReport
       endTime = timestamp
       Me._prevTimedReport = endTime
       If (startTime = 0) Then
         startTime = endTime
       End If
-      If (report(0) > 0) Then
+      If (report(0) = 2) Then
         REM
-        minRaw = report(1) + &H100 * report(2)
-        maxRaw = report(3) + &H100 * report(4)
-        avgRaw = report(5) + &H100 * report(6) + &H10000 * report(7)
-        byteVal = report(8)
-        If (((byteVal) And (&H80)) = 0) Then
-          avgRaw = avgRaw + &H1000000 * byteVal
-        Else
-          avgRaw = avgRaw - &H1000000 * (&H100 - byteVal)
-        End If
-        minVal = Me._decodeVal(minRaw)
-        avgVal = Me._decodeAvg(avgRaw)
-        maxVal = Me._decodeVal(maxRaw)
-      Else
-        REM
-        poww = 1
-        avgRaw = 0
-        byteVal = 0
-        i = 1
-        While (i < report.Count)
-          byteVal = report(i)
-          avgRaw = avgRaw + poww * byteVal
-          poww = poww * &H100
-          i = i + 1
-        End While
-        If (Me._isScal) Then
-          avgVal = Me._decodeVal(avgRaw)
-        Else
+        If (report.Count <= 5) Then
+          REM
+          poww = 1
+          avgRaw = 0
+          byteVal = 0
+          i = 1
+          While (i < report.Count)
+            byteVal = report(i)
+            avgRaw = avgRaw + poww * byteVal
+            poww = poww * &H100
+            i = i + 1
+          End While
           If (((byteVal) And (&H80)) <> 0) Then
             avgRaw = avgRaw - poww
           End If
-          avgVal = Me._decodeAvg(avgRaw)
+          avgVal = avgRaw / 1000.0
+          If (Me._caltyp <> 0) Then
+            If (Not (Me._calhdl Is Nothing)) Then
+              avgVal = Me._calhdl(avgVal, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+            End If
+          End If
+          minVal = avgVal
+          maxVal = avgVal
+        Else
+          REM
+          sublen = 1 + ((report(1)) And (3))
+          poww = 1
+          avgRaw = 0
+          byteVal = 0
+          i = 2
+          While ((sublen > 0) And (i < report.Count))
+            byteVal = report(i)
+            avgRaw = avgRaw + poww * byteVal
+            poww = poww * &H100
+            i = i + 1
+            sublen = sublen - 1
+          End While
+          If (((byteVal) And (&H80)) <> 0) Then
+            avgRaw = avgRaw - poww
+          End If
+          sublen = 1 + ((((report(1)) >> (2))) And (3))
+          poww = 1
+          difRaw = 0
+          While ((sublen > 0) And (i < report.Count))
+            byteVal = report(i)
+            difRaw = avgRaw + poww * byteVal
+            poww = poww * &H100
+            i = i + 1
+            sublen = sublen - 1
+          End While
+          minRaw = avgRaw - difRaw
+          sublen = 1 + ((((report(1)) >> (4))) And (3))
+          poww = 1
+          difRaw = 0
+          While ((sublen > 0) And (i < report.Count))
+            byteVal = report(i)
+            difRaw = avgRaw + poww * byteVal
+            poww = poww * &H100
+            i = i + 1
+            sublen = sublen - 1
+          End While
+          maxRaw = avgRaw + difRaw
+          avgVal = avgRaw / 1000.0
+          minVal = minRaw / 1000.0
+          maxVal = maxRaw / 1000.0
+          If (Me._caltyp <> 0) Then
+            If (Not (Me._calhdl Is Nothing)) Then
+              avgVal = Me._calhdl(avgVal, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+              minVal = Me._calhdl(minVal, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+              maxVal = Me._calhdl(maxVal, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+            End If
+          End If
         End If
-        minVal = avgVal
-        maxVal = avgVal
+      Else
+        REM
+        If (report(0) = 0) Then
+          REM
+          poww = 1
+          avgRaw = 0
+          byteVal = 0
+          i = 1
+          While (i < report.Count)
+            byteVal = report(i)
+            avgRaw = avgRaw + poww * byteVal
+            poww = poww * &H100
+            i = i + 1
+          End While
+          If (Me._isScal) Then
+            avgVal = Me._decodeVal(avgRaw)
+          Else
+            If (((byteVal) And (&H80)) <> 0) Then
+              avgRaw = avgRaw - poww
+            End If
+            avgVal = Me._decodeAvg(avgRaw)
+          End If
+          minVal = avgVal
+          maxVal = avgVal
+        Else
+          REM
+          minRaw = report(1) + &H100 * report(2)
+          maxRaw = report(3) + &H100 * report(4)
+          avgRaw = report(5) + &H100 * report(6) + &H10000 * report(7)
+          byteVal = report(8)
+          If (((byteVal) And (&H80)) = 0) Then
+            avgRaw = avgRaw + &H1000000 * byteVal
+          Else
+            avgRaw = avgRaw - &H1000000 * (&H100 - byteVal)
+          End If
+          minVal = Me._decodeVal(minRaw)
+          avgVal = Me._decodeAvg(avgRaw)
+          maxVal = Me._decodeVal(maxRaw)
+        End If
       End If
-      
       Return New YMeasure(startTime, endTime, minVal, avgVal, maxVal)
     End Function
 
@@ -6739,7 +7765,9 @@ Module yocto_api
         val = YAPI._decimalToDouble(w)
       End If
       If (Me._caltyp <> 0) Then
-        val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+        If (Not (Me._calhdl Is Nothing)) Then
+          val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+        End If
       End If
       Return val
     End Function
@@ -6753,7 +7781,9 @@ Module yocto_api
         val = val / Me._decexp
       End If
       If (Me._caltyp <> 0) Then
-        val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+        If (Not (Me._calhdl Is Nothing)) Then
+          val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+        End If
       End If
       Return val
     End Function
@@ -7196,14 +8226,16 @@ Module yocto_api
       If (YFunction._TimedReportCallbackList(i).get_functionDescriptor() = fundescr) Then
         ReDim data(intlen)
         Marshal.Copy(rawdata, data, 0, intlen)
-        report = New List(Of Integer)(intlen)
-        p = 0
-        While (p < intlen)
-          report.Add(data(p))
-          p = p + 1
-        End While
-        ev = New DataEvent(YFunction._TimedReportCallbackList(i), timestamp, report)
-        _DataEvents.Add(ev)
+        If (data(0) <= 2) Then
+          report = New List(Of Integer)(intlen)
+          p = 0
+          While (p < intlen)
+            report.Add(data(p))
+            p = p + 1
+          End While
+          ev = New DataEvent(YFunction._TimedReportCallbackList(i), timestamp, report)
+          _DataEvents.Add(ev)
+        End If
         Return
       End If
     Next i
@@ -7377,7 +8409,7 @@ Module yocto_api
   '''   reach, the URL parameter should look like:
   ''' </para>
   ''' <para>
-  '''   <c>http://username:password@adresse:port</c>
+  '''   <c>http://username:password@address:port</c>
   ''' </para>
   ''' <para>
   '''   You can call <i>RegisterHub</i> several times to connect to several machines.
@@ -7856,14 +8888,6 @@ Module yocto_api
   Private Function _yapiGetBootloadersDevs(ByVal serials As StringBuilder, ByVal maxNbSerial As yu32, ByRef totalBootladers As yu32, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiFlashDevice", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
-  Private Function _yapiFlashDevice(ByRef args As yFlashArg, ByVal errmsg As StringBuilder) As Integer
-  End Function
-
-  <DllImport("yapi.dll", entrypoint:="yapiVerifyDevice", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
-  Private Function _yapiVerifyDevice(ByRef args As yFlashArg, ByVal errmsg As StringBuilder) As Integer
-  End Function
-
   <DllImport("yapi.dll", entrypoint:="yapiGetDevicePath", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiGetDevicePath(ByVal devdesc As Integer, _
                                            ByVal rootdevice As StringBuilder, _
@@ -7892,6 +8916,21 @@ Module yocto_api
   <DllImport("yapi.dll", entrypoint:="yapiStartStopDeviceLogCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Sub _yapiStartStopDeviceLogCallback(ByVal serial As StringBuilder, ByVal startStop As Integer)
   End Sub
+  REM --- (generated code: YFunction dlldef)
+  <DllImport("yapi.dll", EntryPoint:="yapiGetAllJsonKeys", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiGetAllJsonKeys(ByVal jsonbuffer As StringBuilder, ByVal out_buffer As StringBuilder, ByVal out_buffersize As Integer, ByRef fullsize As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiCheckFirmware", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiCheckFirmware(ByVal serial As StringBuilder, ByVal rev As StringBuilder, ByVal path As StringBuilder, ByVal buffer As StringBuilder, ByVal buffersize As Integer, ByRef fullsize As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiGetBootloadersDevs", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiGetBootloadersDevs(ByVal serials As StringBuilder, ByVal maxNbSerial As Integer, ByRef totalBootladers As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiUpdateFirmware", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiUpdateFirmware(ByVal serial As StringBuilder, ByVal firmwarePath As StringBuilder, ByVal settings As StringBuilder, ByVal startUpdate As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+    REM --- (end of generated code: YFunction dlldef)
+
 
 
   Private Sub vbmodule_initialization()

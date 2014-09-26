@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_lightsensor.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_lightsensor.vb 17655 2014-09-16 12:24:27Z mvuilleu $
 '*
 '* Implements yFindLightSensor(), the high-level API for LightSensor functions
 '*
@@ -47,7 +47,16 @@ Module yocto_lightsensor
 
     REM --- (YLightSensor return codes)
     REM --- (end of YLightSensor return codes)
+    REM --- (YLightSensor dlldef)
+    REM --- (end of YLightSensor dlldef)
   REM --- (YLightSensor globals)
+
+  Public Const Y_MEASURETYPE_HUMAN_EYE As Integer = 0
+  Public Const Y_MEASURETYPE_WIDE_SPECTRUM As Integer = 1
+  Public Const Y_MEASURETYPE_INFRARED As Integer = 2
+  Public Const Y_MEASURETYPE_HIGH_RATE As Integer = 3
+  Public Const Y_MEASURETYPE_HIGH_ENERGY As Integer = 4
+  Public Const Y_MEASURETYPE_INVALID As Integer = -1
 
   Public Delegate Sub YLightSensorValueCallback(ByVal func As YLightSensor, ByVal value As String)
   Public Delegate Sub YLightSensorTimedReportCallback(ByVal func As YLightSensor, ByVal measure As YMeasure)
@@ -68,9 +77,17 @@ Module yocto_lightsensor
     REM --- (end of YLightSensor class start)
 
     REM --- (YLightSensor definitions)
+    Public Const MEASURETYPE_HUMAN_EYE As Integer = 0
+    Public Const MEASURETYPE_WIDE_SPECTRUM As Integer = 1
+    Public Const MEASURETYPE_INFRARED As Integer = 2
+    Public Const MEASURETYPE_HIGH_RATE As Integer = 3
+    Public Const MEASURETYPE_HIGH_ENERGY As Integer = 4
+    Public Const MEASURETYPE_INVALID As Integer = -1
+
     REM --- (end of YLightSensor definitions)
 
     REM --- (YLightSensor attributes declaration)
+    Protected _measureType As Integer
     Protected _valueCallbackLightSensor As YLightSensorValueCallback
     Protected _timedReportCallbackLightSensor As YLightSensorTimedReportCallback
     REM --- (end of YLightSensor attributes declaration)
@@ -79,6 +96,7 @@ Module yocto_lightsensor
       MyBase.New(func)
       _classname = "LightSensor"
       REM --- (YLightSensor attributes initialization)
+      _measureType = MEASURETYPE_INVALID
       _valueCallbackLightSensor = Nothing
       _timedReportCallbackLightSensor = Nothing
       REM --- (end of YLightSensor attributes initialization)
@@ -87,6 +105,10 @@ Module yocto_lightsensor
     REM --- (YLightSensor private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "measureType") Then
+        _measureType = CInt(member.ivalue)
+        Return 1
+      End If
       Return MyBase._parseAttr(member)
     End Function
 
@@ -129,6 +151,64 @@ Module yocto_lightsensor
       Dim rest_val As String
       rest_val = Ltrim(Str(Math.Round(calibratedVal * 65536.0)))
       Return _setAttr("currentValue", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the type of light measure.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_MEASURETYPE_HUMAN_EYE</c>, <c>Y_MEASURETYPE_WIDE_SPECTRUM</c>,
+    '''   <c>Y_MEASURETYPE_INFRARED</c>, <c>Y_MEASURETYPE_HIGH_RATE</c> and <c>Y_MEASURETYPE_HIGH_ENERGY</c>
+    '''   corresponding to the type of light measure
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_MEASURETYPE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_measureType() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return MEASURETYPE_INVALID
+        End If
+      End If
+      Return Me._measureType
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Modify the light sensor type used in the device.
+    ''' <para>
+    '''   The measure can either
+    '''   approximate the response of the human eye, focus on a specific light
+    '''   spectrum, depending on the capabilities of the light-sensitive cell.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>Y_MEASURETYPE_HUMAN_EYE</c>, <c>Y_MEASURETYPE_WIDE_SPECTRUM</c>,
+    '''   <c>Y_MEASURETYPE_INFRARED</c>, <c>Y_MEASURETYPE_HIGH_RATE</c> and <c>Y_MEASURETYPE_HIGH_ENERGY</c>
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_measureType(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("measureType", rest_val)
     End Function
     '''*
     ''' <summary>

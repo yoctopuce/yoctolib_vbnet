@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_compass.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_compass.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindCompass(), the high-level API for Compass functions
 '*
@@ -47,6 +47,8 @@ Module yocto_compass
 
     REM --- (YCompass return codes)
     REM --- (end of YCompass return codes)
+    REM --- (YCompass dlldef)
+    REM --- (end of YCompass dlldef)
   REM --- (YCompass globals)
 
   Public Const Y_AXIS_X As Integer = 0
@@ -108,7 +110,7 @@ Module yocto_compass
         Return 1
       End If
       If (member.name = "magneticHeading") Then
-        _magneticHeading = member.ivalue / 65536.0
+        _magneticHeading = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       Return MyBase._parseAttr(member)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_oscontrol.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_oscontrol.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindOsControl(), the high-level API for OsControl functions
 '*
@@ -47,6 +47,8 @@ Module yocto_oscontrol
 
     REM --- (YOsControl return codes)
     REM --- (end of YOsControl return codes)
+    REM --- (YOsControl dlldef)
+    REM --- (end of YOsControl dlldef)
   REM --- (YOsControl globals)
 
   Public Const Y_SHUTDOWNCOUNTDOWN_INVALID As Integer = YAPI.INVALID_UINT

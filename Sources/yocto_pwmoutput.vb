@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmoutput.vb 15529 2014-03-20 17:54:15Z seb $
+'* $Id: yocto_pwmoutput.vb 17481 2014-09-03 09:38:35Z mvuilleu $
 '*
 '* Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '*
@@ -47,16 +47,18 @@ Module yocto_pwmoutput
 
     REM --- (YPwmOutput return codes)
     REM --- (end of YPwmOutput return codes)
+    REM --- (YPwmOutput dlldef)
+    REM --- (end of YPwmOutput dlldef)
   REM --- (YPwmOutput globals)
 
   Public Const Y_ENABLED_FALSE As Integer = 0
   Public Const Y_ENABLED_TRUE As Integer = 1
   Public Const Y_ENABLED_INVALID As Integer = -1
 
+  Public Const Y_FREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_PERIOD_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_DUTYCYCLE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_PULSEDURATION_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_FREQUENCY_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_PERIOD_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_PWMTRANSITION_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ENABLEDATPOWERON_FALSE As Integer = 0
   Public Const Y_ENABLEDATPOWERON_TRUE As Integer = 1
@@ -85,10 +87,10 @@ Module yocto_pwmoutput
     Public Const ENABLED_TRUE As Integer = 1
     Public Const ENABLED_INVALID As Integer = -1
 
+    Public Const FREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const PERIOD_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const DUTYCYCLE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const PULSEDURATION_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const FREQUENCY_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const PERIOD_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const PWMTRANSITION_INVALID As String = YAPI.INVALID_STRING
     Public Const ENABLEDATPOWERON_FALSE As Integer = 0
     Public Const ENABLEDATPOWERON_TRUE As Integer = 1
@@ -99,10 +101,10 @@ Module yocto_pwmoutput
 
     REM --- (YPwmOutput attributes declaration)
     Protected _enabled As Integer
+    Protected _frequency As Double
+    Protected _period As Double
     Protected _dutyCycle As Double
     Protected _pulseDuration As Double
-    Protected _frequency As Integer
-    Protected _period As Double
     Protected _pwmTransition As String
     Protected _enabledAtPowerOn As Integer
     Protected _dutyCycleAtPowerOn As Double
@@ -114,10 +116,10 @@ Module yocto_pwmoutput
       _classname = "PwmOutput"
       REM --- (YPwmOutput attributes initialization)
       _enabled = ENABLED_INVALID
-      _dutyCycle = DUTYCYCLE_INVALID
-      _pulseDuration = PULSEDURATION_INVALID
       _frequency = FREQUENCY_INVALID
       _period = PERIOD_INVALID
+      _dutyCycle = DUTYCYCLE_INVALID
+      _pulseDuration = PULSEDURATION_INVALID
       _pwmTransition = PWMTRANSITION_INVALID
       _enabledAtPowerOn = ENABLEDATPOWERON_INVALID
       _dutyCycleAtPowerOn = DUTYCYCLEATPOWERON_INVALID
@@ -132,20 +134,20 @@ Module yocto_pwmoutput
         If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
         Return 1
       End If
-      If (member.name = "dutyCycle") Then
-        _dutyCycle = member.ivalue / 65536.0
-        Return 1
-      End If
-      If (member.name = "pulseDuration") Then
-        _pulseDuration = member.ivalue / 65536.0
-        Return 1
-      End If
       If (member.name = "frequency") Then
-        _frequency = CInt(member.ivalue)
+        _frequency = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "period") Then
-        _period = member.ivalue / 65536.0
+        _period = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
+      If (member.name = "dutyCycle") Then
+        _dutyCycle = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
+      If (member.name = "pulseDuration") Then
+        _pulseDuration = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "pwmTransition") Then
@@ -157,7 +159,7 @@ Module yocto_pwmoutput
         Return 1
       End If
       If (member.name = "dutyCycleAtPowerOn") Then
-        _dutyCycleAtPowerOn = member.ivalue / 65536.0
+        _dutyCycleAtPowerOn = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -216,6 +218,108 @@ Module yocto_pwmoutput
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("enabled", rest_val)
     End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the PWM frequency.
+    ''' <para>
+    '''   The duty cycle is kept unchanged thanks to an
+    '''   automatic pulse width change.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the PWM frequency
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_frequency(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("frequency", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the PWM frequency in Hz.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the PWM frequency in Hz
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_FREQUENCY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_frequency() As Double
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return FREQUENCY_INVALID
+        End If
+      End If
+      Return Me._frequency
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the PWM period in milliseconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the PWM period in milliseconds
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_period(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("period", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the PWM period in milliseconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the PWM period in milliseconds
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PERIOD_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_period() As Double
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return PERIOD_INVALID
+        End If
+      End If
+      Return Me._period
+    End Function
+
 
     '''*
     ''' <summary>
@@ -295,14 +399,14 @@ Module yocto_pwmoutput
     End Function
     '''*
     ''' <summary>
-    '''   Returns the PWM pulse length in milliseconds.
+    '''   Returns the PWM pulse length in milliseconds, as a floating point number.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the PWM pulse length in milliseconds
+    '''   a floating point number corresponding to the PWM pulse length in milliseconds, as a floating point number
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_PULSEDURATION_INVALID</c>.
@@ -315,108 +419,6 @@ Module yocto_pwmoutput
         End If
       End If
       Return Me._pulseDuration
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the PWM frequency in Hz.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the PWM frequency in Hz
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FREQUENCY_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_frequency() As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return FREQUENCY_INVALID
-        End If
-      End If
-      Return Me._frequency
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the PWM frequency.
-    ''' <para>
-    '''   The duty cycle is kept unchanged thanks to an
-    '''   automatic pulse width change.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   an integer corresponding to the PWM frequency
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_frequency(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("frequency", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the PWM period.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a floating point number corresponding to the PWM period
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_period(ByVal newval As Double) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
-      Return _setAttr("period", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Returns the PWM period in milliseconds.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a floating point number corresponding to the PWM period in milliseconds
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PERIOD_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_period() As Double
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return PERIOD_INVALID
-        End If
-      End If
-      Return Me._period
     End Function
 
     Public Function get_pwmTransition() As String

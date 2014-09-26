@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_relay.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_relay.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindRelay(), the high-level API for Relay functions
 '*
@@ -47,6 +47,8 @@ Module yocto_relay
 
     REM --- (YRelay return codes)
     REM --- (end of YRelay return codes)
+    REM --- (YRelay dlldef)
+    REM --- (end of YRelay dlldef)
   REM --- (YRelay globals)
 
 Public Class YRelayDelayedPulse

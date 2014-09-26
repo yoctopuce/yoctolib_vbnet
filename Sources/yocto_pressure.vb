@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pressure.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_pressure.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindPressure(), the high-level API for Pressure functions
 '*
@@ -47,6 +47,8 @@ Module yocto_pressure
 
     REM --- (YPressure return codes)
     REM --- (end of YPressure return codes)
+    REM --- (YPressure dlldef)
+    REM --- (end of YPressure dlldef)
   REM --- (YPressure globals)
 
   Public Delegate Sub YPressureValueCallback(ByVal func As YPressure, ByVal value As String)

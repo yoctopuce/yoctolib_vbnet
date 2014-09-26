@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 15376 2014-03-10 16:22:13Z seb $
+'* $Id: yocto_refframe.vb 17481 2014-09-03 09:38:35Z mvuilleu $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -47,6 +47,8 @@ Module yocto_refframe
 
     REM --- (YRefFrame return codes)
     REM --- (end of YRefFrame return codes)
+    REM --- (YRefFrame dlldef)
+    REM --- (end of YRefFrame dlldef)
   REM --- (YRefFrame globals)
 
  Public Enum  Y_MOUNTPOSITION
@@ -159,7 +161,7 @@ end enum
         Return 1
       End If
       If (member.name = "bearing") Then
-        _bearing = member.ivalue / 65536.0
+        _bearing = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "calibrationParam") Then
@@ -391,9 +393,9 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function get_mountPosition() As Y_MOUNTPOSITION
-      Dim pos As Integer = 0
-      pos = Me.get_mountPos()
-      return CType(((pos) >> (2)), Y_MOUNTPOSITION)
+      Dim position As Integer = 0
+      position = Me.get_mountPos()
+      return CType(((position) >> (2)), Y_MOUNTPOSITION)
     End Function
 
     '''*
@@ -420,9 +422,9 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function get_mountOrientation() As Y_MOUNTORIENTATION
-      Dim pos As Integer = 0
-      pos = Me.get_mountPos()
-      return CType(((pos) And (3)), Y_MOUNTORIENTATION)
+      Dim position As Integer = 0
+      position = Me.get_mountPos()
+      return CType(((position) And (3)), Y_MOUNTORIENTATION)
     End Function
 
     '''*
@@ -463,9 +465,9 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function set_mountPosition(position As Y_MOUNTPOSITION, orientation As Y_MOUNTORIENTATION) As Integer
-      Dim pos As Integer = 0
-      pos = ((position) << (2)) + orientation
-      return Me.set_mountPos(pos)
+      Dim mixedPos As Integer = 0
+      mixedPos = ((position) << (2)) + orientation
+      return Me.set_mountPos(mixedPos)
     End Function
 
     Public Overridable Function _calibSort(start As Integer, stopidx As Integer) As Integer
@@ -584,7 +586,7 @@ end enum
       Dim norm As Double = 0
       Dim orient As Integer = 0
       Dim idx As Integer = 0
-      Dim pos As Integer = 0
+      Dim intpos As Integer = 0
       Dim err As Integer = 0
       REM // make sure calibration has been started
       If (Me._calibStage = 0) Then
@@ -635,6 +637,7 @@ end enum
       Me._calibPrevTick = currTick
       
       REM // Determine the device orientation index
+      orient = 0
       If (zSq > 0.5) Then
         If (zVal > 0) Then
           orient = 0
@@ -695,12 +698,12 @@ end enum
       End If
       
       REM // Stage done, compute preliminary result
-      pos = (Me._calibStage - 1) * Me._calibCount
-      Me._calibSort(pos, pos + Me._calibCount)
-      pos = pos + (Me._calibCount \ 2)
+      intpos = (Me._calibStage - 1) * Me._calibCount
+      Me._calibSort(intpos, intpos + Me._calibCount)
+      intpos = intpos + (Me._calibCount \ 2)
       Me._calibLogMsg = "Stage " + Convert.ToString( Me._calibStage) + ": median is " + Convert.ToString(
-      CType(Math.Round(1000*Me._calibDataAccX(pos)), Integer)) + "," + Convert.ToString(
-      CType(Math.Round(1000*Me._calibDataAccY(pos)), Integer)) + "," + Convert.ToString(CType(Math.Round(1000*Me._calibDataAccZ(pos)), Integer))
+      CType(Math.Round(1000*Me._calibDataAccX(intpos)), Integer)) + "," + Convert.ToString(
+      CType(Math.Round(1000*Me._calibDataAccY(intpos)), Integer)) + "," + Convert.ToString(CType(Math.Round(1000*Me._calibDataAccZ(intpos)), Integer))
       
       REM // move to next stage
       Me._calibStage = Me._calibStage + 1
@@ -717,16 +720,16 @@ end enum
       zVal = 0
       idx = 0
       While (idx < 6)
-        pos = idx * Me._calibCount + (Me._calibCount \ 2)
+        intpos = idx * Me._calibCount + (Me._calibCount \ 2)
         orient = Me._calibOrient(idx)
         If (orient = 0 Or orient = 1) Then
-          zVal = zVal + Me._calibDataAccZ(pos)
+          zVal = zVal + Me._calibDataAccZ(intpos)
         End If
         If (orient = 2 Or orient = 3) Then
-          xVal = xVal + Me._calibDataAccX(pos)
+          xVal = xVal + Me._calibDataAccX(intpos)
         End If
         If (orient = 4 Or orient = 5) Then
-          yVal = yVal + Me._calibDataAccY(pos)
+          yVal = yVal + Me._calibDataAccY(intpos)
         End If
         idx = idx + 1
       End While
@@ -735,19 +738,19 @@ end enum
       Me._calibAccZOfs = zVal / 2.0
       
       REM // Recompute all norms, taking into account the computed shift, and re-sort
-      pos = 0
-      While (pos < Me._calibDataAcc.Count)
-        xVal = Me._calibDataAccX(pos) - Me._calibAccXOfs
-        yVal = Me._calibDataAccY(pos) - Me._calibAccYOfs
-        zVal = Me._calibDataAccZ(pos) - Me._calibAccZOfs
+      intpos = 0
+      While (intpos < Me._calibDataAcc.Count)
+        xVal = Me._calibDataAccX(intpos) - Me._calibAccXOfs
+        yVal = Me._calibDataAccY(intpos) - Me._calibAccYOfs
+        zVal = Me._calibDataAccZ(intpos) - Me._calibAccZOfs
         norm = Math.sqrt(xVal * xVal + yVal * yVal + zVal * zVal)
-        Me._calibDataAcc( pos) = norm
-        pos = pos + 1
+        Me._calibDataAcc( intpos) = norm
+        intpos = intpos + 1
       End While
       idx = 0
       While (idx < 6)
-        pos = idx * Me._calibCount
-        Me._calibSort(pos, pos + Me._calibCount)
+        intpos = idx * Me._calibCount
+        Me._calibSort(intpos, intpos + Me._calibCount)
         idx = idx + 1
       End While
       
@@ -757,16 +760,16 @@ end enum
       zVal = 0
       idx = 0
       While (idx < 6)
-        pos = idx * Me._calibCount + (Me._calibCount \ 2)
+        intpos = idx * Me._calibCount + (Me._calibCount \ 2)
         orient = Me._calibOrient(idx)
         If (orient = 0 Or orient = 1) Then
-          zVal = zVal + Me._calibDataAcc(pos)
+          zVal = zVal + Me._calibDataAcc(intpos)
         End If
         If (orient = 2 Or orient = 3) Then
-          xVal = xVal + Me._calibDataAcc(pos)
+          xVal = xVal + Me._calibDataAcc(intpos)
         End If
         If (orient = 4 Or orient = 5) Then
-          yVal = yVal + Me._calibDataAcc(pos)
+          yVal = yVal + Me._calibDataAcc(intpos)
         End If
         idx = idx + 1
       End While
@@ -904,8 +907,10 @@ end enum
       scaleZ = CType(Math.Round(2048.0 / Me._calibAccZScale), Integer) - 2048
       If (scaleX < -2048 Or scaleX >= 2048 Or scaleY < -2048 Or scaleY >= 2048 Or scaleZ < -2048 Or scaleZ >= 2048) Then
         scaleExp = 3
+      Else
         If (scaleX < -1024 Or scaleX >= 1024 Or scaleY < -1024 Or scaleY >= 1024 Or scaleZ < -1024 Or scaleZ >= 1024) Then
           scaleExp = 2
+        Else
           If (scaleX < -512 Or scaleX >= 512 Or scaleY < -512 Or scaleY >= 512 Or scaleZ < -512 Or scaleZ >= 512) Then
             scaleExp = 1
           Else

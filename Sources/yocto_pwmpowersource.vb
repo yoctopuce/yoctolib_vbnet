@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmpowersource.vb 15529 2014-03-20 17:54:15Z seb $
+'* $Id: yocto_pwmpowersource.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindPwmPowerSource(), the high-level API for PwmPowerSource functions
 '*
@@ -47,6 +47,8 @@ Module yocto_pwmpowersource
 
     REM --- (YPwmPowerSource return codes)
     REM --- (end of YPwmPowerSource return codes)
+    REM --- (YPwmPowerSource dlldef)
+    REM --- (end of YPwmPowerSource dlldef)
   REM --- (YPwmPowerSource globals)
 
   Public Const Y_POWERMODE_USB_5V As Integer = 0

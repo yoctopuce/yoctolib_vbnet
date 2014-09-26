@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_network.vb 17594 2014-09-10 21:15:55Z mvuilleu $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -47,6 +47,8 @@ Module yocto_network
 
     REM --- (YNetwork return codes)
     REM --- (end of YNetwork return codes)
+    REM --- (YNetwork dlldef)
+    REM --- (end of YNetwork dlldef)
   REM --- (YNetwork globals)
 
   Public Const Y_READINESS_DOWN As Integer = 0
@@ -433,76 +435,6 @@ Module yocto_network
     Public Function set_ipConfig(ByVal newval As String) As Integer
       Dim rest_val As String
       rest_val = newval
-      Return _setAttr("ipConfig", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the configuration of the network interface to enable the use of an
-    '''   IP address received from a DHCP server.
-    ''' <para>
-    '''   Until an address is received from a DHCP
-    '''   server, the module uses the IP parameters specified to this function.
-    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="fallbackIpAddr">
-    '''   fallback IP address, to be used when no DHCP reply is received
-    ''' </param>
-    ''' <param name="fallbackSubnetMaskLen">
-    '''   fallback subnet mask length when no DHCP reply is received, as an
-    '''   integer (eg. 24 means 255.255.255.0)
-    ''' </param>
-    ''' <param name="fallbackRouter">
-    '''   fallback router IP address, to be used when no DHCP reply is received
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function useDHCP(ByVal fallbackIpAddr As String, ByVal fallbackSubnetMaskLen As Integer, ByVal fallbackRouter As String) As Integer
-      Dim rest_val As String
-      rest_val = "DHCP:" + fallbackIpAddr + "/" + Str(fallbackSubnetMaskLen) + "/" + fallbackRouter
-      Return _setAttr("ipConfig", rest_val)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the configuration of the network interface to use a static IP address.
-    ''' <para>
-    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="ipAddress">
-    '''   device IP address
-    ''' </param>
-    ''' <param name="subnetMaskLen">
-    '''   subnet mask length, as an integer (eg. 24 means 255.255.255.0)
-    ''' </param>
-    ''' <param name="router">
-    '''   router IP address (default gateway)
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function useStaticIP(ByVal ipAddress As String, ByVal subnetMaskLen As Integer, ByVal router As String) As Integer
-      Dim rest_val As String
-      rest_val = "STATIC:" + ipAddress + "/" + Str(subnetMaskLen) + "/" + router
       Return _setAttr("ipConfig", rest_val)
     End Function
     '''*
@@ -1315,6 +1247,64 @@ Module yocto_network
         MyBase._invokeValueCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the configuration of the network interface to enable the use of an
+    '''   IP address received from a DHCP server.
+    ''' <para>
+    '''   Until an address is received from a DHCP
+    '''   server, the module uses the IP parameters specified to this function.
+    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="fallbackIpAddr">
+    '''   fallback IP address, to be used when no DHCP reply is received
+    ''' </param>
+    ''' <param name="fallbackSubnetMaskLen">
+    '''   fallback subnet mask length when no DHCP reply is received, as an
+    '''   integer (eg. 24 means 255.255.255.0)
+    ''' </param>
+    ''' <param name="fallbackRouter">
+    '''   fallback router IP address, to be used when no DHCP reply is received
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function useDHCP(fallbackIpAddr As String, fallbackSubnetMaskLen As Integer, fallbackRouter As String) As Integer
+      Return Me.set_ipConfig("DHCP:" +  fallbackIpAddr + "/" + Convert.ToString( fallbackSubnetMaskLen) + "/" + fallbackRouter)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the configuration of the network interface to use a static IP address.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="ipAddress">
+    '''   device IP address
+    ''' </param>
+    ''' <param name="subnetMaskLen">
+    '''   subnet mask length, as an integer (eg. 24 means 255.255.255.0)
+    ''' </param>
+    ''' <param name="router">
+    '''   router IP address (default gateway)
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function useStaticIP(ipAddress As String, subnetMaskLen As Integer, router As String) As Integer
+      Return Me.set_ipConfig("STATIC:" +  ipAddress + "/" + Convert.ToString( subnetMaskLen) + "/" + router)
     End Function
 
     '''*

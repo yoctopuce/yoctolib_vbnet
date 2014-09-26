@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gyro.vb 15334 2014-03-07 20:33:05Z mvuilleu $
+'* $Id: yocto_gyro.vb 16895 2014-07-18 00:12:08Z mvuilleu $
 '*
 '* Implements yFindGyro(), the high-level API for Gyro functions
 '*
@@ -464,15 +464,15 @@ Module yocto_gyro
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "xValue") Then
-        _xValue = member.ivalue / 65536.0
+        _xValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "yValue") Then
-        _yValue = member.ivalue / 65536.0
+        _yValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "zValue") Then
-        _zValue = member.ivalue / 65536.0
+        _zValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       Return MyBase._parseAttr(member)

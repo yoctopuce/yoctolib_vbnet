@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_anbutton.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_anbutton.vb 17674 2014-09-16 16:18:58Z seb $
 '*
 '* Implements yFindAnButton(), the high-level API for AnButton functions
 '*
@@ -47,6 +47,8 @@ Module yocto_anbutton
 
     REM --- (YAnButton return codes)
     REM --- (end of YAnButton return codes)
+    REM --- (YAnButton dlldef)
+    REM --- (end of YAnButton dlldef)
   REM --- (YAnButton globals)
 
   Public Const Y_CALIBRATEDVALUE_INVALID As Integer = YAPI.INVALID_UINT
@@ -488,7 +490,7 @@ Module yocto_anbutton
     '''*
     ''' <summary>
     '''   Returns the number of elapsed milliseconds between the module power on and the last time
-    '''   the input button was pressed (the input contact transitionned from open to closed).
+    '''   the input button was pressed (the input contact transitioned from open to closed).
     ''' <para>
     ''' </para>
     ''' <para>
@@ -496,7 +498,7 @@ Module yocto_anbutton
     ''' </summary>
     ''' <returns>
     '''   an integer corresponding to the number of elapsed milliseconds between the module power on and the last time
-    '''   the input button was pressed (the input contact transitionned from open to closed)
+    '''   the input button was pressed (the input contact transitioned from open to closed)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_LASTTIMEPRESSED_INVALID</c>.
@@ -514,7 +516,7 @@ Module yocto_anbutton
     '''*
     ''' <summary>
     '''   Returns the number of elapsed milliseconds between the module power on and the last time
-    '''   the input button was released (the input contact transitionned from closed to open).
+    '''   the input button was released (the input contact transitioned from closed to open).
     ''' <para>
     ''' </para>
     ''' <para>
@@ -522,7 +524,7 @@ Module yocto_anbutton
     ''' </summary>
     ''' <returns>
     '''   an integer corresponding to the number of elapsed milliseconds between the module power on and the last time
-    '''   the input button was released (the input contact transitionned from closed to open)
+    '''   the input button was released (the input contact transitioned from closed to open)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_LASTTIMERELEASED_INVALID</c>.

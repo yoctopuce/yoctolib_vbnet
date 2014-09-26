@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_realtimeclock.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_realtimeclock.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '*
@@ -47,6 +47,8 @@ Module yocto_realtimeclock
 
     REM --- (YRealTimeClock return codes)
     REM --- (end of YRealTimeClock return codes)
+    REM --- (YRealTimeClock dlldef)
+    REM --- (end of YRealTimeClock dlldef)
   REM --- (YRealTimeClock globals)
 
   Public Const Y_UNIXTIME_INVALID As Long = YAPI.INVALID_LONG

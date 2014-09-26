@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voltage.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_voltage.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindVoltage(), the high-level API for Voltage functions
 '*
@@ -47,6 +47,8 @@ Module yocto_voltage
 
     REM --- (YVoltage return codes)
     REM --- (end of YVoltage return codes)
+    REM --- (YVoltage dlldef)
+    REM --- (end of YVoltage dlldef)
   REM --- (YVoltage globals)
 
   Public Delegate Sub YVoltageValueCallback(ByVal func As YVoltage, ByVal value As String)

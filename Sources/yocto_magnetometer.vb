@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_magnetometer.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_magnetometer.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindMagnetometer(), the high-level API for Magnetometer functions
 '*
@@ -47,6 +47,8 @@ Module yocto_magnetometer
 
     REM --- (YMagnetometer return codes)
     REM --- (end of YMagnetometer return codes)
+    REM --- (YMagnetometer dlldef)
+    REM --- (end of YMagnetometer dlldef)
   REM --- (YMagnetometer globals)
 
   Public Const Y_XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -100,15 +102,15 @@ Module yocto_magnetometer
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "xValue") Then
-        _xValue = member.ivalue / 65536.0
+        _xValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "yValue") Then
-        _yValue = member.ivalue / 65536.0
+        _yValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "zValue") Then
-        _zValue = member.ivalue / 65536.0
+        _zValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       Return MyBase._parseAttr(member)

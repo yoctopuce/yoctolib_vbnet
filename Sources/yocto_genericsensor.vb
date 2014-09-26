@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_genericsensor.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_genericsensor.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '*
@@ -47,12 +47,15 @@ Module yocto_genericsensor
 
     REM --- (YGenericSensor return codes)
     REM --- (end of YGenericSensor return codes)
+    REM --- (YGenericSensor dlldef)
+    REM --- (end of YGenericSensor dlldef)
   REM --- (YGenericSensor globals)
 
   Public Const Y_SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SIGNALRANGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_VALUERANGE_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_SIGNALBIAS_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Delegate Sub YGenericSensorValueCallback(ByVal func As YGenericSensor, ByVal value As String)
   Public Delegate Sub YGenericSensorTimedReportCallback(ByVal func As YGenericSensor, ByVal measure As YMeasure)
   REM --- (end of YGenericSensor globals)
@@ -76,6 +79,7 @@ Module yocto_genericsensor
     Public Const SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
     Public Const SIGNALRANGE_INVALID As String = YAPI.INVALID_STRING
     Public Const VALUERANGE_INVALID As String = YAPI.INVALID_STRING
+    Public Const SIGNALBIAS_INVALID As Double = YAPI.INVALID_DOUBLE
     REM --- (end of YGenericSensor definitions)
 
     REM --- (YGenericSensor attributes declaration)
@@ -83,6 +87,7 @@ Module yocto_genericsensor
     Protected _signalUnit As String
     Protected _signalRange As String
     Protected _valueRange As String
+    Protected _signalBias As Double
     Protected _valueCallbackGenericSensor As YGenericSensorValueCallback
     Protected _timedReportCallbackGenericSensor As YGenericSensorTimedReportCallback
     REM --- (end of YGenericSensor attributes declaration)
@@ -95,6 +100,7 @@ Module yocto_genericsensor
       _signalUnit = SIGNALUNIT_INVALID
       _signalRange = SIGNALRANGE_INVALID
       _valueRange = VALUERANGE_INVALID
+      _signalBias = SIGNALBIAS_INVALID
       _valueCallbackGenericSensor = Nothing
       _timedReportCallbackGenericSensor = Nothing
       REM --- (end of YGenericSensor attributes initialization)
@@ -104,7 +110,7 @@ Module yocto_genericsensor
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "signalValue") Then
-        _signalValue = member.ivalue / 65536.0
+        _signalValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "signalUnit") Then
@@ -117,6 +123,10 @@ Module yocto_genericsensor
       End If
       If (member.name = "valueRange") Then
         _valueRange = member.svalue
+        Return 1
+      End If
+      If (member.name = "signalBias") Then
+        _signalBias = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -280,8 +290,8 @@ Module yocto_genericsensor
     ''' <summary>
     '''   Changes the physical value range measured by the sensor.
     ''' <para>
-    '''   The range change may have a side effect
-    '''   on the display resolution, as it may be adapted automatically.
+    '''   As a side effect, the range modification may
+    '''   automatically modify the display resolution.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -303,6 +313,60 @@ Module yocto_genericsensor
       rest_val = newval
       Return _setAttr("valueRange", rest_val)
     End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the electric signal bias for zero shift adjustment.
+    ''' <para>
+    '''   If your electric signal reads positif when it should be zero, setup
+    '''   a positive signalBias of the same value to fix the zero shift.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the electric signal bias for zero shift adjustment
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_signalBias(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("signalBias", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the electric signal bias for zero shift adjustment.
+    ''' <para>
+    '''   A positive bias means that the signal is over-reporting the measure,
+    '''   while a negative bias means that the signal is underreporting the measure.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the electric signal bias for zero shift adjustment
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_SIGNALBIAS_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_signalBias() As Double
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return SIGNALBIAS_INVALID
+        End If
+      End If
+      Return Me._signalBias
+    End Function
+
     '''*
     ''' <summary>
     '''   Retrieves a generic sensor for a given identifier.
@@ -435,6 +499,30 @@ Module yocto_genericsensor
         MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Adjusts the signal bias so that the current signal value is need
+    '''   precisely as zero.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function zeroAdjust() As Integer
+      Dim currSignal As Double = 0
+      Dim currBias As Double = 0
+      currSignal = Me.get_signalValue()
+      currBias = Me.get_signalBias()
+      Return Me.set_signalBias(currSignal + currBias)
     End Function
 
 

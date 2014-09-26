@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_digitalio.vb 15259 2014-03-06 10:21:05Z seb $
+'* $Id: yocto_digitalio.vb 17356 2014-08-29 14:38:39Z seb $
 '*
 '* Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '*
@@ -47,6 +47,8 @@ Module yocto_digitalio
 
     REM --- (YDigitalIO return codes)
     REM --- (end of YDigitalIO return codes)
+    REM --- (YDigitalIO dlldef)
+    REM --- (end of YDigitalIO dlldef)
   REM --- (YDigitalIO globals)
 
   Public Const Y_PORTSTATE_INVALID As Integer = YAPI.INVALID_UINT
