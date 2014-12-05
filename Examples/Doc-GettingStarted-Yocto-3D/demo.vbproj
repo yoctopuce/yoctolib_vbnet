@@ -83,6 +83,9 @@
     <Compile Include="..\..\Sources\yocto_anbutton.vb">
       <Link>yocto\yocto_anbutton.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_buzzer.vb">
+      <Link>yocto\yocto_anbutton.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_carbondioxide.vb">
       <Link>yocto\yocto_carbondioxide.vb</Link>
     </Compile>
@@ -163,6 +166,9 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_relay.vb">
       <Link>yocto\yocto_relay.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_segmenteddisplay.vb">
+      <Link>yocto\yocto_segmenteddisplay.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_serialport.vb">
       <Link>yocto\yocto_serialport.vb</Link>

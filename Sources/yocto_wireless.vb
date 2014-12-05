@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 17594 2014-09-10 21:15:55Z mvuilleu $
+'* $Id: yocto_wireless.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -60,7 +60,6 @@ Module yocto_wireless
   Public Const Y_SECURITY_WPA As Integer = 3
   Public Const Y_SECURITY_WPA2 As Integer = 4
   Public Const Y_SECURITY_INVALID As Integer = -1
-
   Public Const Y_MESSAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_WLANCONFIG_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YWirelessValueCallback(ByVal func As YWireless, ByVal value As String)
@@ -152,7 +151,6 @@ Module yocto_wireless
     Public Const SECURITY_WPA As Integer = 3
     Public Const SECURITY_WPA2 As Integer = 4
     Public Const SECURITY_INVALID As Integer = -1
-
     Public Const MESSAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const WLANCONFIG_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of generated code: YWireless definitions)

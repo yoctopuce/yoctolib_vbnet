@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 17674 2014-09-16 16:18:58Z seb $
+'* $Id: yocto_datalogger.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -59,16 +59,13 @@ Module yocto_datalogger
   Public Const Y_RECORDING_OFF As Integer = 0
   Public Const Y_RECORDING_ON As Integer = 1
   Public Const Y_RECORDING_INVALID As Integer = -1
-
   REM Y_AUTOSTART is defined in yocto_api.vb
   Public Const Y_BEACONDRIVEN_OFF As Integer = 0
   Public Const Y_BEACONDRIVEN_ON As Integer = 1
   Public Const Y_BEACONDRIVEN_INVALID As Integer = -1
-
   Public Const Y_CLEARHISTORY_FALSE As Integer = 0
   Public Const Y_CLEARHISTORY_TRUE As Integer = 1
   Public Const Y_CLEARHISTORY_INVALID As Integer = -1
-
   Public Delegate Sub YDataLoggerValueCallback(ByVal func As YDataLogger, ByVal value As String)
   Public Delegate Sub YDataLoggerTimedReportCallback(ByVal func As YDataLogger, ByVal measure As YMeasure)
   REM --- (end of generated code: YDataLogger globals)
@@ -343,19 +340,15 @@ Module yocto_datalogger
     Public Const RECORDING_OFF As Integer = 0
     Public Const RECORDING_ON As Integer = 1
     Public Const RECORDING_INVALID As Integer = -1
-
     Public Const AUTOSTART_OFF As Integer = 0
     Public Const AUTOSTART_ON As Integer = 1
     Public Const AUTOSTART_INVALID As Integer = -1
-
     Public Const BEACONDRIVEN_OFF As Integer = 0
     Public Const BEACONDRIVEN_ON As Integer = 1
     Public Const BEACONDRIVEN_INVALID As Integer = -1
-
     Public Const CLEARHISTORY_FALSE As Integer = 0
     Public Const CLEARHISTORY_TRUE As Integer = 1
     Public Const CLEARHISTORY_INVALID As Integer = -1
-
     REM --- (end of generated code: YDataLogger definitions)
 
     REM --- (generated code: YDataLogger attributes declaration)

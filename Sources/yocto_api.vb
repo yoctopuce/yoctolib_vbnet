@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 17816 2014-09-24 14:47:30Z seb $
+'* $Id: yocto_api.vb 18628 2014-12-03 16:18:53Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -569,7 +569,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "17849"
+  Public Const YOCTO_API_BUILD_NO As String = "18640"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1351,7 +1351,7 @@ Module yocto_api
           Exit Function
         End If
         If (GetTickCount() < timeout) Then
-          res = _yapiSleep(1, errBuffer)
+          res = _yapiSleep(2, errBuffer)
           If (YISERR(res)) Then
             Sleep = res
             errmsg = errBuffer.ToString()
@@ -1671,12 +1671,10 @@ Module yocto_api
   Public Const Y_PERSISTENTSETTINGS_SAVED As Integer = 1
   Public Const Y_PERSISTENTSETTINGS_MODIFIED As Integer = 2
   Public Const Y_PERSISTENTSETTINGS_INVALID As Integer = -1
-
   Public Const Y_LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BEACON_OFF As Integer = 0
   Public Const Y_BEACON_ON As Integer = 1
   Public Const Y_BEACON_INVALID As Integer = -1
-
   Public Const Y_UPTIME_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_USBCURRENT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_REBOOTCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
@@ -1807,7 +1805,9 @@ Module yocto_api
     Protected _settings As Byte()
     Protected _firmwarepath As String
     Protected _progress_msg As String
+    Protected _progress_c As Integer
     Protected _progress As Integer
+    Protected _restore_step As Integer
     REM --- (end of generated code: YFirmwareUpdate attributes declaration)
 
     Public Sub New(serial As String, path As String, settings As Byte())
@@ -1815,7 +1815,9 @@ Module yocto_api
       _firmwarepath = path
       _settings = settings
       REM --- (generated code: YFirmwareUpdate attributes initialization)
+      _progress_c = 0
       _progress = 0
+      _restore_step = 0
       REM --- (end of generated code: YFirmwareUpdate attributes initialization)
     End Sub
 
@@ -1827,30 +1829,182 @@ Module yocto_api
     REM --- (generated code: YFirmwareUpdate public methods declaration)
     Public Overridable Function _processMore(newupdate As Integer) As Integer
       Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim m As YModule
       Dim res As Integer = 0
       Dim serial As String
       Dim firmwarepath As String
       Dim settings As String
-      serial = Me._serial
-      firmwarepath = Me._firmwarepath
-      settings = YAPI.DefaultEncoding.GetString(Me._settings)
-      res = _yapiUpdateFirmware(new StringBuilder(serial), new StringBuilder(firmwarepath), new StringBuilder(settings), newupdate, errmsg)
-      Me._progress = res
-      Me._progress_msg = errmsg.ToString()
-      Return res
-    End Function
-
-    Public Overridable Function get_progress() As Integer
-      Dim m As YModule
-      Me._processMore(0)
-      If ((Me._progress = 100) And ((Me._settings).Length <> 0)) Then
-        m = YModule.FindModule(Me._serial)
-        If (m.isOnline()) Then
-          REM
-          m.set_allSettings(Me._settings)
-          ReDim Me._settings(0-1)
+      Dim prod_prefix As String
+      If (Me._progress_c < 100) Then
+        serial = Me._serial
+        firmwarepath = Me._firmwarepath
+        settings = YAPI.DefaultEncoding.GetString(Me._settings)
+        res = _yapiUpdateFirmware(new StringBuilder(serial), new StringBuilder(firmwarepath), new StringBuilder(settings), newupdate, errmsg)
+        If (res < 0) Then
+          Me._progress = res
+          Me._progress_msg = errmsg.ToString()
+          Return res
+        End If
+        Me._progress_c = res
+        Me._progress = (Me._progress_c * 9 \ 10)
+        Me._progress_msg = errmsg.ToString()
+      Else
+        If (((Me._settings).Length <> 0)) Then
+          Me._progress_msg = "restoring settings"
+          m = YModule.FindModule(Me._serial + ".module")
+          If (Not (m.isOnline())) Then
+            Return Me._progress
+          End If
+          If (Me._progress < 95) Then
+            prod_prefix = (m.get_productName()).Substring( 0, 8)
+            If (prod_prefix = "YoctoHub") Then
+              YAPI.Sleep(1000, Nothing)
+              Me._progress = Me._progress + 1
+              Return Me._progress
+            Else
+              Me._progress = 95
+            End If
+          End If
+          If (Me._progress < 100) Then
+            REM
+            m.set_allSettings(Me._settings)
+            ReDim Me._settings(0-1)
+            Me._progress = 100
+            Me._progress_msg = "success"
+          End If
+        Else
+          Me._progress =  100
+          Me._progress_msg = "success"
         End If
       End If
+      Return Me._progress
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrun a list of all modules in "update" mode.
+    ''' <para>
+    '''   Only USB connected
+    '''   devices are listed. If the module is connected to a YoctoHub, you have to
+    '''   connect to the YoctoHub web interface.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an array of strings containing the serial list of module in "update" mode.
+    ''' </returns>
+    '''/
+    Public Shared Function GetAllBootLoaders() As List(Of String)
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim smallbuff As StringBuilder = New StringBuilder(1024)
+      Dim bigbuff As StringBuilder
+      Dim buffsize As Integer = 0
+      Dim fullsize As Integer
+      Dim yapi_res As Integer = 0
+      Dim bootloader_list As String
+      Dim bootladers As List(Of String) = New List(Of String)()
+      fullsize = 0
+      yapi_res = _yapiGetBootloaders(smallbuff, 1024, fullsize, errmsg)
+      If (yapi_res < 0) Then
+        bootloader_list = "error:" + errmsg.ToString()
+        Return bootladers
+      End If
+      If (fullsize <= 1024) Then
+        bootloader_list = smallbuff.ToString()
+      Else
+        buffsize = fullsize
+        bigbuff = New StringBuilder(buffsize)
+        yapi_res = _yapiGetBootloaders(bigbuff, buffsize, fullsize, errmsg)
+        If (yapi_res < 0) Then
+          bigbuff = Nothing
+          Return bootladers
+        Else
+          bootloader_list = bigbuff.ToString()
+        End If
+        bigbuff = Nothing
+      End If
+      bootladers = new List(Of String)(bootloader_list.Split(new Char() {","c}))
+      Return bootladers
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Test if the byn file is valid for this module.
+    ''' <para>
+    '''   It's possible to pass an directory instead of a file.
+    '''   In this case this method return the path of the most recent appropriate byn file. This method will
+    '''   ignore firmware that are older than mintrelase.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="serial">
+    '''   the serial number of the module to update
+    ''' </param>
+    ''' <param name="path">
+    '''   the path of a byn file or a directory that contain byn files
+    ''' </param>
+    ''' <param name="minrelease">
+    '''   an positif integer
+    ''' </param>
+    ''' <returns>
+    '''   : the path of the byn file to use or a empty string if no byn files match the requirement
+    ''' </returns>
+    ''' <para>
+    '''   On failure, returns a string that start with "error:".
+    ''' </para>
+    '''/
+    Public Shared Function CheckFirmware(serial As String, path As String, minrelease As Integer) As String
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim smallbuff As StringBuilder = New StringBuilder(1024)
+      Dim bigbuff As StringBuilder
+      Dim buffsize As Integer = 0
+      Dim fullsize As Integer
+      Dim res As Integer = 0
+      Dim firmware_path As String
+      Dim release As String
+      fullsize = 0
+      release = (minrelease).ToString()
+      res = _yapiCheckFirmware(new StringBuilder(serial), new StringBuilder(release), new StringBuilder(path), smallbuff, 1024, fullsize, errmsg)
+      If (res < 0) Then
+        firmware_path = "error:" + errmsg.ToString()
+        Return "error:" + errmsg.ToString()
+      End If
+      If (fullsize <= 1024) Then
+        firmware_path = smallbuff.ToString()
+      Else
+        buffsize = fullsize
+        bigbuff = New StringBuilder(buffsize)
+        res = _yapiCheckFirmware(new StringBuilder(serial), new StringBuilder(release), new StringBuilder(path), bigbuff, buffsize, fullsize, errmsg)
+        If (res < 0) Then
+          firmware_path = "error:" + errmsg.ToString()
+        Else
+          firmware_path = bigbuff.ToString()
+        End If
+        bigbuff = Nothing
+      End If
+      Return firmware_path
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the progress of the firmware update, on a scale from 0 to 100.
+    ''' <para>
+    '''   When the object is
+    '''   instantiated the progress is zero. The value is updated During the firmware update process, until
+    '''   the value of 100 is reached. The value of 100 mean that the firmware update is terminated with
+    '''   success. If an error occur during the firmware update a negative value is returned, and the
+    '''   error message can be retrieved with <c>get_progressMessage</c>.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer in the range 0 to 100 (percentage of completion) or
+    '''   or a negative error code in case of failure.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_progress() As Integer
+      Me._processMore(0)
       Return Me._progress
     End Function
 
@@ -1892,6 +2046,8 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function startUpdate() As Integer
+      Me._progress = 0
+      Me._progress_c = 0
       Me._processMore(1)
       Return Me._progress
     End Function
@@ -3725,20 +3881,35 @@ Module yocto_api
       _nextFunction = YAPI_SUCCESS
     End Function
 
-    Private Function _buildSetRequest(ByVal changeattr As String, ByVal changeval As String, ByRef request As String, ByRef errmsg As String) As YRETCODE
+    Protected Function _escapeAttr(ByVal changeval As String) As String
+      Dim i As Integer
+      Dim uchangeval, h As String
+      uchangeval = ""
+      Dim c As Char
+      For i = 0 To changeval.Length - 1
+        c = changeval.Chars(i)
+        If (c < " ") Or ((c > Chr(122)) And (c <> "~")) Or (c = Chr(34)) Or (c = "%") Or (c = "&") Or
+           (c = "+") Or (c = "<") Or (c = "=") Or (c = ">") Or (c = "\") Or (c = "^") Or (c = "`") Then
+          h = Hex(Asc(c))
+          If (h.Length < 2) Then h = "0" + h
+          uchangeval = uchangeval + "%" + h
+        Else
+          uchangeval = uchangeval + c
+        End If
+      Next
+      _escapeAttr = uchangeval
+    End Function
 
-      Dim res, i As Integer
+
+    Private Function _buildSetRequest(ByVal changeattr As String, ByVal changeval As String, ByRef request As String, ByRef errmsg As String) As YRETCODE
+      Dim res As Integer
       Dim fundesc As YFUN_DESCR
       Dim funcid As New StringBuilder(YOCTO_FUNCTION_LEN)
       Dim errbuff As New StringBuilder(YOCTO_ERRMSG_LEN)
-
-      Dim uchangeval, h As String
-      Dim c As Char
       Dim devdesc As YDEV_DESCR
 
       funcid.Length = 0
       errbuff.Length = 0
-
 
       REM Resolve the function name
       res = _getDescriptor(fundesc, errmsg)
@@ -3756,26 +3927,11 @@ Module yocto_api
         Exit Function
       End If
 
-
       request = "GET /api/" + funcid.ToString() + "/"
-      uchangeval = ""
-
       If (changeattr <> "") Then
-        request = request + changeattr + "?" + changeattr + "="
-        For i = 0 To changeval.Length - 1
-          c = changeval.Chars(i)
-          If (c < " ") Or ((c > Chr(122)) And (c <> "~")) Or (c = Chr(34)) Or (c = "%") Or (c = "&") Or
-             (c = "+") Or (c = "<") Or (c = "=") Or (c = ">") Or (c = "\") Or (c = "^") Or (c = "`") Then
-            h = Hex(Asc(c))
-            If (h.Length < 2) Then h = "0" + h
-            uchangeval = uchangeval + "%" + h
-          Else
-            uchangeval = uchangeval + c
-          End If
-        Next
+        request = request + changeattr + "?" + changeattr + "=" + _escapeAttr(changeval)
       End If
-
-      request = request + uchangeval + "&. " + Chr(13) + Chr(10) + Chr(13) + Chr(10)
+      request = request + "&. " + Chr(13) + Chr(10) + Chr(13) + Chr(10)
       _buildSetRequest = YAPI_SUCCESS
     End Function
 
@@ -4885,12 +5041,10 @@ Module yocto_api
     Public Const PERSISTENTSETTINGS_SAVED As Integer = 1
     Public Const PERSISTENTSETTINGS_MODIFIED As Integer = 2
     Public Const PERSISTENTSETTINGS_INVALID As Integer = -1
-
     Public Const LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BEACON_OFF As Integer = 0
     Public Const BEACON_ON As Integer = 1
     Public Const BEACON_INVALID As Integer = -1
-
     Public Const UPTIME_INVALID As Long = YAPI.INVALID_LONG
     Public Const USBCURRENT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const REBOOTCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
@@ -5824,43 +5978,16 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function checkFirmware(path As String, onlynew As Boolean) As String
-      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
-      Dim smallbuff As StringBuilder = New StringBuilder(1024)
-      Dim bigbuff As StringBuilder
-      Dim buffsize As Integer = 0
-      Dim fullsize As Integer
-      Dim res As Integer = 0
-      Dim firmware_path As String
       Dim serial As String
-      Dim release As String
+      Dim release As Integer = 0
       If (onlynew) Then
-        release = Me.get_firmwareRelease()
+        release = Convert.ToInt32(Me.get_firmwareRelease())
       Else
-        release = ""
+        release = 0
       End If
       REM //may throw an exception
-      serial = Me._serial
-      fullsize = 0
-      res = _yapiCheckFirmware(new StringBuilder(serial), new StringBuilder(release), new StringBuilder(path), smallbuff, 1024, fullsize, errmsg)
-      If (res < 0) Then
-        firmware_path = "error:" + errmsg.ToString()
-        Return "error:" + errmsg.ToString()
-      End If
-      If (fullsize <= 1024) Then
-        firmware_path = smallbuff.ToString()
-      Else
-        buffsize = fullsize
-        bigbuff = New StringBuilder(buffsize)
-        res = _yapiCheckFirmware(new StringBuilder(serial), new StringBuilder(release), new StringBuilder(path), bigbuff, buffsize, fullsize, errmsg)
-        If (res < 0) Then
-          Me._throw(YAPI.INVALID_ARGUMENT, errmsg.ToString())
-          firmware_path = "error:" + errmsg.ToString()
-        Else
-          firmware_path = bigbuff.ToString()
-        End If
-        bigbuff = Nothing
-      End If
-      Return firmware_path
+      serial = Me.get_serialNumber()
+      Return YFirmwareUpdate.CheckFirmware(serial,path, release)
     End Function
 
     '''*
@@ -6189,12 +6316,12 @@ Module yocto_api
       Dim old_dslist As List(Of String) = New List(Of String)()
       Dim old_jpath As List(Of String) = New List(Of String)()
       Dim old_jpath_len As List(Of Integer) = New List(Of Integer)()
-      Dim old_val As List(Of String) = New List(Of String)()
+      Dim old_val_arr As List(Of String) = New List(Of String)()
       Dim actualSettings As Byte()
       Dim new_dslist As List(Of String) = New List(Of String)()
       Dim new_jpath As List(Of String) = New List(Of String)()
       Dim new_jpath_len As List(Of Integer) = New List(Of Integer)()
-      Dim new_val As List(Of String) = New List(Of String)()
+      Dim new_val_arr As List(Of String) = New List(Of String)()
       Dim cpos As Integer = 0
       Dim eqpos As Integer = 0
       Dim leng As Integer = 0
@@ -6211,18 +6338,19 @@ Module yocto_api
       Dim sensorType As String
       Dim unit_name As String
       Dim newval As String
+      Dim oldval As String
       Dim old_calib As String
       Dim do_update As Boolean
       Dim found As Boolean
+      oldval = ""
+      newval = ""
       old_json_flat = Me._flattenJsonStruct(settings)
       old_dslist = Me._json_get_array(old_json_flat)
       
       
       
       For i_i = 0 To old_dslist.Count - 1
-        REM
-        leng = (old_dslist(i_i)).Length
-        old_dslist(i_i) = (old_dslist(i_i)).Substring( 1, leng - 2)
+        old_dslist(i_i) = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(old_dslist(i_i)))
         REM
         leng = (old_dslist(i_i)).Length
         eqpos = old_dslist(i_i).IndexOf("=")
@@ -6235,7 +6363,7 @@ Module yocto_api
         value = (old_dslist(i_i)).Substring( eqpos, leng - eqpos)
         old_jpath.Add(jpath)
         old_jpath_len.Add((jpath).Length)
-        old_val.Add(value)
+        old_val_arr.Add(value)
       Next i_i
       
       
@@ -6249,8 +6377,7 @@ Module yocto_api
       
       For i_i = 0 To new_dslist.Count - 1
         REM
-        leng = (new_dslist(i_i)).Length
-        new_dslist(i_i) = (new_dslist(i_i)).Substring( 1, leng - 2)
+        new_dslist(i_i) = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(new_dslist(i_i)))
         REM
         leng = (new_dslist(i_i)).Length
         eqpos = new_dslist(i_i).IndexOf("=")
@@ -6263,7 +6390,7 @@ Module yocto_api
         value = (new_dslist(i_i)).Substring( eqpos, leng - eqpos)
         new_jpath.Add(jpath)
         new_jpath_len.Add((jpath).Length)
-        new_val.Add(value)
+        new_val_arr.Add(value)
       Next i_i
       
       
@@ -6393,17 +6520,33 @@ Module yocto_api
           do_update = False
         End If
         If (do_update) Then
+          do_update = False
+          newval = new_val_arr(i)
+          j = 0
+          found = False
+          While ((j < old_jpath.Count) And Not (found))
+            If ((new_jpath_len(i) = old_jpath_len(j)) And (new_jpath(i) = old_jpath(j))) Then
+              found = True
+              oldval = old_val_arr(j)
+              If (Not (newval = oldval)) Then
+                do_update = True
+              End If
+            End If
+            j = j + 1
+          End While
+        End If
+        If (do_update) Then
           If (attr = "calibrationParam") Then
             old_calib = ""
             unit_name = ""
             sensorType = ""
-            new_calib = new_val(i)
+            new_calib = newval
             j = 0
             found = False
             While ((j < old_jpath.Count) And Not (found))
               If ((new_jpath_len(i) = old_jpath_len(j)) And (new_jpath(i) = old_jpath(j))) Then
                 found = True
-                old_calib = old_val(j)
+                old_calib = old_val_arr(j)
               End If
               j = j + 1
             End While
@@ -6427,24 +6570,16 @@ Module yocto_api
               End If
               j = j + 1
             End While
-            newval = Me.calibConvert(new_val(i), old_calib, unit_name, sensorType)
-            url = "api/" + fun + ".json?" + attr + "=" + newval
+            newval = Me.calibConvert(new_val_arr(i), old_calib, unit_name, sensorType)
+            url = "api/" + fun + ".json?" + attr + "=" + Me._escapeAttr(newval)
             Me._download(url)
           Else
-            j = 0
-            found = False
-            While ((j < old_jpath_len.Count) And Not (found))
-              If ((new_jpath_len(i) = old_jpath_len(j)) And (new_jpath(i) = old_jpath(j))) Then
-                found = True
-                url = "api/" + fun + ".json?" + attr + "=" + old_val(j)
-                If (attr = "resolution") Then
-                  restoreLast.Add(url)
-                Else
-                  Me._download(url)
-                End If
-              End If
-              j = j + 1
-            End While
+            url = "api/" + fun + ".json?" + attr + "=" + Me._escapeAttr(oldval)
+            If (attr = "resolution") Then
+              restoreLast.Add(url)
+            Else
+              Me._download(url)
+            End If
           End If
         End If
         i = i + 1
@@ -7372,6 +7507,51 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Starts the data logger on the device.
+    ''' <para>
+    '''   Note that the data logger
+    '''   will only save the measures on this sensor if the logFrequency
+    '''   is not set to "OFF".
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    '''/
+    Public Overridable Function startDataLogger() As Integer
+      Dim res As Byte()
+      REM // may throw an exception
+      res = Me._download("api/dataLogger/recording?recording=1")
+      If Not((res).Length>0) Then
+        me._throw( YAPI.IO_ERROR,  "unable to start datalogger")
+        return YAPI.IO_ERROR
+      end if
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Stops the datalogger on the device.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    '''/
+    Public Overridable Function stopDataLogger() As Integer
+      Dim res As Byte()
+      REM // may throw an exception
+      res = Me._download("api/dataLogger/recording?recording=0")
+      If Not((res).Length>0) Then
+        me._throw( YAPI.IO_ERROR,  "unable to stop datalogger")
+        return YAPI.IO_ERROR
+      end if
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Retrieves a DataSet object holding historical data for this
     '''   sensor, for a specified time interval.
     ''' <para>
@@ -7685,7 +7865,7 @@ Module yocto_api
           difRaw = 0
           While ((sublen > 0) And (i < report.Count))
             byteVal = report(i)
-            difRaw = avgRaw + poww * byteVal
+            difRaw = difRaw + poww * byteVal
             poww = poww * &H100
             i = i + 1
             sublen = sublen - 1
@@ -7696,7 +7876,7 @@ Module yocto_api
           difRaw = 0
           While ((sublen > 0) And (i < report.Count))
             byteVal = report(i)
-            difRaw = avgRaw + poww * byteVal
+            difRaw = difRaw + poww * byteVal
             poww = poww * &H100
             i = i + 1
             sublen = sublen - 1
@@ -8923,8 +9103,8 @@ Module yocto_api
   <DllImport("yapi.dll", EntryPoint:="yapiCheckFirmware", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiCheckFirmware(ByVal serial As StringBuilder, ByVal rev As StringBuilder, ByVal path As StringBuilder, ByVal buffer As StringBuilder, ByVal buffersize As Integer, ByRef fullsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiGetBootloadersDevs", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
-  Private Function _yapiGetBootloadersDevs(ByVal serials As StringBuilder, ByVal maxNbSerial As Integer, ByRef totalBootladers As Integer, ByVal errmsg As StringBuilder) As Integer
+  <DllImport("yapi.dll", EntryPoint:="yapiGetBootloaders", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiGetBootloaders(ByVal buffer As StringBuilder, ByVal buffersize As Integer, ByRef totalSize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiUpdateFirmware", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiUpdateFirmware(ByVal serial As StringBuilder, ByVal firmwarePath As StringBuilder, ByVal settings As StringBuilder, ByVal startUpdate As Integer, ByVal errmsg As StringBuilder) As Integer

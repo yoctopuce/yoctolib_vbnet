@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: pic24config.php 17551 2014-09-09 09:06:04Z mvuilleu $
+'* $Id: yocto_pwminput.vb 18361 2014-11-13 08:06:41Z mvuilleu $
 '*
 '* Implements yFindPwmInput(), the high-level API for PwmInput functions
 '*
@@ -62,7 +62,6 @@ Module yocto_pwminput
   Public Const Y_PWMREPORTMODE_PWM_PULSEDURATION As Integer = 2
   Public Const Y_PWMREPORTMODE_PWM_EDGECOUNT As Integer = 3
   Public Const Y_PWMREPORTMODE_INVALID As Integer = -1
-
   Public Delegate Sub YPwmInputValueCallback(ByVal func As YPwmInput, ByVal value As String)
   Public Delegate Sub YPwmInputTimedReportCallback(ByVal func As YPwmInput, ByVal measure As YMeasure)
   REM --- (end of YPwmInput globals)
@@ -93,7 +92,6 @@ Module yocto_pwminput
     Public Const PWMREPORTMODE_PWM_PULSEDURATION As Integer = 2
     Public Const PWMREPORTMODE_PWM_EDGECOUNT As Integer = 3
     Public Const PWMREPORTMODE_INVALID As Integer = -1
-
     REM --- (end of YPwmInput definitions)
 
     REM --- (YPwmInput attributes declaration)
@@ -263,7 +261,7 @@ Module yocto_pwminput
     ''' <para>
     '''   Actually that
     '''   counter is incremented twice per period. That counter is
-    '''   limited  to 1 billions
+    '''   limited  to 1 billion
     ''' </para>
     ''' <para>
     ''' </para>
@@ -343,10 +341,10 @@ Module yocto_pwminput
 
     '''*
     ''' <summary>
-    '''   Modify the  parameter  type(frequency/duty cycle, pulse width ou edge count) returned by the get_currentValue function and callbacks.
+    '''   Modifies the  parameter  type (frequency/duty cycle, pulse width, or edge count) returned by the get_currentValue function and callbacks.
     ''' <para>
-    '''   The edge count value will be limited to the 6 lowest digit, for values greater than one million,
-    '''   use get_pulseCounter().
+    '''   The edge count value is limited to the 6 lowest digits. For values greater than one million, use
+    '''   get_pulseCounter().
     ''' </para>
     ''' <para>
     ''' </para>
@@ -371,7 +369,7 @@ Module yocto_pwminput
     End Function
     '''*
     ''' <summary>
-    '''   Retrieves a voltage sensor for a given identifier.
+    '''   Retrieves a PWM input for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -395,20 +393,20 @@ Module yocto_pwminput
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the voltage sensor is online at the time
+    '''   This function does not require that the PWM input is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YPwmInput.isOnline()</c> to test if the voltage sensor is
+    '''   Use the method <c>YPwmInput.isOnline()</c> to test if the PWM input is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a voltage sensor by logical name, no error is notified: the first instance
+    '''   a PWM input by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the voltage sensor
+    '''   a string that uniquely characterizes the PWM input
     ''' </param>
     ''' <returns>
-    '''   a <c>YPwmInput</c> object allowing you to drive the voltage sensor.
+    '''   a <c>YPwmInput</c> object allowing you to drive the PWM input.
     ''' </returns>
     '''/
     Public Shared Function FindPwmInput(func As String) As YPwmInput
@@ -505,7 +503,9 @@ Module yocto_pwminput
 
     '''*
     ''' <summary>
-    '''   Returns the pulse counter value as well as his timer
+    '''   Returns the pulse counter value as well as its timer.
+    ''' <para>
+    ''' </para>
     ''' </summary>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.
@@ -521,14 +521,14 @@ Module yocto_pwminput
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of voltage sensors started using <c>yFirstPwmInput()</c>.
+    '''   Continues the enumeration of PWM inputs started using <c>yFirstPwmInput()</c>.
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YPwmInput</c> object, corresponding to
-    '''   a voltage sensor currently online, or a <c>null</c> pointer
-    '''   if there are no more voltage sensors to enumerate.
+    '''   a PWM input currently online, or a <c>null</c> pointer
+    '''   if there are no more PWM inputs to enumerate.
     ''' </returns>
     '''/
     Public Function nextPwmInput() As YPwmInput
@@ -544,15 +544,15 @@ Module yocto_pwminput
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of voltage sensors currently accessible.
+    '''   Starts the enumeration of PWM inputs currently accessible.
     ''' <para>
     '''   Use the method <c>YPwmInput.nextPwmInput()</c> to iterate on
-    '''   next voltage sensors.
+    '''   next PWM inputs.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YPwmInput</c> object, corresponding to
-    '''   the first voltage sensor currently online, or a <c>null</c> pointer
+    '''   the first PWM input currently online, or a <c>null</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -591,7 +591,7 @@ Module yocto_pwminput
 
   '''*
   ''' <summary>
-  '''   Retrieves a voltage sensor for a given identifier.
+  '''   Retrieves a PWM input for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -615,20 +615,20 @@ Module yocto_pwminput
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the voltage sensor is online at the time
+  '''   This function does not require that the PWM input is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YPwmInput.isOnline()</c> to test if the voltage sensor is
+  '''   Use the method <c>YPwmInput.isOnline()</c> to test if the PWM input is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a voltage sensor by logical name, no error is notified: the first instance
+  '''   a PWM input by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the voltage sensor
+  '''   a string that uniquely characterizes the PWM input
   ''' </param>
   ''' <returns>
-  '''   a <c>YPwmInput</c> object allowing you to drive the voltage sensor.
+  '''   a <c>YPwmInput</c> object allowing you to drive the PWM input.
   ''' </returns>
   '''/
   Public Function yFindPwmInput(ByVal func As String) As YPwmInput
@@ -637,15 +637,15 @@ Module yocto_pwminput
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of voltage sensors currently accessible.
+  '''   Starts the enumeration of PWM inputs currently accessible.
   ''' <para>
   '''   Use the method <c>YPwmInput.nextPwmInput()</c> to iterate on
-  '''   next voltage sensors.
+  '''   next PWM inputs.
   ''' </para>
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YPwmInput</c> object, corresponding to
-  '''   the first voltage sensor currently online, or a <c>null</c> pointer
+  '''   the first PWM input currently online, or a <c>null</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_temperature.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -62,8 +62,11 @@ Module yocto_temperature
   Public Const Y_SENSORTYPE_PT100_4WIRES As Integer = 8
   Public Const Y_SENSORTYPE_PT100_3WIRES As Integer = 9
   Public Const Y_SENSORTYPE_PT100_2WIRES As Integer = 10
+  Public Const Y_SENSORTYPE_RES_OHM As Integer = 11
+  Public Const Y_SENSORTYPE_RES_NTC As Integer = 12
+  Public Const Y_SENSORTYPE_RES_LINEAR As Integer = 13
   Public Const Y_SENSORTYPE_INVALID As Integer = -1
-
+  Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YTemperatureValueCallback(ByVal func As YTemperature, ByVal value As String)
   Public Delegate Sub YTemperatureTimedReportCallback(ByVal func As YTemperature, ByVal measure As YMeasure)
   REM --- (end of YTemperature globals)
@@ -94,12 +97,16 @@ Module yocto_temperature
     Public Const SENSORTYPE_PT100_4WIRES As Integer = 8
     Public Const SENSORTYPE_PT100_3WIRES As Integer = 9
     Public Const SENSORTYPE_PT100_2WIRES As Integer = 10
+    Public Const SENSORTYPE_RES_OHM As Integer = 11
+    Public Const SENSORTYPE_RES_NTC As Integer = 12
+    Public Const SENSORTYPE_RES_LINEAR As Integer = 13
     Public Const SENSORTYPE_INVALID As Integer = -1
-
+    Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YTemperature definitions)
 
     REM --- (YTemperature attributes declaration)
     Protected _sensorType As Integer
+    Protected _command As String
     Protected _valueCallbackTemperature As YTemperatureValueCallback
     Protected _timedReportCallbackTemperature As YTemperatureTimedReportCallback
     REM --- (end of YTemperature attributes declaration)
@@ -109,6 +116,7 @@ Module yocto_temperature
       _classname = "Temperature"
       REM --- (YTemperature attributes initialization)
       _sensorType = SENSORTYPE_INVALID
+      _command = COMMAND_INVALID
       _valueCallbackTemperature = Nothing
       _timedReportCallbackTemperature = Nothing
       REM --- (end of YTemperature attributes initialization)
@@ -119,6 +127,10 @@ Module yocto_temperature
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "sensorType") Then
         _sensorType = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "command") Then
+        _command = member.svalue
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -139,8 +151,8 @@ Module yocto_temperature
     '''   a value among <c>Y_SENSORTYPE_DIGITAL</c>, <c>Y_SENSORTYPE_TYPE_K</c>, <c>Y_SENSORTYPE_TYPE_E</c>,
     '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
     '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
-    '''   <c>Y_SENSORTYPE_PT100_3WIRES</c> and <c>Y_SENSORTYPE_PT100_2WIRES</c> corresponding to the
-    '''   temperature sensor type
+    '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
+    '''   <c>Y_SENSORTYPE_RES_NTC</c> and <c>Y_SENSORTYPE_RES_LINEAR</c> corresponding to the temperature sensor type
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_SENSORTYPE_INVALID</c>.
@@ -173,7 +185,8 @@ Module yocto_temperature
     '''   a value among <c>Y_SENSORTYPE_DIGITAL</c>, <c>Y_SENSORTYPE_TYPE_K</c>, <c>Y_SENSORTYPE_TYPE_E</c>,
     '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
     '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
-    '''   <c>Y_SENSORTYPE_PT100_3WIRES</c> and <c>Y_SENSORTYPE_PT100_2WIRES</c>
+    '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
+    '''   <c>Y_SENSORTYPE_RES_NTC</c> and <c>Y_SENSORTYPE_RES_LINEAR</c>
     ''' </param>
     ''' <para>
     ''' </para>
@@ -188,6 +201,21 @@ Module yocto_temperature
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("sensorType", rest_val)
+    End Function
+    Public Function get_command() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return COMMAND_INVALID
+        End If
+      End If
+      Return Me._command
+    End Function
+
+
+    Public Function set_command(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("command", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -321,6 +349,178 @@ Module yocto_temperature
         MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Record a thermistor response table, for interpolating the temperature from
+    '''   the measured resistance.
+    ''' <para>
+    '''   This function can only be used with temperature
+    '''   sensor based on thermistors.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="tempValues">
+    '''   array of floating point numbers, corresponding to all
+    '''   temperatures (in degrees Celcius) for which the resistance of the
+    '''   thermistor is specified.
+    ''' </param>
+    ''' <param name="resValues">
+    '''   array of floating point numbers, corresponding to the resistance
+    '''   values (in Ohms) for each of the temperature included in the first
+    '''   argument, index by index.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function set_thermistorResponseTable(tempValues As List(Of Double), resValues As List(Of Double)) As Integer
+      Dim siz As Integer = 0
+      Dim res As Integer = 0
+      Dim idx As Integer = 0
+      Dim found As Integer = 0
+      Dim prev As Double = 0
+      Dim curr As Double = 0
+      Dim currTemp As Double = 0
+      Dim idxres As Double = 0
+      siz = tempValues.Count
+      If Not(siz >= 2) Then
+        me._throw( YAPI.INVALID_ARGUMENT,  "thermistor response table must have at least two points")
+        return YAPI.INVALID_ARGUMENT
+      end if
+      If Not(siz = resValues.Count) Then
+        me._throw( YAPI.INVALID_ARGUMENT,  "table sizes mismatch")
+        return YAPI.INVALID_ARGUMENT
+      end if
+      
+      REM // may throw an exception
+      res = Me.set_command("Z")
+      If Not(res=YAPI.SUCCESS) Then
+        me._throw( YAPI.IO_ERROR,  "unable to reset thermistor parameters")
+        return YAPI.IO_ERROR
+      end if
+      
+      REM // add records in growing resistance value
+      found = 1
+      prev = 0.0
+      While (found > 0)
+        found = 0
+        curr = 99999999.0
+        currTemp = -999999.0
+        idx = 0
+        While (idx < siz)
+          idxres = resValues(idx)
+          If ((idxres > prev) And (idxres < curr)) Then
+            curr = idxres
+            currTemp = tempValues(idx)
+            found = 1
+          End If
+          idx = idx + 1
+        End While
+        If (found > 0) Then
+          res = Me.set_command("m" + Convert.ToString( CType(Math.Round(1000*curr), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*currTemp), Integer)))
+          If Not(res=YAPI.SUCCESS) Then
+            me._throw( YAPI.IO_ERROR,  "unable to reset thermistor parameters")
+            return YAPI.IO_ERROR
+          end if
+          prev = curr
+        End If
+      End While
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves the thermistor response table previously configured using function
+    '''   <c>set_thermistorResponseTable</c>.
+    ''' <para>
+    '''   This function can only be used with
+    '''   temperature sensor based on thermistors.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="tempValues">
+    '''   array of floating point numbers, that will be filled by the function
+    '''   with all temperatures (in degrees Celcius) for which the resistance
+    '''   of the thermistor is specified.
+    ''' </param>
+    ''' <param name="resValues">
+    '''   array of floating point numbers, that will be filled by the function
+    '''   with the value (in Ohms) for each of the temperature included in the
+    '''   first argument, index by index.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function loadThermistorResponseTable(tempValues As List(Of Double), resValues As List(Of Double)) As Integer
+      Dim id As String
+      Dim bin_json As Byte()
+      Dim paramlist As List(Of String) = New List(Of String)()
+      Dim templist As List(Of Double) = New List(Of Double)()
+      Dim siz As Integer = 0
+      Dim idx As Integer = 0
+      Dim temp As Double = 0
+      Dim found As Integer = 0
+      Dim prev As Double = 0
+      Dim curr As Double = 0
+      Dim currRes As Double = 0
+      
+      tempValues.Clear()
+      resValues.Clear()
+      
+      REM // may throw an exception
+      id = Me.get_functionId()
+      id = (id).Substring( 11, (id).Length-1)
+      bin_json = Me._download("extra.json?page=" + id)
+      paramlist = Me._json_get_array(bin_json)
+      REM // first convert all temperatures to float
+      siz = ((paramlist.Count) >> (1))
+      templist.Clear()
+      idx = 0
+      While (idx < siz)
+        temp = Double.Parse(paramlist(2*idx+1))/1000.0
+        templist.Add(temp)
+        idx = idx + 1
+      End While
+      REM // then add records in growing temperature value
+      tempValues.Clear()
+      resValues.Clear()
+      found = 1
+      prev = -999999.0
+      While (found > 0)
+        found = 0
+        curr = 999999.0
+        currRes = -999999.0
+        idx = 0
+        While (idx < siz)
+          temp = templist(idx)
+          If ((temp > prev) And (temp < curr)) Then
+            curr = temp
+            currRes = Double.Parse(paramlist(2*idx))/1000.0
+            found = 1
+          End If
+          idx = idx + 1
+        End While
+        If (found > 0) Then
+          tempValues.Add(curr)
+          resValues.Add(currRes)
+          prev = curr
+        End If
+      End While
+      
+      
+      
+      Return YAPI.SUCCESS
     End Function
 
 

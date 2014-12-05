@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 17481 2014-09-03 09:38:35Z mvuilleu $
+'* $Id: yocto_refframe.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -59,14 +59,12 @@ Module yocto_refframe
   REAR = 4
   LEFT = 5
 end enum
-
  Public Enum  Y_MOUNTORIENTATION
   TWELVE = 0
   THREE = 1
   SIX = 2
   NINE = 3
 end enum
-
   Public Const Y_MOUNTPOS_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BEARING_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING

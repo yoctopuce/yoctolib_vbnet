@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 17498 2014-09-03 19:21:24Z mvuilleu $
+'* $Id: yocto_display.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -67,14 +67,12 @@ Module yocto_display
   BASELINE_RIGHT = 14
   BOTTOM_RIGHT = 15
 end enum
-
   REM --- (end of generated code: YDisplayLayer globals)
   REM --- (generated code: YDisplay globals)
 
   Public Const Y_ENABLED_FALSE As Integer = 0
   Public Const Y_ENABLED_TRUE As Integer = 1
   Public Const Y_ENABLED_INVALID As Integer = -1
-
   Public Const Y_STARTUPSEQ_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ORIENTATION_LEFT As Integer = 0
@@ -82,14 +80,12 @@ end enum
   Public Const Y_ORIENTATION_RIGHT As Integer = 2
   Public Const Y_ORIENTATION_DOWN As Integer = 3
   Public Const Y_ORIENTATION_INVALID As Integer = -1
-
   Public Const Y_DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_DISPLAYTYPE_MONO As Integer = 0
   Public Const Y_DISPLAYTYPE_GRAY As Integer = 1
   Public Const Y_DISPLAYTYPE_RGB As Integer = 2
   Public Const Y_DISPLAYTYPE_INVALID As Integer = -1
-
   Public Const Y_LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LAYERCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -925,7 +921,6 @@ end enum
     Public Const ENABLED_FALSE As Integer = 0
     Public Const ENABLED_TRUE As Integer = 1
     Public Const ENABLED_INVALID As Integer = -1
-
     Public Const STARTUPSEQ_INVALID As String = YAPI.INVALID_STRING
     Public Const BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ORIENTATION_LEFT As Integer = 0
@@ -933,14 +928,12 @@ end enum
     Public Const ORIENTATION_RIGHT As Integer = 2
     Public Const ORIENTATION_DOWN As Integer = 3
     Public Const ORIENTATION_INVALID As Integer = -1
-
     Public Const DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DISPLAYTYPE_MONO As Integer = 0
     Public Const DISPLAYTYPE_GRAY As Integer = 1
     Public Const DISPLAYTYPE_RGB As Integer = 2
     Public Const DISPLAYTYPE_INVALID As Integer = -1
-
     Public Const LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LAYERCOUNT_INVALID As Integer = YAPI.INVALID_UINT

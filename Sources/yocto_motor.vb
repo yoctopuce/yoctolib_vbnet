@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_motor.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_motor.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindMotor(), the high-level API for Motor functions
 '*
@@ -60,7 +60,6 @@ Module yocto_motor
   Public Const Y_MOTORSTATUS_HIHEAT As Integer = 6
   Public Const Y_MOTORSTATUS_FAILSF As Integer = 7
   Public Const Y_MOTORSTATUS_INVALID As Integer = -1
-
   Public Const Y_DRIVINGFORCE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_BRAKINGFORCE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_CUTOFFVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -101,7 +100,6 @@ Module yocto_motor
     Public Const MOTORSTATUS_HIHEAT As Integer = 6
     Public Const MOTORSTATUS_FAILSF As Integer = 7
     Public Const MOTORSTATUS_INVALID As Integer = -1
-
     Public Const DRIVINGFORCE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const BRAKINGFORCE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const CUTOFFVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE

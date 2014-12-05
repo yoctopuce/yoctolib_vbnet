@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_servo.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_servo.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindServo(), the high-level API for Servo functions
 '*
@@ -61,14 +61,12 @@ End Class
   Public Const Y_ENABLED_FALSE As Integer = 0
   Public Const Y_ENABLED_TRUE As Integer = 1
   Public Const Y_ENABLED_INVALID As Integer = -1
-
   Public Const Y_RANGE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_NEUTRAL_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_POSITIONATPOWERON_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_ENABLEDATPOWERON_FALSE As Integer = 0
   Public Const Y_ENABLEDATPOWERON_TRUE As Integer = 1
   Public Const Y_ENABLEDATPOWERON_INVALID As Integer = -1
-
   Public ReadOnly Y_MOVE_INVALID As YServoMove = Nothing
   Public Delegate Sub YServoValueCallback(ByVal func As YServo, ByVal value As String)
   Public Delegate Sub YServoTimedReportCallback(ByVal func As YServo, ByVal measure As YMeasure)
@@ -96,7 +94,6 @@ End Class
     Public Const ENABLED_FALSE As Integer = 0
     Public Const ENABLED_TRUE As Integer = 1
     Public Const ENABLED_INVALID As Integer = -1
-
     Public Const RANGE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const NEUTRAL_INVALID As Integer = YAPI.INVALID_UINT
     Public ReadOnly MOVE_INVALID As YServoMove = Nothing
@@ -104,7 +101,6 @@ End Class
     Public Const ENABLEDATPOWERON_FALSE As Integer = 0
     Public Const ENABLEDATPOWERON_TRUE As Integer = 1
     Public Const ENABLEDATPOWERON_INVALID As Integer = -1
-
     REM --- (end of YServo definitions)
 
     REM --- (YServo attributes declaration)

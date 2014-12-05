@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorled.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_colorled.vb 18524 2014-11-25 17:09:56Z seb $
 '*
 '* Implements yFindColorLed(), the high-level API for ColorLed functions
 '*
@@ -60,6 +60,10 @@ End Class
   Public Const Y_RGBCOLOR_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_HSLCOLOR_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_RGBCOLORATPOWERON_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_BLINKSEQSIZE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_BLINKSEQMAXSIZE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_BLINKSEQSIGNATURE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public ReadOnly Y_RGBMOVE_INVALID As YColorLedMove = Nothing
   Public ReadOnly Y_HSLMOVE_INVALID As YColorLedMove = Nothing
   Public Delegate Sub YColorLedValueCallback(ByVal func As YColorLed, ByVal value As String)
@@ -70,7 +74,7 @@ End Class
 
   '''*
   ''' <summary>
-  '''   Yoctopuce application programming interface
+  '''   The Yoctopuce application programming interface
   '''   allows you to drive a color led using RGB coordinates as well as HSL coordinates.
   ''' <para>
   '''   The module performs all conversions form RGB to HSL automatically. It is then
@@ -90,6 +94,10 @@ End Class
     Public ReadOnly RGBMOVE_INVALID As YColorLedMove = Nothing
     Public ReadOnly HSLMOVE_INVALID As YColorLedMove = Nothing
     Public Const RGBCOLORATPOWERON_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const BLINKSEQSIZE_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const BLINKSEQMAXSIZE_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const BLINKSEQSIGNATURE_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YColorLed definitions)
 
     REM --- (YColorLed attributes declaration)
@@ -98,6 +106,10 @@ End Class
     Protected _rgbMove As YColorLedMove
     Protected _hslMove As YColorLedMove
     Protected _rgbColorAtPowerOn As Integer
+    Protected _blinkSeqSize As Integer
+    Protected _blinkSeqMaxSize As Integer
+    Protected _blinkSeqSignature As Integer
+    Protected _command As String
     Protected _valueCallbackColorLed As YColorLedValueCallback
     REM --- (end of YColorLed attributes declaration)
 
@@ -110,6 +122,10 @@ End Class
       _rgbMove = New YColorLedMove()
       _hslMove = New YColorLedMove()
       _rgbColorAtPowerOn = RGBCOLORATPOWERON_INVALID
+      _blinkSeqSize = BLINKSEQSIZE_INVALID
+      _blinkSeqMaxSize = BLINKSEQMAXSIZE_INVALID
+      _blinkSeqSignature = BLINKSEQSIGNATURE_INVALID
+      _command = COMMAND_INVALID
       _valueCallbackColorLed = Nothing
       REM --- (end of YColorLed attributes initialization)
     End Sub
@@ -161,6 +177,22 @@ End Class
       End If
       If (member.name = "rgbColorAtPowerOn") Then
         _rgbColorAtPowerOn = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "blinkSeqSize") Then
+        _blinkSeqSize = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "blinkSeqMaxSize") Then
+        _blinkSeqMaxSize = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "blinkSeqSignature") Then
+        _blinkSeqSignature = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "command") Then
+        _command = member.svalue
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -388,9 +420,6 @@ End Class
     ''' <summary>
     '''   Changes the color that the led will display by default when the module is turned on.
     ''' <para>
-    '''   This color will be displayed as soon as the module is powered on.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   change should be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -411,6 +440,93 @@ End Class
       Dim rest_val As String
       rest_val = "0x" + Hex(newval)
       Return _setAttr("rgbColorAtPowerOn", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the current length of the blinking sequence
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the current length of the blinking sequence
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BLINKSEQSIZE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_blinkSeqSize() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return BLINKSEQSIZE_INVALID
+        End If
+      End If
+      Return Me._blinkSeqSize
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the maximum length of the blinking sequence
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the maximum length of the blinking sequence
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BLINKSEQMAXSIZE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_blinkSeqMaxSize() As Integer
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return BLINKSEQMAXSIZE_INVALID
+        End If
+      End If
+      Return Me._blinkSeqMaxSize
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Return the blinking sequence signature.
+    ''' <para>
+    '''   Since blinking
+    '''   sequences cannot be read from the device, this can be used
+    '''   to detect if a specific blinking sequence is already
+    '''   programmed.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BLINKSEQSIGNATURE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_blinkSeqSignature() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return BLINKSEQSIGNATURE_INVALID
+        End If
+      End If
+      Return Me._blinkSeqSignature
+    End Function
+
+    Public Function get_command() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return COMMAND_INVALID
+        End If
+      End If
+      Return Me._command
+    End Function
+
+
+    Public Function set_command(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("command", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -507,6 +623,103 @@ End Class
         MyBase._invokeValueCallback(value)
       End If
       Return 0
+    End Function
+
+    Public Overridable Function sendCommand(command As String) As Integer
+      REM //may throw an exception
+      Return Me.set_command(command)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Add a new transition to the blinking sequence, the move will
+    '''   be performed in the HSL space.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="HSLcolor">
+    '''   desired HSL color when the traisntion is completed
+    ''' </param>
+    ''' <param name="msDelay">
+    '''   duration of the color transition, in milliseconds.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function addHslMoveToBlinkSeq(HSLcolor As Integer, msDelay As Integer) As Integer
+      Return Me.sendCommand("H" + Convert.ToString(HSLcolor) + "," + Convert.ToString(msDelay))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Add a new transition to the blinking sequence, the move will
+    '''   be performed in the RGB space.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="RGBcolor">
+    '''   desired RGB color when the transition is completed
+    ''' </param>
+    ''' <param name="msDelay">
+    '''   duration of the color transition, in milliseconds.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function addRgbMoveToBlinkSeq(RGBcolor As Integer, msDelay As Integer) As Integer
+      Return Me.sendCommand("R" + Convert.ToString(RGBcolor) + "," + Convert.ToString(msDelay))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Starts the preprogrammed blinking sequence.
+    ''' <para>
+    '''   The sequence will
+    '''   run in loop until it is stopped by stopBlinkSeq or an explicit
+    '''   change.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function startBlinkSeq() As Integer
+      Return Me.sendCommand("S")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Stops the preprogrammed blinking sequence.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function stopBlinkSeq() As Integer
+      Return Me.sendCommand("X")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Resets the preprogrammed blinking sequence.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function resetBlinkSeq() As Integer
+      Return Me.sendCommand("Z")
     End Function
 
 

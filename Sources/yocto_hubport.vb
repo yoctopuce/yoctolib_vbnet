@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_hubport.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_hubport.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindHubPort(), the high-level API for HubPort functions
 '*
@@ -54,14 +54,12 @@ Module yocto_hubport
   Public Const Y_ENABLED_FALSE As Integer = 0
   Public Const Y_ENABLED_TRUE As Integer = 1
   Public Const Y_ENABLED_INVALID As Integer = -1
-
   Public Const Y_PORTSTATE_OFF As Integer = 0
   Public Const Y_PORTSTATE_OVRLD As Integer = 1
   Public Const Y_PORTSTATE_ON As Integer = 2
   Public Const Y_PORTSTATE_RUN As Integer = 3
   Public Const Y_PORTSTATE_PROG As Integer = 4
   Public Const Y_PORTSTATE_INVALID As Integer = -1
-
   Public Const Y_BAUDRATE_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YHubPortValueCallback(ByVal func As YHubPort, ByVal value As String)
   Public Delegate Sub YHubPortTimedReportCallback(ByVal func As YHubPort, ByVal measure As YMeasure)
@@ -87,14 +85,12 @@ Module yocto_hubport
     Public Const ENABLED_FALSE As Integer = 0
     Public Const ENABLED_TRUE As Integer = 1
     Public Const ENABLED_INVALID As Integer = -1
-
     Public Const PORTSTATE_OFF As Integer = 0
     Public Const PORTSTATE_OVRLD As Integer = 1
     Public Const PORTSTATE_ON As Integer = 2
     Public Const PORTSTATE_RUN As Integer = 3
     Public Const PORTSTATE_PROG As Integer = 4
     Public Const PORTSTATE_INVALID As Integer = -1
-
     Public Const BAUDRATE_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YHubPort definitions)
 

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_anbutton.vb 17674 2014-09-16 16:18:58Z seb $
+'* $Id: yocto_anbutton.vb 18361 2014-11-13 08:06:41Z mvuilleu $
 '*
 '* Implements yFindAnButton(), the high-level API for AnButton functions
 '*
@@ -56,14 +56,12 @@ Module yocto_anbutton
   Public Const Y_ANALOGCALIBRATION_OFF As Integer = 0
   Public Const Y_ANALOGCALIBRATION_ON As Integer = 1
   Public Const Y_ANALOGCALIBRATION_INVALID As Integer = -1
-
   Public Const Y_CALIBRATIONMAX_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALIBRATIONMIN_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_SENSITIVITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ISPRESSED_FALSE As Integer = 0
   Public Const Y_ISPRESSED_TRUE As Integer = 1
   Public Const Y_ISPRESSED_INVALID As Integer = -1
-
   Public Const Y_LASTTIMEPRESSED_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
@@ -96,14 +94,12 @@ Module yocto_anbutton
     Public Const ANALOGCALIBRATION_OFF As Integer = 0
     Public Const ANALOGCALIBRATION_ON As Integer = 1
     Public Const ANALOGCALIBRATION_INVALID As Integer = -1
-
     Public Const CALIBRATIONMAX_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALIBRATIONMIN_INVALID As Integer = YAPI.INVALID_UINT
     Public Const SENSITIVITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ISPRESSED_FALSE As Integer = 0
     Public Const ISPRESSED_TRUE As Integer = 1
     Public Const ISPRESSED_INVALID As Integer = -1
-
     Public Const LASTTIMEPRESSED_INVALID As Long = YAPI.INVALID_LONG
     Public Const LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
@@ -688,7 +684,9 @@ Module yocto_anbutton
 
     '''*
     ''' <summary>
-    '''   Returns the pulse counter value as well as his timer
+    '''   Returns the pulse counter value as well as its timer.
+    ''' <para>
+    ''' </para>
     ''' </summary>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.

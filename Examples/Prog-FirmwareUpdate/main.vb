@@ -12,7 +12,7 @@ Module Module1
       Dim current As String = m.get_firmwareRelease()
 
       REM check if a new firmare is available on yoctopuce.com
-      Dim newfirm As String = m.checkFirmware("www.yoctopuce.com", False)
+      Dim newfirm As String = m.checkFirmware("www.yoctopuce.com", True)
       If newfirm = "" Then
         Console.WriteLine(product + " " + serial + "(rev=" + current + ") is up to date")
       Else
@@ -73,10 +73,10 @@ Module Module1
     While m IsNot Nothing
       Dim product As String = m.get_productName()
       Dim serial As String = m.get_serialNumber()
-      If (product = "YoctoHub-Ethernet" Or product = "YoctoHub-Wireless" Or product = "YoctoHub-Wireless-SR") Then
-        hubs.Add(serial)
-      ElseIf (product = "YoctoHub-Shield") Then
+      If (product = "YoctoHub-Shield") Then
         shield.Add(serial)
+      ElseIf (product.StartsWith("YoctoHub-")) Then
+        hubs.Add(serial)
       ElseIf (product <> "VirtualHub") Then
         devices.Add(serial)
       End If

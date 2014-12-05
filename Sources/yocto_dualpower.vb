@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_dualpower.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_dualpower.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindDualPower(), the high-level API for DualPower functions
 '*
@@ -55,13 +55,11 @@ Module yocto_dualpower
   Public Const Y_POWERSTATE_FROM_USB As Integer = 1
   Public Const Y_POWERSTATE_FROM_EXT As Integer = 2
   Public Const Y_POWERSTATE_INVALID As Integer = -1
-
   Public Const Y_POWERCONTROL_AUTO As Integer = 0
   Public Const Y_POWERCONTROL_FROM_USB As Integer = 1
   Public Const Y_POWERCONTROL_FROM_EXT As Integer = 2
   Public Const Y_POWERCONTROL_OFF As Integer = 3
   Public Const Y_POWERCONTROL_INVALID As Integer = -1
-
   Public Const Y_EXTVOLTAGE_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YDualPowerValueCallback(ByVal func As YDualPower, ByVal value As String)
   Public Delegate Sub YDualPowerTimedReportCallback(ByVal func As YDualPower, ByVal measure As YMeasure)
@@ -89,13 +87,11 @@ Module yocto_dualpower
     Public Const POWERSTATE_FROM_USB As Integer = 1
     Public Const POWERSTATE_FROM_EXT As Integer = 2
     Public Const POWERSTATE_INVALID As Integer = -1
-
     Public Const POWERCONTROL_AUTO As Integer = 0
     Public Const POWERCONTROL_FROM_USB As Integer = 1
     Public Const POWERCONTROL_FROM_EXT As Integer = 2
     Public Const POWERCONTROL_OFF As Integer = 3
     Public Const POWERCONTROL_INVALID As Integer = -1
-
     Public Const EXTVOLTAGE_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YDualPower definitions)
 

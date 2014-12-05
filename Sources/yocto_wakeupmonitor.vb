@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupmonitor.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_wakeupmonitor.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '*
@@ -61,11 +61,9 @@ Module yocto_wakeupmonitor
   Public Const Y_WAKEUPREASON_SCHEDULE1 As Integer = 4
   Public Const Y_WAKEUPREASON_SCHEDULE2 As Integer = 5
   Public Const Y_WAKEUPREASON_INVALID As Integer = -1
-
   Public Const Y_WAKEUPSTATE_SLEEPING As Integer = 0
   Public Const Y_WAKEUPSTATE_AWAKE As Integer = 1
   Public Const Y_WAKEUPSTATE_INVALID As Integer = -1
-
   Public Const Y_RTCTIME_INVALID As Long = YAPI.INVALID_LONG
   Public Delegate Sub YWakeUpMonitorValueCallback(ByVal func As YWakeUpMonitor, ByVal value As String)
   Public Delegate Sub YWakeUpMonitorTimedReportCallback(ByVal func As YWakeUpMonitor, ByVal measure As YMeasure)
@@ -96,11 +94,9 @@ Module yocto_wakeupmonitor
     Public Const WAKEUPREASON_SCHEDULE1 As Integer = 4
     Public Const WAKEUPREASON_SCHEDULE2 As Integer = 5
     Public Const WAKEUPREASON_INVALID As Integer = -1
-
     Public Const WAKEUPSTATE_SLEEPING As Integer = 0
     Public Const WAKEUPSTATE_AWAKE As Integer = 1
     Public Const WAKEUPSTATE_INVALID As Integer = -1
-
     Public Const RTCTIME_INVALID As Long = YAPI.INVALID_LONG
     REM --- (end of YWakeUpMonitor definitions)
 

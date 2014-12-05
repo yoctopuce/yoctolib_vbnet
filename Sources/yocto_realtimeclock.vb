@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_realtimeclock.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_realtimeclock.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '*
@@ -57,7 +57,6 @@ Module yocto_realtimeclock
   Public Const Y_TIMESET_FALSE As Integer = 0
   Public Const Y_TIMESET_TRUE As Integer = 1
   Public Const Y_TIMESET_INVALID As Integer = -1
-
   Public Delegate Sub YRealTimeClockValueCallback(ByVal func As YRealTimeClock, ByVal value As String)
   Public Delegate Sub YRealTimeClockTimedReportCallback(ByVal func As YRealTimeClock, ByVal measure As YMeasure)
   REM --- (end of YRealTimeClock globals)
@@ -86,7 +85,6 @@ Module yocto_realtimeclock
     Public Const TIMESET_FALSE As Integer = 0
     Public Const TIMESET_TRUE As Integer = 1
     Public Const TIMESET_INVALID As Integer = -1
-
     REM --- (end of YRealTimeClock definitions)
 
     REM --- (YRealTimeClock attributes declaration)

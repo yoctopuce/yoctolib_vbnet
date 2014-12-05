@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmoutput.vb 17481 2014-09-03 09:38:35Z mvuilleu $
+'* $Id: yocto_pwmoutput.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '*
@@ -54,7 +54,6 @@ Module yocto_pwmoutput
   Public Const Y_ENABLED_FALSE As Integer = 0
   Public Const Y_ENABLED_TRUE As Integer = 1
   Public Const Y_ENABLED_INVALID As Integer = -1
-
   Public Const Y_FREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_PERIOD_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_DUTYCYCLE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -63,7 +62,6 @@ Module yocto_pwmoutput
   Public Const Y_ENABLEDATPOWERON_FALSE As Integer = 0
   Public Const Y_ENABLEDATPOWERON_TRUE As Integer = 1
   Public Const Y_ENABLEDATPOWERON_INVALID As Integer = -1
-
   Public Const Y_DUTYCYCLEATPOWERON_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Delegate Sub YPwmOutputValueCallback(ByVal func As YPwmOutput, ByVal value As String)
   Public Delegate Sub YPwmOutputTimedReportCallback(ByVal func As YPwmOutput, ByVal measure As YMeasure)
@@ -86,7 +84,6 @@ Module yocto_pwmoutput
     Public Const ENABLED_FALSE As Integer = 0
     Public Const ENABLED_TRUE As Integer = 1
     Public Const ENABLED_INVALID As Integer = -1
-
     Public Const FREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const PERIOD_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const DUTYCYCLE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -95,7 +92,6 @@ Module yocto_pwmoutput
     Public Const ENABLEDATPOWERON_FALSE As Integer = 0
     Public Const ENABLEDATPOWERON_TRUE As Integer = 1
     Public Const ENABLEDATPOWERON_INVALID As Integer = -1
-
     Public Const DUTYCYCLEATPOWERON_INVALID As Double = YAPI.INVALID_DOUBLE
     REM --- (end of YPwmOutput definitions)
 

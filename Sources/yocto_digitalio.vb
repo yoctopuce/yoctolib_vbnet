@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_digitalio.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_digitalio.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '*
@@ -60,7 +60,6 @@ Module yocto_digitalio
   Public Const Y_OUTPUTVOLTAGE_USB_3V As Integer = 1
   Public Const Y_OUTPUTVOLTAGE_EXT_V As Integer = 2
   Public Const Y_OUTPUTVOLTAGE_INVALID As Integer = -1
-
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YDigitalIOValueCallback(ByVal func As YDigitalIO, ByVal value As String)
   Public Delegate Sub YDigitalIOTimedReportCallback(ByVal func As YDigitalIO, ByVal measure As YMeasure)
@@ -93,7 +92,6 @@ Module yocto_digitalio
     Public Const OUTPUTVOLTAGE_USB_3V As Integer = 1
     Public Const OUTPUTVOLTAGE_EXT_V As Integer = 2
     Public Const OUTPUTVOLTAGE_INVALID As Integer = -1
-
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YDigitalIO definitions)
 

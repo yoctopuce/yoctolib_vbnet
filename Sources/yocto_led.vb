@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_led.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_led.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindLed(), the high-level API for Led functions
 '*
@@ -54,7 +54,6 @@ Module yocto_led
   Public Const Y_POWER_OFF As Integer = 0
   Public Const Y_POWER_ON As Integer = 1
   Public Const Y_POWER_INVALID As Integer = -1
-
   Public Const Y_LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BLINKING_STILL As Integer = 0
   Public Const Y_BLINKING_RELAX As Integer = 1
@@ -63,7 +62,6 @@ Module yocto_led
   Public Const Y_BLINKING_CALL As Integer = 4
   Public Const Y_BLINKING_PANIC As Integer = 5
   Public Const Y_BLINKING_INVALID As Integer = -1
-
   Public Delegate Sub YLedValueCallback(ByVal func As YLed, ByVal value As String)
   Public Delegate Sub YLedTimedReportCallback(ByVal func As YLed, ByVal measure As YMeasure)
   REM --- (end of YLed globals)
@@ -87,7 +85,6 @@ Module yocto_led
     Public Const POWER_OFF As Integer = 0
     Public Const POWER_ON As Integer = 1
     Public Const POWER_INVALID As Integer = -1
-
     Public Const LUMINOSITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BLINKING_STILL As Integer = 0
     Public Const BLINKING_RELAX As Integer = 1
@@ -96,7 +93,6 @@ Module yocto_led
     Public Const BLINKING_CALL As Integer = 4
     Public Const BLINKING_PANIC As Integer = 5
     Public Const BLINKING_INVALID As Integer = -1
-
     REM --- (end of YLed definitions)
 
     REM --- (YLed attributes declaration)

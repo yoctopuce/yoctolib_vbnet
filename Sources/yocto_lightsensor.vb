@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_lightsensor.vb 17655 2014-09-16 12:24:27Z mvuilleu $
+'* $Id: yocto_lightsensor.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindLightSensor(), the high-level API for LightSensor functions
 '*
@@ -57,7 +57,6 @@ Module yocto_lightsensor
   Public Const Y_MEASURETYPE_HIGH_RATE As Integer = 3
   Public Const Y_MEASURETYPE_HIGH_ENERGY As Integer = 4
   Public Const Y_MEASURETYPE_INVALID As Integer = -1
-
   Public Delegate Sub YLightSensorValueCallback(ByVal func As YLightSensor, ByVal value As String)
   Public Delegate Sub YLightSensorTimedReportCallback(ByVal func As YLightSensor, ByVal measure As YMeasure)
   REM --- (end of YLightSensor globals)
@@ -83,7 +82,6 @@ Module yocto_lightsensor
     Public Const MEASURETYPE_HIGH_RATE As Integer = 3
     Public Const MEASURETYPE_HIGH_ENERGY As Integer = 4
     Public Const MEASURETYPE_INVALID As Integer = -1
-
     REM --- (end of YLightSensor definitions)
 
     REM --- (YLightSensor attributes declaration)

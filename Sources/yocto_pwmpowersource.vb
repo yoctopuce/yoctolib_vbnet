@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmpowersource.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_pwmpowersource.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindPwmPowerSource(), the high-level API for PwmPowerSource functions
 '*
@@ -56,7 +56,6 @@ Module yocto_pwmpowersource
   Public Const Y_POWERMODE_EXT_V As Integer = 2
   Public Const Y_POWERMODE_OPNDRN As Integer = 3
   Public Const Y_POWERMODE_INVALID As Integer = -1
-
   Public Delegate Sub YPwmPowerSourceValueCallback(ByVal func As YPwmPowerSource, ByVal value As String)
   Public Delegate Sub YPwmPowerSourceTimedReportCallback(ByVal func As YPwmPowerSource, ByVal measure As YMeasure)
   REM --- (end of YPwmPowerSource globals)
@@ -81,7 +80,6 @@ Module yocto_pwmpowersource
     Public Const POWERMODE_EXT_V As Integer = 2
     Public Const POWERMODE_OPNDRN As Integer = 3
     Public Const POWERMODE_INVALID As Integer = -1
-
     REM --- (end of YPwmPowerSource definitions)
 
     REM --- (YPwmPowerSource attributes declaration)

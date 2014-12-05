@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_accelerometer.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_accelerometer.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindAccelerometer(), the high-level API for Accelerometer functions
 '*
@@ -57,7 +57,6 @@ Module yocto_accelerometer
   Public Const Y_GRAVITYCANCELLATION_OFF As Integer = 0
   Public Const Y_GRAVITYCANCELLATION_ON As Integer = 1
   Public Const Y_GRAVITYCANCELLATION_INVALID As Integer = -1
-
   Public Delegate Sub YAccelerometerValueCallback(ByVal func As YAccelerometer, ByVal value As String)
   Public Delegate Sub YAccelerometerTimedReportCallback(ByVal func As YAccelerometer, ByVal measure As YMeasure)
   REM --- (end of YAccelerometer globals)
@@ -83,7 +82,6 @@ Module yocto_accelerometer
     Public Const GRAVITYCANCELLATION_OFF As Integer = 0
     Public Const GRAVITYCANCELLATION_ON As Integer = 1
     Public Const GRAVITYCANCELLATION_INVALID As Integer = -1
-
     REM --- (end of YAccelerometer definitions)
 
     REM --- (YAccelerometer attributes declaration)

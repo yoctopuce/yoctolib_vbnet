@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 17594 2014-09-10 21:15:55Z mvuilleu $
+'* $Id: yocto_network.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -57,7 +57,6 @@ Module yocto_network
   Public Const Y_READINESS_LAN_OK As Integer = 3
   Public Const Y_READINESS_WWW_OK As Integer = 4
   Public Const Y_READINESS_INVALID As Integer = -1
-
   Public Const Y_MACADDRESS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_IPADDRESS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SUBNETMASK_INVALID As String = YAPI.INVALID_STRING
@@ -70,21 +69,18 @@ Module yocto_network
   Public Const Y_DISCOVERABLE_FALSE As Integer = 0
   Public Const Y_DISCOVERABLE_TRUE As Integer = 1
   Public Const Y_DISCOVERABLE_INVALID As Integer = -1
-
   Public Const Y_WWWWATCHDOGDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALLBACKURL_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKMETHOD_POST As Integer = 0
   Public Const Y_CALLBACKMETHOD_GET As Integer = 1
   Public Const Y_CALLBACKMETHOD_PUT As Integer = 2
   Public Const Y_CALLBACKMETHOD_INVALID As Integer = -1
-
   Public Const Y_CALLBACKENCODING_FORM As Integer = 0
   Public Const Y_CALLBACKENCODING_JSON As Integer = 1
   Public Const Y_CALLBACKENCODING_JSON_ARRAY As Integer = 2
   Public Const Y_CALLBACKENCODING_CSV As Integer = 3
   Public Const Y_CALLBACKENCODING_YOCTO_API As Integer = 4
   Public Const Y_CALLBACKENCODING_INVALID As Integer = -1
-
   Public Const Y_CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UINT
@@ -114,7 +110,6 @@ Module yocto_network
     Public Const READINESS_LAN_OK As Integer = 3
     Public Const READINESS_WWW_OK As Integer = 4
     Public Const READINESS_INVALID As Integer = -1
-
     Public Const MACADDRESS_INVALID As String = YAPI.INVALID_STRING
     Public Const IPADDRESS_INVALID As String = YAPI.INVALID_STRING
     Public Const SUBNETMASK_INVALID As String = YAPI.INVALID_STRING
@@ -127,21 +122,18 @@ Module yocto_network
     Public Const DISCOVERABLE_FALSE As Integer = 0
     Public Const DISCOVERABLE_TRUE As Integer = 1
     Public Const DISCOVERABLE_INVALID As Integer = -1
-
     Public Const WWWWATCHDOGDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALLBACKURL_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKMETHOD_POST As Integer = 0
     Public Const CALLBACKMETHOD_GET As Integer = 1
     Public Const CALLBACKMETHOD_PUT As Integer = 2
     Public Const CALLBACKMETHOD_INVALID As Integer = -1
-
     Public Const CALLBACKENCODING_FORM As Integer = 0
     Public Const CALLBACKENCODING_JSON As Integer = 1
     Public Const CALLBACKENCODING_JSON_ARRAY As Integer = 2
     Public Const CALLBACKENCODING_CSV As Integer = 3
     Public Const CALLBACKENCODING_YOCTO_API As Integer = 4
     Public Const CALLBACKENCODING_INVALID As Integer = -1
-
     Public Const CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UINT

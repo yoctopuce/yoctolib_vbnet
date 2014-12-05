@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_genericsensor.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_genericsensor.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '*
@@ -56,6 +56,11 @@ Module yocto_genericsensor
   Public Const Y_SIGNALRANGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_VALUERANGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SIGNALBIAS_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_SIGNALSAMPLING_HIGH_RATE As Integer = 0
+  Public Const Y_SIGNALSAMPLING_HIGH_RATE_FILTERED As Integer = 1
+  Public Const Y_SIGNALSAMPLING_LOW_NOISE As Integer = 2
+  Public Const Y_SIGNALSAMPLING_LOW_NOISE_FILTERED As Integer = 3
+  Public Const Y_SIGNALSAMPLING_INVALID As Integer = -1
   Public Delegate Sub YGenericSensorValueCallback(ByVal func As YGenericSensor, ByVal value As String)
   Public Delegate Sub YGenericSensorTimedReportCallback(ByVal func As YGenericSensor, ByVal measure As YMeasure)
   REM --- (end of YGenericSensor globals)
@@ -80,6 +85,11 @@ Module yocto_genericsensor
     Public Const SIGNALRANGE_INVALID As String = YAPI.INVALID_STRING
     Public Const VALUERANGE_INVALID As String = YAPI.INVALID_STRING
     Public Const SIGNALBIAS_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const SIGNALSAMPLING_HIGH_RATE As Integer = 0
+    Public Const SIGNALSAMPLING_HIGH_RATE_FILTERED As Integer = 1
+    Public Const SIGNALSAMPLING_LOW_NOISE As Integer = 2
+    Public Const SIGNALSAMPLING_LOW_NOISE_FILTERED As Integer = 3
+    Public Const SIGNALSAMPLING_INVALID As Integer = -1
     REM --- (end of YGenericSensor definitions)
 
     REM --- (YGenericSensor attributes declaration)
@@ -88,6 +98,7 @@ Module yocto_genericsensor
     Protected _signalRange As String
     Protected _valueRange As String
     Protected _signalBias As Double
+    Protected _signalSampling As Integer
     Protected _valueCallbackGenericSensor As YGenericSensorValueCallback
     Protected _timedReportCallbackGenericSensor As YGenericSensorTimedReportCallback
     REM --- (end of YGenericSensor attributes declaration)
@@ -101,6 +112,7 @@ Module yocto_genericsensor
       _signalRange = SIGNALRANGE_INVALID
       _valueRange = VALUERANGE_INVALID
       _signalBias = SIGNALBIAS_INVALID
+      _signalSampling = SIGNALSAMPLING_INVALID
       _valueCallbackGenericSensor = Nothing
       _timedReportCallbackGenericSensor = Nothing
       REM --- (end of YGenericSensor attributes initialization)
@@ -127,6 +139,10 @@ Module yocto_genericsensor
       End If
       If (member.name = "signalBias") Then
         _signalBias = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
+      If (member.name = "signalSampling") Then
+        _signalSampling = CInt(member.ivalue)
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -367,6 +383,70 @@ Module yocto_genericsensor
       Return Me._signalBias
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the electric signal sampling method to use.
+    ''' <para>
+    '''   The <c>HIGH_RATE</c> method uses the highest sampling frequency, without any filtering.
+    '''   The <c>HIGH_RATE_FILTERED</c> method adds a windowed 7-sample median filter.
+    '''   The <c>LOW_NOISE</c> method uses a reduced acquisition frequency to reduce noise.
+    '''   The <c>LOW_NOISE_FILTERED</c> method combines a reduced frequency with the median filter
+    '''   to get measures as stable as possible when working on a noisy signal.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_SIGNALSAMPLING_HIGH_RATE</c>, <c>Y_SIGNALSAMPLING_HIGH_RATE_FILTERED</c>,
+    '''   <c>Y_SIGNALSAMPLING_LOW_NOISE</c> and <c>Y_SIGNALSAMPLING_LOW_NOISE_FILTERED</c> corresponding to
+    '''   the electric signal sampling method to use
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_SIGNALSAMPLING_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_signalSampling() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return SIGNALSAMPLING_INVALID
+        End If
+      End If
+      Return Me._signalSampling
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the electric signal sampling method to use.
+    ''' <para>
+    '''   The <c>HIGH_RATE</c> method uses the highest sampling frequency, without any filtering.
+    '''   The <c>HIGH_RATE_FILTERED</c> method adds a windowed 7-sample median filter.
+    '''   The <c>LOW_NOISE</c> method uses a reduced acquisition frequency to reduce noise.
+    '''   The <c>LOW_NOISE_FILTERED</c> method combines a reduced frequency with the median filter
+    '''   to get measures as stable as possible when working on a noisy signal.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>Y_SIGNALSAMPLING_HIGH_RATE</c>, <c>Y_SIGNALSAMPLING_HIGH_RATE_FILTERED</c>,
+    '''   <c>Y_SIGNALSAMPLING_LOW_NOISE</c> and <c>Y_SIGNALSAMPLING_LOW_NOISE_FILTERED</c> corresponding to
+    '''   the electric signal sampling method to use
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_signalSampling(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("signalSampling", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves a generic sensor for a given identifier.

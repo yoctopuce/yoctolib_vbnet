@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_watchdog.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_watchdog.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindWatchdog(), the high-level API for Watchdog functions
 '*
@@ -62,7 +62,6 @@ End Class
   Public Const Y_STATEATPOWERON_A As Integer = 1
   Public Const Y_STATEATPOWERON_B As Integer = 2
   Public Const Y_STATEATPOWERON_INVALID As Integer = -1
-
   Public Const Y_MAXTIMEONSTATEA_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_MAXTIMEONSTATEB_INVALID As Long = YAPI.INVALID_LONG
   REM Y_OUTPUT is defined in yocto_api.vb
@@ -100,29 +99,24 @@ End Class
     Public Const STATE_A As Integer = 0
     Public Const STATE_B As Integer = 1
     Public Const STATE_INVALID As Integer = -1
-
     Public Const STATEATPOWERON_UNCHANGED As Integer = 0
     Public Const STATEATPOWERON_A As Integer = 1
     Public Const STATEATPOWERON_B As Integer = 2
     Public Const STATEATPOWERON_INVALID As Integer = -1
-
     Public Const MAXTIMEONSTATEA_INVALID As Long = YAPI.INVALID_LONG
     Public Const MAXTIMEONSTATEB_INVALID As Long = YAPI.INVALID_LONG
     Public Const OUTPUT_OFF As Integer = 0
     Public Const OUTPUT_ON As Integer = 1
     Public Const OUTPUT_INVALID As Integer = -1
-
     Public Const PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
     Public ReadOnly DELAYEDPULSETIMER_INVALID As YWatchdogDelayedPulse = Nothing
     Public Const COUNTDOWN_INVALID As Long = YAPI.INVALID_LONG
     Public Const AUTOSTART_OFF As Integer = 0
     Public Const AUTOSTART_ON As Integer = 1
     Public Const AUTOSTART_INVALID As Integer = -1
-
     Public Const RUNNING_OFF As Integer = 0
     Public Const RUNNING_ON As Integer = 1
     Public Const RUNNING_INVALID As Integer = -1
-
     Public Const TRIGGERDELAY_INVALID As Long = YAPI.INVALID_LONG
     Public Const TRIGGERDURATION_INVALID As Long = YAPI.INVALID_LONG
     REM --- (end of YWatchdog definitions)

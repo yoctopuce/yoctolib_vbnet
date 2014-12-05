@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 17610 2014-09-13 11:30:24Z mvuilleu $
+'* $Id: yocto_serialport.vb 18262 2014-11-05 14:22:14Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -56,8 +56,10 @@ Module yocto_serialport
   Public Const Y_RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_MSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_RXMSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_TXMSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LASTMSG_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YSerialPortValueCallback(ByVal func As YSerialPort, ByVal value As String)
   Public Delegate Sub YSerialPortTimedReportCallback(ByVal func As YSerialPort, ByVal measure As YMeasure)
@@ -86,8 +88,10 @@ Module yocto_serialport
     Public Const RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const MSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const RXMSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const TXMSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LASTMSG_INVALID As String = YAPI.INVALID_STRING
+    Public Const STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YSerialPort definitions)
 
@@ -97,8 +101,10 @@ Module yocto_serialport
     Protected _rxCount As Integer
     Protected _txCount As Integer
     Protected _errCount As Integer
-    Protected _msgCount As Integer
+    Protected _rxMsgCount As Integer
+    Protected _txMsgCount As Integer
     Protected _lastMsg As String
+    Protected _startupJob As String
     Protected _command As String
     Protected _valueCallbackSerialPort As YSerialPortValueCallback
     Protected _rxptr As Integer
@@ -113,8 +119,10 @@ Module yocto_serialport
       _rxCount = RXCOUNT_INVALID
       _txCount = TXCOUNT_INVALID
       _errCount = ERRCOUNT_INVALID
-      _msgCount = MSGCOUNT_INVALID
+      _rxMsgCount = RXMSGCOUNT_INVALID
+      _txMsgCount = TXMSGCOUNT_INVALID
       _lastMsg = LASTMSG_INVALID
+      _startupJob = STARTUPJOB_INVALID
       _command = COMMAND_INVALID
       _valueCallbackSerialPort = Nothing
       _rxptr = 0
@@ -144,12 +152,20 @@ Module yocto_serialport
         _errCount = CInt(member.ivalue)
         Return 1
       End If
-      If (member.name = "msgCount") Then
-        _msgCount = CInt(member.ivalue)
+      If (member.name = "rxMsgCount") Then
+        _rxMsgCount = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "txMsgCount") Then
+        _txMsgCount = CInt(member.ivalue)
         Return 1
       End If
       If (member.name = "lastMsg") Then
         _lastMsg = member.svalue
+        Return 1
+      End If
+      If (member.name = "startupJob") Then
+        _startupJob = member.svalue
         Return 1
       End If
       If (member.name = "command") Then
@@ -372,16 +388,40 @@ Module yocto_serialport
     '''   an integer corresponding to the total number of messages received since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MSGCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_RXMSGCOUNT_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_msgCount() As Integer
+    Public Function get_rxMsgCount() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return MSGCOUNT_INVALID
+          Return RXMSGCOUNT_INVALID
         End If
       End If
-      Return Me._msgCount
+      Return Me._rxMsgCount
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the total number of messages send since last reset.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the total number of messages send since last reset
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_TXMSGCOUNT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_txMsgCount() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return TXMSGCOUNT_INVALID
+        End If
+      End If
+      Return Me._txMsgCount
     End Function
 
     '''*
@@ -408,6 +448,58 @@ Module yocto_serialport
       Return Me._lastMsg
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the job file to use when the device is powered on.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the job file to use when the device is powered on
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_STARTUPJOB_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_startupJob() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return STARTUPJOB_INVALID
+        End If
+      End If
+      Return Me._startupJob
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the job to use when the device is powered on.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the job to use when the device is powered on
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_startupJob(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("startupJob", rest_val)
+    End Function
     Public Function get_command() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
@@ -591,7 +683,6 @@ Module yocto_serialport
     Public Overridable Function get_CTS() As Integer
       Dim buff As Byte()
       Dim res As Integer = 0
-      
       REM // may throw an exception
       buff = Me._download("cts.txt")
       If Not((buff).Length = 1) Then
@@ -623,7 +714,6 @@ Module yocto_serialport
       Dim bufflen As Integer = 0
       Dim idx As Integer = 0
       Dim ch As Integer = 0
-      
       buff = YAPI.DefaultEncoding.GetBytes(text)
       bufflen = (buff).Length
       If (bufflen < 100) Then
@@ -764,7 +854,6 @@ Module yocto_serialport
       Dim bufflen As Integer = 0
       Dim idx As Integer = 0
       Dim ch As Integer = 0
-      
       buff = YAPI.DefaultEncoding.GetBytes("" + text + "\r\n")
       bufflen = (buff).Length-2
       If (bufflen < 100) Then
@@ -864,7 +953,7 @@ Module yocto_serialport
       If (nChars > bufflen) Then
         nChars = bufflen
       End If
-      Me._rxptr = Me._rxptr + nChars
+      Me._rxptr = endpos - (bufflen - nChars)
       res = (YAPI.DefaultEncoding.GetString(buff)).Substring( 0, nChars)
       Return res
     End Function
@@ -923,7 +1012,7 @@ Module yocto_serialport
       If (nBytes > bufflen) Then
         nBytes = bufflen
       End If
-      Me._rxptr = Me._rxptr + nBytes
+      Me._rxptr = endpos - (bufflen - nBytes)
       res = ""
       ofs = 0
       While (ofs+3 < nBytes)
@@ -941,8 +1030,8 @@ Module yocto_serialport
     ''' <summary>
     '''   Reads a single line (or message) from the receive buffer, starting at current stream position.
     ''' <para>
-    '''   This function can only be used when the serial port is configured for a message protocol,
-    '''   such as 'Line' mode or MODBUS protocols. It does not  work in plain stream modes, eg. 'Char' or 'Byte').
+    '''   This function is intended to be used when the serial port is configured for a message protocol,
+    '''   such as 'Line' mode or MODBUS protocols.
     ''' </para>
     ''' <para>
     '''   If data at current stream position is not available anymore in the receive buffer,
@@ -986,9 +1075,8 @@ Module yocto_serialport
     '''   Searches for incoming messages in the serial port receive buffer matching a given pattern,
     '''   starting at current position.
     ''' <para>
-    '''   This function can only be used when the serial port is
-    '''   configured for a message protocol, such as 'Line' mode or MODBUS protocols.
-    '''   It does not work in plain stream modes, eg. 'Char' or 'Byte', for which there is no "start" of message.
+    '''   This function will only compare and return printable characters
+    '''   in the message strings. Binary protocols are handled as hexadecimal strings.
     ''' </para>
     ''' <para>
     '''   The search returns all messages matching the expression provided as argument in the buffer.
@@ -1051,23 +1139,37 @@ Module yocto_serialport
     '''   for the next read operations.
     ''' </para>
     ''' </summary>
-    ''' <param name="rxCountVal">
-    '''   the absolute position index (value of rxCount) for next read operations.
+    ''' <param name="absPos">
+    '''   the absolute position index for next read operations.
     ''' </param>
     ''' <returns>
     '''   nothing.
     ''' </returns>
     '''/
-    Public Overridable Function read_seek(rxCountVal As Integer) As Integer
-      Me._rxptr = rxCountVal
+    Public Overridable Function read_seek(absPos As Integer) As Integer
+      Me._rxptr = absPos
       Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the current absolute stream position pointer of the YSerialPort object.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the absolute position index for next read operations.
+    ''' </returns>
+    '''/
+    Public Overridable Function read_tell() As Integer
+      Return Me._rxptr
     End Function
 
     '''*
     ''' <summary>
     '''   Sends a text line query to the serial port, and reads the reply, if any.
     ''' <para>
-    '''   This function can only be used when the serial port is configured for 'Line' protocol.
+    '''   This function is intended to be used when the serial port is configured for 'Line' protocol.
     ''' </para>
     ''' </summary>
     ''' <param name="query">
@@ -1770,6 +1872,57 @@ Module yocto_serialport
       End While
       
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Saves the job definition string (JSON data) into a job file.
+    ''' <para>
+    '''   The job file can be later enabled using <c>selectJob()</c>.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="jobfile">
+    '''   name of the job file to save on the device filesystem
+    ''' </param>
+    ''' <param name="jsonDef">
+    '''   a string containing a JSON definition of the job
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function uploadJob(jobfile As String, jsonDef As String) As Integer
+      Me._upload(jobfile, YAPI.DefaultEncoding.GetBytes(jsonDef))
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Load and start processing the specified job file.
+    ''' <para>
+    '''   The file must have
+    '''   been previously created using the user interface or uploaded on the
+    '''   device filesystem using the <c>uploadJob()</c> function.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="jobfile">
+    '''   name of the job file (on the device filesystem)
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function selectJob(jobfile As String) As Integer
+      REM // may throw an exception
+      Return Me.sendCommand("J" + jobfile)
     End Function
 
 

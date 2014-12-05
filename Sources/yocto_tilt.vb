@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_tilt.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_tilt.vb 18322 2014-11-10 10:49:13Z seb $
 '*
 '* Implements yFindTilt(), the high-level API for Tilt functions
 '*
@@ -55,7 +55,6 @@ Module yocto_tilt
   Public Const Y_AXIS_Y As Integer = 1
   Public Const Y_AXIS_Z As Integer = 2
   Public Const Y_AXIS_INVALID As Integer = -1
-
   Public Delegate Sub YTiltValueCallback(ByVal func As YTilt, ByVal value As String)
   Public Delegate Sub YTiltTimedReportCallback(ByVal func As YTilt, ByVal measure As YMeasure)
   REM --- (end of YTilt globals)
@@ -79,7 +78,6 @@ Module yocto_tilt
     Public Const AXIS_Y As Integer = 1
     Public Const AXIS_Z As Integer = 2
     Public Const AXIS_INVALID As Integer = -1
-
     REM --- (end of YTilt definitions)
 
     REM --- (YTilt attributes declaration)
