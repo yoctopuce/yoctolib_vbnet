@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 18262 2014-11-05 14:22:14Z seb $
+'* $Id: yocto_serialport.vb 19192 2015-01-30 16:30:16Z mvuilleu $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -53,12 +53,21 @@ Module yocto_serialport
 
   Public Const Y_SERIALMODE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PROTOCOL_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_VOLTAGELEVEL_OFF As Integer = 0
+  Public Const Y_VOLTAGELEVEL_TTL3V As Integer = 1
+  Public Const Y_VOLTAGELEVEL_TTL3VR As Integer = 2
+  Public Const Y_VOLTAGELEVEL_TTL5V As Integer = 3
+  Public Const Y_VOLTAGELEVEL_TTL5VR As Integer = 4
+  Public Const Y_VOLTAGELEVEL_RS232 As Integer = 5
+  Public Const Y_VOLTAGELEVEL_RS485 As Integer = 6
+  Public Const Y_VOLTAGELEVEL_INVALID As Integer = -1
   Public Const Y_RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_RXMSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TXMSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LASTMSG_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_CURRENTJOB_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YSerialPortValueCallback(ByVal func As YSerialPort, ByVal value As String)
@@ -85,12 +94,21 @@ Module yocto_serialport
     REM --- (YSerialPort definitions)
     Public Const SERIALMODE_INVALID As String = YAPI.INVALID_STRING
     Public Const PROTOCOL_INVALID As String = YAPI.INVALID_STRING
+    Public Const VOLTAGELEVEL_OFF As Integer = 0
+    Public Const VOLTAGELEVEL_TTL3V As Integer = 1
+    Public Const VOLTAGELEVEL_TTL3VR As Integer = 2
+    Public Const VOLTAGELEVEL_TTL5V As Integer = 3
+    Public Const VOLTAGELEVEL_TTL5VR As Integer = 4
+    Public Const VOLTAGELEVEL_RS232 As Integer = 5
+    Public Const VOLTAGELEVEL_RS485 As Integer = 6
+    Public Const VOLTAGELEVEL_INVALID As Integer = -1
     Public Const RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const RXMSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TXMSGCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LASTMSG_INVALID As String = YAPI.INVALID_STRING
+    Public Const CURRENTJOB_INVALID As String = YAPI.INVALID_STRING
     Public Const STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YSerialPort definitions)
@@ -98,12 +116,14 @@ Module yocto_serialport
     REM --- (YSerialPort attributes declaration)
     Protected _serialMode As String
     Protected _protocol As String
+    Protected _voltageLevel As Integer
     Protected _rxCount As Integer
     Protected _txCount As Integer
     Protected _errCount As Integer
     Protected _rxMsgCount As Integer
     Protected _txMsgCount As Integer
     Protected _lastMsg As String
+    Protected _currentJob As String
     Protected _startupJob As String
     Protected _command As String
     Protected _valueCallbackSerialPort As YSerialPortValueCallback
@@ -116,12 +136,14 @@ Module yocto_serialport
       REM --- (YSerialPort attributes initialization)
       _serialMode = SERIALMODE_INVALID
       _protocol = PROTOCOL_INVALID
+      _voltageLevel = VOLTAGELEVEL_INVALID
       _rxCount = RXCOUNT_INVALID
       _txCount = TXCOUNT_INVALID
       _errCount = ERRCOUNT_INVALID
       _rxMsgCount = RXMSGCOUNT_INVALID
       _txMsgCount = TXMSGCOUNT_INVALID
       _lastMsg = LASTMSG_INVALID
+      _currentJob = CURRENTJOB_INVALID
       _startupJob = STARTUPJOB_INVALID
       _command = COMMAND_INVALID
       _valueCallbackSerialPort = Nothing
@@ -138,6 +160,10 @@ Module yocto_serialport
       End If
       If (member.name = "protocol") Then
         _protocol = member.svalue
+        Return 1
+      End If
+      If (member.name = "voltageLevel") Then
+        _voltageLevel = CInt(member.ivalue)
         Return 1
       End If
       If (member.name = "rxCount") Then
@@ -162,6 +188,10 @@ Module yocto_serialport
       End If
       If (member.name = "lastMsg") Then
         _lastMsg = member.svalue
+        Return 1
+      End If
+      If (member.name = "currentJob") Then
+        _currentJob = member.svalue
         Return 1
       End If
       If (member.name = "startupJob") Then
@@ -303,6 +333,65 @@ Module yocto_serialport
       Dim rest_val As String
       rest_val = newval
       Return _setAttr("protocol", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the voltage level used on the serial line.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
+    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c> and
+    '''   <c>Y_VOLTAGELEVEL_RS485</c> corresponding to the voltage level used on the serial line
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_VOLTAGELEVEL_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_voltageLevel() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return VOLTAGELEVEL_INVALID
+        End If
+      End If
+      Return Me._voltageLevel
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the voltage type used on the serial line.
+    ''' <para>
+    '''   Valid
+    '''   values  will depend on the Yoctopuce device model featuring
+    '''   the serial port feature.  Check your device documentation
+    '''   to find out which values are valid for that specific model.
+    '''   Trying to set an invalid value will have no effect.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
+    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c> and
+    '''   <c>Y_VOLTAGELEVEL_RS485</c> corresponding to the voltage type used on the serial line
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_voltageLevel(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("voltageLevel", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -448,6 +537,58 @@ Module yocto_serialport
       Return Me._lastMsg
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the name of the job file currently in use.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the name of the job file currently in use
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CURRENTJOB_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_currentJob() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return CURRENTJOB_INVALID
+        End If
+      End If
+      Return Me._currentJob
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the job to use when the device is powered on.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the job to use when the device is powered on
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_currentJob(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("currentJob", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Returns the job file to use when the device is powered on.
@@ -665,7 +806,7 @@ Module yocto_serialport
 
     '''*
     ''' <summary>
-    '''   Read the level of the CTS line.
+    '''   Reads the level of the CTS line.
     ''' <para>
     '''   The CTS line is usually driven by
     '''   the RTS signal of the connected serial device.
@@ -1922,7 +2063,7 @@ Module yocto_serialport
     '''/
     Public Overridable Function selectJob(jobfile As String) As Integer
       REM // may throw an exception
-      Return Me.sendCommand("J" + jobfile)
+      Return Me.set_currentJob(jobfile)
     End Function
 
 

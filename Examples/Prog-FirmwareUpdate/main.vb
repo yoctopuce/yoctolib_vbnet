@@ -24,14 +24,13 @@ Module Module1
         While (status < 100 And status >= 0)
           Dim newstatus As Integer = update.get_progress()
           If (newstatus <> status) Then
-            Console.WriteLine(status.ToString() + "% " + update.get_progressMessage())
+            Console.WriteLine(newstatus.ToString() + "% " + update.get_progressMessage())
           End If
-
           YAPI.Sleep(500, errmsg)
           status = newstatus
         End While
         If (status < 0) Then
-          Console.WriteLine("    " + status.ToString() + " Firmware Update failed: " + update.get_progressMessage())
+          Console.WriteLine("Firmware Update failed: " + update.get_progressMessage())
           Environment.Exit(1)
         Else
           If (m.isOnline()) Then

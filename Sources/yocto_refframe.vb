@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 18322 2014-11-10 10:49:13Z seb $
+'* $Id: yocto_refframe.vb 19211 2015-02-02 13:18:41Z mvuilleu $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -55,8 +55,8 @@ Module yocto_refframe
   BOTTOM = 0
   TOP = 1
   FRONT = 2
-  RIGHT = 3
-  REAR = 4
+  REAR = 3
+  RIGHT = 4
   LEFT = 5
 end enum
  Public Enum  Y_MOUNTORIENTATION
