@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 19192 2015-01-30 16:30:16Z mvuilleu $
+'* $Id: yocto_serialport.vb 19817 2015-03-23 16:49:57Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -313,6 +313,8 @@ Module yocto_serialport
     '''   "Modbus-RTU" for MODBUS messages in RTU mode,
     '''   "Char" for a continuous ASCII stream or
     '''   "Byte" for a continuous binary stream.
+    '''   The suffix "/[wait]ms" can be added to reduce the transmit rate so that there
+    '''   is always at lest the specified number of milliseconds between each bytes sent.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -836,6 +838,27 @@ Module yocto_serialport
 
     '''*
     ''' <summary>
+    '''   Sends a single byte to the serial port.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="code">
+    '''   the byte to send
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function writeByte(code As Integer) As Integer
+      REM // may throw an exception
+      Return Me.sendCommand("$" + YAPI._intToHex(code,02))
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Sends an ASCII string to the serial port, as is.
     ''' <para>
     ''' </para>
@@ -1043,6 +1066,45 @@ Module yocto_serialport
 
     '''*
     ''' <summary>
+    '''   Reads one byte from the receive buffer, starting at current stream position.
+    ''' <para>
+    '''   If data at current stream position is not available anymore in the receive buffer,
+    '''   or if there is no data available yet, the function returns YAPI_NO_MORE_DATA.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the next byte
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function readByte() As Integer
+      Dim buff As Byte()
+      Dim bufflen As Integer = 0
+      Dim mult As Integer = 0
+      Dim endpos As Integer = 0
+      Dim res As Integer = 0
+      REM // may throw an exception
+      buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=1")
+      bufflen = (buff).Length - 1
+      endpos = 0
+      mult = 1
+      While ((bufflen > 0) And (buff(bufflen) <> 64))
+        endpos = endpos + mult * (buff(bufflen) - 48)
+        mult = mult * 10
+        bufflen = bufflen - 1
+      End While
+      Me._rxptr = endpos
+      If (bufflen = 0) Then
+        Return YAPI.NO_MORE_DATA
+      End If
+      res = buff(0)
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Reads data from the receive buffer as a string, starting at current stream position.
     ''' <para>
     '''   If data at current stream position is not available anymore in the receive buffer, the
@@ -1064,8 +1126,6 @@ Module yocto_serialport
       Dim bufflen As Integer = 0
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
-      Dim startpos As Integer = 0
-      Dim missing As Integer = 0
       Dim res As String
       If (nChars > 65535) Then
         nChars = 65535
@@ -1080,22 +1140,107 @@ Module yocto_serialport
         mult = mult * 10
         bufflen = bufflen - 1
       End While
-      startpos = ((endpos - bufflen) And (&H7fffffff))
-      If (startpos <> Me._rxptr) Then
-        REM
-        missing = ((startpos - Me._rxptr) And (&H7fffffff))
-        If (missing > nChars) Then
-          nChars = 0
-          Me._rxptr = startpos
-        Else
-          nChars = nChars - missing
-        End If
+      Me._rxptr = endpos
+      res = (YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen)
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reads data from the receive buffer as a binary buffer, starting at current stream position.
+    ''' <para>
+    '''   If data at current stream position is not available anymore in the receive buffer, the
+    '''   function performs a short read.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="nChars">
+    '''   the maximum number of bytes to read
+    ''' </param>
+    ''' <returns>
+    '''   a binary object with receive buffer contents
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function readBin(nChars As Integer) As Byte()
+      Dim buff As Byte()
+      Dim bufflen As Integer = 0
+      Dim mult As Integer = 0
+      Dim endpos As Integer = 0
+      Dim idx As Integer = 0
+      Dim res As Byte()
+      If (nChars > 65535) Then
+        nChars = 65535
       End If
-      If (nChars > bufflen) Then
-        nChars = bufflen
+      REM // may throw an exception
+      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
+      bufflen = (buff).Length - 1
+      endpos = 0
+      mult = 1
+      While ((bufflen > 0) And (buff(bufflen) <> 64))
+        endpos = endpos + mult * (buff(bufflen) - 48)
+        mult = mult * 10
+        bufflen = bufflen - 1
+      End While
+      Me._rxptr = endpos
+      ReDim res(bufflen-1)
+      idx = 0
+      While (idx < bufflen)
+        res( idx) = Convert.ToByte(buff(idx) And &HFF)
+        idx = idx + 1
+      End While
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reads data from the receive buffer as a list of bytes, starting at current stream position.
+    ''' <para>
+    '''   If data at current stream position is not available anymore in the receive buffer, the
+    '''   function performs a short read.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="nChars">
+    '''   the maximum number of bytes to read
+    ''' </param>
+    ''' <returns>
+    '''   a sequence of bytes with receive buffer contents
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function readArray(nChars As Integer) As List(Of Integer)
+      Dim buff As Byte()
+      Dim bufflen As Integer = 0
+      Dim mult As Integer = 0
+      Dim endpos As Integer = 0
+      Dim idx As Integer = 0
+      Dim b As Integer = 0
+      Dim res As List(Of Integer) = New List(Of Integer)()
+      If (nChars > 65535) Then
+        nChars = 65535
       End If
-      Me._rxptr = endpos - (bufflen - nChars)
-      res = (YAPI.DefaultEncoding.GetString(buff)).Substring( 0, nChars)
+      REM // may throw an exception
+      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
+      bufflen = (buff).Length - 1
+      endpos = 0
+      mult = 1
+      While ((bufflen > 0) And (buff(bufflen) <> 64))
+        endpos = endpos + mult * (buff(bufflen) - 48)
+        mult = mult * 10
+        bufflen = bufflen - 1
+      End While
+      Me._rxptr = endpos
+      res.Clear()
+      idx = 0
+      While (idx < bufflen)
+        b = buff(idx)
+        res.Add(b)
+        idx = idx + 1
+      End While
+      
       Return res
     End Function
 
@@ -1122,8 +1267,6 @@ Module yocto_serialport
       Dim bufflen As Integer = 0
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
-      Dim startpos As Integer = 0
-      Dim missing As Integer = 0
       Dim ofs As Integer = 0
       Dim res As String
       If (nBytes > 65535) Then
@@ -1131,7 +1274,7 @@ Module yocto_serialport
       End If
       REM // may throw an exception
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nBytes))
-      bufflen = (buff).Length-1
+      bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
       While ((bufflen > 0) And (buff(bufflen) <> 64))
@@ -1139,28 +1282,14 @@ Module yocto_serialport
         mult = mult * 10
         bufflen = bufflen - 1
       End While
-      startpos = ((endpos - bufflen) And (&H7fffffff))
-      If (startpos <> Me._rxptr) Then
-        REM
-        missing = ((startpos - Me._rxptr) And (&H7fffffff))
-        If (missing > nBytes) Then
-          nBytes = 0
-          Me._rxptr = startpos
-        Else
-          nBytes = nBytes - missing
-        End If
-      End If
-      If (nBytes > bufflen) Then
-        nBytes = bufflen
-      End If
-      Me._rxptr = endpos - (bufflen - nBytes)
+      Me._rxptr = endpos
       res = ""
       ofs = 0
-      While (ofs+3 < nBytes)
-        res = "" +  res + "" + YAPI._intToHex( buff(ofs),02) + "" + YAPI._intToHex( buff(ofs+1),02) + "" + YAPI._intToHex( buff(ofs+2),02) + "" + YAPI._intToHex(buff(ofs+3),02)
+      While (ofs + 3 < bufflen)
+        res = "" +  res + "" + YAPI._intToHex( buff(ofs),02) + "" + YAPI._intToHex( buff(ofs + 1),02) + "" + YAPI._intToHex( buff(ofs + 2),02) + "" + YAPI._intToHex(buff(ofs + 3),02)
         ofs = ofs + 4
       End While
-      While (ofs < nBytes)
+      While (ofs < bufflen)
         res = "" +  res + "" + YAPI._intToHex(buff(ofs),02)
         ofs = ofs + 1
       End While
@@ -1304,6 +1433,31 @@ Module yocto_serialport
     '''/
     Public Overridable Function read_tell() As Integer
       Return Me._rxptr
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the number of bytes available to read in the input buffer starting from the
+    '''   current absolute stream position pointer of the YSerialPort object.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the number of bytes available to read
+    ''' </returns>
+    '''/
+    Public Overridable Function read_avail() As Integer
+      Dim buff As Byte()
+      Dim bufflen As Integer = 0
+      Dim res As Integer = 0
+      REM // may throw an exception
+      buff = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
+      bufflen = (buff).Length - 1
+      While ((bufflen > 0) And (buff(bufflen) <> 64))
+        bufflen = bufflen - 1
+      End While
+      res = Convert.ToInt32((YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen))
+      Return res
     End Function
 
     '''*

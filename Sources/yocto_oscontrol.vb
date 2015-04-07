@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_oscontrol.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_oscontrol.vb 19329 2015-02-17 17:31:26Z seb $
 '*
 '* Implements yFindOsControl(), the high-level API for OsControl functions
 '*

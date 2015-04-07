@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_anbutton.vb 18361 2014-11-13 08:06:41Z mvuilleu $
+'* $Id: yocto_anbutton.vb 19329 2015-02-17 17:31:26Z seb $
 '*
 '* Implements yFindAnButton(), the high-level API for AnButton functions
 '*

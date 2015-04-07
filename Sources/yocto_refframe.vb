@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 19211 2015-02-02 13:18:41Z mvuilleu $
+'* $Id: yocto_refframe.vb 19329 2015-02-17 17:31:26Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*

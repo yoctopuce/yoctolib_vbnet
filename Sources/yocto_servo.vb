@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_servo.vb 18322 2014-11-10 10:49:13Z seb $
+'* $Id: yocto_servo.vb 19329 2015-02-17 17:31:26Z seb $
 '*
 '* Implements yFindServo(), the high-level API for Servo functions
 '*

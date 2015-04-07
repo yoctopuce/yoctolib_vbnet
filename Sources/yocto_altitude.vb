@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_altitude.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_altitude.vb 19746 2015-03-17 10:34:00Z seb $
 '*
 '* Implements yFindAltitude(), the high-level API for Altitude functions
 '*
@@ -52,6 +52,7 @@ Module yocto_altitude
   REM --- (YAltitude globals)
 
   Public Const Y_QNH_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_TECHNOLOGY_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YAltitudeValueCallback(ByVal func As YAltitude, ByVal value As String)
   Public Delegate Sub YAltitudeTimedReportCallback(ByVal func As YAltitude, ByVal measure As YMeasure)
   REM --- (end of YAltitude globals)
@@ -60,9 +61,13 @@ Module yocto_altitude
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce application programming interface allows you to read an instant
-  '''   measure of the sensor, as well as the minimal and maximal values observed.
+  '''   The Yoctopuce class YAltitude allows you to read and configure Yoctopuce altitude
+  '''   sensors.
   ''' <para>
+  '''   It inherits from the YSensor class the core functions to read measurements,
+  '''   register callback functions, access to the autonomous datalogger.
+  '''   This class adds the ability to configure the barometric pressure adjusted to
+  '''   sea level (QNH) for barometric sensors.
   ''' </para>
   ''' </summary>
   '''/
@@ -72,10 +77,12 @@ Module yocto_altitude
 
     REM --- (YAltitude definitions)
     Public Const QNH_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const TECHNOLOGY_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YAltitude definitions)
 
     REM --- (YAltitude attributes declaration)
     Protected _qnh As Double
+    Protected _technology As String
     Protected _valueCallbackAltitude As YAltitudeValueCallback
     Protected _timedReportCallbackAltitude As YAltitudeTimedReportCallback
     REM --- (end of YAltitude attributes declaration)
@@ -85,6 +92,7 @@ Module yocto_altitude
       _classname = "Altitude"
       REM --- (YAltitude attributes initialization)
       _qnh = QNH_INVALID
+      _technology = TECHNOLOGY_INVALID
       _valueCallbackAltitude = Nothing
       _timedReportCallbackAltitude = Nothing
       REM --- (end of YAltitude attributes initialization)
@@ -95,6 +103,10 @@ Module yocto_altitude
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "qnh") Then
         _qnh = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
+      If (member.name = "technology") Then
+        _technology = member.svalue
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -185,6 +197,33 @@ Module yocto_altitude
         End If
       End If
       Return Me._qnh
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the technology used by the sesnor to compute
+    '''   altitude.
+    ''' <para>
+    '''   Possibles values are  "barometric" and "gps"
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the technology used by the sesnor to compute
+    '''   altitude
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_TECHNOLOGY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_technology() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return TECHNOLOGY_INVALID
+        End If
+      End If
+      Return Me._technology
     End Function
 
     '''*

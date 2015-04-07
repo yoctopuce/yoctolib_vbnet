@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gyro.vb 16895 2014-07-18 00:12:08Z mvuilleu $
+'* $Id: yocto_gyro.vb 19704 2015-03-13 06:10:37Z mvuilleu $
 '*
 '* Implements yFindGyro(), the high-level API for Gyro functions
 '*
@@ -400,9 +400,17 @@ Module yocto_gyro
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce application programming interface allows you to read an instant
-  '''   measure of the sensor, as well as the minimal and maximal values observed.
+  '''   The YSensor class is the parent class for all Yoctopuce sensors.
   ''' <para>
+  '''   It can be
+  '''   used to read the current value and unit of any sensor, read the min/max
+  '''   value, configure autonomous recording frequency and access recorded data.
+  '''   It also provide a function to register a callback invoked each time the
+  '''   observed value changes, or at a predefined interval. Using this class rather
+  '''   than a specific subclass makes it possible to create generic applications
+  '''   that work with any Yoctopuce sensor, even those that do not yet exist.
+  '''   Note: The YAnButton class is the only analog input which does not inherit
+  '''   from YSensor.
   ''' </para>
   ''' </summary>
   '''/
@@ -879,6 +887,8 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_quaternionX() As Double
+      REM // may throw an exception
+      Me._loadQuaternion()
       Return Me._x
     End Function
 
@@ -901,6 +911,8 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_quaternionY() As Double
+      REM // may throw an exception
+      Me._loadQuaternion()
       Return Me._y
     End Function
 
@@ -923,6 +935,8 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_quaternionZ() As Double
+      REM // may throw an exception
+      Me._loadQuaternion()
       Return Me._z
     End Function
 

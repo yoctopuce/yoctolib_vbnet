@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 17674 2014-09-16 16:18:58Z seb $
+'* $Id: yocto_files.vb 19329 2015-02-17 17:31:26Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*

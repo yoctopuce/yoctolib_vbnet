@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_carbondioxide.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_carbondioxide.vb 19619 2015-03-05 18:11:23Z mvuilleu $
 '*
 '* Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '*
@@ -51,6 +51,8 @@ Module yocto_carbondioxide
     REM --- (end of YCarbonDioxide dlldef)
   REM --- (YCarbonDioxide globals)
 
+  Public Const Y_ABCPERIOD_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YCarbonDioxideValueCallback(ByVal func As YCarbonDioxide, ByVal value As String)
   Public Delegate Sub YCarbonDioxideTimedReportCallback(ByVal func As YCarbonDioxide, ByVal measure As YMeasure)
   REM --- (end of YCarbonDioxide globals)
@@ -59,9 +61,12 @@ Module yocto_carbondioxide
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce application programming interface allows you to read an instant
-  '''   measure of the sensor, as well as the minimal and maximal values observed.
+  '''   The Yoctopuce class YCarbonDioxide allows you to read and configure Yoctopuce CO2
+  '''   sensors.
   ''' <para>
+  '''   It inherits from YSensor class the core functions to read measurements,
+  '''   register callback functions, access to the autonomous datalogger.
+  '''   This class adds the ability to perform manual calibration if reuired.
   ''' </para>
   ''' </summary>
   '''/
@@ -70,9 +75,13 @@ Module yocto_carbondioxide
     REM --- (end of YCarbonDioxide class start)
 
     REM --- (YCarbonDioxide definitions)
+    Public Const ABCPERIOD_INVALID As Integer = YAPI.INVALID_INT
+    Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YCarbonDioxide definitions)
 
     REM --- (YCarbonDioxide attributes declaration)
+    Protected _abcPeriod As Integer
+    Protected _command As String
     Protected _valueCallbackCarbonDioxide As YCarbonDioxideValueCallback
     Protected _timedReportCallbackCarbonDioxide As YCarbonDioxideTimedReportCallback
     REM --- (end of YCarbonDioxide attributes declaration)
@@ -81,6 +90,8 @@ Module yocto_carbondioxide
       MyBase.New(func)
       _classname = "CarbonDioxide"
       REM --- (YCarbonDioxide attributes initialization)
+      _abcPeriod = ABCPERIOD_INVALID
+      _command = COMMAND_INVALID
       _valueCallbackCarbonDioxide = Nothing
       _timedReportCallbackCarbonDioxide = Nothing
       REM --- (end of YCarbonDioxide attributes initialization)
@@ -89,12 +100,92 @@ Module yocto_carbondioxide
     REM --- (YCarbonDioxide private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "abcPeriod") Then
+        _abcPeriod = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "command") Then
+        _command = member.svalue
+        Return 1
+      End If
       Return MyBase._parseAttr(member)
     End Function
 
     REM --- (end of YCarbonDioxide private methods declaration)
 
     REM --- (YCarbonDioxide public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the Automatic Baseline Calibration period, in hours.
+    ''' <para>
+    '''   A negative value
+    '''   means that automatic baseline calibration is disabled.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the Automatic Baseline Calibration period, in hours
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_ABCPERIOD_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_abcPeriod() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return ABCPERIOD_INVALID
+        End If
+      End If
+      Return Me._abcPeriod
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Modifies Automatic Baseline Calibration period, in hours.
+    ''' <para>
+    '''   If you need
+    '''   to disable automatic baseline calibration (for instance when using the
+    '''   sensor in an environment that is constantly above 400ppm CO2), set the
+    '''   period to -1. Remember to call the <c>saveToFlash()</c> method of the
+    '''   module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_abcPeriod(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("abcPeriod", rest_val)
+    End Function
+    Public Function get_command() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return COMMAND_INVALID
+        End If
+      End If
+      Return Me._command
+    End Function
+
+
+    Public Function set_command(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("command", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves a CO2 sensor for a given identifier.
@@ -227,6 +318,60 @@ Module yocto_carbondioxide
         MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Triggers a baseline calibration at standard CO2 ambiant level (400ppm).
+    ''' <para>
+    '''   It is normally not necessary to manually calibrate the sensor, because
+    '''   the built-in automatic baseline calibration procedure will automatically
+    '''   fix any long-term drift based on the lowest level of CO2 observed over the
+    '''   automatic calibration period. However, if you disable automatic baseline
+    '''   calibration, you may want to manually trigger a calibration from time to
+    '''   time. Before starting a baseline calibration, make sure to put the sensor
+    '''   in a standard environment (e.g. outside in fresh air) at around 400ppm.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function triggetBaselineCalibration() As Integer
+      Return Me.set_command("BC")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Triggers a zero calibration of the sensor on carbon dioxide-free air.
+    ''' <para>
+    '''   It is normally not necessary to manually calibrate the sensor, because
+    '''   the built-in automatic baseline calibration procedure will automatically
+    '''   fix any long-term drift based on the lowest level of CO2 observed over the
+    '''   automatic calibration period. However, if you disable automatic baseline
+    '''   calibration, you may want to manually trigger a calibration from time to
+    '''   time. Before starting a zero calibration, you should circulate carbon
+    '''   dioxide-free air within the sensor for a minute or two, using a small pipe
+    '''   connected to the sensor. Please contact support@yoctopuce.com for more details
+    '''   on the zero calibration procedure.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function triggetZeroCalibration() As Integer
+      Return Me.set_command("ZC")
     End Function
 
 

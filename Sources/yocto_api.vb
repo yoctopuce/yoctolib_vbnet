@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 19018 2015-01-19 14:55:53Z seb $
+'* $Id: yocto_api.vb 19854 2015-03-26 10:17:46Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -391,7 +391,10 @@ Module yocto_api
               ParseError(st, i, "invalid char: was expecting  "",0..9,t or f")
             End If
           Case Tjstate.JWAITFORSTRINGVALUE
-            If sti = """" Then
+            If sti = "\" And i + 1 < Len(st) Then
+              svalue = svalue + CChar(Mid(st, i + 1, 1))
+              i = i + 1
+            ElseIf sti = """" Then
               state = Tjstate.JSCOMPLETED
               res = createStrRecord(name, svalue)
             ElseIf Asc(sti) < 32 Then
@@ -569,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "19218"
+  Public Const YOCTO_API_BUILD_NO As String = "19854"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1869,6 +1872,7 @@ Module yocto_api
           If (Me._progress < 100) Then
             REM
             m.set_allSettings(Me._settings)
+            m.saveToFlash()
             ReDim Me._settings(0-1)
             Me._progress = 100
             Me._progress_msg = "success"
@@ -1923,7 +1927,9 @@ Module yocto_api
         End If
         bigbuff = Nothing
       End If
-      bootladers = new List(Of String)(bootloader_list.Split(new Char() {","c}))
+      If (Not (bootloader_list = "")) Then
+        bootladers = new List(Of String)(bootloader_list.Split(new Char() {","c}))
+      End If
       Return bootladers
     End Function
 
@@ -3896,7 +3902,7 @@ Module yocto_api
     End Function
 
     Protected Function _escapeAttr(ByVal changeval As String) As String
-      Dim i As Integer
+      Dim i, c_ord As Integer
       Dim uchangeval, h As String
       uchangeval = ""
       Dim c As Char
@@ -3904,7 +3910,16 @@ Module yocto_api
         c = changeval.Chars(i)
         If (c < " ") Or ((c > Chr(122)) And (c <> "~")) Or (c = Chr(34)) Or (c = "%") Or (c = "&") Or
            (c = "+") Or (c = "<") Or (c = "=") Or (c = ">") Or (c = "\") Or (c = "^") Or (c = "`") Then
-          h = Hex(Asc(c))
+          c_ord = Asc(c)
+          If (c_ord = &HC2 Or c_ord = &HC3) And (i + 1 < changeval.Length) Then
+            If ((Asc(changeval(i + 1)) And &HEC0) = &H80) Then
+              REM UTF8-encoded ISO-8859-1 character: translate to plain ISO-8859-1
+              c_ord = (c_ord And 1) * &H40
+              i += 1
+              c_ord += Asc(changeval(i))
+            End If
+          End If
+          h = Hex(c_ord)
           If (h.Length < 2) Then h = "0" + h
           uchangeval = uchangeval + "%" + h
         Else
@@ -4272,14 +4287,14 @@ Module yocto_api
     End Function
     '''*
     ''' <summary>
-    '''   Returns the current value of the function (no more than 6 characters).
+    '''   Returns a short string representing the current state of the function.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the current value of the function (no more than 6 characters)
+    '''   a string corresponding to a short string representing the current state of the function
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
@@ -6139,7 +6154,7 @@ Module yocto_api
       Return 32767
     End Function
 
-    Public Overridable Function calibConvert(param As String, calibrationParam As String, unit_name As String, sensorType As String) As String
+    Public Overridable Function calibConvert(param As String, currentFuncValue As String, unit_name As String, sensorType As String) As String
       Dim i_i As Integer
       Dim paramVer As Integer = 0
       Dim funVer As Integer = 0
@@ -6159,7 +6174,7 @@ Module yocto_api
       Dim wordVal As Double = 0
       REM // Initial guess for parameter encoding
       paramVer = Me.calibVersion(param)
-      funVer = Me.calibVersion(calibrationParam)
+      funVer = Me.calibVersion(currentFuncValue)
       funScale = Me.calibScale(unit_name, sensorType)
       funOffset = Me.calibOffset(unit_name)
       paramScale = funScale
@@ -6167,7 +6182,7 @@ Module yocto_api
       If (funVer < 3) Then
         REM
         If (funVer = 2) Then
-          words = YAPI._decodeWords(calibrationParam)
+          words = YAPI._decodeWords(currentFuncValue)
           If ((words(0) = 1366) And (words(1) = 12500)) Then
             REM
             funScale = 1
@@ -6178,7 +6193,7 @@ Module yocto_api
           End If
         Else
           If (funVer = 1) Then
-            If (calibrationParam = "" Or (Convert.ToInt32(calibrationParam) > 10)) Then
+            If (currentFuncValue = "" Or (Convert.ToInt32(currentFuncValue) > 10)) Then
               funScale = 0
             End If
           End If
@@ -6313,7 +6328,8 @@ Module yocto_api
     '''   Restores all the settings of the module.
     ''' <para>
     '''   Useful to restore all the logical names and calibrations parameters
-    '''   of a module from a backup.
+    '''   of a module from a backup.Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modifications must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -6359,6 +6375,7 @@ Module yocto_api
       Dim newval As String
       Dim oldval As String
       Dim old_calib As String
+      Dim each_str As String
       Dim do_update As Boolean
       Dim found As Boolean
       oldval = ""
@@ -6369,17 +6386,17 @@ Module yocto_api
       
       
       For i_i = 0 To old_dslist.Count - 1
-        old_dslist(i_i) = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(old_dslist(i_i)))
+        each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(old_dslist(i_i)))
         REM
-        leng = (old_dslist(i_i)).Length
-        eqpos = old_dslist(i_i).IndexOf("=")
+        leng = (each_str).Length
+        eqpos = each_str.IndexOf("=")
         If ((eqpos < 0) Or (leng = 0)) Then
           Me._throw(YAPI.INVALID_ARGUMENT, "Invalid settings")
           Return YAPI.INVALID_ARGUMENT
         End If
-        jpath = (old_dslist(i_i)).Substring( 0, eqpos)
+        jpath = (each_str).Substring( 0, eqpos)
         eqpos = eqpos + 1
-        value = (old_dslist(i_i)).Substring( eqpos, leng - eqpos)
+        value = (each_str).Substring( eqpos, leng - eqpos)
         old_jpath.Add(jpath)
         old_jpath_len.Add((jpath).Length)
         old_val_arr.Add(value)
@@ -6396,17 +6413,17 @@ Module yocto_api
       
       For i_i = 0 To new_dslist.Count - 1
         REM
-        new_dslist(i_i) = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(new_dslist(i_i)))
+        each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(new_dslist(i_i)))
         REM
-        leng = (new_dslist(i_i)).Length
-        eqpos = new_dslist(i_i).IndexOf("=")
+        leng = (each_str).Length
+        eqpos = each_str.IndexOf("=")
         If ((eqpos < 0) Or (leng = 0)) Then
           Me._throw(YAPI.INVALID_ARGUMENT, "Invalid settings")
           Return YAPI.INVALID_ARGUMENT
         End If
-        jpath = (new_dslist(i_i)).Substring( 0, eqpos)
+        jpath = (each_str).Substring( 0, eqpos)
         eqpos = eqpos + 1
-        value = (new_dslist(i_i)).Substring( eqpos, leng - eqpos)
+        value = (each_str).Substring( eqpos, leng - eqpos)
         new_jpath.Add(jpath)
         new_jpath_len.Add((jpath).Length)
         new_val_arr.Add(value)
@@ -6575,7 +6592,7 @@ Module yocto_api
             While ((j < new_jpath.Count) And Not (found))
               If (tmp = new_jpath(j)) Then
                 found = True
-                unit_name = new_jpath(j)
+                unit_name = new_val_arr(j)
               End If
               j = j + 1
             End While
@@ -6585,11 +6602,11 @@ Module yocto_api
             While ((j < new_jpath.Count) And Not (found))
               If (tmp = new_jpath(j)) Then
                 found = True
-                sensorType = new_jpath(j)
+                sensorType = new_val_arr(j)
               End If
               j = j + 1
             End While
-            newval = Me.calibConvert(new_val_arr(i), old_calib, unit_name, sensorType)
+            newval = Me.calibConvert(old_calib, new_val_arr(i), unit_name, sensorType)
             url = "api/" + fun + ".json?" + attr + "=" + Me._escapeAttr(newval)
             Me._download(url)
           Else
@@ -6800,9 +6817,17 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce application programming interface allows you to read an instant
-  '''   measure of the sensor, as well as the minimal and maximal values observed.
+  '''   The YSensor class is the parent class for all Yoctopuce sensors.
   ''' <para>
+  '''   It can be
+  '''   used to read the current value and unit of any sensor, read the min/max
+  '''   value, configure autonomous recording frequency and access recorded data.
+  '''   It also provide a function to register a callback invoked each time the
+  '''   observed value changes, or at a predefined interval. Using this class rather
+  '''   than a specific subclass makes it possible to create generic applications
+  '''   that work with any Yoctopuce sensor, even those that do not yet exist.
+  '''   Note: The YAnButton class is the only analog input which does not inherit
+  '''   from YSensor.
   ''' </para>
   ''' </summary>
   '''/

@@ -89,6 +89,9 @@
     <Compile Include="..\..\Sources\yocto_carbondioxide.vb">
       <Link>yocto\yocto_carbondioxide.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_cellular.vb">
+      <Link>yocto\yocto_cellular.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_compass.vb">
       <Link>yocto\yocto_compass.vb</Link>
     </Compile>
@@ -116,6 +119,12 @@
     <Compile Include="..\..\Sources\yocto_genericsensor.vb">
       <Link>yocto\yocto_genericsensor.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_gps.vb">
+      <Link>yocto\yocto_gps.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_groundspeed.vb">
+      <Link>yocto\yocto_groundspeed.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_gyro.vb">
       <Link>yocto\yocto_gyro.vb</Link>
     </Compile>
@@ -124,6 +133,12 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_humidity.vb">
       <Link>yocto\yocto_humidity.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_latitude.vb">
+      <Link>yocto\yocto_latitude.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_longitude.vb">
+      <Link>yocto\yocto_longitude.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_led.vb">
       <Link>yocto\yocto_led.vb</Link>
@@ -145,6 +160,9 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_power.vb">
       <Link>yocto\yocto_power.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_poweroutput.vb">
+      <Link>yocto\yocto_poweroutput.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_pressure.vb">
       <Link>yocto\yocto_pressure.vb</Link>

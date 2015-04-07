@@ -49,8 +49,8 @@
       button2 = yFindAnButton(serial + ".anButton2")
 
       While (True)
-        b1 = button1.get_isPressed()
-        b2 = button2.get_isPressed()
+        b1 = button1.get_isPressed() = YAnButton.ISPRESSED_TRUE
+        b2 = button2.get_isPressed() = YAnButton.ISPRESSED_TRUE
         If b1 Or b2 Then
           If b1 Then
             led = led1

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwminput.vb 18361 2014-11-13 08:06:41Z mvuilleu $
+'* $Id: yocto_pwminput.vb 19575 2015-03-04 10:42:56Z seb $
 '*
 '* Implements yFindPwmInput(), the high-level API for PwmInput functions
 '*
@@ -70,9 +70,13 @@ Module yocto_pwminput
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce application programming interface allows you to read an instant
-  '''   measure of the sensor, as well as the minimal and maximal values observed.
+  '''   The Yoctopuce class YPwmInput allows you to read and configure Yoctopuce PWM
+  '''   sensors.
   ''' <para>
+  '''   It inherits from YSensor class the core functions to read measurements,
+  '''   register callback functions, access to the autonomous datalogger.
+  '''   This class adds the ability to configure the signal parameter used to transmit
+  '''   information: the duty cacle, the frequency or the pulse width.
   ''' </para>
   ''' </summary>
   '''/

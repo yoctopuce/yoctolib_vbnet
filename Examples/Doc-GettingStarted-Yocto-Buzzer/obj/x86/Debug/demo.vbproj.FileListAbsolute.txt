@@ -1,3 +1,0 @@
-z:\yoctoprod\yoctolib\v1.0\Public\VB\Examples\Doc-GettingStarted-Yocto-Buzzer\obj\x86\Debug\demo.vbprojResolveAssemblyReference.cache
-z:\yoctoprod\yoctolib\v1.0\Public\VB\Examples\Doc-GettingStarted-Yocto-Buzzer\obj\x86\Debug\ConsoleApplication1.Resources.resources
-z:\yoctoprod\yoctolib\v1.0\Public\VB\Examples\Doc-GettingStarted-Yocto-Buzzer\obj\x86\Debug\demo.vbproj.GenerateResource.Cache

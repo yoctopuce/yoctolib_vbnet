@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_digitalio.vb 18322 2014-11-10 10:49:13Z seb $
+'* $Id: yocto_digitalio.vb 19329 2015-02-17 17:31:26Z seb $
 '*
 '* Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '*

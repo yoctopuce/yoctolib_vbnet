@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voc.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_voc.vb 19575 2015-03-04 10:42:56Z seb $
 '*
 '* Implements yFindVoc(), the high-level API for Voc functions
 '*
@@ -59,9 +59,11 @@ Module yocto_voc
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce application programming interface allows you to read an instant
-  '''   measure of the sensor, as well as the minimal and maximal values observed.
+  '''   The Yoctopuce class YVoc allows you to read and configure Yoctopuce Volatile Organic
+  '''   Compound sensors.
   ''' <para>
+  '''   It inherits from YSensor class the core functions to read measurements,
+  '''   register callback functions, access to the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/

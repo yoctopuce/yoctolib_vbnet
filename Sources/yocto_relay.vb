@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_relay.vb 18322 2014-11-10 10:49:13Z seb $
+'* $Id: yocto_relay.vb 19329 2015-02-17 17:31:26Z seb $
 '*
 '* Implements yFindRelay(), the high-level API for Relay functions
 '*

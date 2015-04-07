@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupschedule.vb 17356 2014-08-29 14:38:39Z seb $
+'* $Id: yocto_wakeupschedule.vb 19329 2015-02-17 17:31:26Z seb $
 '*
 '* Implements yFindWakeUpSchedule(), the high-level API for WakeUpSchedule functions
 '*
