@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 19854 2015-03-26 10:17:46Z seb $
+'* $Id: yocto_api.vb 19900 2015-03-31 13:11:09Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "19854"
+  Public Const YOCTO_API_BUILD_NO As String = "19938"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1910,7 +1910,6 @@ Module yocto_api
       fullsize = 0
       yapi_res = _yapiGetBootloaders(smallbuff, 1024, fullsize, errmsg)
       If (yapi_res < 0) Then
-        bootloader_list = "error:" + errmsg.ToString()
         Return bootladers
       End If
       If (fullsize <= 1024) Then
