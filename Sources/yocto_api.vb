@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 19900 2015-03-31 13:11:09Z seb $
+'* $Id: yocto_api.vb 20183 2015-04-29 14:41:00Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "19938"
+  Public Const YOCTO_API_BUILD_NO As String = "20255"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1197,6 +1197,46 @@ Module yocto_api
     End Sub
 
 
+    '''*
+    ''' <summary>
+    '''   Test if the hub is reachable.
+    ''' <para>
+    '''   This method do not register the hub, it only test if the
+    '''   hub is usable. The url parameter follow the same convention as the <c>RegisterHub</c>
+    '''   method. This method is useful to verify the authentication parameters for a hub. It
+    '''   is possible to force this method to return after mstimeout milliseconds.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="url">
+    '''   a string containing either <c>"usb"</c>,<c>"callback"</c> or the
+    '''   root URL of the hub to monitor
+    ''' </param>
+    ''' <param name="mstimeout">
+    '''   the number of millisecond available to test the connection.
+    ''' </param>
+    ''' <param name="errmsg">
+    '''   a string passed by reference to receive any error message.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure returns a negative error code.
+    ''' </para>
+    '''/
+    Public Shared Function TestHub(ByVal url As String, ByVal mstimeout As Integer, ByRef errmsg As String) As Integer
+      Dim buffer As New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim res As YRETCODE
+
+      buffer.Length = 0
+      res = _yapiTestHub(New StringBuilder(url), mstimeout, buffer)
+      If (YISERR(res)) Then
+        errmsg = buffer.ToString()
+      End If
+      Return res
+    End Function
 
     '''*
     ''' <summary>
@@ -6091,6 +6131,7 @@ Module yocto_api
       If (fullsize <= 1024) Then
         jsonflat = smallbuff.ToString()
       Else
+        fullsize = fullsize * 2
         buffsize = fullsize
         bigbuff = New StringBuilder(buffsize)
         res = _yapiGetAllJsonKeys(new StringBuilder(jsoncomplexstr), bigbuff, buffsize, fullsize, errmsg)
@@ -8705,6 +8746,38 @@ Module yocto_api
     YAPI.UnregisterHub(url)
   End Sub
 
+  '''*
+  ''' <summary>
+  '''   Test if the hub is reachable.
+  ''' <para>
+  '''   This method do not register the hub, it only test if the
+  '''   hub is usable. The url parameter follow the same convention as the <c>RegisterHub</c>
+  '''   method. This method is useful to verify the authentication parameters for a hub. It
+  '''   is possible to force this method to return after mstimeout milliseconds.
+  ''' </para>
+  ''' <para>
+  ''' </para>
+  ''' </summary>
+  ''' <param name="url">
+  '''   a string containing either <c>"usb"</c>,<c>"callback"</c> or the
+  '''   root URL of the hub to monitor
+  ''' </param>
+  ''' <param name="mstimeout">
+  '''   the number of millisecond available to test the connection.
+  ''' </param>
+  ''' <param name="errmsg">
+  '''   a string passed by reference to receive any error message.
+  ''' </param>
+  ''' <returns>
+  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  ''' </returns>
+  ''' <para>
+  '''   On failure returns a negative error code.
+  ''' </para>
+  '''/
+  Public Function yTestHub(ByVal url As String, ByVal mstimeout As Integer, ByRef errmsg As String) As Integer
+    Return YAPI.TestHub(url, mstimeout, errmsg)
+  End Function
 
   '''*
   ''' <summary>
@@ -9152,6 +9225,9 @@ Module yocto_api
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiUpdateFirmware", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiUpdateFirmware(ByVal serial As StringBuilder, ByVal firmwarePath As StringBuilder, ByVal settings As StringBuilder, ByVal startUpdate As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiTestHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiTestHub(ByVal url As StringBuilder, ByVal mstimeout As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
     REM --- (end of generated code: YFunction dlldef)
 

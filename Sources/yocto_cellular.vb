@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 19745 2015-03-17 09:47:45Z seb $
+'* $Id: yocto_cellular.vb 20167 2015-04-27 14:24:03Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -144,6 +144,7 @@ Module yocto_cellular
 
   Public Const Y_LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CELLOPERATOR_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_IMSI_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_MESSAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PIN_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_LOCKEDOPERATOR_INVALID As String = YAPI.INVALID_STRING
@@ -175,6 +176,7 @@ Module yocto_cellular
     REM --- (generated code: YCellular definitions)
     Public Const LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CELLOPERATOR_INVALID As String = YAPI.INVALID_STRING
+    Public Const IMSI_INVALID As String = YAPI.INVALID_STRING
     Public Const MESSAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const PIN_INVALID As String = YAPI.INVALID_STRING
     Public Const LOCKEDOPERATOR_INVALID As String = YAPI.INVALID_STRING
@@ -190,6 +192,7 @@ Module yocto_cellular
     REM --- (generated code: YCellular attributes declaration)
     Protected _linkQuality As Integer
     Protected _cellOperator As String
+    Protected _imsi As String
     Protected _message As String
     Protected _pin As String
     Protected _lockedOperator As String
@@ -206,6 +209,7 @@ Module yocto_cellular
       REM --- (generated code: YCellular attributes initialization)
       _linkQuality = LINKQUALITY_INVALID
       _cellOperator = CELLOPERATOR_INVALID
+      _imsi = IMSI_INVALID
       _message = MESSAGE_INVALID
       _pin = PIN_INVALID
       _lockedOperator = LOCKEDOPERATOR_INVALID
@@ -226,6 +230,10 @@ Module yocto_cellular
       End If
       If (member.name = "cellOperator") Then
         _cellOperator = member.svalue
+        Return 1
+      End If
+      If (member.name = "imsi") Then
+        _imsi = member.svalue
         Return 1
       End If
       If (member.name = "message") Then
@@ -308,6 +316,34 @@ Module yocto_cellular
         End If
       End If
       Return Me._cellOperator
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns an opaque string if a PIN code has been configured in the device to access
+    '''   the SIM card, or an empty string if none has been configured or if the code provided
+    '''   was rejected by the SIM card.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to an opaque string if a PIN code has been configured in the device to access
+    '''   the SIM card, or an empty string if none has been configured or if the code provided
+    '''   was rejected by the SIM card
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_IMSI_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_imsi() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return IMSI_INVALID
+        End If
+      End If
+      Return Me._imsi
     End Function
 
     '''*
