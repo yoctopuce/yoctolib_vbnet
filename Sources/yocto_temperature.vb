@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 19619 2015-03-05 18:11:23Z mvuilleu $
+'* $Id: yocto_temperature.vb 20383 2015-05-19 23:44:31Z mvuilleu $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -388,6 +388,53 @@ Module yocto_temperature
         MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Configure NTC thermistor parameters in order to properly compute the temperature from
+    '''   the measured resistance.
+    ''' <para>
+    '''   For increased precision, you can enter a complete mapping
+    '''   table using set_thermistorResponseTable. This function can only be used with a
+    '''   temperature sensor based on thermistors.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="res25">
+    '''   thermistor resistance at 25 degrees Celsius
+    ''' </param>
+    ''' <param name="beta">
+    '''   Beta value
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function set_ntcParameters(res25 As Double, beta As Double) As Integer
+      Dim t0 As Double = 0
+      Dim t1 As Double = 0
+      Dim res100 As Double = 0
+      Dim tempValues As List(Of Double) = New List(Of Double)()
+      Dim resValues As List(Of Double) = New List(Of Double)()
+      t0 = 25.0+275.15
+      t1 = 100.0+275.15
+      res100 = res25 * Math.exp(beta*(1.0/t1 - 1.0/t0))
+      tempValues.Clear()
+      resValues.Clear()
+      tempValues.Add(25.0)
+      resValues.Add(res25)
+      tempValues.Add(100.0)
+      resValues.Add(res100)
+      
+      
+      
+      
+      Return Me.set_thermistorResponseTable(tempValues, resValues)
     End Function
 
     '''*

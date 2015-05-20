@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 20183 2015-04-29 14:41:00Z seb $
+'* $Id: yocto_api.vb 20380 2015-05-19 16:28:16Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "20255"
+  Public Const YOCTO_API_BUILD_NO As String = "20384"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -637,6 +637,7 @@ Module yocto_api
     Public Const DETECT_NONE As Integer = 0
     Public Const DETECT_USB As Integer = 1
     Public Const DETECT_NET As Integer = 2
+    Public Const RESEND_MISSING_PKT As Integer = 4
     Public Const DETECT_ALL As Integer = DETECT_USB Or DETECT_NET
 
     REM --- (generated code: YFunction return codes)
@@ -8613,6 +8614,7 @@ Module yocto_api
   Public Const Y_DETECT_USB As Integer = YAPI.DETECT_USB
   Public Const Y_DETECT_NET As Integer = YAPI.DETECT_NET
   Public Const Y_DETECT_ALL As Integer = YAPI.DETECT_ALL
+  Public Const Y_RESEND_MISSING_PKT As Integer = YAPI.RESEND_MISSING_PKT
   Public Function yInitAPI(ByVal mode As Integer, ByRef errmsg As String) As Integer
     Return YAPI.InitAPI(mode, errmsg)
   End Function
