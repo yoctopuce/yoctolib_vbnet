@@ -1,8 +1,8 @@
 '*********************************************************************
 '*
-'* $Id: yocto_audioout.vb 20565 2015-06-04 09:59:10Z seb $
+'* $Id: pic24config.php 20612 2015-06-09 01:27:02Z mvuilleu $
 '*
-'* Implements yFindAudioOut(), the high-level API for AudioOut functions
+'* Implements yFindAudioIn(), the high-level API for AudioIn functions
 '*
 '* - - - - - - - - - License information: - - - - - - - - - 
 '*
@@ -43,13 +43,13 @@ Imports YFUN_DESCR = System.Int32
 Imports System.Runtime.InteropServices
 Imports System.Text
 
-Module yocto_audioout
+Module yocto_audioin
 
-    REM --- (YAudioOut return codes)
-    REM --- (end of YAudioOut return codes)
-    REM --- (YAudioOut dlldef)
-    REM --- (end of YAudioOut dlldef)
-  REM --- (YAudioOut globals)
+    REM --- (YAudioIn return codes)
+    REM --- (end of YAudioIn return codes)
+    REM --- (YAudioIn dlldef)
+    REM --- (end of YAudioIn dlldef)
+  REM --- (YAudioIn globals)
 
   Public Const Y_VOLUME_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_MUTE_FALSE As Integer = 0
@@ -57,53 +57,53 @@ Module yocto_audioout
   Public Const Y_MUTE_INVALID As Integer = -1
   Public Const Y_SIGNAL_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_NOSIGNALFOR_INVALID As Integer = YAPI.INVALID_INT
-  Public Delegate Sub YAudioOutValueCallback(ByVal func As YAudioOut, ByVal value As String)
-  Public Delegate Sub YAudioOutTimedReportCallback(ByVal func As YAudioOut, ByVal measure As YMeasure)
-  REM --- (end of YAudioOut globals)
+  Public Delegate Sub YAudioInValueCallback(ByVal func As YAudioIn, ByVal value As String)
+  Public Delegate Sub YAudioInTimedReportCallback(ByVal func As YAudioIn, ByVal measure As YMeasure)
+  REM --- (end of YAudioIn globals)
 
-  REM --- (YAudioOut class start)
+  REM --- (YAudioIn class start)
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce application programming interface allows you to configure the volume of the outout.
+  '''   The Yoctopuce application programming interface allows you to configure the volume of the input channel.
   ''' <para>
   ''' </para>
   ''' </summary>
   '''/
-  Public Class YAudioOut
+  Public Class YAudioIn
     Inherits YFunction
-    REM --- (end of YAudioOut class start)
+    REM --- (end of YAudioIn class start)
 
-    REM --- (YAudioOut definitions)
+    REM --- (YAudioIn definitions)
     Public Const VOLUME_INVALID As Integer = YAPI.INVALID_UINT
     Public Const MUTE_FALSE As Integer = 0
     Public Const MUTE_TRUE As Integer = 1
     Public Const MUTE_INVALID As Integer = -1
     Public Const SIGNAL_INVALID As Integer = YAPI.INVALID_INT
     Public Const NOSIGNALFOR_INVALID As Integer = YAPI.INVALID_INT
-    REM --- (end of YAudioOut definitions)
+    REM --- (end of YAudioIn definitions)
 
-    REM --- (YAudioOut attributes declaration)
+    REM --- (YAudioIn attributes declaration)
     Protected _volume As Integer
     Protected _mute As Integer
     Protected _signal As Integer
     Protected _noSignalFor As Integer
-    Protected _valueCallbackAudioOut As YAudioOutValueCallback
-    REM --- (end of YAudioOut attributes declaration)
+    Protected _valueCallbackAudioIn As YAudioInValueCallback
+    REM --- (end of YAudioIn attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
-      _classname = "AudioOut"
-      REM --- (YAudioOut attributes initialization)
+      _classname = "AudioIn"
+      REM --- (YAudioIn attributes initialization)
       _volume = VOLUME_INVALID
       _mute = MUTE_INVALID
       _signal = SIGNAL_INVALID
       _noSignalFor = NOSIGNALFOR_INVALID
-      _valueCallbackAudioOut = Nothing
-      REM --- (end of YAudioOut attributes initialization)
+      _valueCallbackAudioIn = Nothing
+      REM --- (end of YAudioIn attributes initialization)
     End Sub
 
-    REM --- (YAudioOut private methods declaration)
+    REM --- (YAudioIn private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "volume") Then
@@ -125,19 +125,19 @@ Module yocto_audioout
       Return MyBase._parseAttr(member)
     End Function
 
-    REM --- (end of YAudioOut private methods declaration)
+    REM --- (end of YAudioIn private methods declaration)
 
-    REM --- (YAudioOut public methods declaration)
+    REM --- (YAudioIn public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns audio output volume, in per cents.
+    '''   Returns audio input gain, in per cents.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to audio output volume, in per cents
+    '''   an integer corresponding to audio input gain, in per cents
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_VOLUME_INVALID</c>.
@@ -155,14 +155,14 @@ Module yocto_audioout
 
     '''*
     ''' <summary>
-    '''   Changes audio output volume, in per cents.
+    '''   Changes audio input gain, in per cents.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to audio output volume, in per cents
+    '''   an integer corresponding to audio input gain, in per cents
     ''' </param>
     ''' <para>
     ''' </para>
@@ -232,14 +232,14 @@ Module yocto_audioout
     End Function
     '''*
     ''' <summary>
-    '''   Returns the detected output current level.
+    '''   Returns the detected input signal level.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the detected output current level
+    '''   an integer corresponding to the detected input signal level
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_SIGNAL_INVALID</c>.
@@ -278,7 +278,7 @@ Module yocto_audioout
 
     '''*
     ''' <summary>
-    '''   Retrieves an audio output for a given identifier.
+    '''   Retrieves an audio input for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -302,28 +302,28 @@ Module yocto_audioout
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the audio output is online at the time
+    '''   This function does not require that the audio input is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YAudioOut.isOnline()</c> to test if the audio output is
+    '''   Use the method <c>YAudioIn.isOnline()</c> to test if the audio input is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   an audio output by logical name, no error is notified: the first instance
+    '''   an audio input by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the audio output
+    '''   a string that uniquely characterizes the audio input
     ''' </param>
     ''' <returns>
-    '''   a <c>YAudioOut</c> object allowing you to drive the audio output.
+    '''   a <c>YAudioIn</c> object allowing you to drive the audio input.
     ''' </returns>
     '''/
-    Public Shared Function FindAudioOut(func As String) As YAudioOut
-      Dim obj As YAudioOut
-      obj = CType(YFunction._FindFromCache("AudioOut", func), YAudioOut)
+    Public Shared Function FindAudioIn(func As String) As YAudioIn
+      Dim obj As YAudioIn
+      obj = CType(YFunction._FindFromCache("AudioIn", func), YAudioIn)
       If ((obj Is Nothing)) Then
-        obj = New YAudioOut(func)
-        YFunction._AddToCache("AudioOut", func, obj)
+        obj = New YAudioIn(func)
+        YFunction._AddToCache("AudioIn", func, obj)
       End If
       Return obj
     End Function
@@ -346,14 +346,14 @@ Module yocto_audioout
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerValueCallback(callback As YAudioOutValueCallback) As Integer
+    Public Overloads Function registerValueCallback(callback As YAudioInValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
         YFunction._UpdateValueCallbackList(Me, True)
       Else
         YFunction._UpdateValueCallbackList(Me, False)
       End If
-      Me._valueCallbackAudioOut = callback
+      Me._valueCallbackAudioIn = callback
       REM // Immediately invoke value callback with current value
       If (Not (callback Is Nothing) And Me.isOnline()) Then
         val = Me._advertisedValue
@@ -365,8 +365,8 @@ Module yocto_audioout
     End Function
 
     Public Overrides Function _invokeValueCallback(value As String) As Integer
-      If (Not (Me._valueCallbackAudioOut Is Nothing)) Then
-        Me._valueCallbackAudioOut(Me, value)
+      If (Not (Me._valueCallbackAudioIn Is Nothing)) Then
+        Me._valueCallbackAudioIn(Me, value)
       Else
         MyBase._invokeValueCallback(value)
       End If
@@ -376,17 +376,17 @@ Module yocto_audioout
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of audio outputs started using <c>yFirstAudioOut()</c>.
+    '''   Continues the enumeration of audio inputs started using <c>yFirstAudioIn()</c>.
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YAudioOut</c> object, corresponding to
-    '''   an audio output currently online, or a <c>null</c> pointer
-    '''   if there are no more audio outputs to enumerate.
+    '''   a pointer to a <c>YAudioIn</c> object, corresponding to
+    '''   an audio input currently online, or a <c>null</c> pointer
+    '''   if there are no more audio inputs to enumerate.
     ''' </returns>
     '''/
-    Public Function nextAudioOut() As YAudioOut
+    Public Function nextAudioIn() As YAudioIn
       Dim hwid As String = ""
       If (YISERR(_nextFunction(hwid))) Then
         Return Nothing
@@ -394,24 +394,24 @@ Module yocto_audioout
       If (hwid = "") Then
         Return Nothing
       End If
-      Return YAudioOut.FindAudioOut(hwid)
+      Return YAudioIn.FindAudioIn(hwid)
     End Function
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of audio outputs currently accessible.
+    '''   Starts the enumeration of audio inputs currently accessible.
     ''' <para>
-    '''   Use the method <c>YAudioOut.nextAudioOut()</c> to iterate on
-    '''   next audio outputs.
+    '''   Use the method <c>YAudioIn.nextAudioIn()</c> to iterate on
+    '''   next audio inputs.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YAudioOut</c> object, corresponding to
-    '''   the first audio output currently online, or a <c>null</c> pointer
+    '''   a pointer to a <c>YAudioIn</c> object, corresponding to
+    '''   the first audio input currently online, or a <c>null</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
-    Public Shared Function FirstAudioOut() As YAudioOut
+    Public Shared Function FirstAudioIn() As YAudioIn
       Dim v_fundescr(1) As YFUN_DESCR
       Dim dev As YDEV_DESCR
       Dim neededsize, err As Integer
@@ -420,7 +420,7 @@ Module yocto_audioout
       Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
       Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
 
-      err = yapiGetFunctionsByClass("AudioOut", 0, p, size, neededsize, errmsg)
+      err = yapiGetFunctionsByClass("AudioIn", 0, p, size, neededsize, errmsg)
       Marshal.Copy(p, v_fundescr, 0, 1)
       Marshal.FreeHGlobal(p)
 
@@ -435,18 +435,18 @@ Module yocto_audioout
       If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
         Return Nothing
       End If
-      Return YAudioOut.FindAudioOut(serial + "." + funcId)
+      Return YAudioIn.FindAudioIn(serial + "." + funcId)
     End Function
 
-    REM --- (end of YAudioOut public methods declaration)
+    REM --- (end of YAudioIn public methods declaration)
 
   End Class
 
-  REM --- (AudioOut functions)
+  REM --- (AudioIn functions)
 
   '''*
   ''' <summary>
-  '''   Retrieves an audio output for a given identifier.
+  '''   Retrieves an audio input for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -470,45 +470,45 @@ Module yocto_audioout
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the audio output is online at the time
+  '''   This function does not require that the audio input is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YAudioOut.isOnline()</c> to test if the audio output is
+  '''   Use the method <c>YAudioIn.isOnline()</c> to test if the audio input is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   an audio output by logical name, no error is notified: the first instance
+  '''   an audio input by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the audio output
+  '''   a string that uniquely characterizes the audio input
   ''' </param>
   ''' <returns>
-  '''   a <c>YAudioOut</c> object allowing you to drive the audio output.
+  '''   a <c>YAudioIn</c> object allowing you to drive the audio input.
   ''' </returns>
   '''/
-  Public Function yFindAudioOut(ByVal func As String) As YAudioOut
-    Return YAudioOut.FindAudioOut(func)
+  Public Function yFindAudioIn(ByVal func As String) As YAudioIn
+    Return YAudioIn.FindAudioIn(func)
   End Function
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of audio outputs currently accessible.
+  '''   Starts the enumeration of audio inputs currently accessible.
   ''' <para>
-  '''   Use the method <c>YAudioOut.nextAudioOut()</c> to iterate on
-  '''   next audio outputs.
+  '''   Use the method <c>YAudioIn.nextAudioIn()</c> to iterate on
+  '''   next audio inputs.
   ''' </para>
   ''' </summary>
   ''' <returns>
-  '''   a pointer to a <c>YAudioOut</c> object, corresponding to
-  '''   the first audio output currently online, or a <c>null</c> pointer
+  '''   a pointer to a <c>YAudioIn</c> object, corresponding to
+  '''   the first audio input currently online, or a <c>null</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
-  Public Function yFirstAudioOut() As YAudioOut
-    Return YAudioOut.FirstAudioOut()
+  Public Function yFirstAudioIn() As YAudioIn
+    Return YAudioIn.FirstAudioIn()
   End Function
 
 
-  REM --- (end of AudioOut functions)
+  REM --- (end of AudioIn functions)
 
 End Module

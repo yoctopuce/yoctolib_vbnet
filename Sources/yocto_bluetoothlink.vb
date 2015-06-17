@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_bluetoothlink.vb 20325 2015-05-12 15:34:50Z seb $
+'* $Id: yocto_bluetoothlink.vb 20644 2015-06-12 16:04:33Z seb $
 '*
 '* Implements yFindBluetoothLink(), the high-level API for BluetoothLink functions
 '*
@@ -54,7 +54,20 @@ Module yocto_bluetoothlink
   Public Const Y_OWNADDRESS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PAIRINGPIN_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_REMOTEADDRESS_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_MESSAGE_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_REMOTENAME_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_MUTE_FALSE As Integer = 0
+  Public Const Y_MUTE_TRUE As Integer = 1
+  Public Const Y_MUTE_INVALID As Integer = -1
+  Public Const Y_PREAMPLIFIER_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_VOLUME_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_LINKSTATE_DOWN As Integer = 0
+  Public Const Y_LINKSTATE_FREE As Integer = 1
+  Public Const Y_LINKSTATE_SEARCH As Integer = 2
+  Public Const Y_LINKSTATE_EXISTS As Integer = 3
+  Public Const Y_LINKSTATE_LINKED As Integer = 4
+  Public Const Y_LINKSTATE_PLAY As Integer = 5
+  Public Const Y_LINKSTATE_INVALID As Integer = -1
+  Public Const Y_LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YBluetoothLinkValueCallback(ByVal func As YBluetoothLink, ByVal value As String)
   Public Delegate Sub YBluetoothLinkTimedReportCallback(ByVal func As YBluetoothLink, ByVal measure As YMeasure)
@@ -78,7 +91,20 @@ Module yocto_bluetoothlink
     Public Const OWNADDRESS_INVALID As String = YAPI.INVALID_STRING
     Public Const PAIRINGPIN_INVALID As String = YAPI.INVALID_STRING
     Public Const REMOTEADDRESS_INVALID As String = YAPI.INVALID_STRING
-    Public Const MESSAGE_INVALID As String = YAPI.INVALID_STRING
+    Public Const REMOTENAME_INVALID As String = YAPI.INVALID_STRING
+    Public Const MUTE_FALSE As Integer = 0
+    Public Const MUTE_TRUE As Integer = 1
+    Public Const MUTE_INVALID As Integer = -1
+    Public Const PREAMPLIFIER_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const VOLUME_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const LINKSTATE_DOWN As Integer = 0
+    Public Const LINKSTATE_FREE As Integer = 1
+    Public Const LINKSTATE_SEARCH As Integer = 2
+    Public Const LINKSTATE_EXISTS As Integer = 3
+    Public Const LINKSTATE_LINKED As Integer = 4
+    Public Const LINKSTATE_PLAY As Integer = 5
+    Public Const LINKSTATE_INVALID As Integer = -1
+    Public Const LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YBluetoothLink definitions)
 
@@ -86,7 +112,12 @@ Module yocto_bluetoothlink
     Protected _ownAddress As String
     Protected _pairingPin As String
     Protected _remoteAddress As String
-    Protected _message As String
+    Protected _remoteName As String
+    Protected _mute As Integer
+    Protected _preAmplifier As Integer
+    Protected _volume As Integer
+    Protected _linkState As Integer
+    Protected _linkQuality As Integer
     Protected _command As String
     Protected _valueCallbackBluetoothLink As YBluetoothLinkValueCallback
     REM --- (end of YBluetoothLink attributes declaration)
@@ -98,7 +129,12 @@ Module yocto_bluetoothlink
       _ownAddress = OWNADDRESS_INVALID
       _pairingPin = PAIRINGPIN_INVALID
       _remoteAddress = REMOTEADDRESS_INVALID
-      _message = MESSAGE_INVALID
+      _remoteName = REMOTENAME_INVALID
+      _mute = MUTE_INVALID
+      _preAmplifier = PREAMPLIFIER_INVALID
+      _volume = VOLUME_INVALID
+      _linkState = LINKSTATE_INVALID
+      _linkQuality = LINKQUALITY_INVALID
       _command = COMMAND_INVALID
       _valueCallbackBluetoothLink = Nothing
       REM --- (end of YBluetoothLink attributes initialization)
@@ -119,8 +155,28 @@ Module yocto_bluetoothlink
         _remoteAddress = member.svalue
         Return 1
       End If
-      If (member.name = "message") Then
-        _message = member.svalue
+      If (member.name = "remoteName") Then
+        _remoteName = member.svalue
+        Return 1
+      End If
+      If (member.name = "mute") Then
+        If (member.ivalue > 0) Then _mute = 1 Else _mute = 0
+        Return 1
+      End If
+      If (member.name = "preAmplifier") Then
+        _preAmplifier = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "volume") Then
+        _volume = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "linkState") Then
+        _linkState = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "linkQuality") Then
+        _linkQuality = CInt(member.ivalue)
         Return 1
       End If
       If (member.name = "command") Then
@@ -266,26 +322,229 @@ Module yocto_bluetoothlink
     End Function
     '''*
     ''' <summary>
-    '''   Returns the latest status message from the bluetooth interface.
+    '''   Returns the bluetooth name the remote device, if found on the bluetooth network.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the latest status message from the bluetooth interface
+    '''   a string corresponding to the bluetooth name the remote device, if found on the bluetooth network
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MESSAGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_REMOTENAME_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_message() As String
+    Public Function get_remoteName() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return MESSAGE_INVALID
+          Return REMOTENAME_INVALID
         End If
       End If
-      Return Me._message
+      Return Me._remoteName
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the state of the mute function.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_MUTE_FALSE</c> or <c>Y_MUTE_TRUE</c>, according to the state of the mute function
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_MUTE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_mute() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return MUTE_INVALID
+        End If
+      End If
+      Return Me._mute
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the state of the mute function.
+    ''' <para>
+    '''   Remember to call the matching module
+    '''   <c>saveToFlash()</c> method to save the setting permanently.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_MUTE_FALSE</c> or <c>Y_MUTE_TRUE</c>, according to the state of the mute function
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_mute(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("mute", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the audio pre-amplifier volume, in per cents.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the audio pre-amplifier volume, in per cents
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PREAMPLIFIER_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_preAmplifier() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return PREAMPLIFIER_INVALID
+        End If
+      End If
+      Return Me._preAmplifier
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the audio pre-amplifier volume, in per cents.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the audio pre-amplifier volume, in per cents
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_preAmplifier(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("preAmplifier", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the connected headset volume, in per cents.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the connected headset volume, in per cents
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_VOLUME_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_volume() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return VOLUME_INVALID
+        End If
+      End If
+      Return Me._volume
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the connected headset volume, in per cents.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the connected headset volume, in per cents
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_volume(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("volume", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the bluetooth link state.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_LINKSTATE_DOWN</c>, <c>Y_LINKSTATE_FREE</c>, <c>Y_LINKSTATE_SEARCH</c>,
+    '''   <c>Y_LINKSTATE_EXISTS</c>, <c>Y_LINKSTATE_LINKED</c> and <c>Y_LINKSTATE_PLAY</c> corresponding to
+    '''   the bluetooth link state
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_LINKSTATE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_linkState() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return LINKSTATE_INVALID
+        End If
+      End If
+      Return Me._linkState
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the bluetooth receiver signal strength, in pourcents, or 0 if no connection is established.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the bluetooth receiver signal strength, in pourcents, or 0 if no
+    '''   connection is established
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_LINKQUALITY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_linkQuality() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return LINKQUALITY_INVALID
+        End If
+      End If
+      Return Me._linkQuality
     End Function
 
     Public Function get_command() As String

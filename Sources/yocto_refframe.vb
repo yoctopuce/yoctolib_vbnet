@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 19329 2015-02-17 17:31:26Z seb $
+'* $Id: yocto_refframe.vb 20508 2015-06-01 16:32:48Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -604,9 +604,9 @@ end enum
       Me._calibStageHint = "Set down the device on a steady horizontal surface"
       Me._calibPrevTick = ((currTick + 500) And (&H7FFFFFFF))
       jsonData = Me._download("api/accelerometer.json")
-      xVal = Convert.ToInt32(Me._json_get_key(jsonData, "xValue")) / 65536.0
-      yVal = Convert.ToInt32(Me._json_get_key(jsonData, "yValue")) / 65536.0
-      zVal = Convert.ToInt32(Me._json_get_key(jsonData, "zValue")) / 65536.0
+      xVal = YAPI._atoi(Me._json_get_key(jsonData, "xValue")) / 65536.0
+      yVal = YAPI._atoi(Me._json_get_key(jsonData, "yValue")) / 65536.0
+      zVal = YAPI._atoi(Me._json_get_key(jsonData, "zValue")) / 65536.0
       xSq = xVal * xVal
       If (xSq >= 0.04 And xSq < 0.64) Then
         Return YAPI.SUCCESS

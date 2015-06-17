@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 20380 2015-05-19 16:28:16Z seb $
+'* $Id: yocto_api.vb 20474 2015-05-29 15:53:08Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "20384"
+  Public Const YOCTO_API_BUILD_NO As String = "20652"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -874,6 +874,35 @@ Module yocto_api
         res += Convert.ToString(decim)
       End If
       Return res
+    End Function
+
+    Public Shared Function _atoi(ByVal str As String) As Integer
+      Dim p As Integer = 0
+      Dim start As Integer
+      While (p < str.Length)
+        If Char.IsWhiteSpace(str(p)) Then
+          p = p + 1
+        Else
+          Exit While
+        End If
+      End While
+      start = p
+      If p < str.Length Then
+        If (str(p) = "-" Or str(p) = "+") Then
+          p = p + 1
+        End If
+      End If
+      While p < str.Length
+        If Char.IsDigit(str(p)) Then
+          p = p + 1
+        Else
+          Exit While
+        End If
+      End While
+      If (start < p) Then
+        Return Integer.Parse(str.Substring(start, p - start))
+      End If
+      Return 0
     End Function
 
     Public Shared Function _boolToStr(b As Boolean) As String
@@ -1740,6 +1769,7 @@ Module yocto_api
   Public Const Y_REPORTFREQUENCY_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_SENSORSTATE_INVALID As Integer = YAPI.INVALID_INT
   Public Delegate Sub YSensorValueCallback(ByVal func As YSensor, ByVal value As String)
   Public Delegate Sub YSensorTimedReportCallback(ByVal func As YSensor, ByVal measure As YMeasure)
   REM --- (end of generated code: YSensor globals)
@@ -6051,7 +6081,7 @@ Module yocto_api
       Dim release As Integer = 0
       Dim tmp_res As String
       If (onlynew) Then
-        release = Convert.ToInt32(Me.get_firmwareRelease())
+        release = YAPI._atoi(Me.get_firmwareRelease())
       Else
         release = 0
       End If
@@ -6176,7 +6206,7 @@ Module yocto_api
         If (sensorType = "") Then
           Return 16
         End If
-        If (Convert.ToInt32(sensorType) < 8) Then
+        If (YAPI._atoi(sensorType) < 8) Then
           Return 16
         Else
           Return 100
@@ -6234,7 +6264,7 @@ Module yocto_api
           End If
         Else
           If (funVer = 1) Then
-            If (currentFuncValue = "" Or (Convert.ToInt32(currentFuncValue) > 10)) Then
+            If (currentFuncValue = "" Or (YAPI._atoi(currentFuncValue) > 10)) Then
               funScale = 0
             End If
           End If
@@ -6269,7 +6299,7 @@ Module yocto_api
           If (paramVer = 1) Then
             words_str = new List(Of String)(param.Split(new Char() {","c}))
             For i_i = 0 To words_str.Count - 1
-              words.Add(Convert.ToInt32(words_str(i_i)))
+              words.Add(YAPI._atoi(words_str(i_i)))
             Next i_i
             If (param = "" Or (words(0) > 10)) Then
               paramScale = 0
@@ -6886,6 +6916,7 @@ Module yocto_api
     Public Const REPORTFREQUENCY_INVALID As String = YAPI.INVALID_STRING
     Public Const CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
     Public Const RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const SENSORSTATE_INVALID As Integer = YAPI.INVALID_INT
     REM --- (end of generated code: YSensor definitions)
 
     REM --- (generated code: YSensor attributes declaration)
@@ -6898,6 +6929,7 @@ Module yocto_api
     Protected _reportFrequency As String
     Protected _calibrationParam As String
     Protected _resolution As Double
+    Protected _sensorState As Integer
     Protected _valueCallbackSensor As YSensorValueCallback
     Protected _timedReportCallbackSensor As YSensorTimedReportCallback
     Protected _prevTimedReport As Double
@@ -6927,6 +6959,7 @@ Module yocto_api
       _reportFrequency = REPORTFREQUENCY_INVALID
       _calibrationParam = CALIBRATIONPARAM_INVALID
       _resolution = RESOLUTION_INVALID
+      _sensorState = SENSORSTATE_INVALID
       _valueCallbackSensor = Nothing
       _timedReportCallbackSensor = Nothing
       _prevTimedReport = 0
@@ -6979,6 +7012,10 @@ Module yocto_api
       End If
       If (member.name = "resolution") Then
         _resolution = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
+      If (member.name = "sensorState") Then
+        _sensorState = CInt(member.ivalue)
         Return 1
       End If
       Return MyBase._parseAttr(member)
@@ -7354,6 +7391,32 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Returns the sensor health state code, which is zero when there is an up-to-date measure
+    '''   available or a positive code if the sensor is not able to provide a measure right now.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the sensor health state code, which is zero when there is an up-to-date measure
+    '''   available or a positive code if the sensor is not able to provide a measure right now
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_SENSORSTATE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_sensorState() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return SENSORSTATE_INVALID
+        End If
+      End If
+      Return Me._sensorState
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Retrieves a sensor for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
@@ -7588,6 +7651,31 @@ Module yocto_api
         End While
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Checks if the sensor is currently able to provide an up-to-date measure.
+    ''' <para>
+    '''   Returns false if the device is unreachable, or if the sensor does not have
+    '''   a current measure to transmit. No exception is raised if there is an error
+    '''   while trying to contact the device hosting $THEFUNCTION$.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>true</c> if the sensor can provide an up-to-date measure, and <c>false</c> otherwise
+    ''' </returns>
+    '''/
+    Public Overridable Function isSensorReady() As Boolean
+      If (Not (Me.isOnline())) Then
+        Return False
+      End If
+      If (Not (Me._sensorState = 0)) Then
+        Return False
+      End If
+      Return True
     End Function
 
     '''*

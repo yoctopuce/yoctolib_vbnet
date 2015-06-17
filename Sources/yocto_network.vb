@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 19329 2015-02-17 17:31:26Z seb $
+'* $Id: yocto_network.vb 20599 2015-06-08 12:16:39Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -64,8 +64,11 @@ Module yocto_network
   Public Const Y_IPCONFIG_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PRIMARYDNS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SECONDARYDNS_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_NTPSERVER_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_USERPASSWORD_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADMINPASSWORD_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_HTTPPORT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_DEFAULTPAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_DISCOVERABLE_FALSE As Integer = 0
   Public Const Y_DISCOVERABLE_TRUE As Integer = 1
   Public Const Y_DISCOVERABLE_INVALID As Integer = -1
@@ -80,6 +83,8 @@ Module yocto_network
   Public Const Y_CALLBACKENCODING_JSON_ARRAY As Integer = 2
   Public Const Y_CALLBACKENCODING_CSV As Integer = 3
   Public Const Y_CALLBACKENCODING_YOCTO_API As Integer = 4
+  Public Const Y_CALLBACKENCODING_JSON_NUM As Integer = 5
+  Public Const Y_CALLBACKENCODING_EMONCMS As Integer = 6
   Public Const Y_CALLBACKENCODING_INVALID As Integer = -1
   Public Const Y_CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
@@ -117,8 +122,11 @@ Module yocto_network
     Public Const IPCONFIG_INVALID As String = YAPI.INVALID_STRING
     Public Const PRIMARYDNS_INVALID As String = YAPI.INVALID_STRING
     Public Const SECONDARYDNS_INVALID As String = YAPI.INVALID_STRING
+    Public Const NTPSERVER_INVALID As String = YAPI.INVALID_STRING
     Public Const USERPASSWORD_INVALID As String = YAPI.INVALID_STRING
     Public Const ADMINPASSWORD_INVALID As String = YAPI.INVALID_STRING
+    Public Const HTTPPORT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const DEFAULTPAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const DISCOVERABLE_FALSE As Integer = 0
     Public Const DISCOVERABLE_TRUE As Integer = 1
     Public Const DISCOVERABLE_INVALID As Integer = -1
@@ -133,6 +141,8 @@ Module yocto_network
     Public Const CALLBACKENCODING_JSON_ARRAY As Integer = 2
     Public Const CALLBACKENCODING_CSV As Integer = 3
     Public Const CALLBACKENCODING_YOCTO_API As Integer = 4
+    Public Const CALLBACKENCODING_JSON_NUM As Integer = 5
+    Public Const CALLBACKENCODING_EMONCMS As Integer = 6
     Public Const CALLBACKENCODING_INVALID As Integer = -1
     Public Const CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
@@ -149,8 +159,11 @@ Module yocto_network
     Protected _ipConfig As String
     Protected _primaryDNS As String
     Protected _secondaryDNS As String
+    Protected _ntpServer As String
     Protected _userPassword As String
     Protected _adminPassword As String
+    Protected _httpPort As Integer
+    Protected _defaultPage As String
     Protected _discoverable As Integer
     Protected _wwwWatchdogDelay As Integer
     Protected _callbackUrl As String
@@ -175,8 +188,11 @@ Module yocto_network
       _ipConfig = IPCONFIG_INVALID
       _primaryDNS = PRIMARYDNS_INVALID
       _secondaryDNS = SECONDARYDNS_INVALID
+      _ntpServer = NTPSERVER_INVALID
       _userPassword = USERPASSWORD_INVALID
       _adminPassword = ADMINPASSWORD_INVALID
+      _httpPort = HTTPPORT_INVALID
+      _defaultPage = DEFAULTPAGE_INVALID
       _discoverable = DISCOVERABLE_INVALID
       _wwwWatchdogDelay = WWWWATCHDOGDELAY_INVALID
       _callbackUrl = CALLBACKURL_INVALID
@@ -225,12 +241,24 @@ Module yocto_network
         _secondaryDNS = member.svalue
         Return 1
       End If
+      If (member.name = "ntpServer") Then
+        _ntpServer = member.svalue
+        Return 1
+      End If
       If (member.name = "userPassword") Then
         _userPassword = member.svalue
         Return 1
       End If
       If (member.name = "adminPassword") Then
         _adminPassword = member.svalue
+        Return 1
+      End If
+      If (member.name = "httpPort") Then
+        _httpPort = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "defaultPage") Then
+        _defaultPage = member.svalue
         Return 1
       End If
       If (member.name = "discoverable") Then
@@ -535,6 +563,57 @@ Module yocto_network
     End Function
     '''*
     ''' <summary>
+    '''   Returns the IP address of the NTP server to be used by the device.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the IP address of the NTP server to be used by the device
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_NTPSERVER_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_ntpServer() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return NTPSERVER_INVALID
+        End If
+      End If
+      Return Me._ntpServer
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the IP address of the NTP server to be used by the module.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the IP address of the NTP server to be used by the module
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_ntpServer(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("ntpServer", rest_val)
+    End Function
+    '''*
+    ''' <summary>
     '''   Returns a hash string if a password has been set for "user" user,
     '''   or an empty string otherwise.
     ''' <para>
@@ -646,6 +725,112 @@ Module yocto_network
       Dim rest_val As String
       rest_val = newval
       Return _setAttr("adminPassword", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the HTML page to serve for the URL "/"" of the hub.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the HTML page to serve for the URL "/"" of the hub
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_HTTPPORT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_httpPort() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return HTTPPORT_INVALID
+        End If
+      End If
+      Return Me._httpPort
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the default HTML page returned by the hub.
+    ''' <para>
+    '''   If not value are set the hub return
+    '''   "index.html" which is the web interface of the hub. It is possible de change this page
+    '''   for file that has been uploaded on the hub.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the default HTML page returned by the hub
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_httpPort(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("httpPort", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the HTML page to serve for the URL "/"" of the hub.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the HTML page to serve for the URL "/"" of the hub
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_DEFAULTPAGE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_defaultPage() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return DEFAULTPAGE_INVALID
+        End If
+      End If
+      Return Me._defaultPage
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the default HTML page returned by the hub.
+    ''' <para>
+    '''   If not value are set the hub return
+    '''   "index.html" which is the web interface of the hub. It is possible de change this page
+    '''   for file that has been uploaded on the hub.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the default HTML page returned by the hub
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_defaultPage(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("defaultPage", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -878,8 +1063,9 @@ Module yocto_network
     ''' </summary>
     ''' <returns>
     '''   a value among <c>Y_CALLBACKENCODING_FORM</c>, <c>Y_CALLBACKENCODING_JSON</c>,
-    '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c> and
-    '''   <c>Y_CALLBACKENCODING_YOCTO_API</c> corresponding to the encoding standard to use for representing
+    '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c>,
+    '''   <c>Y_CALLBACKENCODING_YOCTO_API</c>, <c>Y_CALLBACKENCODING_JSON_NUM</c> and
+    '''   <c>Y_CALLBACKENCODING_EMONCMS</c> corresponding to the encoding standard to use for representing
     '''   notification values
     ''' </returns>
     ''' <para>
@@ -906,8 +1092,9 @@ Module yocto_network
     ''' </summary>
     ''' <param name="newval">
     '''   a value among <c>Y_CALLBACKENCODING_FORM</c>, <c>Y_CALLBACKENCODING_JSON</c>,
-    '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c> and
-    '''   <c>Y_CALLBACKENCODING_YOCTO_API</c> corresponding to the encoding standard to use for representing
+    '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c>,
+    '''   <c>Y_CALLBACKENCODING_YOCTO_API</c>, <c>Y_CALLBACKENCODING_JSON_NUM</c> and
+    '''   <c>Y_CALLBACKENCODING_EMONCMS</c> corresponding to the encoding standard to use for representing
     '''   notification values
     ''' </param>
     ''' <para>

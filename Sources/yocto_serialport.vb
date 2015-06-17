@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 19817 2015-03-23 16:49:57Z seb $
+'* $Id: yocto_serialport.vb 20508 2015-06-01 16:32:48Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -1332,7 +1332,7 @@ Module yocto_serialport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = Convert.ToInt32(msgarr(msglen))
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
       If (msglen = 0) Then
         Return ""
       End If
@@ -1389,7 +1389,7 @@ Module yocto_serialport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = Convert.ToInt32(msgarr(msglen))
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
       idx = 0
       
       While (idx < msglen)
@@ -1456,7 +1456,7 @@ Module yocto_serialport
       While ((bufflen > 0) And (buff(bufflen) <> 64))
         bufflen = bufflen - 1
       End While
-      res = Convert.ToInt32((YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen))
+      res = YAPI._atoi((YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen))
       Return res
     End Function
 
@@ -1497,7 +1497,7 @@ Module yocto_serialport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = Convert.ToInt32(msgarr(msglen))
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
       If (msglen = 0) Then
         Return ""
       End If

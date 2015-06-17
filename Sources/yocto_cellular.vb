@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 20167 2015-04-27 14:24:03Z seb $
+'* $Id: yocto_cellular.vb 20508 2015-06-01 16:32:48Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -776,7 +776,6 @@ Module yocto_cellular
     '''/
     Public Overridable Function sendPUK(puk As String, newPin As String) As Integer
       Dim gsmMsg As String
-      
       gsmMsg = Me.get_message()
       If Not(gsmMsg = "Enter SIM PUK") Then
         me._throw(YAPI.INVALID_ARGUMENT,  "PUK not expected at this time")
@@ -858,7 +857,6 @@ Module yocto_cellular
         cmdLen = cmdLen + 2
         chrPos = cmd.IndexOf("=")
       End While
-      
       REM // may throw an exception
       content = Me._download("at.txt?cmd=" + cmd)
       Return YAPI.DefaultEncoding.GetString(content)
@@ -904,7 +902,7 @@ Module yocto_cellular
       If ((mccs).Substring(0, 1) = "0") Then
         mccs = (mccs).Substring(1, 1)
       End If
-      mcc = Convert.ToInt32(mccs)
+      mcc = YAPI._atoi(mccs)
       mncs = (moni).Substring(11, 3)
       If ((mncs).Substring(2, 1) = ",") Then
         mncs = (mncs).Substring(0, 2)
@@ -912,7 +910,7 @@ Module yocto_cellular
       If ((mncs).Substring(0, 1) = "0") Then
         mncs = (mncs).Substring(1, (mncs).Length-1)
       End If
-      mnc = Convert.ToInt32(mncs)
+      mnc = YAPI._atoi(mncs)
       recs = new List(Of String)(moni.Split(new Char() {"#"c}))
       REM // process each line in turn
       res.Clear()
@@ -926,13 +924,13 @@ Module yocto_cellular
             If ((dbms).Substring(0, 1) = " ") Then
               dbms = (dbms).Substring(1, 3)
             End If
-            dbm = Convert.ToInt32(dbms)
+            dbm = YAPI._atoi(dbms)
             If (llen > 66) Then
               tads = (recs(i_i)).Substring(54, 2)
               If ((tads).Substring(0, 1) = " ") Then
                 tads = (tads).Substring(1, 3)
               End If
-              tad = Convert.ToInt32(tads)
+              tad = YAPI._atoi(tads)
               oper = (recs(i_i)).Substring(66, llen-66)
             Else
               tad = -1
