@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 20474 2015-05-29 15:53:08Z seb $
+'* $Id: yocto_api.vb 20714 2015-06-22 17:13:37Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "20652"
+  Public Const YOCTO_API_BUILD_NO As String = "20773"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -3088,8 +3088,10 @@ Module yocto_api
       Dim summaryMaxVal As Double = -Double.MaxValue
       Dim summaryTotalTime As Double = 0
       Dim summaryTotalAvg As Double = 0
-      Dim startTime As Long
-      Dim endtime As Long
+      Dim streamStartTime As Long
+      Dim streamEndTime As Long
+      Dim startTime As Long = &H7FFFFFFF
+      Dim endTime As Long = 0
 
       If Not (YAPI.ExceptionsDisabled) Then
         p = New TJsonParser(data, False)
@@ -3123,13 +3125,21 @@ Module yocto_api
 
       For i As Integer = 0 To arr.itemcount - 1 Step 1
         stream = _parent._findDataStream(Me, arr.items.ElementAt(i).svalue)
-        If (_startTime > 0 And stream.get_startTimeUTC() + stream.get_duration() <= _startTime) Then
+        streamStartTime = stream.get_startTimeUTC() - CLng(stream.get_dataSamplesIntervalMs() / 1000)
+        streamEndTime = stream.get_startTimeUTC() + stream.get_duration()
+        If (_startTime > 0 And streamEndTime <= _startTime) Then
           REM this stream is too early, drop it
         ElseIf (_endTime > 0 And stream.get_startTimeUTC() > _endTime) Then
           REM this stream is too late, drop it
         Else
           _streams.Add(stream)
-          If (stream.isClosed() And stream.get_startTimeUTC() >= _startTime And (_endTime = 0 Or stream.get_startTimeUTC() + stream.get_duration() <= _endTime)) Then
+          If (startTime > streamStartTime) Then
+            startTime = streamStartTime
+          End If
+          If (endTime < streamEndTime) Then
+            endTime = streamEndTime
+          End If
+          If (stream.isClosed() And stream.get_startTimeUTC() >= _startTime And (_endTime = 0 Or streamEndTime <= _endTime)) Then
             If (summaryMinVal > stream.get_minValue()) Then
               summaryMinVal = stream.get_minValue()
             End If
@@ -3139,7 +3149,7 @@ Module yocto_api
             summaryTotalAvg += stream.get_averageValue() * stream.get_duration()
             summaryTotalTime += stream.get_duration()
             Dim rec As New YMeasure(stream.get_startTimeUTC(),
-                                    stream.get_startTimeUTC() + stream.get_duration(),
+                                    streamEndTime,
                                     stream.get_minValue(),
                                     stream.get_averageValue(),
                                     stream.get_maxValue())
@@ -3149,14 +3159,11 @@ Module yocto_api
       Next i
       If (_streams.Count > 0) And (summaryTotalTime > 0) Then
         REM update time boundaries with actual data
-        stream = _streams.ElementAt(_streams.Count - 1)
-        endtime = stream.get_startTimeUTC() + stream.get_duration()
-        startTime = _streams.ElementAt(0).get_startTimeUTC() - CLng(stream.get_dataSamplesIntervalMs() / 1000)
         If (_startTime < startTime) Then
           _startTime = startTime
         End If
-        If (_endTime = 0 Or _endTime > endtime) Then
-          _endTime = endtime
+        If (_endTime = 0 Or _endTime > endTime) Then
+          _endTime = endTime
         End If
         _summary = New YMeasure(_startTime,
                                 _endTime,

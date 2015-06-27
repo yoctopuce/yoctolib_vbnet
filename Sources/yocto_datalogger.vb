@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 19329 2015-02-17 17:31:26Z seb $
+'* $Id: yocto_datalogger.vb 20704 2015-06-20 19:43:34Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -58,6 +58,7 @@ Module yocto_datalogger
   Public Const Y_TIMEUTC_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_RECORDING_OFF As Integer = 0
   Public Const Y_RECORDING_ON As Integer = 1
+  Public Const Y_RECORDING_PENDING As Integer = 2
   Public Const Y_RECORDING_INVALID As Integer = -1
   REM Y_AUTOSTART is defined in yocto_api.vb
   Public Const Y_BEACONDRIVEN_OFF As Integer = 0
@@ -339,6 +340,7 @@ Module yocto_datalogger
     Public Const TIMEUTC_INVALID As Long = YAPI.INVALID_LONG
     Public Const RECORDING_OFF As Integer = 0
     Public Const RECORDING_ON As Integer = 1
+    Public Const RECORDING_PENDING As Integer = 2
     Public Const RECORDING_INVALID As Integer = -1
     Public Const AUTOSTART_OFF As Integer = 0
     Public Const AUTOSTART_ON As Integer = 1
@@ -387,7 +389,7 @@ Module yocto_datalogger
         Return 1
       End If
       If (member.name = "recording") Then
-        If (member.ivalue > 0) Then _recording = 1 Else _recording = 0
+        _recording = CInt(member.ivalue)
         Return 1
       End If
       If (member.name = "autoStart") Then
@@ -493,8 +495,8 @@ Module yocto_datalogger
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_RECORDING_OFF</c> or <c>Y_RECORDING_ON</c>, according to the current activation state
-    '''   of the data logger
+    '''   a value among <c>Y_RECORDING_OFF</c>, <c>Y_RECORDING_ON</c> and <c>Y_RECORDING_PENDING</c>
+    '''   corresponding to the current activation state of the data logger
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_RECORDING_INVALID</c>.
@@ -519,8 +521,8 @@ Module yocto_datalogger
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_RECORDING_OFF</c> or <c>Y_RECORDING_ON</c>, according to the activation state of the
-    '''   data logger to start/stop recording data
+    '''   a value among <c>Y_RECORDING_OFF</c>, <c>Y_RECORDING_ON</c> and <c>Y_RECORDING_PENDING</c>
+    '''   corresponding to the activation state of the data logger to start/stop recording data
     ''' </param>
     ''' <para>
     ''' </para>
@@ -533,7 +535,7 @@ Module yocto_datalogger
     '''/
     Public Function set_recording(ByVal newval As Integer) As Integer
       Dim rest_val As String
-      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      rest_val = Ltrim(Str(newval))
       Return _setAttr("recording", rest_val)
     End Function
     '''*
