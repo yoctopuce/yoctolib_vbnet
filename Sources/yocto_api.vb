@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 20714 2015-06-22 17:13:37Z mvuilleu $
+'* $Id: yocto_api.vb 20916 2015-07-23 08:54:20Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "20773"
+  Public Const YOCTO_API_BUILD_NO As String = "20975"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -904,6 +904,54 @@ Module yocto_api
       End If
       Return 0
     End Function
+
+    Public Shared Function _bytesToHexStr(ByVal bytes As Byte(), ByVal ofs As Integer, ByVal len As Integer) As String
+      Dim hexArray As String = "0123456789ABCDEF"
+      Dim hexChars(len * 2 - 1) As Char
+      Dim j As Integer = 0
+      While (j < len)
+        Dim v As Integer
+        v = bytes(j + ofs) And &HFF
+        hexChars(j * 2) = hexArray(v >> 4)
+        hexChars(j * 2 + 1) = hexArray(v And &HF)
+        j += 1
+      End While
+      Return New String(hexChars)
+    End Function
+
+    Public Shared Function _hexStrToBin(ByVal hex_str As String) As Byte()
+      Dim len As Integer = hex_str.Length \ 2
+      Dim res(len - 1) As Byte
+      Dim i As Integer = 0
+      While (i < len)
+        Dim val As Integer = 0
+        For n As Integer = 0 To 1
+          Dim c As Integer = Asc(hex_str(i * 2 + n))
+          val <<= 4
+          REM  57='9', 70='F', 102='f'
+          If (c <= 57) Then
+            val += c - 48
+          ElseIf (c <= 70) Then
+            val += c - 65 + 10
+          Else
+            val += c - 97 + 10
+          End If
+        Next
+        res(i) = CType(val And &HFF, Byte)
+        i += 1
+      End While
+      Return res
+    End Function
+
+
+    Public Shared Function _bytesMerge(ByVal array_a As Byte(), ByVal array_b As Byte()) As Byte()
+      Dim res As Byte()
+      ReDim res(array_a.Length + array_b.Length)
+      System.Buffer.BlockCopy(array_a, 0, res, 0, array_a.Length)
+      System.Buffer.BlockCopy(array_b, 0, res, array_a.Length, array_b.Length)
+      Return res
+    End Function
+
 
     Public Shared Function _boolToStr(b As Boolean) As String
       If b Then Return "1" Else Return "0"
@@ -2382,6 +2430,10 @@ Module yocto_api
       Dim idx As Integer = 0
       Dim udat As List(Of Integer) = New List(Of Integer)()
       Dim dat As List(Of Double) = New List(Of Double)()
+      If ((sdata).Length = 0) Then
+        Me._nRows = 0
+        Return YAPI.SUCCESS
+      End If
       REM // may throw an exception
       udat = YAPI._decodeWords(Me._parent._json_get_string(sdata))
       Me._values.Clear()
@@ -3475,6 +3527,83 @@ Module yocto_api
     '''/
     Public Overridable Function get_preview() As List(Of YMeasure)
       Return Me._preview
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the detailed set of measures for the time interval corresponding
+    '''   to a given condensed measures previously returned by <c>get_preview()</c>.
+    ''' <para>
+    '''   The result is provided as a list of YMeasure objects.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="measure">
+    '''   condensed measure from the list previously returned by
+    '''   <c>get_preview()</c>.
+    ''' </param>
+    ''' <returns>
+    '''   a table of records, where each record depicts the
+    '''   measured values during a time interval
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function get_measuresAt(measure As YMeasure) As List(Of YMeasure)
+      Dim i_i As Integer
+      Dim startUtc As Long = 0
+      Dim stream As YDataStream
+      Dim dataRows As List(Of List(Of Double)) = New List(Of List(Of Double))()
+      Dim measures As List(Of YMeasure) = New List(Of YMeasure)()
+      Dim tim As Double = 0
+      Dim itv As Double = 0
+      Dim nCols As Integer = 0
+      Dim minCol As Integer = 0
+      Dim avgCol As Integer = 0
+      Dim maxCol As Integer = 0
+      REM // may throw an exception
+      startUtc = CType(Math.Round(measure.get_startTimeUTC()), Long)
+      stream = Nothing
+      For i_i = 0 To Me._streams.Count - 1
+        If (Me._streams(i_i).get_startTimeUTC() = startUtc) Then
+          stream = Me._streams(i_i)
+        End If
+      Next i_i
+      If ((stream Is Nothing)) Then
+        Return measures
+      End If
+      dataRows = stream.get_dataRows()
+      If (dataRows.Count = 0) Then
+        Return measures
+      End If
+      tim = CType(stream.get_startTimeUTC(), Double)
+      itv = stream.get_dataSamplesInterval()
+      If (tim < itv) Then
+        tim = itv
+      End If
+      nCols = dataRows(0).Count
+      minCol = 0
+      If (nCols > 2) Then
+        avgCol = 1
+      Else
+        avgCol = 0
+      End If
+      If (nCols > 2) Then
+        maxCol = 2
+      Else
+        maxCol = 0
+      End If
+      
+      For i_i = 0 To dataRows.Count - 1
+        If ((tim >= Me._startTime) And ((Me._endTime = 0) Or (tim <= Me._endTime))) Then
+          measures.Add(New YMeasure(tim - itv, tim, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
+        End If
+        tim = tim + itv
+      Next i_i
+      
+      Return measures
     End Function
 
     '''*
@@ -4833,10 +4962,10 @@ Module yocto_api
       Dim p As TJsonParser
 
       If Not (YAPI.ExceptionsDisabled) Then
-        p = New TJsonParser(st)
+        p = New TJsonParser(st, False)
       Else
         Try
-          p = New TJsonParser(st)
+          p = New TJsonParser(st, False)
         Catch E As Exception
           Return ""
           Exit Function
@@ -5406,6 +5535,49 @@ Module yocto_api
         Exit Function
       End If
       functionId = funcId
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves the type of the <i>n</i>th function on the module.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="functionIndex">
+    '''   the index of the function for which the information is desired, starting at 0 for the first function.
+    ''' </param>
+    ''' <returns>
+    '''   a the type of the function
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty string.
+    ''' </para>
+    '''/
+
+    Public Function functionType(ByVal functionIndex As Integer) As String
+      Dim serial As String = ""
+      Dim funcId As String = ""
+      Dim funcName As String = ""
+      Dim funcVal As String = ""
+      Dim errmsg As String = ""
+      Dim res As Integer
+      Dim first As Char
+      Dim i As Integer
+
+      res = _getFunction(functionIndex, serial, funcId, funcName, funcVal, errmsg)
+      If (YISERR(res)) Then
+        _throw(res, errmsg)
+        Return YAPI.INVALID_STRING
+      End If
+      first = funcId(0)
+      i = 1
+      While (i < funcId.Length)
+        If (Not Char.IsLetter(funcId(i))) Then
+          Exit While
+        End If
+        i += 1
+      End While
+      Return Char.ToUpper(first) + funcId.Substring(1, i - 1)
     End Function
 
 
@@ -6147,6 +6319,43 @@ Module yocto_api
     Public Overridable Function get_allSettings() As Byte()
       REM // may throw an exception
       Return Me._download("api.json")
+    End Function
+
+    Public Overridable Function hasFunction(funcId As String) As Boolean
+      Dim count As Integer = 0
+      Dim i As Integer = 0
+      Dim fid As String
+      REM // may throw an exception
+      count  = Me.functionCount()
+      i = 0
+      While (i < count)
+        fid  = Me.functionId(i)
+        If (fid = funcId) Then
+          Return True
+        End If
+        i = i + 1
+      End While
+      Return False
+    End Function
+
+    Public Overridable Function get_functionIds(funType As String) As List(Of String)
+      Dim count As Integer = 0
+      Dim i As Integer = 0
+      Dim ftype As String
+      Dim res As List(Of String) = New List(Of String)()
+      REM // may throw an exception
+      count = Me.functionCount()
+      i = 0
+      
+      While (i < count)
+        ftype  = Me.functionType(i)
+        If (ftype = funType) Then
+          res.Add(Me.functionId(i))
+        End If
+        i = i + 1
+      End While
+      
+      Return res
     End Function
 
     Public Overridable Function _flattenJsonStruct(jsoncomplex As Byte()) As Byte()

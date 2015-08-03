@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_audioout.vb 20565 2015-06-04 09:59:10Z seb $
+'* $Id: yocto_audioout.vb 20797 2015-07-06 16:49:40Z mvuilleu $
 '*
 '* Implements yFindAudioOut(), the high-level API for AudioOut functions
 '*
@@ -55,6 +55,7 @@ Module yocto_audioout
   Public Const Y_MUTE_FALSE As Integer = 0
   Public Const Y_MUTE_TRUE As Integer = 1
   Public Const Y_MUTE_INVALID As Integer = -1
+  Public Const Y_VOLUMERANGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SIGNAL_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_NOSIGNALFOR_INVALID As Integer = YAPI.INVALID_INT
   Public Delegate Sub YAudioOutValueCallback(ByVal func As YAudioOut, ByVal value As String)
@@ -79,6 +80,7 @@ Module yocto_audioout
     Public Const MUTE_FALSE As Integer = 0
     Public Const MUTE_TRUE As Integer = 1
     Public Const MUTE_INVALID As Integer = -1
+    Public Const VOLUMERANGE_INVALID As String = YAPI.INVALID_STRING
     Public Const SIGNAL_INVALID As Integer = YAPI.INVALID_INT
     Public Const NOSIGNALFOR_INVALID As Integer = YAPI.INVALID_INT
     REM --- (end of YAudioOut definitions)
@@ -86,6 +88,7 @@ Module yocto_audioout
     REM --- (YAudioOut attributes declaration)
     Protected _volume As Integer
     Protected _mute As Integer
+    Protected _volumeRange As String
     Protected _signal As Integer
     Protected _noSignalFor As Integer
     Protected _valueCallbackAudioOut As YAudioOutValueCallback
@@ -97,6 +100,7 @@ Module yocto_audioout
       REM --- (YAudioOut attributes initialization)
       _volume = VOLUME_INVALID
       _mute = MUTE_INVALID
+      _volumeRange = VOLUMERANGE_INVALID
       _signal = SIGNAL_INVALID
       _noSignalFor = NOSIGNALFOR_INVALID
       _valueCallbackAudioOut = Nothing
@@ -112,6 +116,10 @@ Module yocto_audioout
       End If
       If (member.name = "mute") Then
         If (member.ivalue > 0) Then _mute = 1 Else _mute = 0
+        Return 1
+      End If
+      If (member.name = "volumeRange") Then
+        _volumeRange = member.svalue
         Return 1
       End If
       If (member.name = "signal") Then
@@ -230,6 +238,34 @@ Module yocto_audioout
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("mute", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the supported volume range.
+    ''' <para>
+    '''   The low value of the
+    '''   range corresponds to the minimal audible value. To
+    '''   completely mute the sound, use <c>set_mute()</c>
+    '''   instead of the <c>set_volume()</c>.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the supported volume range
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_VOLUMERANGE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_volumeRange() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return VOLUMERANGE_INVALID
+        End If
+      End If
+      Return Me._volumeRange
+    End Function
+
     '''*
     ''' <summary>
     '''   Returns the detected output current level.
