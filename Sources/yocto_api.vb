@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 20916 2015-07-23 08:54:20Z seb $
+'* $Id: yocto_api.vb 21200 2015-08-19 13:09:00Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "20983"
+  Public Const YOCTO_API_BUILD_NO As String = "21242"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -622,7 +622,7 @@ Module yocto_api
 
     REM Default cache validity (in [ms]) before reloading data from device. This saves a lots of trafic.
     REM Note that a value undger 2 ms makes little sense since a USB bus itself has a 2ms roundtrip period
-    Public Const DefaultCacheValidity As Integer = 5
+    Public Shared DefaultCacheValidity As Integer = 5
 
     Public Const INVALID_STRING As String = "!INVALID!"
     Public Const INVALID_DOUBLE As Double = -1.7976931348623157E+308
@@ -1842,7 +1842,9 @@ Module yocto_api
     Inherits ApplicationException
     Public errorType As YRETCODE
     Public Sub New(ByVal errType As YRETCODE, ByVal errMsg As String)
-    End Sub ' New
+      MyBase.New(errMsg)
+      errorType = errorType
+    End Sub
   End Class
 
   Dim YDevice_devCache As List(Of YDevice)
@@ -1962,7 +1964,7 @@ Module yocto_api
         serial = Me._serial
         firmwarepath = Me._firmwarepath
         settings = YAPI.DefaultEncoding.GetString(Me._settings)
-        res = _yapiUpdateFirmware(new StringBuilder(serial), new StringBuilder(firmwarepath), new StringBuilder(settings), newupdate, errmsg)
+        res = _yapiUpdateFirmware(New StringBuilder(serial), New StringBuilder(firmwarepath), New StringBuilder(settings), newupdate, errmsg)
         If (res < 0) Then
           Me._progress = res
           Me._progress_msg = errmsg.ToString()
@@ -2046,7 +2048,7 @@ Module yocto_api
         bigbuff = Nothing
       End If
       If (Not (bootloader_list = "")) Then
-        bootladers = new List(Of String)(bootloader_list.Split(new Char() {","c}))
+        bootladers = New List(Of String)(bootloader_list.Split(New Char() {","c}))
       End If
       Return bootladers
     End Function
@@ -2089,7 +2091,7 @@ Module yocto_api
       Dim release As String
       fullsize = 0
       release = (minrelease).ToString()
-      res = _yapiCheckFirmware(new StringBuilder(serial), new StringBuilder(release), new StringBuilder(path), smallbuff, 1024, fullsize, errmsg)
+      res = _yapiCheckFirmware(New StringBuilder(serial), New StringBuilder(release), New StringBuilder(path), smallbuff, 1024, fullsize, errmsg)
       If (res < 0) Then
         firmware_path = "error:" + errmsg.ToString()
         Return "error:" + errmsg.ToString()
@@ -2099,7 +2101,7 @@ Module yocto_api
       Else
         buffsize = fullsize
         bigbuff = New StringBuilder(buffsize)
-        res = _yapiCheckFirmware(new StringBuilder(serial), new StringBuilder(release), new StringBuilder(path), bigbuff, buffsize, fullsize, errmsg)
+        res = _yapiCheckFirmware(New StringBuilder(serial), New StringBuilder(release), New StringBuilder(path), bigbuff, buffsize, fullsize, errmsg)
         If (res < 0) Then
           firmware_path = "error:" + errmsg.ToString()
         Else
@@ -4374,6 +4376,10 @@ Module yocto_api
       Return newDataStream
     End Function
 
+    Public Sub _clearDataStreamCache()
+      _dataStreams.Clear()
+    End Sub
+
     Protected Function _parse(ByRef j As TJSONRECORD) As Integer
       Dim member As TJSONRECORD
       Dim i As Integer
@@ -4399,9 +4405,6 @@ Module yocto_api
       End If
     End Sub
 
-
-
-
     Protected Shared Sub _UpdateTimedReportCallbackList(func As YFunction, add As Boolean)
       If (add) Then
         func.isOnline()
@@ -4412,9 +4415,6 @@ Module yocto_api
         _TimedReportCallbackList.Remove(func)
       End If
     End Sub
-
-
-
 
     REM --- (generated code: YFunction private methods declaration)
 
@@ -5004,7 +5004,34 @@ Module yocto_api
     End Function
 
 
+    Public Function _get_json_path(ByVal json As String, ByVal path As String) As String
+      Dim errbuff As StringBuilder
+      Dim p As IntPtr = IntPtr.Zero
+      Dim dllres As Integer
+      Dim result As String
 
+      errbuff = New StringBuilder(YOCTO_ERRMSG_LEN)
+      dllres = 0
+      result = ""
+      dllres = _yapiJsonGetPath(New StringBuilder(path), New StringBuilder(json), json.Length, p, errbuff)
+      If (dllres > 0) Then
+        Dim reply As Byte()
+        ReDim reply(dllres - 1)
+        Marshal.Copy(p, reply, 0, dllres)
+        result = YAPI.DefaultEncoding.GetString(reply)
+      End If
+      Return result
+    End Function
+
+    Public Function _decode_json_string(ByVal json As String) As String
+      Dim len As Integer
+      Dim buffer As StringBuilder
+      Dim decoded_len As Integer
+      len = json.Length
+      buffer = New StringBuilder(len)
+      decoded_len = _yapiJsonDecodeString(New StringBuilder(json), buffer)
+      Return buffer.ToString()
+    End Function
 
     '''*
     ''' <summary>
@@ -6321,6 +6348,113 @@ Module yocto_api
       Return Me._download("api.json")
     End Function
 
+    Public Overridable Function get_allSettings_dev() As Byte()
+      Dim i_i As Integer
+      Dim settings As Byte()
+      Dim json As Byte()
+      Dim res As Byte()
+      Dim sep As String
+      Dim name As String
+      Dim file_data As String
+      Dim file_data_bin As Byte()
+      Dim all_file_data As String
+      Dim filelist As List(Of String) = New List(Of String)()
+      REM // may throw an exception
+      settings = Me._download("api.json")
+      all_file_data = ", ""files"":["
+      If (Me.hasFunction("files")) Then
+        REM
+        json = Me._download("files.json?a=dir&f=")
+        filelist = Me._json_get_array(json)
+        sep = ""
+        For i_i = 0 To  filelist.Count - 1
+          name = Me._json_get_key(YAPI.DefaultEncoding.GetBytes( filelist(i_i)), "name")
+          file_data_bin = Me._download(Me._escapeAttr(name))
+          file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
+          file_data = "" +  sep + "{""""name"""":""""" +  name + """"", """"data"""":""""" + file_data + """""}\n"
+          sep = ","
+          all_file_data = all_file_data + file_data
+        Next i_i
+      End If
+      all_file_data = all_file_data + "]}"
+      res = YAPI._bytesMerge(YAPI.DefaultEncoding.GetBytes("{ ""api"":"), YAPI._bytesMerge(settings, YAPI.DefaultEncoding.GetBytes(all_file_data)))
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Restores all the settings of the module.
+    ''' <para>
+    '''   Useful to restore all the logical names and calibrations parameters
+    '''   of a module from a backup.Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modifications must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="settings">
+    '''   a binary buffer with all the settings.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function set_allSettings_dev(settings As Byte()) As Integer
+      Dim i_i As Integer
+      Dim down As Byte()
+      Dim json As String
+      Dim json_api As String
+      Dim json_files As String
+      json = YAPI.DefaultEncoding.GetString(settings)
+      json_api = Me._get_json_path(json, "api")
+      Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
+      If (Me.hasFunction("files")) Then
+        Dim files As List(Of String) = New List(Of String)()
+        Dim res As String
+        Dim name As String
+        Dim data As String
+        down = Me._download("files.json?a=format")
+        res = Me._get_json_path(YAPI.DefaultEncoding.GetString(down), "res")
+        res = Me._decode_json_string(res)
+        If Not(res = "ok") Then
+          me._throw( YAPI.IO_ERROR,  "format failed")
+          return YAPI.IO_ERROR
+        end if
+        json_files = Me._get_json_path(json, "files")
+        files = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(json_files))
+        For i_i = 0 To  files.Count - 1
+          name = Me._get_json_path( files(i_i), "name")
+          name = Me._decode_json_string(name)
+          data = Me._get_json_path( files(i_i), "data")
+          data = Me._decode_json_string(data)
+          Me._upload(name, YAPI._hexStrToBin(data))
+        Next i_i
+      End If
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Test if the device has a specific function.
+    ''' <para>
+    '''   This method took an function identifier
+    '''   and return a boolean.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="funcId">
+    '''   the requested function identifier
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   : true if the device has the function identifier
+    ''' </returns>
+    '''/
     Public Overridable Function hasFunction(funcId As String) As Boolean
       Dim count As Integer = 0
       Dim i As Integer = 0
@@ -6338,6 +6472,23 @@ Module yocto_api
       Return False
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Retrieve all hardware identifier that match the type passed in argument.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="funType">
+    '''   The type of function (Relay, LightSensor, Voltage,...)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   : A array of string.
+    ''' </returns>
+    '''/
     Public Overridable Function get_functionIds(funType As String) As List(Of String)
       Dim count As Integer = 0
       Dim i As Integer = 0
@@ -6369,7 +6520,7 @@ Module yocto_api
       Dim jsoncomplexstr As String
       fullsize = 0
       jsoncomplexstr = YAPI.DefaultEncoding.GetString(jsoncomplex)
-      res = _yapiGetAllJsonKeys(new StringBuilder(jsoncomplexstr), smallbuff, 1024, fullsize, errmsg)
+      res = _yapiGetAllJsonKeys(New StringBuilder(jsoncomplexstr), smallbuff, 1024, fullsize, errmsg)
       If (res < 0) Then
         Me._throw(YAPI.INVALID_ARGUMENT, errmsg.ToString())
         jsonflat = "error:" + errmsg.ToString()
@@ -6381,7 +6532,7 @@ Module yocto_api
         fullsize = fullsize * 2
         buffsize = fullsize
         bigbuff = New StringBuilder(buffsize)
-        res = _yapiGetAllJsonKeys(new StringBuilder(jsoncomplexstr), bigbuff, buffsize, fullsize, errmsg)
+        res = _yapiGetAllJsonKeys(New StringBuilder(jsoncomplexstr), bigbuff, buffsize, fullsize, errmsg)
         If (res < 0) Then
           Me._throw(YAPI.INVALID_ARGUMENT, errmsg.ToString())
           jsonflat = "error:" + errmsg.ToString()
@@ -6513,7 +6664,7 @@ Module yocto_api
           End If
         Else
           If (paramVer = 1) Then
-            words_str = new List(Of String)(param.Split(new Char() {","c}))
+            words_str = New List(Of String)(param.Split(New Char() {","c}))
             For i_i = 0 To words_str.Count - 1
               words.Add(YAPI._atoi(words_str(i_i)))
             Next i_i
@@ -9534,6 +9685,12 @@ Module yocto_api
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiTestHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiTestHub(ByVal url As StringBuilder, ByVal mstimeout As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiJsonGetPath", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiJsonGetPath(ByVal path As StringBuilder, ByVal json_data As StringBuilder, ByVal json_len As Integer, ByRef result As IntPtr, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiJsonDecodeString", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiJsonDecodeString(ByVal json_data As StringBuilder, ByVal output As StringBuilder) As Integer
   End Function
     REM --- (end of generated code: YFunction dlldef)
 

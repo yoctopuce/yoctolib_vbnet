@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 20508 2015-06-01 16:32:48Z seb $
+'* $Id: yocto_cellular.vb 21118 2015-08-17 12:39:30Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -911,7 +911,7 @@ Module yocto_cellular
         mncs = (mncs).Substring(1, (mncs).Length-1)
       End If
       mnc = YAPI._atoi(mncs)
-      recs = new List(Of String)(moni.Split(new Char() {"#"c}))
+      recs = New List(Of String)(moni.Split(New Char() {"#"c}))
       REM // process each line in turn
       res.Clear()
       For i_i = 0 To recs.Count - 1

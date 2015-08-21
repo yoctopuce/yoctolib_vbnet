@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 19329 2015-02-17 17:31:26Z seb $
+'* $Id: yocto_wireless.vb 21118 2015-08-17 12:39:30Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -469,7 +469,7 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Overridable Function joinNetwork(ssid As String, securityKey As String) As Integer
-      Return Me.set_wlanConfig("INFRA:" +  ssid + "\\" + securityKey)
+      Return Me.set_wlanConfig("INFRA:" +  ssid + "\" + securityKey)
     End Function
 
     '''*
@@ -504,7 +504,7 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Overridable Function adhocNetwork(ssid As String, securityKey As String) As Integer
-      Return Me.set_wlanConfig("ADHOC:" +  ssid + "\\" + securityKey)
+      Return Me.set_wlanConfig("ADHOC:" +  ssid + "\" + securityKey)
     End Function
 
     '''*
@@ -537,7 +537,7 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Overridable Function softAPNetwork(ssid As String, securityKey As String) As Integer
-      Return Me.set_wlanConfig("SOFTAP:" +  ssid + "\\" + securityKey)
+      Return Me.set_wlanConfig("SOFTAP:" +  ssid + "\" + securityKey)
     End Function
 
     '''*

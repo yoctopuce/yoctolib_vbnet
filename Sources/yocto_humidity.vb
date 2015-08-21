@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_humidity.vb 19575 2015-03-04 10:42:56Z seb $
+'* $Id: yocto_humidity.vb 21211 2015-08-19 16:03:29Z seb $
 '*
 '* Implements yFindHumidity(), the high-level API for Humidity functions
 '*
@@ -51,6 +51,8 @@ Module yocto_humidity
     REM --- (end of YHumidity dlldef)
   REM --- (YHumidity globals)
 
+  Public Const Y_RELHUM_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_ABSHUM_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Delegate Sub YHumidityValueCallback(ByVal func As YHumidity, ByVal value As String)
   Public Delegate Sub YHumidityTimedReportCallback(ByVal func As YHumidity, ByVal measure As YMeasure)
   REM --- (end of YHumidity globals)
@@ -72,9 +74,13 @@ Module yocto_humidity
     REM --- (end of YHumidity class start)
 
     REM --- (YHumidity definitions)
+    Public Const RELHUM_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const ABSHUM_INVALID As Double = YAPI.INVALID_DOUBLE
     REM --- (end of YHumidity definitions)
 
     REM --- (YHumidity attributes declaration)
+    Protected _relHum As Double
+    Protected _absHum As Double
     Protected _valueCallbackHumidity As YHumidityValueCallback
     Protected _timedReportCallbackHumidity As YHumidityTimedReportCallback
     REM --- (end of YHumidity attributes declaration)
@@ -83,6 +89,8 @@ Module yocto_humidity
       MyBase.New(func)
       _classname = "Humidity"
       REM --- (YHumidity attributes initialization)
+      _relHum = RELHUM_INVALID
+      _absHum = ABSHUM_INVALID
       _valueCallbackHumidity = Nothing
       _timedReportCallbackHumidity = Nothing
       REM --- (end of YHumidity attributes initialization)
@@ -91,12 +99,102 @@ Module yocto_humidity
     REM --- (YHumidity private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "relHum") Then
+        _relHum = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
+      If (member.name = "absHum") Then
+        _absHum = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
       Return MyBase._parseAttr(member)
     End Function
 
     REM --- (end of YHumidity private methods declaration)
 
     REM --- (YHumidity public methods declaration)
+
+    '''*
+    ''' <summary>
+    '''   Changes the primary unit for measuring humidity.
+    ''' <para>
+    '''   That unit is a string.
+    '''   If that strings starts with the letter 'g', the primary measured value is the absolute
+    '''   humidity, in g/m3. Otherwise, the primary measured value will be the relative humidity
+    '''   (RH), in per cents.
+    ''' </para>
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification
+    '''   must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the primary unit for measuring humidity
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_unit(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("unit", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the current relative humidity, in per cents.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the current relative humidity, in per cents
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_RELHUM_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_relHum() As Double
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return RELHUM_INVALID
+        End If
+      End If
+      Return Me._relHum
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the current absolute humidity, in grams per cubic meter of air.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the current absolute humidity, in grams per cubic meter of air
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_ABSHUM_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_absHum() As Double
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return ABSHUM_INVALID
+        End If
+      End If
+      Return Me._absHum
+    End Function
+
     '''*
     ''' <summary>
     '''   Retrieves a humidity sensor for a given identifier.
