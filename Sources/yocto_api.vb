@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 21200 2015-08-19 13:09:00Z seb $
+'* $Id: yocto_api.vb 21288 2015-08-24 06:58:13Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "21249"
+  Public Const YOCTO_API_BUILD_NO As String = "21312"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1032,7 +1032,7 @@ Module yocto_api
     '''   a character string describing the library version.
     ''' </returns>
     '''/
-    Public Shared Function yGetAPIVersion() As String
+    Public Shared Function GetAPIVersion() As String
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
@@ -9060,7 +9060,7 @@ Module yocto_api
   ''' </returns>
   '''/
   Public Function yGetAPIVersion() As String
-    Return YAPI.yGetAPIVersion()
+    Return YAPI.GetAPIVersion()
   End Function
 
 
