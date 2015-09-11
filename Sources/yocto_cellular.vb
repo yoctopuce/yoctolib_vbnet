@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 21118 2015-08-17 12:39:30Z seb $
+'* $Id: yocto_cellular.vb 21485 2015-09-11 14:10:22Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -144,6 +144,7 @@ Module yocto_cellular
 
   Public Const Y_LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CELLOPERATOR_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_CELLIDENTIFIER_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_IMSI_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_MESSAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PIN_INVALID As String = YAPI.INVALID_STRING
@@ -176,6 +177,7 @@ Module yocto_cellular
     REM --- (generated code: YCellular definitions)
     Public Const LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CELLOPERATOR_INVALID As String = YAPI.INVALID_STRING
+    Public Const CELLIDENTIFIER_INVALID As String = YAPI.INVALID_STRING
     Public Const IMSI_INVALID As String = YAPI.INVALID_STRING
     Public Const MESSAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const PIN_INVALID As String = YAPI.INVALID_STRING
@@ -192,6 +194,7 @@ Module yocto_cellular
     REM --- (generated code: YCellular attributes declaration)
     Protected _linkQuality As Integer
     Protected _cellOperator As String
+    Protected _cellIdentifier As String
     Protected _imsi As String
     Protected _message As String
     Protected _pin As String
@@ -209,6 +212,7 @@ Module yocto_cellular
       REM --- (generated code: YCellular attributes initialization)
       _linkQuality = LINKQUALITY_INVALID
       _cellOperator = CELLOPERATOR_INVALID
+      _cellIdentifier = CELLIDENTIFIER_INVALID
       _imsi = IMSI_INVALID
       _message = MESSAGE_INVALID
       _pin = PIN_INVALID
@@ -230,6 +234,10 @@ Module yocto_cellular
       End If
       If (member.name = "cellOperator") Then
         _cellOperator = member.svalue
+        Return 1
+      End If
+      If (member.name = "cellIdentifier") Then
+        _cellIdentifier = member.svalue
         Return 1
       End If
       If (member.name = "imsi") Then
@@ -316,6 +324,30 @@ Module yocto_cellular
         End If
       End If
       Return Me._cellOperator
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the unique identifier of the cellular antenna in use: MCC, MNC, LAC and Cell ID.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the unique identifier of the cellular antenna in use: MCC, MNC, LAC and Cell ID
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CELLIDENTIFIER_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_cellIdentifier() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return CELLIDENTIFIER_INVALID
+        End If
+      End If
+      Return Me._cellIdentifier
     End Function
 
     '''*

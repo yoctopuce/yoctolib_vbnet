@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 20508 2015-06-01 16:32:48Z seb $
+'* $Id: yocto_serialport.vb 21381 2015-09-02 09:06:57Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -1018,7 +1018,7 @@ Module yocto_serialport
       Dim bufflen As Integer = 0
       Dim idx As Integer = 0
       Dim ch As Integer = 0
-      buff = YAPI.DefaultEncoding.GetBytes("" + text + "\r\n")
+      buff = YAPI.DefaultEncoding.GetBytes("" + text + "" + vbCr + "" + vbLf + "")
       bufflen = (buff).Length-2
       If (bufflen < 100) Then
         REM

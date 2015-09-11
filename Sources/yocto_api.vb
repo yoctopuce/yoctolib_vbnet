@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 21288 2015-08-24 06:58:13Z seb $
+'* $Id: yocto_api.vb 21407 2015-09-03 13:30:00Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "21312"
+  Public Const YOCTO_API_BUILD_NO As String = "21486"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1992,7 +1992,7 @@ Module yocto_api
           End If
           If (Me._progress < 100) Then
             REM
-            m.set_allSettings(Me._settings)
+            m.set_allSettingsAndFiles(Me._settings)
             m.saveToFlash()
             ReDim Me._settings(0-1)
             Me._progress = 100
@@ -3864,7 +3864,6 @@ Module yocto_api
           Exit Function
         End If
       End If
-
       Try
         apires = New TJsonParser(buffer)
       Catch E As Exception
@@ -3872,11 +3871,14 @@ Module yocto_api
         requestAPI = YAPI_IO_ERROR
         Exit Function
       End Try
-
+      If (apires.httpcode <> 200) Then
+        errmsg = String.Format("Unexpected HTTP return code:{0}", apires.httpcode)
+        requestAPI = YAPI.IO_ERROR
+        Exit Function
+      End If
       REM store result in cache
       _cacheJson = apires
       _cacheStamp = CULng(YAPI.GetTickCount() + YAPI.DefaultCacheValidity)
-
       requestAPI = YAPI_SUCCESS
     End Function
 
@@ -6328,10 +6330,10 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns all the settings of the module.
+    '''   Returns all the settings and uploaded files of the module.
     ''' <para>
-    '''   Useful to backup all the logical names and calibrations parameters
-    '''   of a connected module.
+    '''   Useful to backup all the logical names, calibrations parameters,
+    '''   and uploaded files of a connected module.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -6344,11 +6346,6 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function get_allSettings() As Byte()
-      REM // may throw an exception
-      Return Me._download("api.json")
-    End Function
-
-    Public Overridable Function get_allSettings_dev() As Byte()
       Dim i_i As Integer
       Dim settings As Byte()
       Dim json As Byte()
@@ -6371,7 +6368,7 @@ Module yocto_api
           name = Me._json_get_key(YAPI.DefaultEncoding.GetBytes( filelist(i_i)), "name")
           file_data_bin = Me._download(Me._escapeAttr(name))
           file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
-          file_data = "" +  sep + "{""""name"""":""""" +  name + """"", """"data"""":""""" + file_data + """""}\n"
+          file_data = "" +  sep + "{""name"":""" +  name + """, ""data"":""" + file_data + """}" + vbLf + ""
           sep = ","
           all_file_data = all_file_data + file_data
         Next i_i
@@ -6383,10 +6380,10 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Restores all the settings of the module.
+    '''   Restores all the settings and uploaded files of the module.
     ''' <para>
-    '''   Useful to restore all the logical names and calibrations parameters
-    '''   of a module from a backup.Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   Useful to restore all the logical names and calibrations parameters, uploaded
+    '''   files etc.. of a module from a backup.Remember to call the <c>saveToFlash()</c> method of the module if the
     '''   modifications must be kept.
     ''' </para>
     ''' <para>
@@ -6402,7 +6399,7 @@ Module yocto_api
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function set_allSettings_dev(settings As Byte()) As Integer
+    Public Overridable Function set_allSettingsAndFiles(settings As Byte()) As Integer
       Dim i_i As Integer
       Dim down As Byte()
       Dim json As String
@@ -6410,6 +6407,9 @@ Module yocto_api
       Dim json_files As String
       json = YAPI.DefaultEncoding.GetString(settings)
       json_api = Me._get_json_path(json, "api")
+      If (json_api = "") Then
+        Return Me.set_allSettings(settings)
+      End If
       Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
       If (Me.hasFunction("files")) Then
         Dim files As List(Of String) = New List(Of String)()
@@ -6816,6 +6816,11 @@ Module yocto_api
       Dim each_str As String
       Dim do_update As Boolean
       Dim found As Boolean
+      tmp = YAPI.DefaultEncoding.GetString(settings)
+      tmp = Me._get_json_path(tmp, "api")
+      If (Not (tmp = "")) Then
+        settings = YAPI.DefaultEncoding.GetBytes(tmp)
+      End If
       oldval = ""
       newval = ""
       old_json_flat = Me._flattenJsonStruct(settings)
