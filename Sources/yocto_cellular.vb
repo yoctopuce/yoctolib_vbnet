@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 21485 2015-09-11 14:10:22Z seb $
+'* $Id: yocto_cellular.vb 21511 2015-09-14 16:25:19Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -868,7 +868,14 @@ Module yocto_cellular
     Public Overridable Function _AT(cmd As String) As String
       Dim chrPos As Integer = 0
       Dim cmdLen As Integer = 0
-      Dim content As Byte()
+      Dim waitMore As Integer = 0
+      Dim res As String
+      Dim buff As Byte()
+      Dim bufflen As Integer = 0
+      Dim buffstr As String
+      Dim buffstrlen As Integer = 0
+      Dim idx As Integer = 0
+      Dim suffixlen As Integer = 0
       REM // quote dangerous characters used in AT commands
       cmdLen = (cmd).Length
       chrPos = cmd.IndexOf("#")
@@ -889,9 +896,75 @@ Module yocto_cellular
         cmdLen = cmdLen + 2
         chrPos = cmd.IndexOf("=")
       End While
+      cmd = "at.txt?cmd=" + cmd
+      res = ""
+      REM // max 2 minutes (each iteration may take up to 5 seconds if waiting)
+      waitMore = 24
+      While (waitMore > 0)
+        REM
+        buff = Me._download(cmd)
+        bufflen = (buff).Length
+        buffstr = YAPI.DefaultEncoding.GetString(buff)
+        buffstrlen = (buffstr).Length
+        idx = bufflen - 1
+        While ((idx > 0) And (buff(idx) <> 64) And (buff(idx) <> 10) And (buff(idx) <> 13))
+          idx = idx - 1
+        End While
+        If (buff(idx) = 64) Then
+          REM
+          suffixlen = bufflen - idx
+          cmd = "at.txt?cmd=" + (buffstr).Substring( buffstrlen - suffixlen, suffixlen)
+          buffstr = (buffstr).Substring( 0, buffstrlen - suffixlen)
+          waitMore = waitMore - 1
+        Else
+          REM
+          waitMore = 0
+        End If
+        res = "" +  res + "" + buffstr
+      End While
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the list detected cell operators in the neighborhood.
+    ''' <para>
+    '''   This function will typically take between 30 seconds to 1 minute to
+    '''   return. Note that any SIM card can usually only connect to specific
+    '''   operators. All networks returned by this function might therefore
+    '''   not be available for connection.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a list of string (cell operator names).
+    ''' </returns>
+    '''/
+    Public Overridable Function get_availableOperators() As List(Of String)
+      Dim cops As String
+      Dim idx As Integer = 0
+      Dim slen As Integer = 0
+      Dim res As List(Of String) = New List(Of String)()
       REM // may throw an exception
-      content = Me._download("at.txt?cmd=" + cmd)
-      Return YAPI.DefaultEncoding.GetString(content)
+      cops = Me._AT("+COPS=?")
+      slen = (cops).Length
+      res.Clear()
+      idx = cops.IndexOf("(")
+      While (idx >= 0)
+        slen = slen - (idx+1)
+        cops = (cops).Substring( idx+1, slen)
+        idx = cops.IndexOf("""")
+        If (idx > 0) Then
+          slen = slen - (idx+1)
+          cops = (cops).Substring( idx+1, slen)
+          idx = cops.IndexOf("""")
+          If (idx > 0) Then
+            res.Add((cops).Substring( 0, idx))
+          End If
+        End If
+        idx = cops.IndexOf("(")
+      End While
+      
+      Return res
     End Function
 
     '''*

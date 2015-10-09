@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 21407 2015-09-03 13:30:00Z seb $
+'* $Id: yocto_api.vb 21680 2015-10-02 13:42:44Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "21486"
+  Public Const YOCTO_API_BUILD_NO As String = "21701"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2131,7 +2131,9 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Overridable Function get_progress() As Integer
-      Me._processMore(0)
+      If (Me._progress >= 0) Then
+        Me._processMore(0)
+      End If
       Return Me._progress
     End Function
 
@@ -2173,9 +2175,18 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function startUpdate() As Integer
-      Me._progress = 0
-      Me._progress_c = 0
-      Me._processMore(1)
+      Dim err As String
+      Dim leng As Integer = 0
+      err = YAPI.DefaultEncoding.GetString(Me._settings)
+      leng = (err).Length
+      If (( leng >= 6) And ("error:" = (err).Substring(0, 6))) Then
+        Me._progress = -1
+        Me._progress_msg = (err).Substring( 6, leng - 6)
+      Else
+        Me._progress = 0
+        Me._progress_c = 0
+        Me._processMore(1)
+      End If
       Return Me._progress
     End Function
 
@@ -3882,6 +3893,12 @@ Module yocto_api
       requestAPI = YAPI_SUCCESS
     End Function
 
+    Sub clearCache()
+      If _cacheJson IsNot Nothing Then _cacheJson.Dispose()
+      _cacheJson = Nothing
+      _cacheStamp = 0
+    End Sub
+
     Public Function getFunctions(ByRef functions As List(Of yu32), ByRef errmsg As String) As YRETCODE
       Dim res, neededsize, i, count As Integer
       Dim p As IntPtr
@@ -5119,6 +5136,35 @@ Module yocto_api
       load = YAPI_SUCCESS
     End Function
 
+
+    '''*
+    ''' <summary>
+    '''   Invalidate the cache.
+    ''' <para>
+    '''   Invalidate the cache of the function attributes. Force the
+    '''   next call to get_xxx() or loadxxx() to use value that come from the device..
+    ''' </para>
+    ''' <para>
+    ''' @noreturn
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Sub clearCache()
+
+      Dim dev As YDevice = Nothing
+      Dim errmsg As String = ""
+      Dim res As Integer
+      REM Resolve our reference to our device, load REST API
+      res = _getDevice(dev, errmsg)
+      If (YISERR(res)) Then
+        Exit Sub
+      End If
+      dev.clearCache()
+      If _cacheExpiration > 0 Then
+        _cacheExpiration = CULng(YAPI.GetTickCount())
+      End If      
+    End Sub
+
     '''*
     ''' <summary>
     '''   Gets the <c>YModule</c> object for the device on which the function is located.
@@ -6316,7 +6362,7 @@ Module yocto_api
     '''   the path of the byn file to use.
     ''' </param>
     ''' <returns>
-    '''   : A <c>YFirmwareUpdate</c> object.
+    '''   : A <c>YFirmwareUpdate</c> object or NULL on error.
     ''' </returns>
     '''/
     Public Overridable Function updateFirmware(path As String) As YFirmwareUpdate
@@ -6325,6 +6371,10 @@ Module yocto_api
       REM // may throw an exception
       serial = Me.get_serialNumber()
       settings = Me.get_allSettings()
+      If ((settings).Length = 0) Then
+        Me._throw(YAPI.IO_ERROR, "Unable to get device settings")
+        settings = YAPI.DefaultEncoding.GetBytes("error:Unable to get device settings")
+      End If
       Return New YFirmwareUpdate(serial, path, settings)
     End Function
 
@@ -6342,7 +6392,7 @@ Module yocto_api
     '''   a binary buffer with all the settings.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns  <c>YAPI_INVALID_STRING</c>.
+    '''   On failure, throws an exception or returns an binary object of size 0.
     ''' </para>
     '''/
     Public Overridable Function get_allSettings() As Byte()
@@ -6352,30 +6402,106 @@ Module yocto_api
       Dim res As Byte()
       Dim sep As String
       Dim name As String
+      Dim item As String
+      Dim t_type As String
+      Dim id As String
+      Dim url As String
       Dim file_data As String
       Dim file_data_bin As Byte()
-      Dim all_file_data As String
+      Dim temp_data_bin As Byte()
+      Dim ext_settings As String
       Dim filelist As List(Of String) = New List(Of String)()
+      Dim templist As List(Of String) = New List(Of String)()
       REM // may throw an exception
       settings = Me._download("api.json")
-      all_file_data = ", ""files"":["
+      If ((settings).Length = 0) Then
+        Return settings
+      End If
+      ext_settings = ", ""extras"":["
+      templist = Me.get_functionIds("Temperature")
+      sep = ""
+      For i_i = 0 To  templist.Count - 1
+        If (YAPI._atoi(Me.get_firmwareRelease()) > 9000) Then
+          url = "api/" +  templist(i_i) + "/sensorType"
+          t_type = YAPI.DefaultEncoding.GetString(Me._download(url))
+          If (t_type = "RES_NTC") Then
+            id = ( templist(i_i)).Substring( 11, ( templist(i_i)).Length - 11)
+            temp_data_bin = Me._download("extra.json?page=" + id)
+            If ((temp_data_bin).Length = 0) Then
+              Return temp_data_bin
+            End If
+            item = "" +  sep + "{""fid"":""" +   templist(i_i) + """, ""json"":" + YAPI.DefaultEncoding.GetString(temp_data_bin) + "}" + vbLf + ""
+            ext_settings = ext_settings + item
+            sep = ","
+          End If
+        End If
+      Next i_i
+      ext_settings =  ext_settings + "]," + vbLf + """files"":["
       If (Me.hasFunction("files")) Then
         REM
         json = Me._download("files.json?a=dir&f=")
+        If ((json).Length = 0) Then
+          Return json
+        End If
         filelist = Me._json_get_array(json)
         sep = ""
         For i_i = 0 To  filelist.Count - 1
           name = Me._json_get_key(YAPI.DefaultEncoding.GetBytes( filelist(i_i)), "name")
+          If ((name).Length = 0) Then
+            Return YAPI.DefaultEncoding.GetBytes(name)
+          End If
           file_data_bin = Me._download(Me._escapeAttr(name))
           file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
-          file_data = "" +  sep + "{""name"":""" +  name + """, ""data"":""" + file_data + """}" + vbLf + ""
+          item = "" +  sep + "{""name"":""" +  name + """, ""data"":""" + file_data + """}" + vbLf + ""
+          ext_settings = ext_settings + item
           sep = ","
-          all_file_data = all_file_data + file_data
         Next i_i
       End If
-      all_file_data = all_file_data + "]}"
-      res = YAPI._bytesMerge(YAPI.DefaultEncoding.GetBytes("{ ""api"":"), YAPI._bytesMerge(settings, YAPI.DefaultEncoding.GetBytes(all_file_data)))
+      ext_settings = ext_settings + "]}"
+      res = YAPI._bytesMerge(YAPI.DefaultEncoding.GetBytes("{ ""api"":"), YAPI._bytesMerge(settings, YAPI.DefaultEncoding.GetBytes(ext_settings)))
       Return res
+    End Function
+
+    Public Overridable Function loadThermistorExtra(funcId As String, jsonExtra As String) As Integer
+      Dim values As List(Of String) = New List(Of String)()
+      Dim url As String
+      Dim curr As String
+      Dim currTemp As String
+      Dim ofs As Integer = 0
+      Dim size As Integer = 0
+      url = "api/" + funcId + ".json?command=Z"
+      REM // may throw an exception
+      Me._download(url)
+      REM // add records in growing resistance value
+      values = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(jsonExtra))
+      ofs = 0
+      size = values.Count
+      While (ofs + 1 < size)
+        curr = values(ofs)
+        currTemp = values(ofs + 1)
+        url = "api/" +   funcId + "/.json?command=m" +  curr + ":" + currTemp
+        Me._download(url)
+        ofs = ofs + 2
+      End While
+      Return YAPI.SUCCESS
+    End Function
+
+    Public Overridable Function set_extraSettings(jsonExtra As String) As Integer
+      Dim i_i As Integer
+      Dim extras As List(Of String) = New List(Of String)()
+      Dim functionId As String
+      Dim data As String
+      extras = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(jsonExtra))
+      For i_i = 0 To  extras.Count - 1
+        functionId = Me._get_json_path( extras(i_i), "fid")
+        functionId = Me._decode_json_string(functionId)
+        data = Me._get_json_path( extras(i_i), "json")
+        If (Me.hasFunction(functionId)) Then
+          REM
+          Me.loadThermistorExtra(functionId, data)
+        End If
+      Next i_i
+      Return YAPI.SUCCESS
     End Function
 
     '''*
@@ -6405,10 +6531,15 @@ Module yocto_api
       Dim json As String
       Dim json_api As String
       Dim json_files As String
+      Dim json_extra As String
       json = YAPI.DefaultEncoding.GetString(settings)
       json_api = Me._get_json_path(json, "api")
       If (json_api = "") Then
         Return Me.set_allSettings(settings)
+      End If
+      json_extra = Me._get_json_path(json, "extras")
+      If (Not (json_extra = "")) Then
+        Me.set_extraSettings(json_extra)
       End If
       Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
       If (Me.hasFunction("files")) Then
@@ -6416,6 +6547,7 @@ Module yocto_api
         Dim res As String
         Dim name As String
         Dim data As String
+        REM
         down = Me._download("files.json?a=format")
         res = Me._get_json_path(YAPI.DefaultEncoding.GetString(down), "res")
         res = Me._decode_json_string(res)
