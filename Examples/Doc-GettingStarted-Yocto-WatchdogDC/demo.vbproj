@@ -176,6 +176,9 @@
     <Compile Include="..\..\Sources\yocto_pwmpowersource.vb">
       <Link>yocto\yocto_pwmpowersource.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_quadraturedecoder.vb">
+      <Link>yocto\yocto_quadraturedecoder.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_realtimeclock.vb">
       <Link>yocto\yocto_realtimeclock.vb</Link>
     </Compile>

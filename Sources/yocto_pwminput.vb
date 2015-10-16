@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwminput.vb 19575 2015-03-04 10:42:56Z seb $
+'* $Id: yocto_pwminput.vb 21776 2015-10-15 16:57:56Z mvuilleu $
 '*
 '* Implements yFindPwmInput(), the high-level API for PwmInput functions
 '*
@@ -76,7 +76,7 @@ Module yocto_pwminput
   '''   It inherits from YSensor class the core functions to read measurements,
   '''   register callback functions, access to the autonomous datalogger.
   '''   This class adds the ability to configure the signal parameter used to transmit
-  '''   information: the duty cacle, the frequency or the pulse width.
+  '''   information: the duty cycle, the frequency or the pulse width.
   ''' </para>
   ''' </summary>
   '''/
