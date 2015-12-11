@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 20704 2015-06-20 19:43:34Z mvuilleu $
+'* $Id: yocto_datalogger.vb 22197 2015-12-02 12:58:24Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -803,12 +803,15 @@ Module yocto_datalogger
     Public Overridable Function parse_dataSets(json As Byte()) As List(Of YDataSet)
       Dim i_i As Integer
       Dim dslist As List(Of String) = New List(Of String)()
+      Dim dataset As YDataSet
       Dim res As List(Of YDataSet) = New List(Of YDataSet)()
       REM // may throw an exception
       dslist = Me._json_get_array(json)
       res.Clear()
       For i_i = 0 To dslist.Count - 1
-        res.Add(New YDataSet(Me, dslist(i_i)))
+        dataset = New YDataSet(Me)
+        dataset._parse(dslist(i_i))
+        res.Add(dataset)
       Next i_i
       Return res
     End Function

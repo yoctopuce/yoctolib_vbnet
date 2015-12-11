@@ -101,6 +101,9 @@
     <Compile Include="..\..\Sources\yocto_current.vb">
       <Link>yocto\yocto_current.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_currentloopoutput.vb">
+      <Link>yocto\yocto_current.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_datalogger.vb">
       <Link>yocto\yocto_datalogger.vb</Link>
     </Compile>

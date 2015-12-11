@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 21680 2015-10-02 13:42:44Z seb $
+'* $Id: yocto_api.vb 22198 2015-12-02 14:10:54Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "21816"
+  Public Const YOCTO_API_BUILD_NO As String = "22324"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1700,7 +1700,7 @@ Module yocto_api
 
 
 
-  <StructLayout(LayoutKind.Sequential, pack:=1, CharSet:=CharSet.Ansi)> _
+  <StructLayout(LayoutKind.Sequential, Pack:=1, CharSet:=CharSet.Ansi)>
   Public Structure yDeviceSt
     Dim vendorid As yu16
     Dim deviceid As yu16
@@ -1714,7 +1714,7 @@ Module yocto_api
     Dim beacon As yu8
   End Structure
   Public Const YIOHDL_SIZE As Integer = 8
-  <StructLayout(LayoutKind.Sequential, pack:=1, CharSet:=CharSet.Ansi)> _
+  <StructLayout(LayoutKind.Sequential, Pack:=1, CharSet:=CharSet.Ansi)>
   Public Structure YIOHDL
     <MarshalAs(UnmanagedType.U1, SizeConst:=YIOHDL_SIZE)> Public raw As yu8
   End Structure
@@ -1742,10 +1742,10 @@ Module yocto_api
   Dim ySerialList As String()
   Dim yHandleArray As YHANDLE
 
-  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Delegate Function yFlashCallback(ByVal stepnumber As yu32, ByVal totalStep As yu32, ByVal context As IntPtr) As Integer
 
-  <StructLayout(LayoutKind.Sequential, pack:=1, CharSet:=CharSet.Ansi)> _
+  <StructLayout(LayoutKind.Sequential, Pack:=1, CharSet:=CharSet.Ansi)>
   Public Structure yFlashArg
     Dim OSDeviceName As StringBuilder      REM device windows name on os (used to acces device)
     Dim serial2assign As StringBuilder      REM serial number of the device
@@ -1851,7 +1851,7 @@ Module yocto_api
 
 
 
-  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Public Delegate Sub HTTPRequestCallback(ByVal device As YDevice, ByRef context As blockingCallbackCtx, ByVal returnval As YRETCODE, ByVal result As String, ByVal errmsg As String)
 
   REM - Types used for public yocto_api callbacks
@@ -1863,22 +1863,22 @@ Module yocto_api
 
 
   REM - Types used for internal yapi callbacks
-  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Public Delegate Sub _yapiLogFunc(ByVal log As IntPtr, ByVal loglen As yu32)
 
-  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Public Delegate Sub _yapiDeviceUpdateFunc(ByVal dev As YDEV_DESCR)
 
-  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Public Delegate Sub _yapiFunctionUpdateFunc(ByVal dev As YFUN_DESCR, ByVal value As IntPtr)
 
-  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Public Delegate Sub _yapiTimedReportFunc(ByVal dev As YFUN_DESCR, ByVal timestamp As Double, ByVal data As IntPtr, ByVal len As System.UInt32)
 
-  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Public Delegate Sub _yapiHubDiscoveryCallback(ByVal serial As IntPtr, ByVal url As IntPtr)
 
-  <UnmanagedFunctionPointer(CallingConvention.Cdecl)> _
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Public Delegate Sub _yapiDeviceLogCallback(ByVal dev As YFUN_DESCR, ByVal value As IntPtr)
 
 
@@ -2365,7 +2365,7 @@ Module yocto_api
           i = i + 1
         End While
       End If
-      iCalib = dataset.get_calibration()
+      iCalib = dataset._get_calibration()
       Me._caltyp = iCalib(0)
       If (Me._caltyp <> 0) Then
         Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
@@ -2439,7 +2439,7 @@ Module yocto_api
       Return 0
     End Function
 
-    Public Overridable Function parse(sdata As Byte()) As Integer
+    Public Overridable Function _parseStream(sdata As Byte()) As Integer
       Dim idx As Integer = 0
       Dim udat As List(Of Integer) = New List(Of Integer)()
       Dim dat As List(Of Double) = New List(Of Double)()
@@ -2489,7 +2489,7 @@ Module yocto_api
       Return YAPI.SUCCESS
     End Function
 
-    Public Overridable Function get_url() As String
+    Public Overridable Function _get_url() As String
       Dim url As String
       url = "logger.json?id=" +
       Me._functionId + "&run=" + Convert.ToString(Me._runNo) + "&utc=" + Convert.ToString(Me._utcStamp)
@@ -2498,7 +2498,7 @@ Module yocto_api
 
     Public Overridable Function loadStream() As Integer
       REM // may throw an exception
-      Return Me.parse(Me._parent._download(Me.get_url()))
+      Return Me._parseStream(Me._parent._download(Me._get_url()))
     End Function
 
     Public Overridable Function _decodeVal(w As Integer) As Double
@@ -3125,7 +3125,7 @@ Module yocto_api
     End Sub
 
 
-    Sub New(parent As YFunction, data As String)
+    Sub New(parent As YFunction)
       REM --- (generated code: YDataSet attributes initialization)
       _startTime = 0
       _endTime = 0
@@ -3139,11 +3139,10 @@ Module yocto_api
       _startTime = 0
       _endTime = 0
       _summary = New YMeasure(0, 0, 0, 0, 0)
-      _parse(data)
     End Sub
 
 
-    Protected Function _parse(data As String) As Integer
+    Public Function _parse(data As String) As Integer
       Dim p As TJsonParser
       Dim obj As Object
       Dim node As TJSONRECORD
@@ -3245,7 +3244,7 @@ Module yocto_api
     REM --- (end of generated code: YDataSet private methods declaration)
 
     REM --- (generated code: YDataSet public methods declaration)
-    Public Overridable Function get_calibration() As List(Of Integer)
+    Public Overridable Function _get_calibration() As List(Of Integer)
       Return Me._calib
     End Function
 
@@ -3273,7 +3272,7 @@ Module yocto_api
         Return Me._parse(strdata)
       End If
       stream = Me._streams(Me._progress)
-      stream.parse(data)
+      stream._parseStream(data)
       dataRows = stream.get_dataRows()
       Me._progress = Me._progress + 1
       If (dataRows.Count = 0) Then
@@ -3477,7 +3476,7 @@ Module yocto_api
           Return 100
         Else
           stream = Me._streams(Me._progress)
-          url = stream.get_url()
+          url = stream._get_url()
         End If
       End If
       Return Me.processMore(Me._progress, Me._parent._download(url))
@@ -4175,7 +4174,7 @@ Module yocto_api
         Exit Function
       End If
 
-      res = _yapiGetFunctionInfo(fundesc, devdesc, Nothing, funcid, Nothing, Nothing, errbuff)
+      res = _yapiGetFunctionInfoEx(fundesc, devdesc, Nothing, funcid, Nothing, Nothing, Nothing, errbuff)
       If YISERR(res) Then
         errmsg = errbuff.ToString()
         _throw(res, errmsg)
@@ -4339,8 +4338,8 @@ Module yocto_api
       Dim bodystr, boundary As String
       Dim body, bb, header, footer, fullrequest, outbuf As Byte()
 
-      bodystr = "Content-Disposition: form-data; name=""" + path + """; filename=""api""" + Chr(13) + Chr(10) + _
-                "Content-Type: application/octet-stream" + Chr(13) + Chr(10) + _
+      bodystr = "Content-Disposition: form-data; name=""" + path + """; filename=""api""" + Chr(13) + Chr(10) +
+                "Content-Type: application/octet-stream" + Chr(13) + Chr(10) +
                 "Content-Transfer-Encoding: binary" + Chr(13) + Chr(10) + Chr(13) + Chr(10)
       ReDim body(bodystr.Length + content.Length - 1)
       Buffer.BlockCopy(YAPI.DefaultEncoding.GetBytes(bodystr), 0, body, 0, bodystr.Length)
@@ -4368,8 +4367,8 @@ Module yocto_api
         Loop
       Loop While pos <= body.Length - bb.Length
 
-      header = YAPI.DefaultEncoding.GetBytes("POST /upload.html HTTP/1.1" + Chr(13) + Chr(10) + _
-                                             "Content-Type: multipart/form-data, boundary=" + boundary + Chr(13) + Chr(10) + _
+      header = YAPI.DefaultEncoding.GetBytes("POST /upload.html HTTP/1.1" + Chr(13) + Chr(10) +
+                                             "Content-Type: multipart/form-data, boundary=" + boundary + Chr(13) + Chr(10) +
                                              Chr(13) + Chr(10) + "--" + boundary + Chr(13) + Chr(10))
       footer = YAPI.DefaultEncoding.GetBytes(Chr(13) + Chr(10) + "--" + boundary + "--" + Chr(13) + Chr(10))
       ReDim fullrequest(header.Length + body.Length + footer.Length - 1)
@@ -4534,6 +4533,12 @@ Module yocto_api
       Return Me._advertisedValue
     End Function
 
+
+    Public Function set_advertisedValue(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("advertisedValue", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves a function for a given identifier.
@@ -4627,6 +4632,47 @@ Module yocto_api
         Me._valueCallbackFunction(Me, value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Disable the propagation of every new advertised value to the parent hub.
+    ''' <para>
+    '''   You can use this function to save bandwidth and CPU on computers with limited
+    '''   resources, or to prevent unwanted invocations of the HTTP callback.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function muteValueCallbacks() As Integer
+      Return Me.set_advertisedValue("SILENT")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Re-enable the propagation of every new advertised value to the parent hub.
+    ''' <para>
+    '''   This function reverts the effect of a previous call to <c>muteValueCallbacks()</c>.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function unmuteValueCallbacks() As Integer
+      Return Me.set_advertisedValue("")
     End Function
 
     Public Overridable Function _parserHelper() As Integer
@@ -5139,10 +5185,10 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Invalidate the cache.
+    '''   Invalidates the cache.
     ''' <para>
-    '''   Invalidate the cache of the function attributes. Force the
-    '''   next call to get_xxx() or loadxxx() to use value that come from the device..
+    '''   Invalidates the cache of the function attributes. Forces the
+    '''   next call to get_xxx() or loadxxx() to use values that come from the device.
     ''' </para>
     ''' <para>
     ''' @noreturn
@@ -5162,7 +5208,7 @@ Module yocto_api
       dev.clearCache()
       If _cacheExpiration > 0 Then
         _cacheExpiration = CULng(YAPI.GetTickCount())
-      End If      
+      End If
     End Sub
 
     '''*
@@ -5500,7 +5546,7 @@ Module yocto_api
     End Sub
 
     REM Return the properties of the nth function of our device
-    Private Function _getFunction(ByVal idx As Integer, ByRef serial As String, ByRef funcId As String, _
+    Private Function _getFunction(ByVal idx As Integer, ByRef serial As String, ByRef funcId As String, ByRef baseType As String,
                               ByRef funcName As String, ByRef funcVal As String, ByRef errmsg As String) As YRETCODE
 
 
@@ -5529,7 +5575,7 @@ Module yocto_api
       REM get latest function info from yellow pages
       fundescr = CInt(functions(idx))
 
-      res = yapiGetFunctionInfo(fundescr, devdescr, serial, funcId, funcName, funcVal, errmsg)
+      res = yapiGetFunctionInfoEx(fundescr, devdescr, serial, funcId, baseType, funcName, funcVal, errmsg)
       If (YISERR(res)) Then
         _getFunction = res
         Exit Function
@@ -5599,11 +5645,12 @@ Module yocto_api
     Public Function functionId(ByVal functionIndex As Integer) As String
       Dim serial As String = ""
       Dim funcId As String = ""
+      Dim baseType As String = ""
       Dim funcName As String = ""
       Dim funcVal As String = ""
       Dim errmsg As String = ""
       Dim res As Integer
-      res = _getFunction(functionIndex, serial, funcId, funcName, funcVal, errmsg)
+      res = _getFunction(functionIndex, serial, funcId, baseType, funcName, funcVal, errmsg)
       If (YISERR(res)) Then
         _throw(res, errmsg)
         functionId = YAPI.INVALID_STRING
@@ -5629,9 +5676,44 @@ Module yocto_api
     ''' </para>
     '''/
 
+    Public Function functionBaseType(ByVal functionIndex As Integer) As String
+      Dim serial As String = ""
+      Dim funcId As String = ""
+      Dim funcName As String = ""
+      Dim baseType As String = ""
+      Dim funcVal As String = ""
+      Dim errmsg As String = ""
+      Dim res As Integer
+
+      res = _getFunction(functionIndex, serial, funcId, baseType, funcName, funcVal, errmsg)
+      If (YISERR(res)) Then
+        _throw(res, errmsg)
+        Return YAPI.INVALID_STRING
+      End If
+      Return baseType
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves the type of the <i>n</i>th function on the module.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="functionIndex">
+    '''   the index of the function for which the information is desired, starting at 0 for the first function.
+    ''' </param>
+    ''' <returns>
+    '''   a the type of the function
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty string.
+    ''' </para>
+    '''/
+
     Public Function functionType(ByVal functionIndex As Integer) As String
       Dim serial As String = ""
       Dim funcId As String = ""
+      Dim baseType As String = ""
       Dim funcName As String = ""
       Dim funcVal As String = ""
       Dim errmsg As String = ""
@@ -5639,7 +5721,7 @@ Module yocto_api
       Dim first As Char
       Dim i As Integer
 
-      res = _getFunction(functionIndex, serial, funcId, funcName, funcVal, errmsg)
+      res = _getFunction(functionIndex, serial, funcId, baseType, funcName, funcVal, errmsg)
       If (YISERR(res)) Then
         _throw(res, errmsg)
         Return YAPI.INVALID_STRING
@@ -5654,7 +5736,6 @@ Module yocto_api
       End While
       Return Char.ToUpper(first) + funcId.Substring(1, i - 1)
     End Function
-
 
     '''*
     ''' <summary>
@@ -5676,12 +5757,13 @@ Module yocto_api
     Public Function functionName(ByVal functionIndex As Integer) As String
       Dim serial As String = ""
       Dim funcId As String = ""
+      Dim baseType As String = ""
       Dim funcName As String = ""
       Dim funcVal As String = ""
       Dim errmsg As String = ""
       Dim res As Integer
 
-      res = _getFunction(functionIndex, serial, funcId, funcName, funcVal, errmsg)
+      res = _getFunction(functionIndex, serial, funcId, baseType, funcName, funcVal, errmsg)
       If (YISERR(res)) Then
         _throw(res, errmsg)
         functionName = YAPI.INVALID_STRING
@@ -5712,12 +5794,13 @@ Module yocto_api
     Public Function functionValue(ByVal functionIndex As Integer) As String
       Dim serial As String = ""
       Dim funcId As String = ""
+      Dim baseType As String = ""
       Dim funcName As String = ""
       Dim funcVal As String = ""
       Dim errmsg As String = ""
       Dim res As Integer
 
-      res = _getFunction(functionIndex, serial, funcId, funcName, funcVal, errmsg)
+      res = _getFunction(functionIndex, serial, funcId, baseType, funcName, funcVal, errmsg)
       If (YISERR(res)) Then
         _throw(res, errmsg)
         functionValue = YAPI.INVALID_STRING
@@ -6631,9 +6714,14 @@ Module yocto_api
       i = 0
       
       While (i < count)
-        ftype  = Me.functionType(i)
+        ftype = Me.functionType(i)
         If (ftype = funType) Then
           res.Add(Me.functionId(i))
+        Else
+          ftype = Me.functionBaseType(i)
+          If (ftype = funType) Then
+            res.Add(Me.functionId(i))
+          End If
         End If
         i = i + 1
       End While
@@ -9521,12 +9609,12 @@ Module yocto_api
   End Function
 
 
-  Public Function yapiGetFunctionInfo(ByVal fundesc As YFUN_DESCR, _
-                                        ByRef devdesc As YDEV_DESCR, _
-                                        ByRef serial As String, _
-                                        ByRef funcId As String, _
-                                        ByRef funcName As String, _
-                                        ByRef funcVal As String, _
+  Public Function yapiGetFunctionInfo(ByVal fundesc As YFUN_DESCR,
+                                        ByRef devdesc As YDEV_DESCR,
+                                        ByRef serial As String,
+                                        ByRef funcId As String,
+                                        ByRef funcName As String,
+                                        ByRef funcVal As String,
                                         ByRef errmsg As String) As Integer
 
     Dim serialBuffer As New StringBuilder(YOCTO_SERIAL_LEN)
@@ -9541,9 +9629,40 @@ Module yocto_api
     funcValBuffer.Length = 0
     errBuffer.Length = 0
 
-    yapiGetFunctionInfo = _yapiGetFunctionInfo(fundesc, devdesc, serialBuffer, funcIdBuffer, funcNameBuffer, funcValBuffer, errBuffer)
+    yapiGetFunctionInfo = _yapiGetFunctionInfoEx(fundesc, devdesc, serialBuffer, funcIdBuffer, Nothing, funcNameBuffer, funcValBuffer, errBuffer)
     serial = serialBuffer.ToString()
     funcId = funcIdBuffer.ToString()
+    funcName = funcNameBuffer.ToString()
+    funcVal = funcValBuffer.ToString()
+    errmsg = funcValBuffer.ToString()
+  End Function
+
+  Public Function yapiGetFunctionInfoEx(ByVal fundesc As YFUN_DESCR,
+                                        ByRef devdesc As YDEV_DESCR,
+                                        ByRef serial As String,
+                                        ByRef funcId As String,
+                                        ByRef baseType As String,
+                                        ByRef funcName As String,
+                                        ByRef funcVal As String,
+                                        ByRef errmsg As String) As Integer
+
+    Dim serialBuffer As New StringBuilder(YOCTO_SERIAL_LEN)
+    Dim funcIdBuffer As New StringBuilder(YOCTO_FUNCTION_LEN)
+    Dim baseTypeBuffer As New StringBuilder(YOCTO_FUNCTION_LEN)
+    Dim funcNameBuffer As New StringBuilder(YOCTO_LOGICAL_LEN)
+    Dim funcValBuffer As New StringBuilder(YOCTO_PUBVAL_LEN)
+    Dim errBuffer As New StringBuilder(YOCTO_ERRMSG_LEN)
+
+    serialBuffer.Length = 0
+    funcIdBuffer.Length = 0
+    funcNameBuffer.Length = 0
+    funcValBuffer.Length = 0
+    errBuffer.Length = 0
+
+    yapiGetFunctionInfoEx = _yapiGetFunctionInfoEx(fundesc, devdesc, serialBuffer, funcIdBuffer, baseTypeBuffer, funcNameBuffer, funcValBuffer, errBuffer)
+    serial = serialBuffer.ToString()
+    funcId = funcIdBuffer.ToString()
+    baseType = baseTypeBuffer.ToString()
     funcName = funcNameBuffer.ToString()
     funcVal = funcValBuffer.ToString()
     errmsg = funcValBuffer.ToString()
@@ -9555,7 +9674,7 @@ Module yocto_api
     Dim devdesc As YDEV_DESCR
     Dim res As Integer
     errBuffer.Length = 0
-    res = _yapiGetFunctionInfo(fundesc, devdesc, Nothing, Nothing, Nothing, Nothing, errBuffer)
+    res = _yapiGetFunctionInfoEx(fundesc, devdesc, Nothing, Nothing, Nothing, Nothing, Nothing, errBuffer)
     errmsg = errBuffer.ToString
     If (res < 0) Then
       yapiGetDeviceByFunction = res
@@ -9627,184 +9746,185 @@ Module yocto_api
     errmsg = buffer.ToString()
   End Function
 
-  <DllImport("myDll.dll", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("myDll.dll", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub DllCallTest(ByRef data As yDeviceSt)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiInitAPI", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiInitAPI", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiInitAPI(ByVal mode As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiFreeAPI", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiFreeAPI", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiFreeAPI()
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiRegisterLogFunction", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterLogFunction", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterLogFunction(ByVal fct As IntPtr)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiRegisterDeviceArrivalCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceArrivalCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceArrivalCallback(ByVal fct As IntPtr)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiRegisterDeviceRemovalCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceRemovalCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceRemovalCallback(ByVal fct As IntPtr)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiRegisterDeviceChangeCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceChangeCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceChangeCallback(ByVal fct As IntPtr)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiRegisterFunctionUpdateCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterFunctionUpdateCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterFunctionUpdateCallback(ByVal fct As IntPtr)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiRegisterTimedReportCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterTimedReportCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterTimedReportCallback(ByVal fct As IntPtr)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiLockDeviceCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiLockDeviceCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiLockDeviceCallBack(ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiUnlockDeviceCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiUnlockDeviceCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiUnlockDeviceCallBack(ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiLockFunctionCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiLockFunctionCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiLockFunctionCallBack(ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiUnlockFunctionCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiUnlockFunctionCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiUnlockFunctionCallBack(ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiRegisterHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiRegisterHub(ByVal rootUrl As StringBuilder, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiPreregisterHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiPreregisterHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiPreregisterHub(ByVal rootUrl As StringBuilder, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiUnregisterHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiUnregisterHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiUnregisterHub(ByVal rootUrl As StringBuilder)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiUpdateDeviceList", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiUpdateDeviceList", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiUpdateDeviceList(ByVal force As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiHandleEvents", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiHandleEvents", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHandleEvents(ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetTickCount", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetTickCount", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetTickCount() As yu64
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiCheckLogicalName", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiCheckLogicalName", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiCheckLogicalName(ByVal name As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetAPIVersion", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetAPIVersion", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetAPIVersion(ByRef version As IntPtr, ByRef subversion As IntPtr) As yu16
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetDevice", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetDevice", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetDevice(ByVal device_str As StringBuilder, ByVal errmsg As StringBuilder) As YDEV_DESCR
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetAllDevices", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetAllDevices", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetAllDevices(ByVal buffer As IntPtr, ByVal maxsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetDeviceInfo", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetDeviceInfo", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetDeviceInfo(ByVal d As YDEV_DESCR, ByRef infos As yDeviceSt, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetFunction", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetFunction", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetFunction(ByVal class_str As StringBuilder, ByVal function_str As StringBuilder, ByVal errmsg As StringBuilder) As YFUN_DESCR
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetFunctionsByClass", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
-  Private Function _yapiGetFunctionsByClass(ByVal class_str As StringBuilder, ByVal precFuncDesc As YFUN_DESCR, ByVal buffer As IntPtr, _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetFunctionsByClass", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiGetFunctionsByClass(ByVal class_str As StringBuilder, ByVal precFuncDesc As YFUN_DESCR, ByVal buffer As IntPtr,
                                        ByVal maxsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetFunctionsByDevice", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetFunctionsByDevice", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetFunctionsByDevice(ByVal device As YDEV_DESCR, ByVal precFuncDesc As YFUN_DESCR, ByVal buffer As IntPtr, ByVal maxsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetFunctionInfo", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
-  Private Function _yapiGetFunctionInfo(ByVal fundesc As YFUN_DESCR, _
-                                         ByRef devdesc As YDEV_DESCR, _
-                                         ByVal serial As StringBuilder, _
-                                         ByVal funcId As StringBuilder, _
-                                         ByVal funcName As StringBuilder, _
-                                         ByVal funcVal As StringBuilder, _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetFunctionInfoEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiGetFunctionInfoEx(ByVal fundesc As YFUN_DESCR,
+                                         ByRef devdesc As YDEV_DESCR,
+                                         ByVal serial As StringBuilder,
+                                         ByVal funcId As StringBuilder,
+                                         ByVal baseType As StringBuilder,
+                                         ByVal funcName As StringBuilder,
+                                         ByVal funcVal As StringBuilder,
                                          ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetErrorString", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetErrorString", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetErrorString(ByVal errorcode As Integer, ByVal buffer As StringBuilder, ByVal maxsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStart", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStart", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequestSyncStart(ByRef iohdl As YIOHDL, ByVal device As StringBuilder, ByVal url As StringBuilder, ByRef reply As IntPtr, ByRef replysize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStartEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStartEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequestSyncStartEx(ByRef iohdl As YIOHDL, ByVal device As StringBuilder, ByVal url As IntPtr, ByVal urllen As Integer, ByRef reply As IntPtr, ByRef replysize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
 
-  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncDone", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncDone", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequestSyncDone(ByRef iohdl As YIOHDL, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsync", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsync", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequestAsync(ByVal device As StringBuilder, ByVal url As IntPtr, ByVal callback As IntPtr, ByVal context As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsyncEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsyncEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequestAsyncEx(ByVal device As StringBuilder, ByVal url As IntPtr, ByVal urllen As Integer, ByVal callback As IntPtr, ByVal context As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiHTTPRequest", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequest", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequest(ByVal device As StringBuilder, ByVal url As StringBuilder, ByVal buffer As StringBuilder, ByVal buffsize As Integer, ByRef fullsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetBootloadersDevs", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetBootloadersDevs", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetBootloadersDevs(ByVal serials As StringBuilder, ByVal maxNbSerial As yu32, ByRef totalBootladers As yu32, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiGetDevicePath", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
-  Private Function _yapiGetDevicePath(ByVal devdesc As Integer, _
-                                           ByVal rootdevice As StringBuilder, _
-                                           ByVal path As StringBuilder, _
-                                           ByVal pathsize As Integer, _
-                                           ByRef neededsize As Integer, _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetDevicePath", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiGetDevicePath(ByVal devdesc As Integer,
+                                           ByVal rootdevice As StringBuilder,
+                                           ByVal path As StringBuilder,
+                                           ByVal pathsize As Integer,
+                                           ByRef neededsize As Integer,
                                            ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiSleep", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiSleep", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiSleep(ByVal duration_ms As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiRegisterHubDiscoveryCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterHubDiscoveryCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterHubDiscoveryCallback(ByVal fct As IntPtr)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiTriggerHubDiscovery", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiTriggerHubDiscovery", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiTriggerHubDiscovery(ByVal errmsg As StringBuilder) As Integer
   End Function
 
-  <DllImport("yapi.dll", entrypoint:="yapiRegisterDeviceLogCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceLogCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceLogCallback(ByVal fct As IntPtr)
   End Sub
 
-  <DllImport("yapi.dll", entrypoint:="yapiStartStopDeviceLogCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiStartStopDeviceLogCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiStartStopDeviceLogCallback(ByVal serial As StringBuilder, ByVal startStop As Integer)
   End Sub
   REM --- (generated code: YFunction dlldef)
