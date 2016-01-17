@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_carbondioxide.vb 19619 2015-03-05 18:11:23Z mvuilleu $
+'* $Id: yocto_carbondioxide.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '*
@@ -302,10 +302,12 @@ Module yocto_carbondioxide
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YCarbonDioxideTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackCarbonDioxide = callback
       Return 0

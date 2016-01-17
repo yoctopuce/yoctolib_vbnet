@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_compass.vb 19575 2015-03-04 10:42:56Z seb $
+'* $Id: yocto_compass.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindCompass(), the high-level API for Compass functions
 '*
@@ -274,10 +274,12 @@ Module yocto_compass
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YCompassTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackCompass = callback
       Return 0

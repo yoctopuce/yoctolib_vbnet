@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_lightsensor.vb 19575 2015-03-04 10:42:56Z seb $
+'* $Id: yocto_lightsensor.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindLightSensor(), the high-level API for LightSensor functions
 '*
@@ -330,10 +330,12 @@ Module yocto_lightsensor
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YLightSensorTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackLightSensor = callback
       Return 0

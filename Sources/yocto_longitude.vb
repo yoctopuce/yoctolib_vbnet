@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_longitude.vb 19746 2015-03-17 10:34:00Z seb $
+'* $Id: yocto_longitude.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindLongitude(), the high-level API for Longitude functions
 '*
@@ -214,10 +214,12 @@ Module yocto_longitude
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YLongitudeTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackLongitude = callback
       Return 0

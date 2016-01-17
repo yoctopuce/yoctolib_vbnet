@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pressure.vb 19575 2015-03-04 10:42:56Z seb $
+'* $Id: yocto_pressure.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindPressure(), the high-level API for Pressure functions
 '*
@@ -213,10 +213,12 @@ Module yocto_pressure
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YPressureTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackPressure = callback
       Return 0

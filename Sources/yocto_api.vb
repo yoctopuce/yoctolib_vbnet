@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 22198 2015-12-02 14:10:54Z seb $
+'* $Id: yocto_api.vb 22801 2016-01-15 17:47:15Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "22324"
+  Public Const YOCTO_API_BUILD_NO As String = "22835"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2068,13 +2068,13 @@ Module yocto_api
     '''   the serial number of the module to update
     ''' </param>
     ''' <param name="path">
-    '''   the path of a byn file or a directory that contain byn files
+    '''   the path of a byn file or a directory that contains byn files
     ''' </param>
     ''' <param name="minrelease">
-    '''   an positif integer
+    '''   a positive integer
     ''' </param>
     ''' <returns>
-    '''   : the path of the byn file to use or a empty string if no byn files match the requirement
+    '''   : the path of the byn file to use or an empty string if no byn files match the requirement
     ''' </returns>
     ''' <para>
     '''   On failure, returns a string that start with "error:".
@@ -7352,6 +7352,115 @@ Module yocto_api
       Return YAPI.DefaultEncoding.GetString(content)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns a list of all the modules that are plugged into the current module.
+    ''' <para>
+    '''   This
+    '''   method is only useful on a YoctoHub/VirtualHub. This method return the serial number of all
+    '''   module connected to a YoctoHub. Calling this method on a standard device is not an
+    '''   error, and an empty array will be returned.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an array of strings containing the sub modules.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_subDevices() As List(Of String)
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim smallbuff As StringBuilder = New StringBuilder(1024)
+      Dim bigbuff As StringBuilder
+      Dim buffsize As Integer = 0
+      Dim fullsize As Integer
+      Dim yapi_res As Integer = 0
+      Dim subdevice_list As String
+      Dim subdevices As List(Of String) = New List(Of String)()
+      Dim serial As String
+      REM // may throw an exception
+      serial = Me.get_serialNumber()
+      fullsize = 0
+      yapi_res = _yapiGetSubdevices(New StringBuilder(serial), smallbuff, 1024, fullsize, errmsg)
+      If (yapi_res < 0) Then
+        Return subdevices
+      End If
+      If (fullsize <= 1024) Then
+        subdevice_list = smallbuff.ToString()
+      Else
+        buffsize = fullsize
+        bigbuff = New StringBuilder(buffsize)
+        yapi_res = _yapiGetSubdevices(New StringBuilder(serial), bigbuff, buffsize, fullsize, errmsg)
+        If (yapi_res < 0) Then
+          bigbuff = Nothing
+          Return subdevices
+        Else
+          subdevice_list = bigbuff.ToString()
+        End If
+        bigbuff = Nothing
+      End If
+      If (Not (subdevice_list = "")) Then
+        subdevices = New List(Of String)(subdevice_list.Split(New Char() {","c}))
+      End If
+      Return subdevices
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the serial number of the YoctoHub on which this module is connected.
+    ''' <para>
+    '''   If the module is connected by USB or if the module is the root YoctoHub an
+    '''   empty string is returned.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with the serial number of the YoctoHub or an empty string
+    ''' </returns>
+    '''/
+    Public Overridable Function get_parentHub() As String
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim hubserial As StringBuilder = New StringBuilder(YOCTO_SERIAL_LEN)
+      Dim pathsize As Integer
+      Dim yapi_res As Integer = 0
+      Dim serial As String
+      REM // may throw an exception
+      serial = Me.get_serialNumber()
+      REM // retrieve device object
+      pathsize = 0
+      yapi_res = _yapiGetDevicePathEx(New StringBuilder(serial), hubserial, Nothing, 0, pathsize, errmsg)
+      If (yapi_res < 0) Then
+        Return ""
+      End If
+      Return hubserial.ToString()
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the URL used to access the module.
+    ''' <para>
+    '''   If the module is connected by USB the
+    '''   string 'usb' is returned.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with the URL of the module.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_url() As String
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim path As StringBuilder = New StringBuilder(1024)
+      Dim pathsize As Integer
+      Dim yapi_res As Integer = 0
+      Dim serial As String
+      REM // may throw an exception
+      serial = Me.get_serialNumber()
+      REM // retrieve device object
+      pathsize = 0
+      yapi_res = _yapiGetDevicePathEx(New StringBuilder(serial), Nothing, path, 1024, pathsize, errmsg)
+      If (yapi_res < 0) Then
+        Return ""
+      End If
+      Return path.ToString()
+    End Function
+
 
     '''*
     ''' <summary>
@@ -8381,10 +8490,12 @@ Module yocto_api
     ''' </param>
     '''/
     Public Overridable Function registerTimedReportCallback(callback As YSensorTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackSensor = callback
       Return 0
@@ -9948,6 +10059,12 @@ Module yocto_api
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiJsonDecodeString", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiJsonDecodeString(ByVal json_data As StringBuilder, ByVal output As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiGetSubdevices", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiGetSubdevices(ByVal serial As StringBuilder, ByVal buffer As StringBuilder, ByVal buffersize As Integer, ByRef totalSize As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiGetDevicePathEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiGetDevicePathEx(ByVal serial As StringBuilder, ByVal rootdevice As StringBuilder, ByVal path As StringBuilder, ByVal pathsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
     REM --- (end of generated code: YFunction dlldef)
 

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 21576 2015-09-21 13:17:28Z seb $
+'* $Id: yocto_temperature.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -372,10 +372,12 @@ Module yocto_temperature
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YTemperatureTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackTemperature = callback
       Return 0

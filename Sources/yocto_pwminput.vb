@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwminput.vb 21776 2015-10-15 16:57:56Z mvuilleu $
+'* $Id: yocto_pwminput.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindPwmInput(), the high-level API for PwmInput functions
 '*
@@ -487,10 +487,12 @@ Module yocto_pwminput
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YPwmInputTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackPwmInput = callback
       Return 0

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 20508 2015-06-01 16:32:48Z seb $
+'* $Id: yocto_refframe.vb 22360 2015-12-15 13:31:40Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -475,7 +475,6 @@ end enum
       Dim b As Double = 0
       Dim xa As Double = 0
       Dim xb As Double = 0
-      
       REM // bubble sort is good since we will re-sort again after offset adjustment
       changed = 1
       While (changed > 0)
@@ -593,7 +592,6 @@ end enum
       If (Me._calibProgress = 100) Then
         Return YAPI.SUCCESS
       End If
-      
       REM // make sure we leave at least 160ms between samples
       currTick =  CType(((YAPI.GetTickCount()) And (&H7FFFFFFF)), Integer)
       If (((currTick - Me._calibPrevTick) And (&H7FFFFFFF)) < 160) Then
@@ -633,7 +631,6 @@ end enum
         Return YAPI.SUCCESS
       End If
       Me._calibPrevTick = currTick
-      
       REM // Determine the device orientation index
       orient = 0
       If (zSq > 0.5) Then
@@ -657,7 +654,6 @@ end enum
           orient = 5
         End If
       End If
-      
       REM // Discard measures that are not in the proper orientation
       If (Me._calibStageProgress = 0) Then
         REM
@@ -681,7 +677,6 @@ end enum
           Return YAPI.SUCCESS
         End If
       End If
-      
       REM // Save measure
       Me._calibStageHint = "calibrating.."
       Me._calibDataAccX.Add(xVal)
@@ -694,7 +689,6 @@ end enum
         Me._calibStageProgress = 1 + (99 * Me._calibInternalPos \ Me._calibCount)
         Return YAPI.SUCCESS
       End If
-      
       REM // Stage done, compute preliminary result
       intpos = (Me._calibStage - 1) * Me._calibCount
       Me._calibSort(intpos, intpos + Me._calibCount)
@@ -702,7 +696,6 @@ end enum
       Me._calibLogMsg = "Stage " + Convert.ToString( Me._calibStage) + ": median is " + Convert.ToString(
       CType(Math.Round(1000*Me._calibDataAccX(intpos)), Integer)) + "," + Convert.ToString(
       CType(Math.Round(1000*Me._calibDataAccY(intpos)), Integer)) + "," + Convert.ToString(CType(Math.Round(1000*Me._calibDataAccZ(intpos)), Integer))
-      
       REM // move to next stage
       Me._calibStage = Me._calibStage + 1
       If (Me._calibStage < 7) Then
@@ -734,7 +727,6 @@ end enum
       Me._calibAccXOfs = xVal / 2.0
       Me._calibAccYOfs = yVal / 2.0
       Me._calibAccZOfs = zVal / 2.0
-      
       REM // Recompute all norms, taking into account the computed shift, and re-sort
       intpos = 0
       While (intpos < Me._calibDataAcc.Count)
@@ -751,7 +743,6 @@ end enum
         Me._calibSort(intpos, intpos + Me._calibCount)
         idx = idx + 1
       End While
-      
       REM // Compute the scaling factor for each axis
       xVal = 0
       yVal = 0
@@ -774,7 +765,6 @@ end enum
       Me._calibAccXScale = xVal / 2.0
       Me._calibAccYScale = yVal / 2.0
       Me._calibAccZScale = zVal / 2.0
-      
       REM // Report completion
       Me._calibProgress = 100
       Me._calibStageHint = "Calibration data ready for saving"
@@ -886,7 +876,6 @@ end enum
       If (Me._calibProgress <> 100) Then
         Return YAPI.INVALID_ARGUMENT
       End If
-      
       REM // Compute integer values (correction unit is 732ug/count)
       shiftX = -CType(Math.Round(Me._calibAccXOfs / 0.000732), Integer)
       If (shiftX < 0) Then
@@ -932,7 +921,6 @@ end enum
       End If
       scaleLo = ((((scaleY) And (15))) << (12)) + ((scaleX) << (2)) + scaleExp
       scaleHi = ((scaleZ) << (6)) + ((scaleY) >> (4))
-      
       REM // Save calibration parameters
       newcalib = "5," + Convert.ToString( shiftX) + "," + Convert.ToString( shiftY) + "," + Convert.ToString( shiftZ) + "," + Convert.ToString( scaleLo) + "," + Convert.ToString(scaleHi)
       Me._calibStage = 0

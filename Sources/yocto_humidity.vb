@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_humidity.vb 21211 2015-08-19 16:03:29Z seb $
+'* $Id: yocto_humidity.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindHumidity(), the high-level API for Humidity functions
 '*
@@ -311,10 +311,12 @@ Module yocto_humidity
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YHumidityTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackHumidity = callback
       Return 0

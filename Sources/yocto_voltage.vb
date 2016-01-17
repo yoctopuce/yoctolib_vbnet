@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voltage.vb 19575 2015-03-04 10:42:56Z seb $
+'* $Id: yocto_voltage.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindVoltage(), the high-level API for Voltage functions
 '*
@@ -213,10 +213,12 @@ Module yocto_voltage
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YVoltageTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackVoltage = callback
       Return 0

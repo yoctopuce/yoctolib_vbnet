@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_latitude.vb 19746 2015-03-17 10:34:00Z seb $
+'* $Id: yocto_latitude.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindLatitude(), the high-level API for Latitude functions
 '*
@@ -214,10 +214,12 @@ Module yocto_latitude
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YLatitudeTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackLatitude = callback
       Return 0

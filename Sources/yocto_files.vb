@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 19329 2015-02-17 17:31:26Z seb $
+'* $Id: yocto_files.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -376,6 +376,36 @@ Module yocto_files
         res.Add(New YFileRecord(filelist(i_i)))
       Next i_i
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Test if a file exist on the filesystem of the module.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="filename">
+    '''   the file name to test.
+    ''' </param>
+    ''' <returns>
+    '''   a true if the file existe, false ortherwise.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception.
+    ''' </para>
+    '''/
+    Public Overridable Function fileExist(filename As String) As Boolean
+      Dim json As Byte()
+      Dim filelist As List(Of String) = New List(Of String)()
+      If ((filename).Length = 0) Then
+        Return False
+      End If
+      json = Me.sendCommand("dir&f=" + filename)
+      filelist = Me._json_get_array(json)
+      If (filelist.Count > 0) Then
+        Return True
+      End If
+      Return False
     End Function
 
     '''*

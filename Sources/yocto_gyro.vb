@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gyro.vb 19704 2015-03-13 06:10:37Z mvuilleu $
+'* $Id: yocto_gyro.vb 22698 2016-01-12 23:15:02Z seb $
 '*
 '* Implements yFindGyro(), the high-level API for Gyro functions
 '*
@@ -212,10 +212,12 @@ Module yocto_gyro
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YQtTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackQt = callback
       Return 0
@@ -680,10 +682,12 @@ Module yocto_gyro
     ''' </param>
     '''/
     Public Overloads Function registerTimedReportCallback(callback As YGyroTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
       If (Not (callback Is Nothing)) Then
-        YFunction._UpdateTimedReportCallbackList(Me, True)
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
       Else
-        YFunction._UpdateTimedReportCallbackList(Me, False)
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
       Me._timedReportCallbackGyro = callback
       Return 0
@@ -701,7 +705,6 @@ Module yocto_gyro
     Public Overridable Function _loadQuaternion() As Integer
       Dim now_stamp As Integer = 0
       Dim age_ms As Integer = 0
-      
       now_stamp = CType(((YAPI.GetTickCount()) And (&H7FFFFFFF)), Integer)
       age_ms = (((now_stamp - Me._qt_stamp)) And (&H7FFFFFFF))
       If ((age_ms >= 10) Or (Me._qt_stamp = 0)) Then
