@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 22801 2016-01-15 17:47:15Z seb $
+'* $Id: yocto_api.vb 22933 2016-01-27 17:20:24Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "22835"
+  Public Const YOCTO_API_BUILD_NO As String = "22936"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -5929,7 +5929,7 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_productRelease() As Integer
-      If (Me._cacheExpiration = 0) Then
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PRODUCTRELEASE_INVALID
         End If
