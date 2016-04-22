@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gps.vb 19746 2015-03-17 10:34:00Z seb $
+'* $Id: yocto_gps.vb 23244 2016-02-23 14:13:49Z seb $
 '*
 '* Implements yFindGps(), the high-level API for Gps functions
 '*
@@ -28,8 +28,8 @@
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
 '*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
 '*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
 '*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
@@ -213,7 +213,9 @@ Module yocto_gps
     REM --- (YGps public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns TRUE if the receiver has found enough satellites to work
+    '''   Returns TRUE if the receiver has found enough satellites to work.
+    ''' <para>
+    ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
@@ -488,7 +490,9 @@ Module yocto_gps
 
     '''*
     ''' <summary>
-    '''   Returns the current time in the form "YYYY/MM/DD hh:mm:ss"
+    '''   Returns the current time in the form "YYYY/MM/DD hh:mm:ss".
+    ''' <para>
+    ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>

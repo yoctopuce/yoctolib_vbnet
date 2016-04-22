@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 22933 2016-01-27 17:20:24Z seb $
+'* $Id: yocto_api.vb 23882 2016-04-12 08:38:50Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "22936"
+  Public Const YOCTO_API_BUILD_NO As String = "24182"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1933,12 +1933,26 @@ Module yocto_api
     Protected _progress_c As Integer
     Protected _progress As Integer
     Protected _restore_step As Integer
+    Protected _force As Boolean
     REM --- (end of generated code: YFirmwareUpdate attributes declaration)
+
+    Public Sub New(serial As String, path As String, settings As Byte(), force As Boolean)
+      _serial = serial
+      _firmwarepath = path
+      _settings = settings
+      _force = force
+      REM --- (generated code: YFirmwareUpdate attributes initialization)
+      _progress_c = 0
+      _progress = 0
+      _restore_step = 0
+      REM --- (end of generated code: YFirmwareUpdate attributes initialization)
+    End Sub
 
     Public Sub New(serial As String, path As String, settings As Byte())
       _serial = serial
       _firmwarepath = path
       _settings = settings
+      _force = false
       REM --- (generated code: YFirmwareUpdate attributes initialization)
       _progress_c = 0
       _progress = 0
@@ -1960,11 +1974,17 @@ Module yocto_api
       Dim firmwarepath As String
       Dim settings As String
       Dim prod_prefix As String
+      Dim force As Integer = 0
       If (Me._progress_c < 100) Then
         serial = Me._serial
         firmwarepath = Me._firmwarepath
         settings = YAPI.DefaultEncoding.GetString(Me._settings)
-        res = _yapiUpdateFirmware(New StringBuilder(serial), New StringBuilder(firmwarepath), New StringBuilder(settings), newupdate, errmsg)
+        If (Me._force) Then
+          force = 1
+        Else
+          force = 0
+        End If
+        res = _yapiUpdateFirmwareEx(New StringBuilder(serial), New StringBuilder(firmwarepath), New StringBuilder(settings), force, newupdate, errmsg)
         If (res < 0) Then
           Me._progress = res
           Me._progress_msg = errmsg.ToString()
@@ -2008,15 +2028,17 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Retruns a list of all the modules in "update" mode.
+    '''   Returns a list of all the modules in "firmware update" mode.
     ''' <para>
-    '''   Only USB connected
-    '''   devices are listed. For modules connected to a YoctoHub, you must
-    '''   connect yourself to the YoctoHub web interface.
+    '''   Only devices
+    '''   connected over USB are listed. For devices connected to a YoctoHub, you
+    '''   must connect yourself to the YoctoHub web interface.
+    ''' </para>
+    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an array of strings containing the serial list of module in "update" mode.
+    '''   an array of strings containing the serial numbers of devices in "firmware update" mode.
     ''' </returns>
     '''/
     Public Shared Function GetAllBootLoaders() As List(Of String)
@@ -2057,9 +2079,9 @@ Module yocto_api
     ''' <summary>
     '''   Test if the byn file is valid for this module.
     ''' <para>
-    '''   It's possible to pass an directory instead of a file.
-    '''   In this case this method return the path of the most recent appropriate byn file. This method will
-    '''   ignore firmware that are older than mintrelase.
+    '''   It is possible to pass a directory instead of a file.
+    '''   In that case, this method returns the path of the most recent appropriate byn file. This method will
+    '''   ignore any firmware older than minrelease.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -2074,10 +2096,10 @@ Module yocto_api
     '''   a positive integer
     ''' </param>
     ''' <returns>
-    '''   : the path of the byn file to use or an empty string if no byn files match the requirement
+    '''   : the path of the byn file to use, or an empty string if no byn files matches the requirement
     ''' </returns>
     ''' <para>
-    '''   On failure, returns a string that start with "error:".
+    '''   On failure, returns a string that starts with "error:".
     ''' </para>
     '''/
     Public Shared Function CheckFirmware(serial As String, path As String, minrelease As Integer) As String
@@ -3972,7 +3994,7 @@ Module yocto_api
     Protected _logicalName As String
     Protected _advertisedValue As String
     Protected _valueCallbackFunction As YFunctionValueCallback
-    Protected _cacheExpiration As ULong
+    Protected _cacheExpiration As Long
     Protected _serial As String
     Protected _funId As String
     Protected _hwId As String
@@ -4232,7 +4254,7 @@ Module yocto_api
         End If
       End If
       If (_cacheExpiration <> 0) Then
-        _cacheExpiration = CULng(YAPI.GetTickCount())
+        _cacheExpiration = YAPI.GetTickCount()
       End If
       _setAttr = YAPI_SUCCESS
     End Function
@@ -5083,6 +5105,7 @@ Module yocto_api
         Dim reply As Byte()
         ReDim reply(dllres - 1)
         Marshal.Copy(p, reply, 0, dllres)
+        _yapiFreeMem(p)
         result = YAPI.DefaultEncoding.GetString(reply)
       End If
       Return result
@@ -5166,7 +5189,7 @@ Module yocto_api
         load = res
         Exit Function
       End If
-      _cacheExpiration = CULng(YAPI.GetTickCount() + msValidity)
+      _cacheExpiration = YAPI.GetTickCount() + msValidity
       _serial = serial
       _funId = funcId
       _hwId = _serial + "." + _funId
@@ -5207,7 +5230,7 @@ Module yocto_api
       End If
       dev.clearCache()
       If _cacheExpiration > 0 Then
-        _cacheExpiration = CULng(YAPI.GetTickCount())
+        _cacheExpiration = YAPI.GetTickCount()
       End If
     End Sub
 
@@ -5829,9 +5852,9 @@ Module yocto_api
     Public Function registerLogCallback(ByVal callback As YModuleLogCallback) As Integer
       _logCallback = callback
       If _logCallback Is Nothing Then
-        _yapiStartStopDeviceLogCallback(New StringBuilder(_serial), 0)
+        _yapiStartStopDeviceLogCallback(New StringBuilder(_serialNumber), 0)
       Else
-        _yapiStartStopDeviceLogCallback(New StringBuilder(_serial), 1)
+        _yapiStartStopDeviceLogCallback(New StringBuilder(_serialNumber), 1)
       End If
       Return YAPI_SUCCESS
     End Function
@@ -6391,9 +6414,9 @@ Module yocto_api
     '''   This method is useful to test if the module needs to be updated.
     '''   It is possible to pass a directory as argument instead of a file. In this case, this method returns
     '''   the path of the most recent
-    '''   appropriate byn file. If the parameter onlynew is true, the function discards firmware that are
-    '''   older or equal to
-    '''   the installed firmware.
+    '''   appropriate <c>.byn</c> file. If the parameter <c>onlynew</c> is true, the function discards
+    '''   firmwares that are older or
+    '''   equal to the installed firmware.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -6407,7 +6430,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   : the path of the byn file to use or a empty string if no byn files matches the requirement
+    '''   the path of the byn file to use or a empty string if no byn files matches the requirement
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a string that start with "error:".
@@ -6442,13 +6465,16 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="path">
-    '''   the path of the byn file to use.
+    '''   the path of the <c>.byn</c> file to use.
+    ''' </param>
+    ''' <param name="force">
+    '''   true to force the firmware update even if some prerequisites appear not to be met
     ''' </param>
     ''' <returns>
-    '''   : A <c>YFirmwareUpdate</c> object or NULL on error.
+    '''   a <c>YFirmwareUpdate</c> object or NULL on error.
     ''' </returns>
     '''/
-    Public Overridable Function updateFirmware(path As String) As YFirmwareUpdate
+    Public Overridable Function updateFirmwareEx(path As String, force As Boolean) As YFirmwareUpdate
       Dim serial As String
       Dim settings As Byte()
       REM // may throw an exception
@@ -6458,15 +6484,37 @@ Module yocto_api
         Me._throw(YAPI.IO_ERROR, "Unable to get device settings")
         settings = YAPI.DefaultEncoding.GetBytes("error:Unable to get device settings")
       End If
-      Return New YFirmwareUpdate(serial, path, settings)
+      Return New YFirmwareUpdate(serial, path, settings, force)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Prepares a firmware update of the module.
+    ''' <para>
+    '''   This method returns a <c>YFirmwareUpdate</c> object which
+    '''   handles the firmware update process.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="path">
+    '''   the path of the <c>.byn</c> file to use.
+    ''' </param>
+    ''' <returns>
+    '''   a <c>YFirmwareUpdate</c> object or NULL on error.
+    ''' </returns>
+    '''/
+    Public Overridable Function updateFirmware(path As String) As YFirmwareUpdate
+      REM // may throw an exception
+      Return Me.updateFirmwareEx(path, False)
     End Function
 
     '''*
     ''' <summary>
     '''   Returns all the settings and uploaded files of the module.
     ''' <para>
-    '''   Useful to backup all the logical names, calibrations parameters,
-    '''   and uploaded files of a connected module.
+    '''   Useful to backup all the
+    '''   logical names, calibrations parameters, and uploaded files of a device.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -6519,7 +6567,7 @@ Module yocto_api
           End If
         End If
       Next i_i
-      ext_settings =  ext_settings + "]," + vbLf + """files"":["
+      ext_settings = ext_settings + "]," + vbLf + """files"":["
       If (Me.hasFunction("files")) Then
         REM
         json = Me._download("files.json?a=dir&f=")
@@ -6530,18 +6578,16 @@ Module yocto_api
         sep = ""
         For i_i = 0 To  filelist.Count - 1
           name = Me._json_get_key(YAPI.DefaultEncoding.GetBytes( filelist(i_i)), "name")
-          If ((name).Length = 0) Then
-            Return YAPI.DefaultEncoding.GetBytes(name)
+          If (((name).Length > 0) And Not (name = "startupConf.json")) Then
+            file_data_bin = Me._download(Me._escapeAttr(name))
+            file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
+            item = "" +  sep + "{""name"":""" +  name + """, ""data"":""" + file_data + """}" + vbLf + ""
+            ext_settings = ext_settings + item
+            sep = ","
           End If
-          file_data_bin = Me._download(Me._escapeAttr(name))
-          file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
-          item = "" +  sep + "{""name"":""" +  name + """, ""data"":""" + file_data + """}" + vbLf + ""
-          ext_settings = ext_settings + item
-          sep = ","
         Next i_i
       End If
-      ext_settings = ext_settings + "]}"
-      res = YAPI._bytesMerge(YAPI.DefaultEncoding.GetBytes("{ ""api"":"), YAPI._bytesMerge(settings, YAPI.DefaultEncoding.GetBytes(ext_settings)))
+      res = YAPI.DefaultEncoding.GetBytes("{ ""api"":" + YAPI.DefaultEncoding.GetString(settings) + ext_settings + "]}")
       Return res
     End Function
 
@@ -6589,10 +6635,11 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Restores all the settings and uploaded files of the module.
+    '''   Restores all the settings and uploaded files to the module.
     ''' <para>
-    '''   Useful to restore all the logical names and calibrations parameters, uploaded
-    '''   files etc.. of a module from a backup.Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   This method is useful to restore all the logical names and calibrations parameters,
+    '''   uploaded files etc. of a device from a backup.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
     '''   modifications must be kept.
     ''' </para>
     ''' <para>
@@ -6653,10 +6700,10 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Test if the device has a specific function.
+    '''   Tests if the device includes a specific function.
     ''' <para>
-    '''   This method took an function identifier
-    '''   and return a boolean.
+    '''   This method takes a function identifier
+    '''   and returns a boolean.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -6664,10 +6711,8 @@ Module yocto_api
     ''' <param name="funcId">
     '''   the requested function identifier
     ''' </param>
-    ''' <para>
-    ''' </para>
     ''' <returns>
-    '''   : true if the device has the function identifier
+    '''   true if the device has the function identifier
     ''' </returns>
     '''/
     Public Overridable Function hasFunction(funcId As String) As Boolean
@@ -6698,10 +6743,8 @@ Module yocto_api
     ''' <param name="funType">
     '''   The type of function (Relay, LightSensor, Voltage,...)
     ''' </param>
-    ''' <para>
-    ''' </para>
     ''' <returns>
-    '''   : A array of string.
+    '''   an array of strings.
     ''' </returns>
     '''/
     Public Overridable Function get_functionIds(funType As String) As List(Of String)
@@ -6983,7 +7026,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Restores all the settings of the module.
+    '''   Restores all the settings of the device.
     ''' <para>
     '''   Useful to restore all the logical names and calibrations parameters
     '''   of a module from a backup.Remember to call the <c>saveToFlash()</c> method of the module if the
@@ -7354,12 +7397,33 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Adds a text message to the device logs.
+    ''' <para>
+    '''   This function is useful in
+    '''   particular to trace the execution of HTTP callbacks. If a newline
+    '''   is desired after the message, it must be included in the string.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="text">
+    '''   the string to append to the logs.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function log(text As String) As Integer
+      Return Me._upload("logs.txt", YAPI.DefaultEncoding.GetBytes(text))
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Returns a list of all the modules that are plugged into the current module.
     ''' <para>
-    '''   This
-    '''   method is only useful on a YoctoHub/VirtualHub. This method return the serial number of all
-    '''   module connected to a YoctoHub. Calling this method on a standard device is not an
-    '''   error, and an empty array will be returned.
+    '''   This method only makes sense when called for a YoctoHub/VirtualHub.
+    '''   Otherwise, an empty array will be returned.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -7407,7 +7471,7 @@ Module yocto_api
     ''' <summary>
     '''   Returns the serial number of the YoctoHub on which this module is connected.
     ''' <para>
-    '''   If the module is connected by USB or if the module is the root YoctoHub an
+    '''   If the module is connected by USB, or if the module is the root YoctoHub, an
     '''   empty string is returned.
     ''' </para>
     ''' </summary>
@@ -7436,7 +7500,7 @@ Module yocto_api
     ''' <summary>
     '''   Returns the URL used to access the module.
     ''' <para>
-    '''   If the module is connected by USB the
+    '''   If the module is connected by USB, the
     '''   string 'usb' is returned.
     ''' </para>
     ''' </summary>
@@ -10048,8 +10112,14 @@ Module yocto_api
   <DllImport("yapi.dll", EntryPoint:="yapiGetBootloaders", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiGetBootloaders(ByVal buffer As StringBuilder, ByVal buffersize As Integer, ByRef totalSize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiUpdateFirmware", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
-  Private Function _yapiUpdateFirmware(ByVal serial As StringBuilder, ByVal firmwarePath As StringBuilder, ByVal settings As StringBuilder, ByVal startUpdate As Integer, ByVal errmsg As StringBuilder) As Integer
+  <DllImport("yapi.dll", EntryPoint:="yapiUpdateFirmwareEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiUpdateFirmwareEx(ByVal serial As StringBuilder, ByVal firmwarePath As StringBuilder, ByVal settings As StringBuilder, ByVal force As Integer, ByVal startUpdate As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStartOutOfBand", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiHTTPRequestSyncStartOutOfBand(ByRef iohdl As YIOHDL, ByVal channel As Integer, ByVal device As StringBuilder, ByVal request As StringBuilder, ByVal requestsize As Integer, ByRef reply As IntPtr, ByRef replysize As Integer, ByRef progress_cb As IntPtr, ByRef progress_ctx As IntPtr, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsyncOutOfBand", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Function _yapiHTTPRequestAsyncOutOfBand(ByVal channel As Integer, ByVal device As StringBuilder, ByVal request As StringBuilder, ByVal requestsize As Integer, ByRef callback As IntPtr, ByRef context As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiTestHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiTestHub(ByVal url As StringBuilder, ByVal mstimeout As Integer, ByVal errmsg As StringBuilder) As Integer
@@ -10063,6 +10133,9 @@ Module yocto_api
   <DllImport("yapi.dll", EntryPoint:="yapiGetSubdevices", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiGetSubdevices(ByVal serial As StringBuilder, ByVal buffer As StringBuilder, ByVal buffersize As Integer, ByRef totalSize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiFreeMem", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Sub _yapiFreeMem(ByRef buffer As IntPtr)
+  End Sub
   <DllImport("yapi.dll", EntryPoint:="yapiGetDevicePathEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiGetDevicePathEx(ByVal serial As StringBuilder, ByVal rootdevice As StringBuilder, ByVal path As StringBuilder, ByVal pathsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function

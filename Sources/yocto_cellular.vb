@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 21511 2015-09-14 16:25:19Z seb $
+'* $Id: yocto_cellular.vb 23960 2016-04-15 21:30:18Z mvuilleu $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -145,16 +145,27 @@ Module yocto_cellular
   Public Const Y_LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CELLOPERATOR_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CELLIDENTIFIER_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_CELLTYPE_GPRS As Integer = 0
+  Public Const Y_CELLTYPE_EGPRS As Integer = 1
+  Public Const Y_CELLTYPE_WCDMA As Integer = 2
+  Public Const Y_CELLTYPE_HSDPA As Integer = 3
+  Public Const Y_CELLTYPE_NONE As Integer = 4
+  Public Const Y_CELLTYPE_CDMA As Integer = 5
+  Public Const Y_CELLTYPE_INVALID As Integer = -1
   Public Const Y_IMSI_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_MESSAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PIN_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_LOCKEDOPERATOR_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_AIRPLANEMODE_OFF As Integer = 0
+  Public Const Y_AIRPLANEMODE_ON As Integer = 1
+  Public Const Y_AIRPLANEMODE_INVALID As Integer = -1
   Public Const Y_ENABLEDATA_HOMENETWORK As Integer = 0
   Public Const Y_ENABLEDATA_ROAMING As Integer = 1
   Public Const Y_ENABLEDATA_NEVER As Integer = 2
   Public Const Y_ENABLEDATA_INVALID As Integer = -1
   Public Const Y_APN_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_APNSECRET_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_PINGINTERVAL_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YCellularValueCallback(ByVal func As YCellular, ByVal value As String)
   Public Delegate Sub YCellularTimedReportCallback(ByVal func As YCellular, ByVal measure As YMeasure)
@@ -178,16 +189,27 @@ Module yocto_cellular
     Public Const LINKQUALITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CELLOPERATOR_INVALID As String = YAPI.INVALID_STRING
     Public Const CELLIDENTIFIER_INVALID As String = YAPI.INVALID_STRING
+    Public Const CELLTYPE_GPRS As Integer = 0
+    Public Const CELLTYPE_EGPRS As Integer = 1
+    Public Const CELLTYPE_WCDMA As Integer = 2
+    Public Const CELLTYPE_HSDPA As Integer = 3
+    Public Const CELLTYPE_NONE As Integer = 4
+    Public Const CELLTYPE_CDMA As Integer = 5
+    Public Const CELLTYPE_INVALID As Integer = -1
     Public Const IMSI_INVALID As String = YAPI.INVALID_STRING
     Public Const MESSAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const PIN_INVALID As String = YAPI.INVALID_STRING
     Public Const LOCKEDOPERATOR_INVALID As String = YAPI.INVALID_STRING
+    Public Const AIRPLANEMODE_OFF As Integer = 0
+    Public Const AIRPLANEMODE_ON As Integer = 1
+    Public Const AIRPLANEMODE_INVALID As Integer = -1
     Public Const ENABLEDATA_HOMENETWORK As Integer = 0
     Public Const ENABLEDATA_ROAMING As Integer = 1
     Public Const ENABLEDATA_NEVER As Integer = 2
     Public Const ENABLEDATA_INVALID As Integer = -1
     Public Const APN_INVALID As String = YAPI.INVALID_STRING
     Public Const APNSECRET_INVALID As String = YAPI.INVALID_STRING
+    Public Const PINGINTERVAL_INVALID As Integer = YAPI.INVALID_UINT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of generated code: YCellular definitions)
 
@@ -195,13 +217,16 @@ Module yocto_cellular
     Protected _linkQuality As Integer
     Protected _cellOperator As String
     Protected _cellIdentifier As String
+    Protected _cellType As Integer
     Protected _imsi As String
     Protected _message As String
     Protected _pin As String
     Protected _lockedOperator As String
+    Protected _airplaneMode As Integer
     Protected _enableData As Integer
     Protected _apn As String
     Protected _apnSecret As String
+    Protected _pingInterval As Integer
     Protected _command As String
     Protected _valueCallbackCellular As YCellularValueCallback
     REM --- (end of generated code: YCellular attributes declaration)
@@ -213,13 +238,16 @@ Module yocto_cellular
       _linkQuality = LINKQUALITY_INVALID
       _cellOperator = CELLOPERATOR_INVALID
       _cellIdentifier = CELLIDENTIFIER_INVALID
+      _cellType = CELLTYPE_INVALID
       _imsi = IMSI_INVALID
       _message = MESSAGE_INVALID
       _pin = PIN_INVALID
       _lockedOperator = LOCKEDOPERATOR_INVALID
+      _airplaneMode = AIRPLANEMODE_INVALID
       _enableData = ENABLEDATA_INVALID
       _apn = APN_INVALID
       _apnSecret = APNSECRET_INVALID
+      _pingInterval = PINGINTERVAL_INVALID
       _command = COMMAND_INVALID
       _valueCallbackCellular = Nothing
       REM --- (end of generated code: YCellular attributes initialization)
@@ -240,6 +268,10 @@ Module yocto_cellular
         _cellIdentifier = member.svalue
         Return 1
       End If
+      If (member.name = "cellType") Then
+        _cellType = CInt(member.ivalue)
+        Return 1
+      End If
       If (member.name = "imsi") Then
         _imsi = member.svalue
         Return 1
@@ -256,6 +288,10 @@ Module yocto_cellular
         _lockedOperator = member.svalue
         Return 1
       End If
+      If (member.name = "airplaneMode") Then
+        If (member.ivalue > 0) Then _airplaneMode = 1 Else _airplaneMode = 0
+        Return 1
+      End If
       If (member.name = "enableData") Then
         _enableData = CInt(member.ivalue)
         Return 1
@@ -266,6 +302,10 @@ Module yocto_cellular
       End If
       If (member.name = "apnSecret") Then
         _apnSecret = member.svalue
+        Return 1
+      End If
+      If (member.name = "pingInterval") Then
+        _pingInterval = CInt(member.ivalue)
         Return 1
       End If
       If (member.name = "command") Then
@@ -348,6 +388,31 @@ Module yocto_cellular
         End If
       End If
       Return Me._cellIdentifier
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Active cellular connection type.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_CELLTYPE_GPRS</c>, <c>Y_CELLTYPE_EGPRS</c>, <c>Y_CELLTYPE_WCDMA</c>,
+    '''   <c>Y_CELLTYPE_HSDPA</c>, <c>Y_CELLTYPE_NONE</c> and <c>Y_CELLTYPE_CDMA</c>
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CELLTYPE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_cellType() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return CELLTYPE_INVALID
+        End If
+      End If
+      Return Me._cellType
     End Function
 
     '''*
@@ -526,6 +591,58 @@ Module yocto_cellular
     End Function
     '''*
     ''' <summary>
+    '''   Returns true if the airplane mode is active (radio turned off).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_AIRPLANEMODE_OFF</c> or <c>Y_AIRPLANEMODE_ON</c>, according to true if the airplane
+    '''   mode is active (radio turned off)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_AIRPLANEMODE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_airplaneMode() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return AIRPLANEMODE_INVALID
+        End If
+      End If
+      Return Me._airplaneMode
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the activation state of airplane mode (radio turned off).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_AIRPLANEMODE_OFF</c> or <c>Y_AIRPLANEMODE_ON</c>, according to the activation state of
+    '''   airplane mode (radio turned off)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_airplaneMode(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("airplaneMode", rest_val)
+    End Function
+    '''*
+    ''' <summary>
     '''   Returns the condition for enabling IP data services (GPRS).
     ''' <para>
     '''   When data services are disabled, SMS are the only mean of communication.
@@ -667,6 +784,56 @@ Module yocto_cellular
       Dim rest_val As String
       rest_val = newval
       Return _setAttr("apnSecret", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the automated connectivity check interval, in seconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the automated connectivity check interval, in seconds
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PINGINTERVAL_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_pingInterval() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return PINGINTERVAL_INVALID
+        End If
+      End If
+      Return Me._pingInterval
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the automated connectivity check interval, in seconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the automated connectivity check interval, in seconds
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_pingInterval(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("pingInterval", rest_val)
     End Function
     Public Function get_command() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 21381 2015-09-02 09:06:57Z seb $
+'* $Id: yocto_serialport.vb 23780 2016-04-06 10:27:21Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -28,8 +28,8 @@
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
 '*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
 '*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
 '*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
@@ -51,16 +51,6 @@ Module yocto_serialport
     REM --- (end of YSerialPort dlldef)
   REM --- (YSerialPort globals)
 
-  Public Const Y_SERIALMODE_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_PROTOCOL_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_VOLTAGELEVEL_OFF As Integer = 0
-  Public Const Y_VOLTAGELEVEL_TTL3V As Integer = 1
-  Public Const Y_VOLTAGELEVEL_TTL3VR As Integer = 2
-  Public Const Y_VOLTAGELEVEL_TTL5V As Integer = 3
-  Public Const Y_VOLTAGELEVEL_TTL5VR As Integer = 4
-  Public Const Y_VOLTAGELEVEL_RS232 As Integer = 5
-  Public Const Y_VOLTAGELEVEL_RS485 As Integer = 6
-  Public Const Y_VOLTAGELEVEL_INVALID As Integer = -1
   Public Const Y_RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -70,6 +60,16 @@ Module yocto_serialport
   Public Const Y_CURRENTJOB_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_VOLTAGELEVEL_OFF As Integer = 0
+  Public Const Y_VOLTAGELEVEL_TTL3V As Integer = 1
+  Public Const Y_VOLTAGELEVEL_TTL3VR As Integer = 2
+  Public Const Y_VOLTAGELEVEL_TTL5V As Integer = 3
+  Public Const Y_VOLTAGELEVEL_TTL5VR As Integer = 4
+  Public Const Y_VOLTAGELEVEL_RS232 As Integer = 5
+  Public Const Y_VOLTAGELEVEL_RS485 As Integer = 6
+  Public Const Y_VOLTAGELEVEL_INVALID As Integer = -1
+  Public Const Y_PROTOCOL_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_SERIALMODE_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YSerialPortValueCallback(ByVal func As YSerialPort, ByVal value As String)
   Public Delegate Sub YSerialPortTimedReportCallback(ByVal func As YSerialPort, ByVal measure As YMeasure)
   REM --- (end of YSerialPort globals)
@@ -92,16 +92,6 @@ Module yocto_serialport
     REM --- (end of YSerialPort class start)
 
     REM --- (YSerialPort definitions)
-    Public Const SERIALMODE_INVALID As String = YAPI.INVALID_STRING
-    Public Const PROTOCOL_INVALID As String = YAPI.INVALID_STRING
-    Public Const VOLTAGELEVEL_OFF As Integer = 0
-    Public Const VOLTAGELEVEL_TTL3V As Integer = 1
-    Public Const VOLTAGELEVEL_TTL3VR As Integer = 2
-    Public Const VOLTAGELEVEL_TTL5V As Integer = 3
-    Public Const VOLTAGELEVEL_TTL5VR As Integer = 4
-    Public Const VOLTAGELEVEL_RS232 As Integer = 5
-    Public Const VOLTAGELEVEL_RS485 As Integer = 6
-    Public Const VOLTAGELEVEL_INVALID As Integer = -1
     Public Const RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -111,12 +101,19 @@ Module yocto_serialport
     Public Const CURRENTJOB_INVALID As String = YAPI.INVALID_STRING
     Public Const STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
+    Public Const VOLTAGELEVEL_OFF As Integer = 0
+    Public Const VOLTAGELEVEL_TTL3V As Integer = 1
+    Public Const VOLTAGELEVEL_TTL3VR As Integer = 2
+    Public Const VOLTAGELEVEL_TTL5V As Integer = 3
+    Public Const VOLTAGELEVEL_TTL5VR As Integer = 4
+    Public Const VOLTAGELEVEL_RS232 As Integer = 5
+    Public Const VOLTAGELEVEL_RS485 As Integer = 6
+    Public Const VOLTAGELEVEL_INVALID As Integer = -1
+    Public Const PROTOCOL_INVALID As String = YAPI.INVALID_STRING
+    Public Const SERIALMODE_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YSerialPort definitions)
 
     REM --- (YSerialPort attributes declaration)
-    Protected _serialMode As String
-    Protected _protocol As String
-    Protected _voltageLevel As Integer
     Protected _rxCount As Integer
     Protected _txCount As Integer
     Protected _errCount As Integer
@@ -126,6 +123,9 @@ Module yocto_serialport
     Protected _currentJob As String
     Protected _startupJob As String
     Protected _command As String
+    Protected _voltageLevel As Integer
+    Protected _protocol As String
+    Protected _serialMode As String
     Protected _valueCallbackSerialPort As YSerialPortValueCallback
     Protected _rxptr As Integer
     REM --- (end of YSerialPort attributes declaration)
@@ -134,9 +134,6 @@ Module yocto_serialport
       MyBase.New(func)
       _classname = "SerialPort"
       REM --- (YSerialPort attributes initialization)
-      _serialMode = SERIALMODE_INVALID
-      _protocol = PROTOCOL_INVALID
-      _voltageLevel = VOLTAGELEVEL_INVALID
       _rxCount = RXCOUNT_INVALID
       _txCount = TXCOUNT_INVALID
       _errCount = ERRCOUNT_INVALID
@@ -146,6 +143,9 @@ Module yocto_serialport
       _currentJob = CURRENTJOB_INVALID
       _startupJob = STARTUPJOB_INVALID
       _command = COMMAND_INVALID
+      _voltageLevel = VOLTAGELEVEL_INVALID
+      _protocol = PROTOCOL_INVALID
+      _serialMode = SERIALMODE_INVALID
       _valueCallbackSerialPort = Nothing
       _rxptr = 0
       REM --- (end of YSerialPort attributes initialization)
@@ -154,18 +154,6 @@ Module yocto_serialport
     REM --- (YSerialPort private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "serialMode") Then
-        _serialMode = member.svalue
-        Return 1
-      End If
-      If (member.name = "protocol") Then
-        _protocol = member.svalue
-        Return 1
-      End If
-      If (member.name = "voltageLevel") Then
-        _voltageLevel = CInt(member.ivalue)
-        Return 1
-      End If
       If (member.name = "rxCount") Then
         _rxCount = CInt(member.ivalue)
         Return 1
@@ -202,199 +190,24 @@ Module yocto_serialport
         _command = member.svalue
         Return 1
       End If
+      If (member.name = "voltageLevel") Then
+        _voltageLevel = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "protocol") Then
+        _protocol = member.svalue
+        Return 1
+      End If
+      If (member.name = "serialMode") Then
+        _serialMode = member.svalue
+        Return 1
+      End If
       Return MyBase._parseAttr(member)
     End Function
 
     REM --- (end of YSerialPort private methods declaration)
 
     REM --- (YSerialPort public methods declaration)
-    '''*
-    ''' <summary>
-    '''   Returns the serial port communication parameters, as a string such as
-    '''   "9600,8N1".
-    ''' <para>
-    '''   The string includes the baud rate, the number of data bits,
-    '''   the parity, and the number of stop bits. An optional suffix is included
-    '''   if flow control is active: "CtsRts" for hardware handshake, "XOnXOff"
-    '''   for logical flow control and "Simplex" for acquiring a shared bus using
-    '''   the RTS line (as used by some RS485 adapters for instance).
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the serial port communication parameters, as a string such as
-    '''   "9600,8N1"
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SERIALMODE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_serialMode() As String
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return SERIALMODE_INVALID
-        End If
-      End If
-      Return Me._serialMode
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the serial port communication parameters, with a string such as
-    '''   "9600,8N1".
-    ''' <para>
-    '''   The string includes the baud rate, the number of data bits,
-    '''   the parity, and the number of stop bits. An optional suffix can be added
-    '''   to enable flow control: "CtsRts" for hardware handshake, "XOnXOff"
-    '''   for logical flow control and "Simplex" for acquiring a shared bus using
-    '''   the RTS line (as used by some RS485 adapters for instance).
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the serial port communication parameters, with a string such as
-    '''   "9600,8N1"
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_serialMode(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("serialMode", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Returns the type of protocol used over the serial line, as a string.
-    ''' <para>
-    '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
-    '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
-    '''   "Modbus-ASCII" for MODBUS messages in ASCII mode,
-    '''   "Modbus-RTU" for MODBUS messages in RTU mode,
-    '''   "Char" for a continuous ASCII stream or
-    '''   "Byte" for a continuous binary stream.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the type of protocol used over the serial line, as a string
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PROTOCOL_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_protocol() As String
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return PROTOCOL_INVALID
-        End If
-      End If
-      Return Me._protocol
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the type of protocol used over the serial line.
-    ''' <para>
-    '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
-    '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
-    '''   "Modbus-ASCII" for MODBUS messages in ASCII mode,
-    '''   "Modbus-RTU" for MODBUS messages in RTU mode,
-    '''   "Char" for a continuous ASCII stream or
-    '''   "Byte" for a continuous binary stream.
-    '''   The suffix "/[wait]ms" can be added to reduce the transmit rate so that there
-    '''   is always at lest the specified number of milliseconds between each bytes sent.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a string corresponding to the type of protocol used over the serial line
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_protocol(ByVal newval As String) As Integer
-      Dim rest_val As String
-      rest_val = newval
-      Return _setAttr("protocol", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Returns the voltage level used on the serial line.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
-    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c> and
-    '''   <c>Y_VOLTAGELEVEL_RS485</c> corresponding to the voltage level used on the serial line
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLTAGELEVEL_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_voltageLevel() As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return VOLTAGELEVEL_INVALID
-        End If
-      End If
-      Return Me._voltageLevel
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the voltage type used on the serial line.
-    ''' <para>
-    '''   Valid
-    '''   values  will depend on the Yoctopuce device model featuring
-    '''   the serial port feature.  Check your device documentation
-    '''   to find out which values are valid for that specific model.
-    '''   Trying to set an invalid value will have no effect.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
-    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c> and
-    '''   <c>Y_VOLTAGELEVEL_RS485</c> corresponding to the voltage type used on the serial line
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_voltageLevel(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("voltageLevel", rest_val)
-    End Function
     '''*
     ''' <summary>
     '''   Returns the total number of bytes received since last reset.
@@ -660,6 +473,193 @@ Module yocto_serialport
     End Function
     '''*
     ''' <summary>
+    '''   Returns the voltage level used on the serial line.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
+    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c> and
+    '''   <c>Y_VOLTAGELEVEL_RS485</c> corresponding to the voltage level used on the serial line
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_VOLTAGELEVEL_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_voltageLevel() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return VOLTAGELEVEL_INVALID
+        End If
+      End If
+      Return Me._voltageLevel
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the voltage type used on the serial line.
+    ''' <para>
+    '''   Valid
+    '''   values  will depend on the Yoctopuce device model featuring
+    '''   the serial port feature.  Check your device documentation
+    '''   to find out which values are valid for that specific model.
+    '''   Trying to set an invalid value will have no effect.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
+    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c> and
+    '''   <c>Y_VOLTAGELEVEL_RS485</c> corresponding to the voltage type used on the serial line
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_voltageLevel(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("voltageLevel", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the type of protocol used over the serial line, as a string.
+    ''' <para>
+    '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
+    '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
+    '''   "Modbus-ASCII" for MODBUS messages in ASCII mode,
+    '''   "Modbus-RTU" for MODBUS messages in RTU mode,
+    '''   "Char" for a continuous ASCII stream or
+    '''   "Byte" for a continuous binary stream.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the type of protocol used over the serial line, as a string
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PROTOCOL_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_protocol() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return PROTOCOL_INVALID
+        End If
+      End If
+      Return Me._protocol
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the type of protocol used over the serial line.
+    ''' <para>
+    '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
+    '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
+    '''   "Modbus-ASCII" for MODBUS messages in ASCII mode,
+    '''   "Modbus-RTU" for MODBUS messages in RTU mode,
+    '''   "Char" for a continuous ASCII stream or
+    '''   "Byte" for a continuous binary stream.
+    '''   The suffix "/[wait]ms" can be added to reduce the transmit rate so that there
+    '''   is always at lest the specified number of milliseconds between each bytes sent.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the type of protocol used over the serial line
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_protocol(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("protocol", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the serial port communication parameters, as a string such as
+    '''   "9600,8N1".
+    ''' <para>
+    '''   The string includes the baud rate, the number of data bits,
+    '''   the parity, and the number of stop bits. An optional suffix is included
+    '''   if flow control is active: "CtsRts" for hardware handshake, "XOnXOff"
+    '''   for logical flow control and "Simplex" for acquiring a shared bus using
+    '''   the RTS line (as used by some RS485 adapters for instance).
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the serial port communication parameters, as a string such as
+    '''   "9600,8N1"
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_SERIALMODE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_serialMode() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return SERIALMODE_INVALID
+        End If
+      End If
+      Return Me._serialMode
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the serial port communication parameters, with a string such as
+    '''   "9600,8N1".
+    ''' <para>
+    '''   The string includes the baud rate, the number of data bits,
+    '''   the parity, and the number of stop bits. An optional suffix can be added
+    '''   to enable flow control: "CtsRts" for hardware handshake, "XOnXOff"
+    '''   for logical flow control and "Simplex" for acquiring a shared bus using
+    '''   the RTS line (as used by some RS485 adapters for instance).
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the serial port communication parameters, with a string such as
+    '''   "9600,8N1"
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_serialMode(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("serialMode", rest_val)
+    End Function
+    '''*
+    ''' <summary>
     '''   Retrieves a serial port for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
@@ -779,61 +779,6 @@ Module yocto_serialport
       Me._rxptr = 0
       REM // may throw an exception
       Return Me.sendCommand("Z")
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Manually sets the state of the RTS line.
-    ''' <para>
-    '''   This function has no effect when
-    '''   hardware handshake is enabled, as the RTS line is driven automatically.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="val">
-    '''   1 to turn RTS on, 0 to turn RTS off
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function set_RTS(val As Integer) As Integer
-      REM // may throw an exception
-      Return Me.sendCommand("R" + Convert.ToString(val))
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Reads the level of the CTS line.
-    ''' <para>
-    '''   The CTS line is usually driven by
-    '''   the RTS signal of the connected serial device.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   1 if the CTS line is high, 0 if the CTS line is low.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function get_CTS() As Integer
-      Dim buff As Byte()
-      Dim res As Integer = 0
-      REM // may throw an exception
-      buff = Me._download("cts.txt")
-      If Not((buff).Length = 1) Then
-        me._throw( YAPI.IO_ERROR,  "invalid CTS reply")
-        return YAPI.IO_ERROR
-      end if
-      res = buff(0) - 48
-      Return res
     End Function
 
     '''*
@@ -1039,29 +984,6 @@ Module yocto_serialport
       End If
       REM // send string using file upload
       Return Me._upload("txdata", buff)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Sends a MODBUS message (provided as a hexadecimal string) to the serial port.
-    ''' <para>
-    '''   The message must start with the slave address. The MODBUS CRC/LRC is
-    '''   automatically added by the function. This function does not wait for a reply.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="hexString">
-    '''   a hexadecimal message string, including device address but no CRC/LRC
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function writeMODBUS(hexString As String) As Integer
-      REM // may throw an exception
-      Return Me.sendCommand(":" + hexString)
     End Function
 
     '''*
@@ -1301,7 +1223,7 @@ Module yocto_serialport
     '''   Reads a single line (or message) from the receive buffer, starting at current stream position.
     ''' <para>
     '''   This function is intended to be used when the serial port is configured for a message protocol,
-    '''   such as 'Line' mode or MODBUS protocols.
+    '''   such as 'Line' mode or frame protocols.
     ''' </para>
     ''' <para>
     '''   If data at current stream position is not available anymore in the receive buffer,
@@ -1405,7 +1327,7 @@ Module yocto_serialport
     '''   Changes the current internal stream position to the specified value.
     ''' <para>
     '''   This function
-    '''   does not affect the device, it only changes the value stored in the YSerialPort object
+    '''   does not affect the device, it only changes the value stored in the API object
     '''   for the next read operations.
     ''' </para>
     ''' </summary>
@@ -1423,7 +1345,7 @@ Module yocto_serialport
 
     '''*
     ''' <summary>
-    '''   Returns the current absolute stream position pointer of the YSerialPort object.
+    '''   Returns the current absolute stream position pointer of the API object.
     ''' <para>
     ''' </para>
     ''' </summary>
@@ -1438,7 +1360,7 @@ Module yocto_serialport
     '''*
     ''' <summary>
     '''   Returns the number of bytes available to read in the input buffer starting from the
-    '''   current absolute stream position pointer of the YSerialPort object.
+    '''   current absolute stream position pointer of the API object.
     ''' <para>
     ''' </para>
     ''' </summary>
@@ -1503,6 +1425,135 @@ Module yocto_serialport
       End If
       res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Saves the job definition string (JSON data) into a job file.
+    ''' <para>
+    '''   The job file can be later enabled using <c>selectJob()</c>.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="jobfile">
+    '''   name of the job file to save on the device filesystem
+    ''' </param>
+    ''' <param name="jsonDef">
+    '''   a string containing a JSON definition of the job
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function uploadJob(jobfile As String, jsonDef As String) As Integer
+      Me._upload(jobfile, YAPI.DefaultEncoding.GetBytes(jsonDef))
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Load and start processing the specified job file.
+    ''' <para>
+    '''   The file must have
+    '''   been previously created using the user interface or uploaded on the
+    '''   device filesystem using the <c>uploadJob()</c> function.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="jobfile">
+    '''   name of the job file (on the device filesystem)
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function selectJob(jobfile As String) As Integer
+      REM // may throw an exception
+      Return Me.set_currentJob(jobfile)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Manually sets the state of the RTS line.
+    ''' <para>
+    '''   This function has no effect when
+    '''   hardware handshake is enabled, as the RTS line is driven automatically.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="val">
+    '''   1 to turn RTS on, 0 to turn RTS off
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function set_RTS(val As Integer) As Integer
+      REM // may throw an exception
+      Return Me.sendCommand("R" + Convert.ToString(val))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reads the level of the CTS line.
+    ''' <para>
+    '''   The CTS line is usually driven by
+    '''   the RTS signal of the connected serial device.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   1 if the CTS line is high, 0 if the CTS line is low.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function get_CTS() As Integer
+      Dim buff As Byte()
+      Dim res As Integer = 0
+      REM // may throw an exception
+      buff = Me._download("cts.txt")
+      If Not((buff).Length = 1) Then
+        me._throw( YAPI.IO_ERROR,  "invalid CTS reply")
+        return YAPI.IO_ERROR
+      end if
+      res = buff(0) - 48
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a MODBUS message (provided as a hexadecimal string) to the serial port.
+    ''' <para>
+    '''   The message must start with the slave address. The MODBUS CRC/LRC is
+    '''   automatically added by the function. This function does not wait for a reply.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="hexString">
+    '''   a hexadecimal message string, including device address but no CRC/LRC
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function writeMODBUS(hexString As String) As Integer
+      REM // may throw an exception
+      Return Me.sendCommand(":" + hexString)
     End Function
 
     '''*
@@ -2167,57 +2218,6 @@ Module yocto_serialport
       End While
       
       Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Saves the job definition string (JSON data) into a job file.
-    ''' <para>
-    '''   The job file can be later enabled using <c>selectJob()</c>.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="jobfile">
-    '''   name of the job file to save on the device filesystem
-    ''' </param>
-    ''' <param name="jsonDef">
-    '''   a string containing a JSON definition of the job
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function uploadJob(jobfile As String, jsonDef As String) As Integer
-      Me._upload(jobfile, YAPI.DefaultEncoding.GetBytes(jsonDef))
-      Return YAPI.SUCCESS
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Load and start processing the specified job file.
-    ''' <para>
-    '''   The file must have
-    '''   been previously created using the user interface or uploaded on the
-    '''   device filesystem using the <c>uploadJob()</c> function.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="jobfile">
-    '''   name of the job file (on the device filesystem)
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function selectJob(jobfile As String) As Integer
-      REM // may throw an exception
-      Return Me.set_currentJob(jobfile)
     End Function
 
 

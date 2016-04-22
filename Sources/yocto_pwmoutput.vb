@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmoutput.vb 19329 2015-02-17 17:31:26Z seb $
+'* $Id: yocto_pwmoutput.vb 23244 2016-02-23 14:13:49Z seb $
 '*
 '* Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '*
@@ -28,8 +28,8 @@
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
 '*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
 '*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
 '*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
@@ -516,7 +516,9 @@ Module yocto_pwmoutput
     End Function
     '''*
     ''' <summary>
-    '''   Returns the PWMs duty cycle at device power on as a floating point number between 0 and 100
+    '''   Returns the PWMs duty cycle at device power on as a floating point number between 0 and 100.
+    ''' <para>
+    ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>

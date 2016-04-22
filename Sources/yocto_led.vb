@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_led.vb 19329 2015-02-17 17:31:26Z seb $
+'* $Id: yocto_led.vb 23578 2016-03-22 23:00:41Z mvuilleu $
 '*
 '* Implements yFindLed(), the high-level API for Led functions
 '*
@@ -28,8 +28,8 @@
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
 '*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
 '*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
 '*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
@@ -71,7 +71,7 @@ Module yocto_led
   '''*
   ''' <summary>
   '''   Yoctopuce application programming interface
-  '''   allows you not only to drive the intensity of the led, but also to
+  '''   allows you not only to drive the intensity of the LED, but also to
   '''   have it blink at various preset frequencies.
   ''' <para>
   ''' </para>
@@ -136,14 +136,14 @@ Module yocto_led
     REM --- (YLed public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the current led state.
+    '''   Returns the current LED state.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_POWER_OFF</c> or <c>Y_POWER_ON</c>, according to the current led state
+    '''   either <c>Y_POWER_OFF</c> or <c>Y_POWER_ON</c>, according to the current LED state
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_POWER_INVALID</c>.
@@ -161,14 +161,14 @@ Module yocto_led
 
     '''*
     ''' <summary>
-    '''   Changes the state of the led.
+    '''   Changes the state of the LED.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_POWER_OFF</c> or <c>Y_POWER_ON</c>, according to the state of the led
+    '''   either <c>Y_POWER_OFF</c> or <c>Y_POWER_ON</c>, according to the state of the LED
     ''' </param>
     ''' <para>
     ''' </para>
@@ -186,14 +186,14 @@ Module yocto_led
     End Function
     '''*
     ''' <summary>
-    '''   Returns the current led intensity (in per cent).
+    '''   Returns the current LED intensity (in per cent).
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the current led intensity (in per cent)
+    '''   an integer corresponding to the current LED intensity (in per cent)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_LUMINOSITY_INVALID</c>.
@@ -211,14 +211,14 @@ Module yocto_led
 
     '''*
     ''' <summary>
-    '''   Changes the current led intensity (in per cent).
+    '''   Changes the current LED intensity (in per cent).
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the current led intensity (in per cent)
+    '''   an integer corresponding to the current LED intensity (in per cent)
     ''' </param>
     ''' <para>
     ''' </para>
@@ -236,7 +236,7 @@ Module yocto_led
     End Function
     '''*
     ''' <summary>
-    '''   Returns the current led signaling mode.
+    '''   Returns the current LED signaling mode.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -245,7 +245,7 @@ Module yocto_led
     ''' <returns>
     '''   a value among <c>Y_BLINKING_STILL</c>, <c>Y_BLINKING_RELAX</c>, <c>Y_BLINKING_AWARE</c>,
     '''   <c>Y_BLINKING_RUN</c>, <c>Y_BLINKING_CALL</c> and <c>Y_BLINKING_PANIC</c> corresponding to the
-    '''   current led signaling mode
+    '''   current LED signaling mode
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_BLINKING_INVALID</c>.
@@ -263,7 +263,7 @@ Module yocto_led
 
     '''*
     ''' <summary>
-    '''   Changes the current led signaling mode.
+    '''   Changes the current LED signaling mode.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -272,7 +272,7 @@ Module yocto_led
     ''' <param name="newval">
     '''   a value among <c>Y_BLINKING_STILL</c>, <c>Y_BLINKING_RELAX</c>, <c>Y_BLINKING_AWARE</c>,
     '''   <c>Y_BLINKING_RUN</c>, <c>Y_BLINKING_CALL</c> and <c>Y_BLINKING_PANIC</c> corresponding to the
-    '''   current led signaling mode
+    '''   current LED signaling mode
     ''' </param>
     ''' <para>
     ''' </para>
@@ -290,7 +290,7 @@ Module yocto_led
     End Function
     '''*
     ''' <summary>
-    '''   Retrieves a led for a given identifier.
+    '''   Retrieves a LED for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -314,20 +314,20 @@ Module yocto_led
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the led is online at the time
+    '''   This function does not require that the LED is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YLed.isOnline()</c> to test if the led is
+    '''   Use the method <c>YLed.isOnline()</c> to test if the LED is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a led by logical name, no error is notified: the first instance
+    '''   a LED by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the led
+    '''   a string that uniquely characterizes the LED
     ''' </param>
     ''' <returns>
-    '''   a <c>YLed</c> object allowing you to drive the led.
+    '''   a <c>YLed</c> object allowing you to drive the LED.
     ''' </returns>
     '''/
     Public Shared Function FindLed(func As String) As YLed
@@ -388,14 +388,14 @@ Module yocto_led
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of leds started using <c>yFirstLed()</c>.
+    '''   Continues the enumeration of LEDs started using <c>yFirstLed()</c>.
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YLed</c> object, corresponding to
-    '''   a led currently online, or a <c>null</c> pointer
-    '''   if there are no more leds to enumerate.
+    '''   a LED currently online, or a <c>null</c> pointer
+    '''   if there are no more LEDs to enumerate.
     ''' </returns>
     '''/
     Public Function nextLed() As YLed
@@ -411,15 +411,15 @@ Module yocto_led
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of leds currently accessible.
+    '''   Starts the enumeration of LEDs currently accessible.
     ''' <para>
     '''   Use the method <c>YLed.nextLed()</c> to iterate on
-    '''   next leds.
+    '''   next LEDs.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YLed</c> object, corresponding to
-    '''   the first led currently online, or a <c>null</c> pointer
+    '''   the first LED currently online, or a <c>null</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -458,7 +458,7 @@ Module yocto_led
 
   '''*
   ''' <summary>
-  '''   Retrieves a led for a given identifier.
+  '''   Retrieves a LED for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -482,20 +482,20 @@ Module yocto_led
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the led is online at the time
+  '''   This function does not require that the LED is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YLed.isOnline()</c> to test if the led is
+  '''   Use the method <c>YLed.isOnline()</c> to test if the LED is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a led by logical name, no error is notified: the first instance
+  '''   a LED by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the led
+  '''   a string that uniquely characterizes the LED
   ''' </param>
   ''' <returns>
-  '''   a <c>YLed</c> object allowing you to drive the led.
+  '''   a <c>YLed</c> object allowing you to drive the LED.
   ''' </returns>
   '''/
   Public Function yFindLed(ByVal func As String) As YLed
@@ -504,15 +504,15 @@ Module yocto_led
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of leds currently accessible.
+  '''   Starts the enumeration of LEDs currently accessible.
   ''' <para>
   '''   Use the method <c>YLed.nextLed()</c> to iterate on
-  '''   next leds.
+  '''   next LEDs.
   ''' </para>
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YLed</c> object, corresponding to
-  '''   the first led currently online, or a <c>null</c> pointer
+  '''   the first LED currently online, or a <c>null</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

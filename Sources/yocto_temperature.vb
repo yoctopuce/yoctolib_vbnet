@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 22698 2016-01-12 23:15:02Z seb $
+'* $Id: yocto_temperature.vb 23527 2016-03-18 21:49:19Z mvuilleu $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -28,8 +28,8 @@
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
 '*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
 '*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
 '*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
@@ -66,6 +66,8 @@ Module yocto_temperature
   Public Const Y_SENSORTYPE_RES_NTC As Integer = 12
   Public Const Y_SENSORTYPE_RES_LINEAR As Integer = 13
   Public Const Y_SENSORTYPE_INVALID As Integer = -1
+  Public Const Y_SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YTemperatureValueCallback(ByVal func As YTemperature, ByVal value As String)
   Public Delegate Sub YTemperatureTimedReportCallback(ByVal func As YTemperature, ByVal measure As YMeasure)
@@ -105,11 +107,15 @@ Module yocto_temperature
     Public Const SENSORTYPE_RES_NTC As Integer = 12
     Public Const SENSORTYPE_RES_LINEAR As Integer = 13
     Public Const SENSORTYPE_INVALID As Integer = -1
+    Public Const SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YTemperature definitions)
 
     REM --- (YTemperature attributes declaration)
     Protected _sensorType As Integer
+    Protected _signalValue As Double
+    Protected _signalUnit As String
     Protected _command As String
     Protected _valueCallbackTemperature As YTemperatureValueCallback
     Protected _timedReportCallbackTemperature As YTemperatureTimedReportCallback
@@ -120,6 +126,8 @@ Module yocto_temperature
       _classname = "Temperature"
       REM --- (YTemperature attributes initialization)
       _sensorType = SENSORTYPE_INVALID
+      _signalValue = SIGNALVALUE_INVALID
+      _signalUnit = SIGNALUNIT_INVALID
       _command = COMMAND_INVALID
       _valueCallbackTemperature = Nothing
       _timedReportCallbackTemperature = Nothing
@@ -131,6 +139,14 @@ Module yocto_temperature
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "sensorType") Then
         _sensorType = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "signalValue") Then
+        _signalValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
+      If (member.name = "signalUnit") Then
+        _signalUnit = member.svalue
         Return 1
       End If
       If (member.name = "command") Then
@@ -241,6 +257,54 @@ Module yocto_temperature
       rest_val = Ltrim(Str(newval))
       Return _setAttr("sensorType", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the current value of the electrical signal measured by the sensor.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the current value of the electrical signal measured by the sensor
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_SIGNALVALUE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_signalValue() As Double
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return SIGNALVALUE_INVALID
+        End If
+      End If
+      Return Math.Round(Me._signalValue * 1000) / 1000
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the measuring unit of the electrical signal used by the sensor.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the measuring unit of the electrical signal used by the sensor
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_SIGNALUNIT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_signalUnit() As String
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return SIGNALUNIT_INVALID
+        End If
+      End If
+      Return Me._signalUnit
+    End Function
+
     Public Function get_command() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then

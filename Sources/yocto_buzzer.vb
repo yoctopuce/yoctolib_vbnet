@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_buzzer.vb 18762 2014-12-16 16:00:39Z seb $
+'* $Id: yocto_buzzer.vb 23244 2016-02-23 14:13:49Z seb $
 '*
 '* Implements yFindBuzzer(), the high-level API for Buzzer functions
 '*
@@ -28,8 +28,8 @@
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
 '*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
 '*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
 '*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
@@ -245,7 +245,9 @@ Module yocto_buzzer
     End Function
     '''*
     ''' <summary>
-    '''   Returns the current length of the playing sequence
+    '''   Returns the current length of the playing sequence.
+    ''' <para>
+    ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
@@ -267,7 +269,9 @@ Module yocto_buzzer
 
     '''*
     ''' <summary>
-    '''   Returns the maximum length of the playing sequence
+    '''   Returns the maximum length of the playing sequence.
+    ''' <para>
+    ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>

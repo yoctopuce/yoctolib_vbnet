@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 22194 2015-12-02 10:50:41Z mvuilleu $
+'* $Id: yocto_network.vb 23930 2016-04-15 09:31:14Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -28,8 +28,8 @@
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
 '*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
 '*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
 '*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
@@ -87,8 +87,10 @@ Module yocto_network
   Public Const Y_CALLBACKENCODING_EMONCMS As Integer = 6
   Public Const Y_CALLBACKENCODING_AZURE As Integer = 7
   Public Const Y_CALLBACKENCODING_INFLUXDB As Integer = 8
+  Public Const Y_CALLBACKENCODING_MQTT As Integer = 9
   Public Const Y_CALLBACKENCODING_INVALID As Integer = -1
   Public Const Y_CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_POECURRENT_INVALID As Integer = YAPI.INVALID_UINT
@@ -147,8 +149,10 @@ Module yocto_network
     Public Const CALLBACKENCODING_EMONCMS As Integer = 6
     Public Const CALLBACKENCODING_AZURE As Integer = 7
     Public Const CALLBACKENCODING_INFLUXDB As Integer = 8
+    Public Const CALLBACKENCODING_MQTT As Integer = 9
     Public Const CALLBACKENCODING_INVALID As Integer = -1
     Public Const CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
+    Public Const CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const POECURRENT_INVALID As Integer = YAPI.INVALID_UINT
@@ -174,6 +178,7 @@ Module yocto_network
     Protected _callbackMethod As Integer
     Protected _callbackEncoding As Integer
     Protected _callbackCredentials As String
+    Protected _callbackInitialDelay As Integer
     Protected _callbackMinDelay As Integer
     Protected _callbackMaxDelay As Integer
     Protected _poeCurrent As Integer
@@ -203,6 +208,7 @@ Module yocto_network
       _callbackMethod = CALLBACKMETHOD_INVALID
       _callbackEncoding = CALLBACKENCODING_INVALID
       _callbackCredentials = CALLBACKCREDENTIALS_INVALID
+      _callbackInitialDelay = CALLBACKINITIALDELAY_INVALID
       _callbackMinDelay = CALLBACKMINDELAY_INVALID
       _callbackMaxDelay = CALLBACKMAXDELAY_INVALID
       _poeCurrent = POECURRENT_INVALID
@@ -287,6 +293,10 @@ Module yocto_network
       End If
       If (member.name = "callbackCredentials") Then
         _callbackCredentials = member.svalue
+        Return 1
+      End If
+      If (member.name = "callbackInitialDelay") Then
+        _callbackInitialDelay = CInt(member.ivalue)
         Return 1
       End If
       If (member.name = "callbackMinDelay") Then
@@ -1069,9 +1079,9 @@ Module yocto_network
     '''   a value among <c>Y_CALLBACKENCODING_FORM</c>, <c>Y_CALLBACKENCODING_JSON</c>,
     '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c>,
     '''   <c>Y_CALLBACKENCODING_YOCTO_API</c>, <c>Y_CALLBACKENCODING_JSON_NUM</c>,
-    '''   <c>Y_CALLBACKENCODING_EMONCMS</c>, <c>Y_CALLBACKENCODING_AZURE</c> and
-    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c> corresponding to the encoding standard to use for representing
-    '''   notification values
+    '''   <c>Y_CALLBACKENCODING_EMONCMS</c>, <c>Y_CALLBACKENCODING_AZURE</c>,
+    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c> and <c>Y_CALLBACKENCODING_MQTT</c> corresponding to the encoding
+    '''   standard to use for representing notification values
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_CALLBACKENCODING_INVALID</c>.
@@ -1099,9 +1109,9 @@ Module yocto_network
     '''   a value among <c>Y_CALLBACKENCODING_FORM</c>, <c>Y_CALLBACKENCODING_JSON</c>,
     '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c>,
     '''   <c>Y_CALLBACKENCODING_YOCTO_API</c>, <c>Y_CALLBACKENCODING_JSON_NUM</c>,
-    '''   <c>Y_CALLBACKENCODING_EMONCMS</c>, <c>Y_CALLBACKENCODING_AZURE</c> and
-    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c> corresponding to the encoding standard to use for representing
-    '''   notification values
+    '''   <c>Y_CALLBACKENCODING_EMONCMS</c>, <c>Y_CALLBACKENCODING_AZURE</c>,
+    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c> and <c>Y_CALLBACKENCODING_MQTT</c> corresponding to the encoding
+    '''   standard to use for representing notification values
     ''' </param>
     ''' <para>
     ''' </para>
@@ -1210,6 +1220,56 @@ Module yocto_network
       Dim rest_val As String
       rest_val = username + ":" + password
       Return _setAttr("callbackCredentials", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the initial waiting time before first callback notifications, in seconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the initial waiting time before first callback notifications, in seconds
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CALLBACKINITIALDELAY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_callbackInitialDelay() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return CALLBACKINITIALDELAY_INVALID
+        End If
+      End If
+      Return Me._callbackInitialDelay
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the initial waiting time before first callback notifications, in seconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the initial waiting time before first callback notifications, in seconds
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_callbackInitialDelay(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("callbackInitialDelay", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -1494,10 +1554,10 @@ Module yocto_network
 
     '''*
     ''' <summary>
-    '''   Pings str_host to test the network connectivity.
+    '''   Pings host to test the network connectivity.
     ''' <para>
     '''   Sends four ICMP ECHO_REQUEST requests from the
-    '''   module to the target str_host. This method returns a string with the result of the
+    '''   module to the target host. This method returns a string with the result of the
     '''   4 ICMP ECHO_REQUEST requests.
     ''' </para>
     ''' </summary>
@@ -1515,6 +1575,29 @@ Module yocto_network
       REM // may throw an exception
       content = Me._download("ping.txt?host=" + host)
       Return YAPI.DefaultEncoding.GetString(content)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Trigger an HTTP callback quickly.
+    ''' <para>
+    '''   This function can even be called within
+    '''   an HTTP callback, in which case the next callback will be triggered 5 seconds
+    '''   after the end of the current callback, regardless if the minimum time between
+    '''   callbacks configured in the device.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function triggerCallback() As Integer
+      REM // Rewrite the callback method to trigger the callback
+      REM // may throw an exception
+      Return Me.set_callbackMethod(Me.get_callbackMethod())
     End Function
 
 

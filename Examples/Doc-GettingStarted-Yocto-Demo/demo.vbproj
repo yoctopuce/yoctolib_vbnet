@@ -101,8 +101,11 @@
     <Compile Include="..\..\Sources\yocto_current.vb">
       <Link>yocto\yocto_current.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_colorledcluster.vb">
+      <Link>yocto\yocto_colorledcluster.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_currentloopoutput.vb">
-      <Link>yocto\yocto_current.vb</Link>
+      <Link>yocto\yocto_currentloopoutput.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_datalogger.vb">
       <Link>yocto\yocto_datalogger.vb</Link>
@@ -199,6 +202,9 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_servo.vb">
       <Link>yocto\yocto_servo.vb</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_spiport.vb">
+      <Link>yocto\yocto_spiport.vb</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_temperature.vb">
       <Link>yocto\yocto_temperature.vb</Link>
