@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorled.vb 23578 2016-03-22 23:00:41Z mvuilleu $
+'* $Id: yocto_colorled.vb 24475 2016-05-12 14:03:35Z mvuilleu $
 '*
 '* Implements yFindColorLed(), the high-level API for ColorLed functions
 '*
@@ -228,7 +228,7 @@ End Class
 
     '''*
     ''' <summary>
-    '''   Changes the current color of the LED, using a RGB color.
+    '''   Changes the current color of the LED, using an RGB color.
     ''' <para>
     '''   Encoding is done as follows: 0xRRGGBB.
     ''' </para>
@@ -236,7 +236,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the current color of the LED, using a RGB color
+    '''   an integer corresponding to the current color of the LED, using an RGB color
     ''' </param>
     ''' <para>
     ''' </para>
@@ -658,8 +658,8 @@ End Class
 
     '''*
     ''' <summary>
-    '''   Add a new transition to the blinking sequence, the move will
-    '''   be performed in the RGB space.
+    '''   Adds a new transition to the blinking sequence, the move is
+    '''   performed in the RGB space.
     ''' <para>
     ''' </para>
     ''' </summary>
@@ -682,8 +682,8 @@ End Class
     ''' <summary>
     '''   Starts the preprogrammed blinking sequence.
     ''' <para>
-    '''   The sequence will
-    '''   run in loop until it is stopped by stopBlinkSeq or an explicit
+    '''   The sequence is
+    '''   run in a loop until it is stopped by stopBlinkSeq or an explicit
     '''   change.
     ''' </para>
     ''' </summary>
