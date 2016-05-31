@@ -155,6 +155,9 @@
     <Compile Include="..\..\Sources\yocto_magnetometer.vb">
       <Link>yocto\yocto_magnetometer.vb</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_messagebox.vb">
+      <Link>yocto\yocto_messagebox.vb</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_motor.vb">
       <Link>yocto\yocto_motor.vb</Link>
     </Compile>

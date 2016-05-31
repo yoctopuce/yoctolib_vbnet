@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 24465 2016-05-12 07:30:46Z mvuilleu $
+'* $Id: yocto_cellular.vb 24622 2016-05-27 12:51:52Z mvuilleu $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -166,6 +166,8 @@ Module yocto_cellular
   Public Const Y_APN_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_APNSECRET_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PINGINTERVAL_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_DATASENT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_DATARECEIVED_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YCellularValueCallback(ByVal func As YCellular, ByVal value As String)
   Public Delegate Sub YCellularTimedReportCallback(ByVal func As YCellular, ByVal measure As YMeasure)
@@ -210,6 +212,8 @@ Module yocto_cellular
     Public Const APN_INVALID As String = YAPI.INVALID_STRING
     Public Const APNSECRET_INVALID As String = YAPI.INVALID_STRING
     Public Const PINGINTERVAL_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const DATASENT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const DATARECEIVED_INVALID As Integer = YAPI.INVALID_UINT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of generated code: YCellular definitions)
 
@@ -227,6 +231,8 @@ Module yocto_cellular
     Protected _apn As String
     Protected _apnSecret As String
     Protected _pingInterval As Integer
+    Protected _dataSent As Integer
+    Protected _dataReceived As Integer
     Protected _command As String
     Protected _valueCallbackCellular As YCellularValueCallback
     REM --- (end of generated code: YCellular attributes declaration)
@@ -248,6 +254,8 @@ Module yocto_cellular
       _apn = APN_INVALID
       _apnSecret = APNSECRET_INVALID
       _pingInterval = PINGINTERVAL_INVALID
+      _dataSent = DATASENT_INVALID
+      _dataReceived = DATARECEIVED_INVALID
       _command = COMMAND_INVALID
       _valueCallbackCellular = Nothing
       REM --- (end of generated code: YCellular attributes initialization)
@@ -306,6 +314,14 @@ Module yocto_cellular
       End If
       If (member.name = "pingInterval") Then
         _pingInterval = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "dataSent") Then
+        _dataSent = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "dataReceived") Then
+        _dataReceived = CInt(member.ivalue)
         Return 1
       End If
       If (member.name = "command") Then
@@ -835,6 +851,106 @@ Module yocto_cellular
       rest_val = Ltrim(Str(newval))
       Return _setAttr("pingInterval", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the number of bytes sent so far.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the number of bytes sent so far
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_DATASENT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_dataSent() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return DATASENT_INVALID
+        End If
+      End If
+      Return Me._dataSent
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the value of the outgoing data counter.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the value of the outgoing data counter
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_dataSent(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("dataSent", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the number of bytes received so far.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the number of bytes received so far
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_DATARECEIVED_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_dataReceived() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return DATARECEIVED_INVALID
+        End If
+      End If
+      Return Me._dataReceived
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the value of the incoming data counter.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the value of the incoming data counter
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_dataReceived(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("dataReceived", rest_val)
+    End Function
     Public Function get_command() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
@@ -976,7 +1092,7 @@ Module yocto_cellular
     Public Overridable Function sendPUK(puk As String, newPin As String) As Integer
       Dim gsmMsg As String
       gsmMsg = Me.get_message()
-      If Not((gsmMsg).Substring(0, 13) = "Enter SIM PUK") Then
+      If Not(Not ((gsmMsg).Substring(0, 13) = "Enter SIM PUK")) Then
         me._throw(YAPI.INVALID_ARGUMENT,  "PUK not expected at this time")
         return YAPI.INVALID_ARGUMENT
       end if
@@ -1011,6 +1127,30 @@ Module yocto_cellular
     '''/
     Public Overridable Function set_apnAuth(username As String, password As String) As Integer
       Return Me.set_apnSecret("" + username + "," + password)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Clear the transmitted data counters.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function clearDataCounters() As Integer
+      Dim retcode As Integer = 0
+      REM // may throw an exception
+      retcode = Me.set_dataReceived(0)
+      If (retcode <> YAPI.SUCCESS) Then
+        Return retcode
+      End If
+      retcode = Me.set_dataSent(0)
+      Return retcode
     End Function
 
     '''*
