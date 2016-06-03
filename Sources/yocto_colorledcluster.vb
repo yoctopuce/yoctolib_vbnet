@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 24586 2016-05-26 12:42:56Z seb $
+'* $Id: yocto_colorledcluster.vb 24717 2016-06-03 16:09:53Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -216,7 +216,9 @@ Module yocto_colorledcluster
 
     '''*
     ''' <summary>
-    '''   Returns the maximum number of sequences that the device can handle
+    '''   Returns the maximum number of sequences that the device can handle.
+    ''' <para>
+    ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
@@ -379,7 +381,7 @@ Module yocto_colorledcluster
 
     '''*
     ''' <summary>
-    '''   Changes the current color of consecutve LEDs in the cluster , using a RGB color.
+    '''   Changes the current color of consecutve LEDs in the cluster, using a RGB color.
     ''' <para>
     '''   Encoding is done as follows: 0xRRGGBB.
     ''' </para>
@@ -392,8 +394,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="rgbValue">
     '''   new color.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function set_rgbColor(ledIndex As Integer, count As Integer, rgbValue As Integer) As Integer
       Return Me.sendCommand("SR" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(rgbValue,1))
@@ -401,9 +408,11 @@ Module yocto_colorledcluster
 
     '''*
     ''' <summary>
-    '''   Changes the  color at device startup of consecutve LEDs in the cluster , using a RGB color.
+    '''   Changes the  color at device startup of consecutve LEDs in the cluster, using a RGB color.
     ''' <para>
     '''   Encoding is done as follows: 0xRRGGBB.
+    '''   Don't forget to call <c>saveLedsConfigAtPowerOn()</c> to make sure the modification is saved in the
+    '''   device flash memory.
     ''' </para>
     ''' </summary>
     ''' <param name="ledIndex">
@@ -414,8 +423,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="rgbValue">
     '''   new color.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function set_rgbColorAtPowerOn(ledIndex As Integer, count As Integer, rgbValue As Integer) As Integer
       Return Me.sendCommand("SC" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(rgbValue,1))
@@ -436,8 +450,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="hslValue">
     '''   new color.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function set_hslColor(ledIndex As Integer, count As Integer, hslValue As Integer) As Integer
       Return Me.sendCommand("SH" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(hslValue,1))
@@ -462,8 +481,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="delay">
     '''   transition duration in ms
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function rgb_move(ledIndex As Integer, count As Integer, rgbValue As Integer, delay As Integer) As Integer
       Return Me.sendCommand("MR" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(rgbValue,1) + "," + Convert.ToString(delay))
@@ -492,8 +516,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="delay">
     '''   transition duration in ms
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function hsl_move(ledIndex As Integer, count As Integer, hslValue As Integer, delay As Integer) As Integer
       Return Me.sendCommand("MH" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(hslValue,1) + "," + Convert.ToString(delay))
@@ -505,7 +534,7 @@ Module yocto_colorledcluster
     ''' <para>
     '''   A sequence is a transition list, which can
     '''   be executed in loop by a group of LEDs.  Sequences are persistent and are saved
-    '''   in the device flash memory as soon as the module <c>saveToFlash()</c> method is called.
+    '''   in the device flash memory as soon as the <c>saveBlinkSeq()</c> method is called.
     ''' </para>
     ''' </summary>
     ''' <param name="seqIndex">
@@ -516,8 +545,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="delay">
     '''   transition duration in ms
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function addRgbMoveToBlinkSeq(seqIndex As Integer, rgbValue As Integer, delay As Integer) As Integer
       Return Me.sendCommand("AR" + Convert.ToString(seqIndex) + "," + YAPI._intToHex(rgbValue,1) + "," + Convert.ToString(delay))
@@ -529,7 +563,7 @@ Module yocto_colorledcluster
     ''' <para>
     '''   A sequence is a transition list, which can
     '''   be executed in loop by an group of LEDs.  Sequences are persistant and are saved
-    '''   in the device flash memory as soon as the module <c>saveToFlash()</c> method is called.
+    '''   in the device flash memory as soon as the <c>saveBlinkSeq()</c> method is called.
     ''' </para>
     ''' </summary>
     ''' <param name="seqIndex">
@@ -540,8 +574,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="delay">
     '''   transition duration in ms
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function addHslMoveToBlinkSeq(seqIndex As Integer, hslValue As Integer, delay As Integer) As Integer
       Return Me.sendCommand("AH" + Convert.ToString(seqIndex) + "," + YAPI._intToHex(hslValue,1) + "," + Convert.ToString(delay))
@@ -560,8 +599,13 @@ Module yocto_colorledcluster
     ''' </summary>
     ''' <param name="seqIndex">
     '''   sequence index.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function addMirrorToBlinkSeq(seqIndex As Integer) As Integer
       Return Me.sendCommand("AC" + Convert.ToString(seqIndex) + ",0,0")
@@ -588,8 +632,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="offset">
     '''   execution offset in ms.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function linkLedToBlinkSeq(ledIndex As Integer, count As Integer, seqIndex As Integer, offset As Integer) As Integer
       Return Me.sendCommand("LS" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + Convert.ToString(seqIndex) + "," + Convert.ToString(offset))
@@ -600,7 +649,7 @@ Module yocto_colorledcluster
     '''   Links adjacent LEDs to a specific sequence at device poweron.
     ''' <para>
     '''   Don't forget to configure
-    '''   the sequence auto start flag as well and call saveLedsState. It is possible to add an offset
+    '''   the sequence auto start flag as well and call <c>saveLedsConfigAtPowerOn()</c>. It is possible to add an offset
     '''   in the execution: that way we  can have several groups of LEDs executing the same
     '''   sequence, with a  temporal offset. A LED cannot be linked to more than one sequence.
     ''' </para>
@@ -616,8 +665,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="offset">
     '''   execution offset in ms.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function linkLedToBlinkSeqAtPowerOn(ledIndex As Integer, count As Integer, seqIndex As Integer, offset As Integer) As Integer
       Return Me.sendCommand("LO" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + Convert.ToString(seqIndex) + "," + Convert.ToString(offset))
@@ -644,8 +698,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="periods">
     '''   number of periods to show on LEDs.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function linkLedToPeriodicBlinkSeq(ledIndex As Integer, count As Integer, seqIndex As Integer, periods As Integer) As Integer
       Return Me.sendCommand("LP" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + Convert.ToString(seqIndex) + "," + Convert.ToString(periods))
@@ -662,8 +721,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="count">
     '''   affected LED count.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function unlinkLedFromBlinkSeq(ledIndex As Integer, count As Integer) As Integer
       Return Me.sendCommand("US" + Convert.ToString(ledIndex) + "," + Convert.ToString(count))
@@ -678,8 +742,13 @@ Module yocto_colorledcluster
     ''' </summary>
     ''' <param name="seqIndex">
     '''   index of the sequence to start.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function startBlinkSeq(seqIndex As Integer) As Integer
       Return Me.sendCommand("SS" + Convert.ToString(seqIndex))
@@ -695,8 +764,13 @@ Module yocto_colorledcluster
     ''' </summary>
     ''' <param name="seqIndex">
     '''   index of the sequence to stop.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function stopBlinkSeq(seqIndex As Integer) As Integer
       Return Me.sendCommand("XS" + Convert.ToString(seqIndex))
@@ -712,8 +786,13 @@ Module yocto_colorledcluster
     ''' </summary>
     ''' <param name="seqIndex">
     '''   index of the sequence to reset
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function resetBlinkSeq(seqIndex As Integer) As Integer
       Return Me.sendCommand("ZS" + Convert.ToString(seqIndex))
@@ -724,20 +803,25 @@ Module yocto_colorledcluster
     '''   Configures a sequence to make it start automatically at device
     '''   startup.
     ''' <para>
-    '''   Don't forget to call  saveLedsState() to make sure the
+    '''   Don't forget to call <c>saveBlinkSeq()</c> to make sure the
     '''   modification is saved in the device flash memory.
     ''' </para>
     ''' </summary>
     ''' <param name="seqIndex">
-    '''   index of the sequence to reset
+    '''   index of the sequence to reset.
     ''' </param>
     ''' <param name="autostart">
-    '''   boolean telling if the sequence must start automatically or not.
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   0 to keep the sequence turned off and 1 to start it automatically.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
-    Public Overridable Function set_blinkSeqAutoStart(seqIndex As Integer, autostart As Boolean) As Integer
-      Return Me.sendCommand("AS" + Convert.ToString(seqIndex) + "," + YAPI._boolToStr(autostart))
+    Public Overridable Function set_blinkSeqStateAtPowerOn(seqIndex As Integer, autostart As Integer) As Integer
+      Return Me.sendCommand("AS" + Convert.ToString(seqIndex) + "," + Convert.ToString(autostart))
     End Function
 
     '''*
@@ -754,8 +838,13 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <param name="speed">
     '''   sequence running speed (-1000...1000).
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function set_blinkSeqSpeed(seqIndex As Integer, speed As Integer) As Integer
       Return Me.sendCommand("CS" + Convert.ToString(seqIndex) + "," + Convert.ToString(speed))
@@ -763,55 +852,95 @@ Module yocto_colorledcluster
 
     '''*
     ''' <summary>
-    '''   Saves the cluster power-on configuration, this includes
-    '''   LED start-up colors, sequence steps and sequence auto-start flags.
+    '''   Saves the LEDs power-on configuration.
+    ''' <para>
+    '''   This includes the start-up color or
+    '''   sequence binding for all LEDs. Warning: if some LEDs are linked to a sequence, the
+    '''   method <c>saveBlinkSeq()</c> must also be called to save the sequence definition.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
-    ''' </summary>
     '''/
-    Public Overridable Function saveLedsState() As Integer
-      Return Me.sendCommand("SL")
+    Public Overridable Function saveLedsConfigAtPowerOn() As Integer
+      Return Me.sendCommand("WL")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Saves the definition of a sequence.
+    ''' <para>
+    '''   Warning: only sequence steps and flags are saved.
+    '''   to save the LEDs startup bindings, the method <c>saveLedsConfigAtPowerOn()</c>
+    '''   must be called.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="seqIndex">
+    '''   index of the sequence to start.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function saveBlinkSeq(seqIndex As Integer) As Integer
+      Return Me.sendCommand("WS" + Convert.ToString(seqIndex))
     End Function
 
     '''*
     ''' <summary>
     '''   Sends a binary buffer to the LED RGB buffer, as is.
     ''' <para>
-    '''   First three bytes are RGB components for first LED, the
-    '''   next three bytes for the second LED, etc.
+    '''   First three bytes are RGB components for LED specified as parameter, the
+    '''   next three bytes for the next LED, etc.
     ''' </para>
     ''' </summary>
+    ''' <param name="ledIndex">
+    '''   index of the first LED which should be updated
+    ''' </param>
     ''' <param name="buff">
     '''   the binary buffer to send
     ''' </param>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
-    Public Overridable Function set_rgbBuffer(buff As Byte()) As Integer
+    Public Overridable Function set_rgbColorBuffer(ledIndex As Integer, buff As Byte()) As Integer
       REM // may throw an exception
-      Return Me._upload("rgb:0", buff)
+      Return Me._upload("rgb:0:" + Convert.ToString(ledIndex), buff)
     End Function
 
     '''*
     ''' <summary>
     '''   Sends 24bit RGB colors (provided as a list of integers) to the LED RGB buffer, as is.
     ''' <para>
-    '''   The first number represents the RGB value of the first LED, the second number represents
-    '''   the RGB value of the second LED, etc.
+    '''   The first number represents the RGB value of the LED specified as parameter, the second
+    '''   number represents the RGB value of the next LED, etc.
     ''' </para>
     ''' </summary>
+    ''' <param name="ledIndex">
+    '''   index of the first LED which should be updated
+    ''' </param>
     ''' <param name="rgbList">
     '''   a list of 24bit RGB codes, in the form 0xRRGGBB
     ''' </param>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
-    Public Overridable Function set_rgbArray(rgbList As List(Of Integer)) As Integer
+    Public Overridable Function set_rgbColorArray(ledIndex As Integer, rgbList As List(Of Integer)) As Integer
       Dim listlen As Integer = 0
       Dim buff As Byte()
       Dim idx As Integer = 0
@@ -828,7 +957,7 @@ Module yocto_colorledcluster
         idx = idx + 1
       End While
       REM // may throw an exception
-      res = Me._upload("rgb:0", buff)
+      res = Me._upload("rgb:0:" + Convert.ToString(ledIndex), buff)
       Return res
     End Function
 
@@ -838,7 +967,7 @@ Module yocto_colorledcluster
     '''   color codes.
     ''' <para>
     '''   The first color code represents the target RGB value of the first LED,
-    '''   the second color code represents the target value of the second LED, etc.
+    '''   the next color code represents the target value of the next LED, etc.
     ''' </para>
     ''' </summary>
     ''' <param name="rgbList">
@@ -849,8 +978,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function rgbArray_move(rgbList As List(Of Integer), delay As Integer) As Integer
       Dim listlen As Integer = 0
@@ -877,40 +1008,50 @@ Module yocto_colorledcluster
     ''' <summary>
     '''   Sends a binary buffer to the LED HSL buffer, as is.
     ''' <para>
-    '''   First three bytes are HSL components for first LED, the
+    '''   First three bytes are HSL components for the LED specified as parameter, the
     '''   next three bytes for the second LED, etc.
     ''' </para>
     ''' </summary>
+    ''' <param name="ledIndex">
+    '''   index of the first LED which should be updated
+    ''' </param>
     ''' <param name="buff">
     '''   the binary buffer to send
     ''' </param>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
-    Public Overridable Function set_hslBuffer(buff As Byte()) As Integer
+    Public Overridable Function set_hslColorBuffer(ledIndex As Integer, buff As Byte()) As Integer
       REM // may throw an exception
-      Return Me._upload("hsl:0", buff)
+      Return Me._upload("hsl:0:" + Convert.ToString(ledIndex), buff)
     End Function
 
     '''*
     ''' <summary>
     '''   Sends 24bit HSL colors (provided as a list of integers) to the LED HSL buffer, as is.
     ''' <para>
-    '''   The first number represents the HSL value of the first LED, the second number represents
+    '''   The first number represents the HSL value of the LED specified as parameter, the second number represents
     '''   the HSL value of the second LED, etc.
     ''' </para>
     ''' </summary>
+    ''' <param name="ledIndex">
+    '''   index of the first LED which should be updated
+    ''' </param>
     ''' <param name="hslList">
     '''   a list of 24bit HSL codes, in the form 0xHHSSLL
     ''' </param>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
-    Public Overridable Function set_hslArray(hslList As List(Of Integer)) As Integer
+    Public Overridable Function set_hslColorArray(ledIndex As Integer, hslList As List(Of Integer)) As Integer
       Dim listlen As Integer = 0
       Dim buff As Byte()
       Dim idx As Integer = 0
@@ -927,7 +1068,7 @@ Module yocto_colorledcluster
         idx = idx + 1
       End While
       REM // may throw an exception
-      res = Me._upload("hsl:0", buff)
+      res = Me._upload("hsl:0:" + Convert.ToString(ledIndex), buff)
       Return res
     End Function
 
@@ -948,8 +1089,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
     '''/
     Public Overridable Function hslArray_move(hslList As List(Of Integer), delay As Integer) As Integer
       Dim listlen As Integer = 0
@@ -988,8 +1131,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   a binary buffer with RGB components of selected LEDs.
-    '''   On failure, throws an exception or returns an empty binary buffer.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty binary buffer.
+    ''' </para>
     '''/
     Public Overridable Function get_rgbColorBuffer(ledIndex As Integer, count As Integer) As Byte()
       REM // may throw an exception
@@ -1013,8 +1158,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   a list of 24bit color codes with RGB components of selected LEDs, as 0xRRGGBB.
-    '''   On failure, throws an exception or returns an empty array.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
     '''/
     Public Overridable Function get_rgbColorArray(ledIndex As Integer, count As Integer) As List(Of Integer)
       Dim buff As Byte()
@@ -1055,8 +1202,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   a list of 24bit color codes with RGB components of selected LEDs, as 0xRRGGBB.
-    '''   On failure, throws an exception or returns an empty array.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
     '''/
     Public Overridable Function get_rgbColorArrayAtPowerOn(ledIndex As Integer, count As Integer) As List(Of Integer)
       Dim buff As Byte()
@@ -1098,8 +1247,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   a list of integers with sequence index
-    '''   On failure, throws an exception or returns an empty array.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
     '''/
     Public Overridable Function get_linkedSeqArray(ledIndex As Integer, count As Integer) As List(Of Integer)
       Dim buff As Byte()
@@ -1136,8 +1287,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   a list of 32 bit integer signatures
-    '''   On failure, throws an exception or returns an empty array.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
     '''/
     Public Overridable Function get_blinkSeqSignatures(seqIndex As Integer, count As Integer) As List(Of Integer)
       Dim buff As Byte()
@@ -1178,8 +1331,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   a list of integers, 0 for sequences turned off and 1 for sequences running
-    '''   On failure, throws an exception or returns an empty array.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
     '''/
     Public Overridable Function get_blinkSeqStateSpeed(seqIndex As Integer, count As Integer) As List(Of Integer)
       Dim buff As Byte()
@@ -1216,8 +1371,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   a list of integers, 0 for sequences turned off and 1 for sequences running
-    '''   On failure, throws an exception or returns an empty array.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
     '''/
     Public Overridable Function get_blinkSeqStateAtPowerOn(seqIndex As Integer, count As Integer) As List(Of Integer)
       Dim buff As Byte()
@@ -1252,8 +1409,10 @@ Module yocto_colorledcluster
     ''' </param>
     ''' <returns>
     '''   a list of integers, 0 for sequences turned off and 1 for sequences running
-    '''   On failure, throws an exception or returns an empty array.
     ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
     '''/
     Public Overridable Function get_blinkSeqState(seqIndex As Integer, count As Integer) As List(Of Integer)
       Dim buff As Byte()
