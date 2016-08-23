@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_magnetometer.vb 23244 2016-02-23 14:13:49Z seb $
+'* $Id: yocto_magnetometer.vb 24934 2016-06-30 22:32:01Z mvuilleu $
 '*
 '* Implements yFindMagnetometer(), the high-level API for Magnetometer functions
 '*
@@ -51,6 +51,7 @@ Module yocto_magnetometer
     REM --- (end of YMagnetometer dlldef)
   REM --- (YMagnetometer globals)
 
+  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -81,12 +82,14 @@ Module yocto_magnetometer
     REM --- (end of YMagnetometer class start)
 
     REM --- (YMagnetometer definitions)
+    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
     Public Const XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     REM --- (end of YMagnetometer definitions)
 
     REM --- (YMagnetometer attributes declaration)
+    Protected _bandwidth As Integer
     Protected _xValue As Double
     Protected _yValue As Double
     Protected _zValue As Double
@@ -98,6 +101,7 @@ Module yocto_magnetometer
       MyBase.New(func)
       _classname = "Magnetometer"
       REM --- (YMagnetometer attributes initialization)
+      _bandwidth = BANDWIDTH_INVALID
       _xValue = XVALUE_INVALID
       _yValue = YVALUE_INVALID
       _zValue = ZVALUE_INVALID
@@ -109,6 +113,10 @@ Module yocto_magnetometer
     REM --- (YMagnetometer private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "bandwidth") Then
+        _bandwidth = CInt(member.ivalue)
+        Return 1
+      End If
       If (member.name = "xValue") Then
         _xValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
@@ -127,6 +135,58 @@ Module yocto_magnetometer
     REM --- (end of YMagnetometer private methods declaration)
 
     REM --- (YMagnetometer public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_bandwidth() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return BANDWIDTH_INVALID
+        End If
+      End If
+      Return Me._bandwidth
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    ''' <para>
+    '''   When the
+    '''   frequency is lower, the device performs averaging.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_bandwidth(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("bandwidth", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Returns the X component of the magnetic field, as a floating point number.

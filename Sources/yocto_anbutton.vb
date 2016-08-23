@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_anbutton.vb 23244 2016-02-23 14:13:49Z seb $
+'* $Id: yocto_anbutton.vb 24849 2016-06-17 15:21:23Z seb $
 '*
 '* Implements yFindAnButton(), the high-level API for AnButton functions
 '*
@@ -539,6 +539,9 @@ Module yocto_anbutton
     ''' <summary>
     '''   Returns the pulse counter value.
     ''' <para>
+    '''   The value is a 32 bit integer. In case
+    '''   of overflow (>=2^32), the counter will wrap. To reset the counter, just
+    '''   call the resetCounter() method.
     ''' </para>
     ''' <para>
     ''' </para>

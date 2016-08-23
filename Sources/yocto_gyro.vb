@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gyro.vb 22698 2016-01-12 23:15:02Z seb $
+'* $Id: yocto_gyro.vb 24948 2016-07-01 20:57:28Z mvuilleu $
 '*
 '* Implements yFindGyro(), the high-level API for Gyro functions
 '*
@@ -374,6 +374,7 @@ Module yocto_gyro
     REM --- (end of generated code: YGyro return codes)
   REM --- (generated code: YGyro globals)
 
+  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -421,12 +422,14 @@ Module yocto_gyro
     REM --- (end of generated code: YGyro class start)
 
     REM --- (generated code: YGyro definitions)
+    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
     Public Const XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     REM --- (end of generated code: YGyro definitions)
 
     REM --- (generated code: YGyro attributes declaration)
+    Protected _bandwidth As Integer
     Protected _xValue As Double
     Protected _yValue As Double
     Protected _zValue As Double
@@ -453,6 +456,7 @@ Module yocto_gyro
       MyBase.New(func)
       _classname = "Gyro"
       REM --- (generated code: YGyro attributes initialization)
+      _bandwidth = BANDWIDTH_INVALID
       _xValue = XVALUE_INVALID
       _yValue = YVALUE_INVALID
       _zValue = ZVALUE_INVALID
@@ -473,6 +477,10 @@ Module yocto_gyro
     REM --- (generated code: YGyro private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "bandwidth") Then
+        _bandwidth = CInt(member.ivalue)
+        Return 1
+      End If
       If (member.name = "xValue") Then
         _xValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
@@ -491,6 +499,58 @@ Module yocto_gyro
     REM --- (end of generated code: YGyro private methods declaration)
 
     REM --- (generated code: YGyro public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_bandwidth() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return BANDWIDTH_INVALID
+        End If
+      End If
+      Return Me._bandwidth
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    ''' <para>
+    '''   When the
+    '''   frequency is lower, the device performs averaging.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_bandwidth(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("bandwidth", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Returns the angular velocity around the X axis of the device, as a floating point number.
@@ -760,12 +820,12 @@ Module yocto_gyro
         If (delta > 0.499 * norm) Then
           REM
           Me._pitch = 90.0
-          Me._head  = Math.Round(2.0 * 1800.0/Math.PI * Math.Atan2(Me._x,Me._w)) / 10.0
+          Me._head  = Math.Round(2.0 * 1800.0/Math.PI * Math.Atan2(Me._x,-Me._w)) / 10.0
         Else
           If (delta < -0.499 * norm) Then
             REM
             Me._pitch = -90.0
-            Me._head  = Math.Round(-2.0 * 1800.0/Math.PI * Math.Atan2(Me._x,Me._w)) / 10.0
+            Me._head  = Math.Round(-2.0 * 1800.0/Math.PI * Math.Atan2(Me._x,-Me._w)) / 10.0
           Else
             Me._roll  = Math.Round(1800.0/Math.PI * Math.Atan2(2.0 * (Me._w * Me._x + Me._y * Me._z),sqw - sqx - sqy + sqz)) / 10.0
             Me._pitch = Math.Round(1800.0/Math.PI * Math.Asin(2.0 * delta / norm)) / 10.0

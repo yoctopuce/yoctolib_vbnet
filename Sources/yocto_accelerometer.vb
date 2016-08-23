@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_accelerometer.vb 23244 2016-02-23 14:13:49Z seb $
+'* $Id: yocto_accelerometer.vb 24934 2016-06-30 22:32:01Z mvuilleu $
 '*
 '* Implements yFindAccelerometer(), the high-level API for Accelerometer functions
 '*
@@ -51,6 +51,7 @@ Module yocto_accelerometer
     REM --- (end of YAccelerometer dlldef)
   REM --- (YAccelerometer globals)
 
+  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -84,6 +85,7 @@ Module yocto_accelerometer
     REM --- (end of YAccelerometer class start)
 
     REM --- (YAccelerometer definitions)
+    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
     Public Const XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -93,6 +95,7 @@ Module yocto_accelerometer
     REM --- (end of YAccelerometer definitions)
 
     REM --- (YAccelerometer attributes declaration)
+    Protected _bandwidth As Integer
     Protected _xValue As Double
     Protected _yValue As Double
     Protected _zValue As Double
@@ -105,6 +108,7 @@ Module yocto_accelerometer
       MyBase.New(func)
       _classname = "Accelerometer"
       REM --- (YAccelerometer attributes initialization)
+      _bandwidth = BANDWIDTH_INVALID
       _xValue = XVALUE_INVALID
       _yValue = YVALUE_INVALID
       _zValue = ZVALUE_INVALID
@@ -117,6 +121,10 @@ Module yocto_accelerometer
     REM --- (YAccelerometer private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "bandwidth") Then
+        _bandwidth = CInt(member.ivalue)
+        Return 1
+      End If
       If (member.name = "xValue") Then
         _xValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
@@ -139,6 +147,58 @@ Module yocto_accelerometer
     REM --- (end of YAccelerometer private methods declaration)
 
     REM --- (YAccelerometer public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_bandwidth() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return BANDWIDTH_INVALID
+        End If
+      End If
+      Return Me._bandwidth
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    ''' <para>
+    '''   When the
+    '''   frequency is lower, the device performs averaging.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_bandwidth(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("bandwidth", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Returns the X component of the acceleration, as a floating point number.

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 24622 2016-05-27 12:51:52Z mvuilleu $
+'* $Id: yocto_cellular.vb 24921 2016-06-29 13:15:24Z mvuilleu $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -162,6 +162,7 @@ Module yocto_cellular
   Public Const Y_ENABLEDATA_HOMENETWORK As Integer = 0
   Public Const Y_ENABLEDATA_ROAMING As Integer = 1
   Public Const Y_ENABLEDATA_NEVER As Integer = 2
+  Public Const Y_ENABLEDATA_NEUTRALITY As Integer = 3
   Public Const Y_ENABLEDATA_INVALID As Integer = -1
   Public Const Y_APN_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_APNSECRET_INVALID As String = YAPI.INVALID_STRING
@@ -208,6 +209,7 @@ Module yocto_cellular
     Public Const ENABLEDATA_HOMENETWORK As Integer = 0
     Public Const ENABLEDATA_ROAMING As Integer = 1
     Public Const ENABLEDATA_NEVER As Integer = 2
+    Public Const ENABLEDATA_NEUTRALITY As Integer = 3
     Public Const ENABLEDATA_INVALID As Integer = -1
     Public Const APN_INVALID As String = YAPI.INVALID_STRING
     Public Const APNSECRET_INVALID As String = YAPI.INVALID_STRING
@@ -667,8 +669,9 @@ Module yocto_cellular
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_ENABLEDATA_HOMENETWORK</c>, <c>Y_ENABLEDATA_ROAMING</c> and
-    '''   <c>Y_ENABLEDATA_NEVER</c> corresponding to the condition for enabling IP data services (GPRS)
+    '''   a value among <c>Y_ENABLEDATA_HOMENETWORK</c>, <c>Y_ENABLEDATA_ROAMING</c>,
+    '''   <c>Y_ENABLEDATA_NEVER</c> and <c>Y_ENABLEDATA_NEUTRALITY</c> corresponding to the condition for
+    '''   enabling IP data services (GPRS)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_ENABLEDATA_INVALID</c>.
@@ -699,8 +702,9 @@ Module yocto_cellular
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_ENABLEDATA_HOMENETWORK</c>, <c>Y_ENABLEDATA_ROAMING</c> and
-    '''   <c>Y_ENABLEDATA_NEVER</c> corresponding to the condition for enabling IP data services (GPRS)
+    '''   a value among <c>Y_ENABLEDATA_HOMENETWORK</c>, <c>Y_ENABLEDATA_ROAMING</c>,
+    '''   <c>Y_ENABLEDATA_NEVER</c> and <c>Y_ENABLEDATA_NEUTRALITY</c> corresponding to the condition for
+    '''   enabling IP data services (GPRS)
     ''' </param>
     ''' <para>
     ''' </para>

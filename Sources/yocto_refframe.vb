@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 23244 2016-02-23 14:13:49Z seb $
+'* $Id: yocto_refframe.vb 24943 2016-07-01 14:02:25Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -101,6 +101,7 @@ end enum
     Protected _bearing As Double
     Protected _calibrationParam As String
     Protected _valueCallbackRefFrame As YRefFrameValueCallback
+    Protected _calibV2 As Boolean
     Protected _calibStage As Integer
     Protected _calibStageHint As String
     Protected _calibStageProgress As Integer
@@ -468,6 +469,79 @@ end enum
       return Me.set_mountPos(mixedPos)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the 3D sensor calibration state (Yocto-3D-V2 only).
+    ''' <para>
+    '''   This function returns
+    '''   an integer representing the calibration state of the 3 inertial sensors of
+    '''   the BNO055 chip, found in the Yocto-3D-V2. Hundredths show the calibration state
+    '''   of the accelerometer, tenths show the calibration state of the magnetometer while
+    '''   units show the calibration state of the gyroscope. For each sensor, the value 0
+    '''   means no calibration and the value 3 means full calibration.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer representing the calibration state of Yocto-3D-V2:
+    '''   333 when fully calibrated, 0 when not calibrated at all.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    '''   For the Yocto-3D (V1), this function always return -3 (unsupported function).
+    ''' </para>
+    '''/
+    Public Overridable Function get_calibrationState() As Integer
+      Dim calibParam As String
+      Dim iCalib As List(Of Integer) = New List(Of Integer)()
+      Dim caltyp As Integer = 0
+      Dim res As Integer = 0
+      REM // may throw an exception
+      calibParam = Me.get_calibrationParam()
+      iCalib = YAPI._decodeFloats(calibParam)
+      caltyp = (iCalib(0) \ 1000)
+      If (caltyp <> 33) Then
+        Return YAPI.NOT_SUPPORTED
+      End If
+      res = (iCalib(1) \ 1000)
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns estimated quality of the orientation (Yocto-3D-V2 only).
+    ''' <para>
+    '''   This function returns
+    '''   an integer between 0 and 3 representing the degree of confidence of the position
+    '''   estimate. When the value is 3, the estimation is reliable. Below 3, one should
+    '''   expect sudden corrections, in particular for heading (<c>compass</c> function).
+    '''   The most frequent causes for values below 3 are magnetic interferences, and
+    '''   accelerations or rotations beyond the sensor range.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer between 0 and 3 (3 when the measure is reliable)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    '''   For the Yocto-3D (V1), this function always return -3 (unsupported function).
+    ''' </para>
+    '''/
+    Public Overridable Function get_measureQuality() As Integer
+      Dim calibParam As String
+      Dim iCalib As List(Of Integer) = New List(Of Integer)()
+      Dim caltyp As Integer = 0
+      Dim res As Integer = 0
+      REM // may throw an exception
+      calibParam = Me.get_calibrationParam()
+      iCalib = YAPI._decodeFloats(calibParam)
+      caltyp = (iCalib(0) \ 1000)
+      If (caltyp <> 33) Then
+        Return YAPI.NOT_SUPPORTED
+      End If
+      res = (iCalib(2) \ 1000)
+      Return res
+    End Function
+
     Public Overridable Function _calibSort(start As Integer, stopidx As Integer) As Integer
       Dim idx As Integer = 0
       Dim changed As Integer = 0
@@ -539,6 +613,7 @@ end enum
         Me.cancel3DCalibration()
       End If
       Me._calibSavedParams = Me.get_calibrationParam()
+      Me._calibV2 = (YAPI._atoi(Me._calibSavedParams) = 33)
       Me.set_calibrationParam("0")
       Me._calibCount = 50
       Me._calibStage = 1
@@ -571,6 +646,14 @@ end enum
     ''' </summary>
     '''/
     Public Overridable Function more3DCalibration() As Integer
+      REM // may throw an exception
+      If (Me._calibV2) Then
+        Return Me.more3DCalibrationV2()
+      End If
+      Return Me.more3DCalibrationV1()
+    End Function
+
+    Public Overridable Function more3DCalibrationV1() As Integer
       REM // may throw an exception
       Dim currTick As Integer = 0
       Dim jsonData As Byte()
@@ -771,6 +854,64 @@ end enum
       Return YAPI.SUCCESS
     End Function
 
+    Public Overridable Function more3DCalibrationV2() As Integer
+      Dim currTick As Integer = 0
+      Dim calibParam As Byte()
+      Dim iCalib As List(Of Integer) = New List(Of Integer)()
+      Dim cal3 As Integer = 0
+      Dim calAcc As Integer = 0
+      Dim calMag As Integer = 0
+      Dim calGyr As Integer = 0
+      REM // make sure calibration has been started
+      If (Me._calibStage = 0) Then
+        Return YAPI.INVALID_ARGUMENT
+      End If
+      If (Me._calibProgress = 100) Then
+        Return YAPI.SUCCESS
+      End If
+      REM // make sure we don't start before previous calibration is cleared
+      If (Me._calibStage = 1) Then
+        currTick = CType(((YAPI.GetTickCount()) And (&H7FFFFFFF)), Integer)
+        currTick = ((currTick - Me._calibPrevTick) And (&H7FFFFFFF))
+        If (currTick < 1600) Then
+          Me._calibStageHint = "Set down the device on a steady horizontal surface"
+          Me._calibStageProgress = (currTick \ 40)
+          Me._calibProgress = 1
+          Return YAPI.SUCCESS
+        End If
+      End If
+      REM // may throw an exception
+      calibParam = Me._download("api/refFrame/calibrationParam.txt")
+      iCalib = YAPI._decodeFloats(YAPI.DefaultEncoding.GetString(calibParam))
+      cal3 = (iCalib(1) \ 1000)
+      calAcc = (cal3 \ 100)
+      calMag = (cal3 \ 10) - 10*calAcc
+      calGyr = ((cal3) Mod (10))
+      If (calGyr < 3) Then
+        Me._calibStageHint = "Set down the device on a steady horizontal surface"
+        Me._calibStageProgress = 40 + calGyr*20
+        Me._calibProgress = 4 + calGyr*2
+      Else
+        Me._calibStage = 2
+        If (calMag < 3) Then
+          Me._calibStageHint = "Slowly draw '8' shapes along the 3 axis"
+          Me._calibStageProgress = 1 + calMag*33
+          Me._calibProgress = 10 + calMag*5
+        Else
+          Me._calibStage = 3
+          If (calAcc < 3) Then
+            Me._calibStageHint = "Slowly turn the device, stopping at each 90 degrees"
+            Me._calibStageProgress = 1 + calAcc*33
+            Me._calibProgress = 25 + calAcc*25
+          Else
+            Me._calibStageProgress = 99
+            Me._calibProgress = 100
+          End If
+        End If
+      End If
+      Return YAPI.SUCCESS
+    End Function
+
     '''*
     ''' <summary>
     '''   Returns instructions to proceed to the tridimensional calibration initiated with
@@ -863,6 +1004,14 @@ end enum
     '''/
     Public Overridable Function save3DCalibration() As Integer
       REM // may throw an exception
+      If (Me._calibV2) Then
+        Return Me.save3DCalibrationV2()
+      End If
+      Return Me.save3DCalibrationV1()
+    End Function
+
+    Public Overridable Function save3DCalibrationV1() As Integer
+      REM // may throw an exception
       Dim shiftX As Integer = 0
       Dim shiftY As Integer = 0
       Dim shiftZ As Integer = 0
@@ -925,6 +1074,11 @@ end enum
       newcalib = "5," + Convert.ToString( shiftX) + "," + Convert.ToString( shiftY) + "," + Convert.ToString( shiftZ) + "," + Convert.ToString( scaleLo) + "," + Convert.ToString(scaleHi)
       Me._calibStage = 0
       Return Me.set_calibrationParam(newcalib)
+    End Function
+
+    Public Overridable Function save3DCalibrationV2() As Integer
+      REM // may throw an exception
+      Return Me.set_calibrationParam("5,5,5,5,5,5")
     End Function
 
     '''*

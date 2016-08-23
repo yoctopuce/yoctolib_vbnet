@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 24717 2016-06-03 16:09:53Z seb $
+'* $Id: yocto_colorledcluster.vb 24939 2016-07-01 08:45:11Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -867,6 +867,11 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function saveLedsConfigAtPowerOn() As Integer
+      Return Me.sendCommand("WL")
+    End Function
+
+    Public Overridable Function saveLedsState() As Integer
+      REM // may throw an exception
       Return Me.sendCommand("WL")
     End Function
 

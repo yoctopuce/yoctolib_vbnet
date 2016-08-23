@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 23780 2016-04-06 10:27:21Z seb $
+'* $Id: yocto_serialport.vb 25248 2016-08-22 15:51:04Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -128,6 +128,8 @@ Module yocto_serialport
     Protected _serialMode As String
     Protected _valueCallbackSerialPort As YSerialPortValueCallback
     Protected _rxptr As Integer
+    Protected _rxbuff As Byte()
+    Protected _rxbuffptr As Integer
     REM --- (end of YSerialPort attributes declaration)
 
     Public Sub New(ByVal func As String)
@@ -148,6 +150,7 @@ Module yocto_serialport
       _serialMode = SERIALMODE_INVALID
       _valueCallbackSerialPort = Nothing
       _rxptr = 0
+      _rxbuffptr = 0
       REM --- (end of YSerialPort attributes initialization)
     End Sub
 
@@ -777,6 +780,8 @@ Module yocto_serialport
     '''/
     Public Overridable Function reset() As Integer
       Me._rxptr = 0
+      Me._rxbuffptr = 0
+      ReDim Me._rxbuff(0-1)
       REM // may throw an exception
       Return Me.sendCommand("Z")
     End Function
@@ -1002,11 +1007,49 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function readByte() As Integer
+      Dim currpos As Integer = 0
+      Dim reqlen As Integer = 0
       Dim buff As Byte()
       Dim bufflen As Integer = 0
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
       Dim res As Integer = 0
+      
+      REM // first check if we have the requested character in the look-ahead buffer
+      bufflen = (Me._rxbuff).Length
+      If ((Me._rxptr >= Me._rxbuffptr) And (Me._rxptr < Me._rxbuffptr+bufflen)) Then
+        res = Me._rxbuff(Me._rxptr-Me._rxbuffptr)
+        Me._rxptr = Me._rxptr + 1
+        Return res
+      End If
+      
+      REM // try to preload more than one byte to speed-up byte-per-byte access
+      currpos = Me._rxptr
+      reqlen = 1024
+      buff = Me.readBin(reqlen)
+      bufflen = (buff).Length
+      If (Me._rxptr = currpos+bufflen) Then
+        res = buff(0)
+        Me._rxptr = currpos+1
+        Me._rxbuffptr = currpos
+        Me._rxbuff = buff
+        Return res
+      End If
+      REM // mixed bidirectional data, retry with a smaller block
+      Me._rxptr = currpos
+      reqlen = 16
+      buff = Me.readBin(reqlen)
+      bufflen = (buff).Length
+      If (Me._rxptr = currpos+bufflen) Then
+        res = buff(0)
+        Me._rxptr = currpos+1
+        Me._rxbuffptr = currpos
+        Me._rxbuff = buff
+        Return res
+      End If
+      REM // still mixed, need to process character by character
+      Me._rxptr = currpos
+      
       REM // may throw an exception
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=1")
       bufflen = (buff).Length - 1
@@ -2053,9 +2096,6 @@ Module yocto_serialport
       Dim reply As List(Of Integer) = New List(Of Integer)()
       Dim res As Integer = 0
       res = 0
-      If (value <> 0) Then
-        value = &Hff
-      End If
       
       pdu.Add(&H06)
       pdu.Add(((pduAddr) >> (8)))

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_compass.vb 23244 2016-02-23 14:13:49Z seb $
+'* $Id: yocto_compass.vb 24934 2016-06-30 22:32:01Z mvuilleu $
 '*
 '* Implements yFindCompass(), the high-level API for Compass functions
 '*
@@ -51,6 +51,7 @@ Module yocto_compass
     REM --- (end of YCompass dlldef)
   REM --- (YCompass globals)
 
+  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_AXIS_X As Integer = 0
   Public Const Y_AXIS_Y As Integer = 1
   Public Const Y_AXIS_Z As Integer = 2
@@ -83,6 +84,7 @@ Module yocto_compass
     REM --- (end of YCompass class start)
 
     REM --- (YCompass definitions)
+    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
     Public Const AXIS_X As Integer = 0
     Public Const AXIS_Y As Integer = 1
     Public Const AXIS_Z As Integer = 2
@@ -91,6 +93,7 @@ Module yocto_compass
     REM --- (end of YCompass definitions)
 
     REM --- (YCompass attributes declaration)
+    Protected _bandwidth As Integer
     Protected _axis As Integer
     Protected _magneticHeading As Double
     Protected _valueCallbackCompass As YCompassValueCallback
@@ -101,6 +104,7 @@ Module yocto_compass
       MyBase.New(func)
       _classname = "Compass"
       REM --- (YCompass attributes initialization)
+      _bandwidth = BANDWIDTH_INVALID
       _axis = AXIS_INVALID
       _magneticHeading = MAGNETICHEADING_INVALID
       _valueCallbackCompass = Nothing
@@ -111,6 +115,10 @@ Module yocto_compass
     REM --- (YCompass private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "bandwidth") Then
+        _bandwidth = CInt(member.ivalue)
+        Return 1
+      End If
       If (member.name = "axis") Then
         _axis = CInt(member.ivalue)
         Return 1
@@ -125,6 +133,58 @@ Module yocto_compass
     REM --- (end of YCompass private methods declaration)
 
     REM --- (YCompass public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_bandwidth() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return BANDWIDTH_INVALID
+        End If
+      End If
+      Return Me._bandwidth
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    ''' <para>
+    '''   When the
+    '''   frequency is lower, the device performs averaging.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_bandwidth(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("bandwidth", rest_val)
+    End Function
     Public Function get_axis() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
