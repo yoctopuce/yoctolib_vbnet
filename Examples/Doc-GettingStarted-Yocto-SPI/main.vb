@@ -43,10 +43,12 @@
     spiPort = yFindSpiPort(target + ".spiPort")
 
     If (spiPort.isOnline()) Then
-      spiPort.set_spiMode("250000,2,msb")
+      spiPort.set_spiMode("250000,3,msb")
       spiPort.set_ssPolarity(YSpiPort.SSPOLARITY_ACTIVE_LOW)
       spiPort.set_protocol("Frame:5ms")
       spiPort.reset()
+      REM do not forget to configure the powerOutput of the Yocto-SPI
+      REM ( for SPI7SEGDISP8.56 powerOutput need to be set at 5v )
       Console.WriteLine("****************************")
       Console.WriteLine("* make sure voltage levels *")
       Console.WriteLine("* are properly configured  *")

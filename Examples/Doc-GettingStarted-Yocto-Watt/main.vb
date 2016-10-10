@@ -1,7 +1,7 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
-  
+
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
     Console.WriteLine("Usage:")
     Console.WriteLine(execname + " <serial_number>")
@@ -18,7 +18,7 @@
     Dim target As String
 
     Dim psensor As YPower
-  
+
 
     If argv.Length < 2 Then Usage()
 
@@ -32,16 +32,12 @@
 
     If target = "any" Then
       psensor = yFirstPower()
-  
-
       If psensor Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
     Else
-
       psensor = yFindPower(target + ".power")
-
     End If
 
     While (True)
@@ -49,12 +45,11 @@
         Console.WriteLine("Module not connected (check identification and USB cable)")
         End
       End If
-
       Console.WriteLine("Current Power: " + Str(psensor.get_currentValue()) + " W")
       Console.WriteLine("  (press Ctrl-C to exit)")
       ySleep(1000, errmsg)
-
     End While
+    yFreeAPI()
 
   End Sub
 

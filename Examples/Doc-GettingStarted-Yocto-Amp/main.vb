@@ -1,4 +1,4 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname As String = System.AppDomain.CurrentDomain.FriendlyName
@@ -28,7 +28,6 @@
     If argv.Length < 2 Then Usage()
 
     target = argv(1)
-
     REM Setup the API to use local USB devices
     If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
@@ -43,7 +42,7 @@
       sensor = yFindCurrent(target + ".voltage1")
     End If
 
-    REM  we need to retreive both DC and AC voltage from the device.    
+    REM  we need to retreive both DC and AC voltage from the device.
     If (sensor.isOnline()) Then
       m = sensor.get_module()
       sensorDC = yFindCurrent(m.get_serialNumber() + ".current1")
@@ -59,6 +58,7 @@
       Console.WriteLine("  (press Ctrl-C to exit)")
       ySleep(1000, errmsg)
     End While
+    yFreeAPI()
 
   End Sub
 End Module

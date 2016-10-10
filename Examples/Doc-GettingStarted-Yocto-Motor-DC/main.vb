@@ -1,4 +1,4 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
@@ -28,7 +28,7 @@
 
     target = argv(1)
     power = Convert.ToInt32(argv(2))
-   
+
     REM Setup the API to use local USB devices
     If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
@@ -49,11 +49,10 @@
     voltage = yFindVoltage(target + ".voltage")
     temperature = yFindTemperature(target + ".temperature")
 
-  
     If (motor.isOnline()) Then
       If (motor.get_motorStatus() >= Y_MOTORSTATUS_LOVOLT) Then motor.resetStatus()
       motor.drivingForceMove(power, 2000) REM ramp up to power in 2 seconds
-      While (True)
+      While (motor.isOnline())
         REM display motor status
         Console.WriteLine("Status=" + motor.get_advertisedValue() + "  " +
                  "Voltage=" + Str(voltage.get_currentValue()) + "V  " +
@@ -62,9 +61,10 @@
         YAPI.Sleep(1000, errmsg) REM wait for one second
       End While
 
-    else
-    Console.WriteLine("Module not connected (check USB cable) ")
+    Else
+      Console.WriteLine("Module not connected (check USB cable) ")
     End If
+    yFreeAPI()
   End Sub
 
 End Module

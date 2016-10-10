@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 23882 2016-04-12 08:38:50Z seb $
+'* $Id: yocto_api.vb 25275 2016-08-24 13:42:24Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "25250"
+  Public Const YOCTO_API_BUILD_NO As String = "25534"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1568,7 +1568,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="logfun">
-    '''   a procedure taking a string parameter, or <c>null</c>
+    '''   a procedure taking a string parameter, or <c>Nothing</c>
     '''   to unregister a previously registered  callback.
     ''' </param>
     '''/
@@ -1617,7 +1617,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="arrivalCallback">
-    '''   a procedure taking a <c>YModule</c> parameter, or <c>null</c>
+    '''   a procedure taking a <c>YModule</c> parameter, or <c>Nothing</c>
     '''   to unregister a previously registered  callback.
     ''' </param>
     '''/
@@ -1647,7 +1647,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="removalCallback">
-    '''   a procedure taking a <c>YModule</c> parameter, or <c>null</c>
+    '''   a procedure taking a <c>YModule</c> parameter, or <c>Nothing</c>
     '''   to unregister a previously registered  callback.
     ''' </param>
     '''/
@@ -1674,7 +1674,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="hubDiscoveryCallback">
-    '''   a procedure taking two string parameter, or null
+    '''   a procedure taking two string parameter, or Nothing
     '''   to unregister a previously registered  callback.
     ''' </param>
     '''/
@@ -4619,13 +4619,13 @@ Module yocto_api
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and the character string describing
     '''   the new advertised value.
     ''' @noreturn
@@ -5844,7 +5844,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the module object that emitted the log message, and the character string containing the log.
     ''' @noreturn
     ''' </param>
@@ -6291,13 +6291,13 @@ Module yocto_api
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and the character string describing
     '''   the new advertised value.
     ''' @noreturn
@@ -6471,7 +6471,7 @@ Module yocto_api
     '''   true to force the firmware update even if some prerequisites appear not to be met
     ''' </param>
     ''' <returns>
-    '''   a <c>YFirmwareUpdate</c> object or NULL on error.
+    '''   a <c>YFirmwareUpdate</c> object or Nothing on error.
     ''' </returns>
     '''/
     Public Overridable Function updateFirmwareEx(path As String, force As Boolean) As YFirmwareUpdate
@@ -6501,7 +6501,7 @@ Module yocto_api
     '''   the path of the <c>.byn</c> file to use.
     ''' </param>
     ''' <returns>
-    '''   a <c>YFirmwareUpdate</c> object or NULL on error.
+    '''   a <c>YFirmwareUpdate</c> object or Nothing on error.
     ''' </returns>
     '''/
     Public Overridable Function updateFirmware(path As String) As YFirmwareUpdate
@@ -7534,7 +7534,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YModule</c> object, corresponding to
-    '''   the next module found, or a <c>null</c> pointer
+    '''   the next module found, or a <c>Nothing</c> pointer
     '''   if there are no more modules to enumerate.
     ''' </returns>
     '''/
@@ -7559,7 +7559,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YModule</c> object, corresponding to
-    '''   the first module currently online, or a <c>null</c> pointer
+    '''   the first module currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -7635,7 +7635,7 @@ Module yocto_api
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YModule</c> object, corresponding to
-  '''   the first module currently online, or a <c>null</c> pointer
+  '''   the first module currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
@@ -8238,13 +8238,13 @@ Module yocto_api
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and the character string describing
     '''   the new advertised value.
     ''' @noreturn
@@ -8541,13 +8541,13 @@ Module yocto_api
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and an YMeasure object describing
     '''   the new advertised value.
     ''' @noreturn
@@ -8917,7 +8917,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YSensor</c> object, corresponding to
-    '''   a sensor currently online, or a <c>null</c> pointer
+    '''   a sensor currently online, or a <c>Nothing</c> pointer
     '''   if there are no more sensors to enumerate.
     ''' </returns>
     '''/
@@ -8942,7 +8942,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YSensor</c> object, corresponding to
-    '''   the first sensor currently online, or a <c>null</c> pointer
+    '''   the first sensor currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -9035,7 +9035,7 @@ Module yocto_api
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YSensor</c> object, corresponding to
-  '''   the first sensor currently online, or a <c>null</c> pointer
+  '''   the first sensor currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
@@ -9093,7 +9093,7 @@ Module yocto_api
   ''' </para>
   ''' </summary>
   ''' <param name="logfun">
-  '''   a procedure taking a string parameter, or <c>null</c>
+  '''   a procedure taking a string parameter, or <c>Nothing</c>
   '''   to unregister a previously registered  callback.
   ''' </param>
   '''/
@@ -9228,7 +9228,7 @@ Module yocto_api
   ''' </para>
   ''' </summary>
   ''' <param name="arrivalCallback">
-  '''   a procedure taking a <c>YModule</c> parameter, or <c>null</c>
+  '''   a procedure taking a <c>YModule</c> parameter, or <c>Nothing</c>
   '''   to unregister a previously registered  callback.
   ''' </param>
   '''/
@@ -9259,7 +9259,7 @@ Module yocto_api
   ''' </para>
   ''' </summary>
   ''' <param name="removalCallback">
-  '''   a procedure taking a <c>YModule</c> parameter, or <c>null</c>
+  '''   a procedure taking a <c>YModule</c> parameter, or <c>Nothing</c>
   '''   to unregister a previously registered  callback.
   ''' </param>
   '''/
@@ -9290,7 +9290,7 @@ Module yocto_api
   ''' </para>
   ''' </summary>
   ''' <param name="hubDiscoveryCallback">
-  '''   a procedure taking two string parameter, or null
+  '''   a procedure taking two string parameter, or Nothing
   '''   to unregister a previously registered  callback.
   ''' </param>
   '''/

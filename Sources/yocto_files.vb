@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 22698 2016-01-12 23:15:02Z seb $
+'* $Id: yocto_files.vb 25275 2016-08-24 13:42:24Z mvuilleu $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -272,13 +272,13 @@ Module yocto_files
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and the character string describing
     '''   the new advertised value.
     ''' @noreturn
@@ -494,7 +494,7 @@ Module yocto_files
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YFiles</c> object, corresponding to
-    '''   a filesystem currently online, or a <c>null</c> pointer
+    '''   a filesystem currently online, or a <c>Nothing</c> pointer
     '''   if there are no more filesystems to enumerate.
     ''' </returns>
     '''/
@@ -519,7 +519,7 @@ Module yocto_files
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YFiles</c> object, corresponding to
-    '''   the first filesystem currently online, or a <c>null</c> pointer
+    '''   the first filesystem currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -612,7 +612,7 @@ Module yocto_files
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YFiles</c> object, corresponding to
-  '''   the first filesystem currently online, or a <c>null</c> pointer
+  '''   the first filesystem currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

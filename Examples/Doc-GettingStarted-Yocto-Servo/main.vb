@@ -1,11 +1,11 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
     Console.WriteLine("Usage:")
-    Console.WriteLine(execname+" <serial_number>  [ -1000 | ... | 1000 ]")
-    Console.WriteLine(execname+" <logical_name> [ -1000 | ... | 1000 ]")
-    Console.WriteLine(execname+" any [ -1000 | ... | 1000 ]")
+    Console.WriteLine(execname + " <serial_number>  [ -1000 | ... | 1000 ]")
+    Console.WriteLine(execname + " <logical_name> [ -1000 | ... | 1000 ]")
+    Console.WriteLine(execname + " any [ -1000 | ... | 1000 ]")
     System.Threading.Thread.Sleep(2500)
     End
   End Sub
@@ -47,6 +47,7 @@
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If
+    yFreeAPI()
   End Sub
 
 End Module

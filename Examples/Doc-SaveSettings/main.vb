@@ -23,7 +23,6 @@
 
     m = yFindModule(argv(1)) REM use serial or logical name
     If m.isOnline() Then
-
       newname = argv(2)
       If (Not yCheckLogicalName(newname)) Then
         Console.WriteLine("Invalid name (" + newname + ")")
@@ -31,12 +30,12 @@
       End If
       m.set_logicalName(newname)
       m.saveToFlash() REM do not forget this
-
       Console.Write("Module: serial= " + m.get_serialNumber)
       Console.Write(" / name= " + m.get_logicalName())
     Else
       Console.Write("not connected (check identification and USB cable")
     End If
+    yFreeAPI()
 
   End Sub
 

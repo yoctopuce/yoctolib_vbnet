@@ -1,11 +1,11 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
     Console.WriteLine("Usage:")
-    Console.WriteLine(execname+" <serial_number>")
-    Console.WriteLine(execname+" <logical_name>")
-    Console.WriteLine(execname+" any  ")
+    Console.WriteLine(execname + " <serial_number>")
+    Console.WriteLine(execname + " <logical_name>")
+    Console.WriteLine(execname + " any  ")
     System.Threading.Thread.Sleep(2500)
 
     End
@@ -45,7 +45,7 @@
       pwm = yFindPwmInput(target + ".pwminput1")
     End If
 
-    REM we need to retreive both channels from the device.    
+    REM we need to retreive both channels from the device.
     If (pwm.isOnline()) Then
       m = pwm.get_module()
       pwm1 = yFindPwmInput(m.get_serialNumber() + ".pwmInput1")
@@ -64,6 +64,7 @@
       Console.WriteLine("  (press Ctrl-C to exit)")
       ySleep(1000, errmsg)
     End While
+    yFreeAPI()
     Die("Module not connected")
   End Sub
 End Module

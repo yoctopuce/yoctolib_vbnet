@@ -1,4 +1,4 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname As String = System.AppDomain.CurrentDomain.FriendlyName
@@ -43,7 +43,6 @@
     Console.WriteLine("using " + target)
     relay = yFindRelay(target + ".relay" + channel)
 
-
     If (relay.isOnline()) Then
       If state = "ON" Then
         relay.set_output(Y_OUTPUT_ON)
@@ -53,6 +52,7 @@
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If
+    yFreeAPI()
   End Sub
 
 End Module

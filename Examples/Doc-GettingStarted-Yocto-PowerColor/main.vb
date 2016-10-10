@@ -1,4 +1,4 @@
-﻿Imports System.Reflection
+Imports System.Reflection
 Imports System.IO
 
 Module Module1
@@ -58,9 +58,10 @@ Module Module1
     End If
 
     If (led1.isOnline()) Then
-      led1.rgbMove(color, 1000) REM smooth transition  
+      led1.rgbMove(color, 1000) REM smooth transition
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If
+    yFreeAPI()
   End Sub
 End Module

@@ -1,4 +1,4 @@
-﻿
+
 Imports System.IO
 Imports System.Environment
 
@@ -22,7 +22,7 @@ Module Module1
       End
     End If
 
-    If (argv.Length > 1) Then
+    If (argv.Length > 1 And argv(1) <> "any") Then
       serialPort = yFindSerialPort(argv(1))
     Else
       serialPort = yFirstSerialPort()
@@ -37,14 +37,14 @@ Module Module1
     slave = Convert.ToInt32(Console.ReadLine())
 
     Console.WriteLine("Please select a Coil No (>=1), Input Bit No (>=10001+),")
-    Console.WriteLine("       Register No (>=30001) or Input Register No (>=40001)")
+    Console.WriteLine("       Input Register No (>=30001) or Register No (>=40001)")
     Console.WriteLine("No: ")
     reg = Convert.ToInt32(Console.ReadLine())
-    While (True)
+    While (serialPort.isOnline())
       If reg >= 40001 Then
-        val = serialPort.modbusReadInputRegisters(slave, reg - 40001, 1)(0)
+        val = serialPort.modbusReadRegisters(slave, reg - 40001, 1)(0)
       ElseIf (reg >= 30001) Then
-        val = serialPort.modbusReadRegisters(slave, reg - 30001, 1)(0)
+        val = serialPort.modbusReadInputRegisters(slave, reg - 30001, 1)(0)
       ElseIf (reg >= 10001) Then
         val = serialPort.modbusReadInputBits(slave, reg - 10001, 1)(0)
       Else
@@ -66,7 +66,7 @@ Module Module1
         End If
       End If
     End While
-
+    yFreeAPI()
   End Sub
 
 End Module

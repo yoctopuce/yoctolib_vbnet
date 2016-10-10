@@ -1,11 +1,11 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
     Console.WriteLine("Usage:")
-    Console.WriteLine(execname+" <serial_number>")
-    Console.WriteLine(execname+" <logical_name>")
-    Console.WriteLine(execname+" any  ")
+    Console.WriteLine(execname + " <serial_number>")
+    Console.WriteLine(execname + " <logical_name>")
+    Console.WriteLine(execname + " any  ")
     System.Threading.Thread.Sleep(2500)
 
     End
@@ -18,7 +18,6 @@
     Dim target, serial As String
 
     Dim tsensor, ch1, ch2, ch3, ch4, ch5, ch6 As YTemperature
-  
 
     If argv.Length < 2 Then Usage()
 
@@ -38,9 +37,7 @@
       End If
       Console.WriteLine("using:" + tsensor.get_module().get_serialNumber())
     Else
-
       tsensor = yFindTemperature(target + ".temperature1")
-
     End If
 
     REM retreive module serial number
@@ -59,7 +56,6 @@
         Console.WriteLine("Module not connected (check identification and USB cable)")
         End
       End If
-
       Console.Write("| 1: " + ch1.get_currentValue().ToString(" 0.0"))
       Console.Write("| 2: " + ch2.get_currentValue().ToString(" 0.0"))
       Console.Write("| 3: " + ch3.get_currentValue().ToString(" 0.0"))
@@ -68,9 +64,8 @@
       Console.Write("| 6: " + ch6.get_currentValue().ToString(" 0.0"))
       Console.WriteLine("| deg C |")
       ySleep(1000, errmsg)
-
     End While
-
+    yFreeAPI()
   End Sub
 
 End Module

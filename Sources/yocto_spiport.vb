@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_spiport.vb 25085 2016-07-26 16:38:36Z mvuilleu $
+'* $Id: yocto_spiport.vb 25275 2016-08-24 13:42:24Z mvuilleu $
 '*
 '* Implements yFindSpiPort(), the high-level API for SpiPort functions
 '*
@@ -837,13 +837,13 @@ Module yocto_spiport
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and the character string describing
     '''   the new advertised value.
     ''' @noreturn
@@ -1671,7 +1671,7 @@ Module yocto_spiport
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YSpiPort</c> object, corresponding to
-    '''   a SPI port currently online, or a <c>null</c> pointer
+    '''   a SPI port currently online, or a <c>Nothing</c> pointer
     '''   if there are no more SPI ports to enumerate.
     ''' </returns>
     '''/
@@ -1696,7 +1696,7 @@ Module yocto_spiport
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YSpiPort</c> object, corresponding to
-    '''   the first SPI port currently online, or a <c>null</c> pointer
+    '''   the first SPI port currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -1789,7 +1789,7 @@ Module yocto_spiport
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YSpiPort</c> object, corresponding to
-  '''   the first SPI port currently online, or a <c>null</c> pointer
+  '''   the first SPI port currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

@@ -1,11 +1,11 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
     Console.WriteLine("Usage:")
-    Console.WriteLine(execname+" <serial_number>")
-    Console.WriteLine(execname+" <logical_name>")
-    Console.WriteLine(execname+" any  ")
+    Console.WriteLine(execname + " <serial_number>")
+    Console.WriteLine(execname + " <logical_name>")
+    Console.WriteLine(execname + " any  ")
     System.Threading.Thread.Sleep(2500)
 
     End
@@ -16,11 +16,9 @@
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
     Dim target As String
-
     Dim hsensor As YHumidity
     Dim tsensor As YTemperature
     Dim psensor As YPressure
-
 
     If argv.Length < 2 Then Usage()
 
@@ -37,7 +35,6 @@
       tsensor = yFirstTemperature()
       psensor = yFirstPressure()
 
-
       If hsensor Is Nothing Or tsensor Is Nothing Or psensor Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
@@ -53,14 +50,13 @@
         Console.WriteLine("Module not connected (check identification and USB cable)")
         End
       End If
-
       Console.WriteLine("Current humidity:    " + Str(hsensor.get_currentValue()) + " %RH")
       Console.WriteLine("Current temperature: " + Str(tsensor.get_currentValue()) + " °C")
       Console.WriteLine("Current pressure:    " + Str(psensor.get_currentValue()) + " hPa")
       Console.WriteLine("  (press Ctrl-C to exit)")
       ySleep(1000, errmsg)
-
     End While
+    yFreeAPI()
 
   End Sub
 

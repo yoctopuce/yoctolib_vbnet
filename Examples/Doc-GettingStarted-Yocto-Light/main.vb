@@ -1,11 +1,11 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
     Console.WriteLine("Usage:")
-    Console.WriteLine(execname+" <serial_number>")
-    Console.WriteLine(execname+" <logical_name>")
-    Console.WriteLine(execname+" any  ")
+    Console.WriteLine(execname + " <serial_number>")
+    Console.WriteLine(execname + " <logical_name>")
+    Console.WriteLine(execname + " any  ")
     System.Threading.Thread.Sleep(2500)
 
     End
@@ -48,6 +48,7 @@
       ySleep(1000, errmsg)
 
     End While
+    yFreeAPI()
 
   End Sub
 

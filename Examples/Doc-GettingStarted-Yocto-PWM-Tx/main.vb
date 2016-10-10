@@ -1,4 +1,4 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
@@ -57,6 +57,7 @@
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If
+    yFreeAPI()
   End Sub
 
 End Module

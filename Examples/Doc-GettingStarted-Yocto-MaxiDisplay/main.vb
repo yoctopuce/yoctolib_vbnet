@@ -1,4 +1,4 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
@@ -10,36 +10,32 @@
     End
   End Sub
 
-    Sub Main()
-        Dim argv() As String = System.Environment.GetCommandLineArgs()
-        Dim errmsg As String = ""
-        Dim target As String
+  Sub Main()
+    Dim argv() As String = System.Environment.GetCommandLineArgs()
+    Dim errmsg As String = ""
+    Dim target As String
     Dim disp As YDisplay
     Dim l0, l1 As YDisplayLayer
     Dim h, w, y, x, vx, vy As Integer
 
-
     If argv.Length <= 1 Then Usage()
 
     target = argv(1)
-    
-
-
 
     REM Setup the API to use local USB devices
-        If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
-            Console.WriteLine("RegisterHub error: " + errmsg)
-            End
-        End If
+    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+      Console.WriteLine("RegisterHub error: " + errmsg)
+      End
+    End If
 
-        If target = "any" Then
+    If target = "any" Then
       disp = yFirstDisplay()
       If disp Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
 
-        Else
+    Else
       disp = yFindDisplay(target + ".display")
 
     End If
@@ -60,7 +56,7 @@
 
     REM display a text in the middle of the screen
     l0.drawText(CInt(w / 2), CInt(h / 2), Y_ALIGN.CENTER, "Hello world!")
-    
+
     REM visualize each corner
     l0.moveTo(0, 5)
     l0.lineTo(0, 0)
@@ -87,7 +83,7 @@
     vx = 1
     vy = 1
 
-    While (True)
+    While (disp.isOnline())
       x += vx
       y += vy
       If ((x < 0) Or (x > w - (h / 4))) Then vx = -vx
@@ -95,7 +91,7 @@
       l1.setLayerPosition(x, y, 0)
       YAPI.Sleep(5, errmsg)
     End While
-
+    yFreeAPI()
   End Sub
 
 End Module

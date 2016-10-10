@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 24943 2016-07-01 14:02:25Z seb $
+'* $Id: yocto_refframe.vb 25289 2016-09-01 16:11:04Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -58,12 +58,14 @@ Module yocto_refframe
   REAR = 3
   RIGHT = 4
   LEFT = 5
+  INVALID = 6
 end enum
  Public Enum  Y_MOUNTORIENTATION
   TWELVE = 0
   THREE = 1
   SIX = 2
   NINE = 3
+  INVALID = 4
 end enum
   Public Const Y_MOUNTPOS_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BEARING_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -331,13 +333,13 @@ end enum
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and the character string describing
     '''   the new advertised value.
     ''' @noreturn
@@ -388,12 +390,15 @@ end enum
     '''   corresponding to the installation in a box, on one of the six faces.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure, throws an exception or returns Y_MOUNTPOSITION_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_mountPosition() As Y_MOUNTPOSITION
       Dim position As Integer = 0
       position = Me.get_mountPos()
+      If (position < 0) Then
+        Return Y_MOUNTPOSITION.INVALID
+      End If
       return CType(((position) >> (2)), Y_MOUNTPOSITION)
     End Function
 
@@ -417,12 +422,15 @@ end enum
     '''   on the top face, the 12H orientation points to the rear.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure, throws an exception or returns Y_MOUNTORIENTATION_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_mountOrientation() As Y_MOUNTORIENTATION
       Dim position As Integer = 0
       position = Me.get_mountPos()
+      If (position < 0) Then
+        Return Y_MOUNTORIENTATION.INVALID
+      End If
       return CType(((position) And (3)), Y_MOUNTORIENTATION)
     End Function
 
@@ -1109,7 +1117,7 @@ end enum
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YRefFrame</c> object, corresponding to
-    '''   a reference frame currently online, or a <c>null</c> pointer
+    '''   a reference frame currently online, or a <c>Nothing</c> pointer
     '''   if there are no more reference frames to enumerate.
     ''' </returns>
     '''/
@@ -1134,7 +1142,7 @@ end enum
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YRefFrame</c> object, corresponding to
-    '''   the first reference frame currently online, or a <c>null</c> pointer
+    '''   the first reference frame currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -1227,7 +1235,7 @@ end enum
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YRefFrame</c> object, corresponding to
-  '''   the first reference frame currently online, or a <c>null</c> pointer
+  '''   the first reference frame currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

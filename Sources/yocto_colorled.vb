@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorled.vb 24475 2016-05-12 14:03:35Z mvuilleu $
+'* $Id: yocto_colorled.vb 25275 2016-08-24 13:42:24Z mvuilleu $
 '*
 '* Implements yFindColorLed(), the high-level API for ColorLed functions
 '*
@@ -590,13 +590,13 @@ End Class
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and the character string describing
     '''   the new advertised value.
     ''' @noreturn
@@ -735,7 +735,7 @@ End Class
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YColorLed</c> object, corresponding to
-    '''   an RGB LED currently online, or a <c>null</c> pointer
+    '''   an RGB LED currently online, or a <c>Nothing</c> pointer
     '''   if there are no more RGB LEDs to enumerate.
     ''' </returns>
     '''/
@@ -760,7 +760,7 @@ End Class
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YColorLed</c> object, corresponding to
-    '''   the first RGB LED currently online, or a <c>null</c> pointer
+    '''   the first RGB LED currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -853,7 +853,7 @@ End Class
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YColorLed</c> object, corresponding to
-  '''   the first RGB LED currently online, or a <c>null</c> pointer
+  '''   the first RGB LED currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

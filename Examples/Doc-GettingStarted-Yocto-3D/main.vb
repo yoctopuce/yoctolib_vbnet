@@ -1,11 +1,11 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
     Console.WriteLine("Usage:")
-    Console.WriteLine(execname+" <serial_number>")
-    Console.WriteLine(execname+" <logical_name>")
-    Console.WriteLine(execname+" any  ")
+    Console.WriteLine(execname + " <serial_number>")
+    Console.WriteLine(execname + " <logical_name>")
+    Console.WriteLine(execname + " any  ")
     System.Threading.Thread.Sleep(2500)
 
     End
@@ -18,7 +18,6 @@
     Dim target As String
     Dim serial As String
     Dim count As Integer
-
     Dim anytilt, tilt1, tilt2 As YTilt
     Dim compass As YCompass
     Dim accelerometer As YAccelerometer
@@ -65,7 +64,6 @@
       If (count Mod 10 = 0) Then
         Console.WriteLine("tilt1" + Chr(9) + "tilt2" + Chr(9) + "compass" + Chr(9) + "acc" + Chr(9) + "gyro")
       End If
-
       Console.Write(tilt1.get_currentValue().ToString() + Chr(9))
       Console.Write(tilt2.get_currentValue().ToString() + Chr(9))
       Console.Write(compass.get_currentValue().ToString() + Chr(9))
@@ -73,9 +71,8 @@
       Console.WriteLine(gyro.get_currentValue().ToString())
       count = count + 1
       ySleep(250, errmsg)
-
     End While
-
+    yFreeAPI()
   End Sub
 
 End Module

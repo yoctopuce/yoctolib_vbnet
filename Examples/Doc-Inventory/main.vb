@@ -1,4 +1,4 @@
-﻿Module Module1
+Module Module1
 
   Sub Main()
     Dim M As ymodule
@@ -16,7 +16,7 @@
       Console.WriteLine(M.get_serialNumber() + " (" + M.get_productName() + ")")
       M = M.nextModule()
     End While
-
+    yFreeAPI()
   End Sub
 
-    End Module
+End Module

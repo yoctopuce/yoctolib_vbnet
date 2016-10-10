@@ -20,7 +20,6 @@
     Dim serialPort As YSerialPort
     Dim line As String
 
-
     If (YAPI.RegisterHub("usb", errmsg) <> YAPI.SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       Environment.Exit(0)
@@ -39,9 +38,9 @@
         Environment.Exit(0)
       End If
     End If
-    serialport.set_serialMode("9600,8N1")
-    serialport.set_protocol("Line")
-    serialport.reset()
+    serialPort.set_serialMode("9600,8N1")
+    serialPort.set_protocol("Line")
+    serialPort.reset()
     Do
       YAPI.Sleep(500, errmsg)
       Do

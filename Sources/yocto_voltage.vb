@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voltage.vb 23244 2016-02-23 14:13:49Z seb $
+'* $Id: yocto_voltage.vb 25275 2016-08-24 13:42:24Z mvuilleu $
 '*
 '* Implements yFindVoltage(), the high-level API for Voltage functions
 '*
@@ -155,13 +155,13 @@ Module yocto_voltage
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and the character string describing
     '''   the new advertised value.
     ''' @noreturn
@@ -200,13 +200,13 @@ Module yocto_voltage
     ''' <para>
     '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
     '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a null pointer as argument.
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a null pointer. The callback function should take two
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
     '''   arguments: the function object of which the value has changed, and an YMeasure object describing
     '''   the new advertised value.
     ''' @noreturn
@@ -242,7 +242,7 @@ Module yocto_voltage
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YVoltage</c> object, corresponding to
-    '''   a voltage sensor currently online, or a <c>null</c> pointer
+    '''   a voltage sensor currently online, or a <c>Nothing</c> pointer
     '''   if there are no more voltage sensors to enumerate.
     ''' </returns>
     '''/
@@ -267,7 +267,7 @@ Module yocto_voltage
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YVoltage</c> object, corresponding to
-    '''   the first voltage sensor currently online, or a <c>null</c> pointer
+    '''   the first voltage sensor currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -360,7 +360,7 @@ Module yocto_voltage
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YVoltage</c> object, corresponding to
-  '''   the first voltage sensor currently online, or a <c>null</c> pointer
+  '''   the first voltage sensor currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

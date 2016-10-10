@@ -1,11 +1,11 @@
-﻿
+
 Imports System.IO
 Imports System.Environment
 
 Module Module1
 
   Sub usage()
-    Console.WriteLine("usage: demo <serial or logical name> [ON/OFF]")   
+    Console.WriteLine("usage: demo <serial or logical name> [ON/OFF]")
     End
   End Sub
 
@@ -22,7 +22,6 @@ Module Module1
     If argv.Length < 2 Then usage()
 
     m = yFindModule(argv(1)) REM use serial or logical name
-
     If (m.isOnline()) Then
       If argv.Length > 2 Then
         If argv(2) = "ON" Then m.set_beacon(Y_BEACON_ON)
@@ -44,9 +43,7 @@ Module Module1
     Else
       Console.WriteLine(argv(1) + " not connected (check identification and USB cable)")
     End If
-
-
-
+    yFreeAPI()
   End Sub
 
 End Module

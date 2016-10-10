@@ -1,4 +1,4 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Console.WriteLine("demo  <serial_number>  [ on | off | reset]")
@@ -42,6 +42,7 @@
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If
+    yFreeAPI()
   End Sub
 
 End Module

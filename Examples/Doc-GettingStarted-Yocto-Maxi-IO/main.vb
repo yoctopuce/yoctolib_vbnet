@@ -1,4 +1,4 @@
-﻿Module Module1
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName
@@ -23,7 +23,7 @@
     If argv.Length < 2 Then Usage()
 
     target = argv(1)
-    
+
     REM Setup the API to use local USB devices
     If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
@@ -57,9 +57,6 @@
     Console.WriteLine("ouputs and see what happens")
 
     While (io.isOnline())
-      outputdata = (outputdata + 1) Mod 16 REM cycle ouput 0..15
-      io.set_portState(outputdata) REM We could have used set_bitState as well
-      ySleep(1000, errmsg)
       inputdata = io.get_portState() REM read port values
       line = ""  REM display part state value as binary
       For i As Integer = 0 To 7 Step 1
@@ -70,8 +67,12 @@
         End If
       Next
       Console.WriteLine("port value = " + line)
+      outputdata = (outputdata + 1) Mod 16 REM cycle ouput 0..15
+      io.set_portState(outputdata) REM We could have used set_bitState as well
+      ySleep(1000, errmsg)
     End While
     Console.WriteLine("Module disconnected")
+    yFreeAPI()
   End Sub
 
 End Module
