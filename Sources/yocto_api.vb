@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 25275 2016-08-24 13:42:24Z mvuilleu $
+'* $Id: yocto_api.vb 25651 2016-10-20 13:36:46Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "25534"
+  Public Const YOCTO_API_BUILD_NO As String = "25748"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2536,7 +2536,9 @@ Module yocto_api
         End If
       End If
       If (Me._caltyp <> 0) Then
-        val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+        If (Not (Me._calhdl Is Nothing)) Then
+          val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+        End If
       End If
       Return val
     End Function
@@ -2554,7 +2556,9 @@ Module yocto_api
         End If
       End If
       If (Me._caltyp <> 0) Then
-        val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+        If (Not (Me._calhdl Is Nothing)) Then
+          val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+        End If
       End If
       Return val
     End Function

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 25275 2016-08-24 13:42:24Z mvuilleu $
+'* $Id: yocto_cellular.vb 25609 2016-10-19 12:37:17Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -1096,7 +1096,7 @@ Module yocto_cellular
     Public Overridable Function sendPUK(puk As String, newPin As String) As Integer
       Dim gsmMsg As String
       gsmMsg = Me.get_message()
-      If Not(Not ((gsmMsg).Substring(0, 13) = "Enter SIM PUK")) Then
+      If Not((gsmMsg).Substring(0, 13) = "Enter SIM PUK") Then
         me._throw(YAPI.INVALID_ARGUMENT,  "PUK not expected at this time")
         return YAPI.INVALID_ARGUMENT
       end if
