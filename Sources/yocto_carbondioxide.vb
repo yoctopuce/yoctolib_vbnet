@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_carbondioxide.vb 25275 2016-08-24 13:42:24Z mvuilleu $
+'* $Id: yocto_carbondioxide.vb 25833 2016-11-08 16:55:24Z seb $
 '*
 '* Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '*
@@ -344,8 +344,13 @@ Module yocto_carbondioxide
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function triggetBaselineCalibration() As Integer
+    Public Overridable Function triggerBaselineCalibration() As Integer
       Return Me.set_command("BC")
+    End Function
+
+    Public Overridable Function triggetBaselineCalibration() As Integer
+      REM // may throw an exception
+      Return Me.triggerBaselineCalibration()
     End Function
 
     '''*
@@ -372,8 +377,13 @@ Module yocto_carbondioxide
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function triggetZeroCalibration() As Integer
+    Public Overridable Function triggerZeroCalibration() As Integer
       Return Me.set_command("ZC")
+    End Function
+
+    Public Overridable Function triggetZeroCalibration() As Integer
+      REM // may throw an exception
+      Return Me.triggerZeroCalibration()
     End Function
 
 
