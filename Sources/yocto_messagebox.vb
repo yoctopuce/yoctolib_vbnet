@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 25275 2016-08-24 13:42:24Z mvuilleu $
+'* $Id: yocto_messagebox.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -567,7 +567,7 @@ Module yocto_messagebox
       i = 0
       While (i < srclen)
         val = bytes(i)
-        If ((val >= 48) And (val < 58)) Then
+        If ((val >= 48) AndAlso (val < 58)) Then
           numlen = numlen + 1
         End If
         i = i + 1
@@ -589,7 +589,7 @@ Module yocto_messagebox
       i = 0
       While (i < srclen)
         val = bytes(i)
-        If ((val >= 48) And (val < 58)) Then
+        If ((val >= 48) AndAlso (val < 58)) Then
           If (((numlen) And (1)) = 0) Then
             digit = val - 48
           Else
@@ -698,7 +698,7 @@ Module yocto_messagebox
         res(0) = Convert.ToByte(n And &HFF)
         Return res
       End If
-      If ((exp).Substring(4, 1) = "-" Or (exp).Substring(4, 1) = "/") Then
+      If ((exp).Substring(4, 1) = "-" OrElse (exp).Substring(4, 1) = "/") Then
         REM
         exp = (exp).Substring( 2, explen-2)
         explen = (exp).Length
@@ -707,11 +707,11 @@ Module yocto_messagebox
       ReDim res(7-1)
       n = 0
       i = 0
-      While ((i+1 < explen) And (n < 7))
+      While ((i+1 < explen) AndAlso (n < 7))
         v1 = expasc(i)
-        If ((v1 >= 48) And (v1 < 58)) Then
+        If ((v1 >= 48) AndAlso (v1 < 58)) Then
           v2 = expasc(i+1)
-          If ((v2 >= 48) And (v2 < 58)) Then
+          If ((v2 >= 48) AndAlso (v2 < 58)) Then
             v1 = v1 - 48
             v2 = v2 - 48
             res( n) = Convert.ToByte((((v2) << (4))) + v1 And &HFF)
@@ -729,10 +729,10 @@ Module yocto_messagebox
         REM
         v1 = expasc(i-3)
         v2 = expasc(i)
-        If (((v1 = 43) Or (v1 = 45)) And (v2 = 58)) Then
+        If (((v1 = 43) OrElse (v1 = 45)) AndAlso (v2 = 58)) Then
           v1 = expasc(i+1)
           v2 = expasc(i+2)
-          If ((v1 >= 48) And (v1 < 58) And (v1 >= 48) And (v1 < 58)) Then
+          If ((v1 >= 48) AndAlso (v1 < 58) AndAlso (v1 >= 48) AndAlso (v1 < 58)) Then
             v1 = ((10*(v1 - 48)+(v2 - 48)) \ 15)
             n = n - 1
             v2 = 4 * res(n) + v1
@@ -776,7 +776,7 @@ Module yocto_messagebox
       End If
       res = "20"
       i = 0
-      While ((i < siz) And (i < 6))
+      While ((i < siz) AndAlso (i < 6))
         byt = exp(ofs+i)
         res = "" +  res + "" + YAPI._intToHex( ((byt) And (15)),1) + "" + YAPI._intToHex(((byt) >> (4)),1)
         If (i < 3) Then
@@ -1071,7 +1071,7 @@ Module yocto_messagebox
         ielen = Me._udh(i+1)
         i = i + 2
         If (i + ielen <= udhlen) Then
-          If ((iei = 0) And (ielen = 3)) Then
+          If ((iei = 0) AndAlso (ielen = 3)) Then
             REM
             sig = "" +  Me._orig + "-" +  Me._dest + "-" + YAPI._intToHex(
             Me._mref,02) + "-" + YAPI._intToHex(Me._udh(i),02)
@@ -1079,7 +1079,7 @@ Module yocto_messagebox
             Me._aggCnt = Me._udh(i+1)
             Me._aggIdx = Me._udh(i+2)
           End If
-          If ((iei = 8) And (ielen = 4)) Then
+          If ((iei = 8) AndAlso (ielen = 4)) Then
             REM
             sig = "" +  Me._orig + "-" +  Me._dest + "-" + YAPI._intToHex(
             Me._mref,02) + "-" + YAPI._intToHex( Me._udh(i),02) + "" + YAPI._intToHex(Me._udh(i+1),02)
@@ -1228,7 +1228,7 @@ Module yocto_messagebox
       End If
       retcode = YAPI.SUCCESS
       i = 0
-      While ((i < Me._npdu) And (retcode = YAPI.SUCCESS))
+      While ((i < Me._npdu) AndAlso (retcode = YAPI.SUCCESS))
         pdu = Me._parts(i)
         retcode= pdu.send()
         i = i + 1
@@ -1246,7 +1246,7 @@ Module yocto_messagebox
       End If
       retcode = YAPI.SUCCESS
       i = 0
-      While ((i < Me._npdu) And (retcode = YAPI.SUCCESS))
+      While ((i < Me._npdu) AndAlso (retcode = YAPI.SUCCESS))
         pdu = Me._parts(i)
         retcode= pdu.deleteFromSIM()
         i = i + 1
@@ -1625,7 +1625,7 @@ Module yocto_messagebox
       End If
       Me._valueCallbackMessageBox = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -1779,7 +1779,7 @@ Module yocto_messagebox
       i = 0
       While (i < gsmlen)
         uni = Me._gsm2unicode(gsm(i))
-        If ((uni = 27) And (i+1 < gsmlen)) Then
+        If ((uni = 27) AndAlso (i+1 < gsmlen)) Then
           i = i + 1
           uni = gsm(i)
           If (uni < 60) Then
@@ -1866,7 +1866,7 @@ Module yocto_messagebox
       reslen = 0
       While (i < gsmlen)
         uni = Me._gsm2unicode(gsm(i))
-        If ((uni = 27) And (i+1 < gsmlen)) Then
+        If ((uni = 27) AndAlso (i+1 < gsmlen)) Then
           i = i + 1
           uni = gsm(i)
           If (uni < 60) Then
@@ -1919,7 +1919,7 @@ Module yocto_messagebox
             End If
           End If
         End If
-        If ((uni > 0) And (uni < 256)) Then
+        If ((uni > 0) AndAlso (uni < 256)) Then
           resbin( reslen) = Convert.ToByte(uni And &HFF)
           reslen = reslen + 1
         End If
@@ -2056,7 +2056,7 @@ Module yocto_messagebox
             Else
               sig = sms.get_concatSignature()
               i = 0
-              While ((i < nsig) And ((sig).Length > 0))
+              While ((i < nsig) AndAlso ((sig).Length > 0))
                 If (signatures(i) = sig) Then
                   sig = ""
                 End If
@@ -2089,7 +2089,7 @@ Module yocto_messagebox
             Else
               sig = sms.get_concatSignature()
               i = 0
-              While ((i < nsig) And ((sig).Length > 0))
+              While ((i < nsig) AndAlso ((sig).Length > 0))
                 If (signatures(i) = sig) Then
                   sig = ""
                 End If
@@ -2125,7 +2125,7 @@ Module yocto_messagebox
           End If
           pduIdx = pduIdx + 1
         End While
-        If ((cnt > 0) And (newAgg.Count = cnt)) Then
+        If ((cnt > 0) AndAlso (newAgg.Count = cnt)) Then
           sms = New YSms(Me)
           sms.set_parts(newAgg)
           newMsg.Add(sms)

@@ -186,6 +186,9 @@
 <Compile Include="..\..\Sources\yocto_pressure.vb">
 <Link>yocto_api\yocto_pressure.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_proximity.vb">
+<Link>yocto_api\yocto_proximity.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_pwminput.vb">
 <Link>yocto_api\yocto_pwminput.vb</Link>
 </Compile>
@@ -218,6 +221,9 @@
 </Compile>
 <Compile Include="..\..\Sources\yocto_spiport.vb">
 <Link>yocto_api\yocto_spiport.vb</Link>
+</Compile>
+<Compile Include="..\..\Sources\yocto_steppermotor.vb">
+<Link>yocto_api\yocto_steppermotor.vb</Link>
 </Compile>
 <Compile Include="..\..\Sources\yocto_temperature.vb">
 <Link>yocto_api\yocto_temperature.vb</Link>

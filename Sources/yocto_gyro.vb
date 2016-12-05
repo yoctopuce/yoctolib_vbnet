@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gyro.vb 25275 2016-08-24 13:42:24Z mvuilleu $
+'* $Id: yocto_gyro.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindGyro(), the high-level API for Gyro functions
 '*
@@ -175,7 +175,7 @@ Module yocto_gyro
       End If
       Me._valueCallbackQt = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -705,7 +705,7 @@ Module yocto_gyro
       End If
       Me._valueCallbackGyro = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -767,7 +767,7 @@ Module yocto_gyro
       Dim age_ms As Integer = 0
       now_stamp = CType(((YAPI.GetTickCount()) And (&H7FFFFFFF)), Integer)
       age_ms = (((now_stamp - Me._qt_stamp)) And (&H7FFFFFFF))
-      If ((age_ms >= 10) Or (Me._qt_stamp = 0)) Then
+      If ((age_ms >= 10) OrElse (Me._qt_stamp = 0)) Then
         If (Me.load(10) <> YAPI.SUCCESS) Then
           Return YAPI.DEVICE_NOT_FOUND
         End If

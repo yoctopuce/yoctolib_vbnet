@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_carbondioxide.vb 25833 2016-11-08 16:55:24Z seb $
+'* $Id: yocto_carbondioxide.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '*
@@ -265,7 +265,7 @@ Module yocto_carbondioxide
       End If
       Me._valueCallbackCarbonDioxide = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)

@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 25651 2016-10-20 13:36:46Z seb $
+'* $Id: yocto_api.vb 26132 2016-12-01 17:02:38Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "25913"
+  Public Const YOCTO_API_BUILD_NO As String = "26144"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2201,7 +2201,7 @@ Module yocto_api
       Dim leng As Integer = 0
       err = YAPI.DefaultEncoding.GetString(Me._settings)
       leng = (err).Length
-      If (( leng >= 6) And ("error:" = (err).Substring(0, 6))) Then
+      If (( leng >= 6) AndAlso ("error:" = (err).Substring(0, 6))) Then
         Me._progress = -1
         Me._progress_msg = (err).Substring( 6, leng - 6)
       Else
@@ -2490,7 +2490,7 @@ Module yocto_api
           Me._values.Add(New List(Of Double)(dat))
         End While
       Else
-        If (Me._isScal And Not (Me._isScal32)) Then
+        If (Me._isScal AndAlso Not (Me._isScal32)) Then
           While (idx < udat.Count)
             dat.Clear()
             dat.Add(Me._decodeVal(udat(idx)))
@@ -2674,7 +2674,7 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function get_rowCount() As Integer
-      If ((Me._nRows <> 0) And Me._isClosed) Then
+      If ((Me._nRows <> 0) AndAlso Me._isClosed) Then
         Return Me._nRows
       End If
       Me.loadStream()
@@ -2858,7 +2858,7 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function get_dataRows() As List(Of List(Of Double))
-      If ((Me._values.Count = 0) Or Not (Me._isClosed)) Then
+      If ((Me._values.Count = 0) OrElse Not (Me._isClosed)) Then
         Me.loadStream()
       End If
       Return Me._values
@@ -2893,7 +2893,7 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function get_data(row As Integer, col As Integer) As Double
-      If ((Me._values.Count = 0) Or Not (Me._isClosed)) Then
+      If ((Me._values.Count = 0) OrElse Not (Me._isClosed)) Then
         Me.loadStream()
       End If
       If (row >= Me._values.Count) Then
@@ -3323,10 +3323,11 @@ Module yocto_api
       End If
       
       For i_i = 0 To dataRows.Count - 1
-        If ((tim >= Me._startTime) And ((Me._endTime = 0) Or (tim <= Me._endTime))) Then
+        If ((tim >= Me._startTime) AndAlso ((Me._endTime = 0) OrElse (tim <= Me._endTime))) Then
           Me._measures.Add(New YMeasure(tim - itv, tim, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
         End If
         tim = tim + itv
+        tim = Math.Round(tim * 1000) / 1000.0
       Next i_i
       
       Return Me.get_progress()
@@ -3635,7 +3636,7 @@ Module yocto_api
       End If
       
       For i_i = 0 To dataRows.Count - 1
-        If ((tim >= Me._startTime) And ((Me._endTime = 0) Or (tim <= Me._endTime))) Then
+        If ((tim >= Me._startTime) AndAlso ((Me._endTime = 0) OrElse (tim <= Me._endTime))) Then
           measures.Add(New YMeasure(tim - itv, tim, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
         End If
         tim = tim + itv
@@ -4644,7 +4645,7 @@ Module yocto_api
       End If
       Me._valueCallbackFunction = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -6316,7 +6317,7 @@ Module yocto_api
       End If
       Me._valueCallbackModule = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -6582,7 +6583,7 @@ Module yocto_api
         sep = ""
         For i_i = 0 To  filelist.Count - 1
           name = Me._json_get_key(YAPI.DefaultEncoding.GetBytes( filelist(i_i)), "name")
-          If (((name).Length > 0) And Not (name = "startupConf.json")) Then
+          If (((name).Length > 0) AndAlso Not (name = "startupConf.json")) Then
             file_data_bin = Me._download(Me._escapeAttr(name))
             file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
             item = "" +  sep + "{""name"":""" +  name + """, ""data"":""" + file_data + """}" + vbLf + ""
@@ -6822,10 +6823,10 @@ Module yocto_api
           Return 1
         End If
       End If
-      If (cparams = "" Or cparams = "0") Then
+      If (cparams = "" OrElse cparams = "0") Then
         Return 1
       End If
-      If (((cparams).Length < 2) Or (cparams.IndexOf(".") >= 0)) Then
+      If (((cparams).Length < 2) OrElse (cparams.IndexOf(".") >= 0)) Then
         Return 0
       Else
         Return 2
@@ -6833,7 +6834,7 @@ Module yocto_api
     End Function
 
     Public Overridable Function calibScale(unit_name As String, sensorType As String) As Integer
-      If (unit_name = "g" Or unit_name = "gauss" Or unit_name = "W") Then
+      If (unit_name = "g" OrElse unit_name = "gauss" OrElse unit_name = "W") Then
         Return 1000
       End If
       If (unit_name = "C") Then
@@ -6846,14 +6847,14 @@ Module yocto_api
           Return 100
         End If
       End If
-      If (unit_name = "m" Or unit_name = "deg") Then
+      If (unit_name = "m" OrElse unit_name = "deg") Then
         Return 10
       End If
       Return 1
     End Function
 
     Public Overridable Function calibOffset(unit_name As String) As Integer
-      If (unit_name = "% RH" Or unit_name = "mbar" Or unit_name = "lx") Then
+      If (unit_name = "% RH" OrElse unit_name = "mbar" OrElse unit_name = "lx") Then
         Return 0
       End If
       Return 32767
@@ -6888,7 +6889,7 @@ Module yocto_api
         REM
         If (funVer = 2) Then
           words = YAPI._decodeWords(currentFuncValue)
-          If ((words(0) = 1366) And (words(1) = 12500)) Then
+          If ((words(0) = 1366) AndAlso (words(1) = 12500)) Then
             REM
             funScale = 1
             funOffset = 0
@@ -6898,7 +6899,7 @@ Module yocto_api
           End If
         Else
           If (funVer = 1) Then
-            If (currentFuncValue = "" Or (YAPI._atoi(currentFuncValue) > 10)) Then
+            If (currentFuncValue = "" OrElse (YAPI._atoi(currentFuncValue) > 10)) Then
               funScale = 0
             End If
           End If
@@ -6910,7 +6911,7 @@ Module yocto_api
         REM
         If (paramVer = 2) Then
           words = YAPI._decodeWords(param)
-          If ((words(0) = 1366) And (words(1) = 12500)) Then
+          If ((words(0) = 1366) AndAlso (words(1) = 12500)) Then
             REM
             paramScale = 1
             paramOffset = 0
@@ -6918,7 +6919,7 @@ Module yocto_api
             paramScale = words(1)
             paramOffset = words(0)
           End If
-          If ((words.Count >= 3) And (words(2) > 0)) Then
+          If ((words.Count >= 3) AndAlso (words(2) > 0)) Then
             maxSize = 3 + 2 * ((words(2)) Mod (10))
             If (maxSize > words.Count) Then
               maxSize = words.Count
@@ -6935,10 +6936,10 @@ Module yocto_api
             For i_i = 0 To words_str.Count - 1
               words.Add(YAPI._atoi(words_str(i_i)))
             Next i_i
-            If (param = "" Or (words(0) > 10)) Then
+            If (param = "" OrElse (words(0) > 10)) Then
               paramScale = 0
             End If
-            If ((words.Count > 0) And (words(0) > 0)) Then
+            If ((words.Count > 0) AndAlso (words(0) > 0)) Then
               maxSize = 1 + 2 * ((words(0)) Mod (10))
               If (maxSize > words.Count) Then
                 maxSize = words.Count
@@ -7100,7 +7101,7 @@ Module yocto_api
         REM
         leng = (each_str).Length
         eqpos = each_str.IndexOf("=")
-        If ((eqpos < 0) Or (leng = 0)) Then
+        If ((eqpos < 0) OrElse (leng = 0)) Then
           Me._throw(YAPI.INVALID_ARGUMENT, "Invalid settings")
           Return YAPI.INVALID_ARGUMENT
         End If
@@ -7127,7 +7128,7 @@ Module yocto_api
         REM
         leng = (each_str).Length
         eqpos = each_str.IndexOf("=")
-        If ((eqpos < 0) Or (leng = 0)) Then
+        If ((eqpos < 0) OrElse (leng = 0)) Then
           Me._throw(YAPI.INVALID_ARGUMENT, "Invalid settings")
           Return YAPI.INVALID_ARGUMENT
         End If
@@ -7147,7 +7148,7 @@ Module yocto_api
         njpath = new_jpath(i)
         leng = (njpath).Length
         cpos = njpath.IndexOf("/")
-        If ((cpos < 0) Or (leng = 0)) Then
+        If ((cpos < 0) OrElse (leng = 0)) Then
           Continue While
         End If
         fun = (njpath).Substring( 0, cpos)
@@ -7157,112 +7158,112 @@ Module yocto_api
         If (fun = "services") Then
           do_update = False
         End If
-        If ((do_update) And (attr = "firmwareRelease")) Then
+        If ((do_update) AndAlso (attr = "firmwareRelease")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "usbCurrent")) Then
+        If ((do_update) AndAlso (attr = "usbCurrent")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "upTime")) Then
+        If ((do_update) AndAlso (attr = "upTime")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "persistentSettings")) Then
+        If ((do_update) AndAlso (attr = "persistentSettings")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "adminPassword")) Then
+        If ((do_update) AndAlso (attr = "adminPassword")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "userPassword")) Then
+        If ((do_update) AndAlso (attr = "userPassword")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "rebootCountdown")) Then
+        If ((do_update) AndAlso (attr = "rebootCountdown")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "advertisedValue")) Then
+        If ((do_update) AndAlso (attr = "advertisedValue")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "poeCurrent")) Then
+        If ((do_update) AndAlso (attr = "poeCurrent")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "readiness")) Then
+        If ((do_update) AndAlso (attr = "readiness")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "ipAddress")) Then
+        If ((do_update) AndAlso (attr = "ipAddress")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "subnetMask")) Then
+        If ((do_update) AndAlso (attr = "subnetMask")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "router")) Then
+        If ((do_update) AndAlso (attr = "router")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "linkQuality")) Then
+        If ((do_update) AndAlso (attr = "linkQuality")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "ssid")) Then
+        If ((do_update) AndAlso (attr = "ssid")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "channel")) Then
+        If ((do_update) AndAlso (attr = "channel")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "security")) Then
+        If ((do_update) AndAlso (attr = "security")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "message")) Then
+        If ((do_update) AndAlso (attr = "message")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "currentValue")) Then
+        If ((do_update) AndAlso (attr = "currentValue")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "currentRawValue")) Then
+        If ((do_update) AndAlso (attr = "currentRawValue")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "currentRunIndex")) Then
+        If ((do_update) AndAlso (attr = "currentRunIndex")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "pulseTimer")) Then
+        If ((do_update) AndAlso (attr = "pulseTimer")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "lastTimePressed")) Then
+        If ((do_update) AndAlso (attr = "lastTimePressed")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "lastTimeReleased")) Then
+        If ((do_update) AndAlso (attr = "lastTimeReleased")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "filesCount")) Then
+        If ((do_update) AndAlso (attr = "filesCount")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "freeSpace")) Then
+        If ((do_update) AndAlso (attr = "freeSpace")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "timeUTC")) Then
+        If ((do_update) AndAlso (attr = "timeUTC")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "rtcTime")) Then
+        If ((do_update) AndAlso (attr = "rtcTime")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "unixTime")) Then
+        If ((do_update) AndAlso (attr = "unixTime")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "dateTime")) Then
+        If ((do_update) AndAlso (attr = "dateTime")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "rawValue")) Then
+        If ((do_update) AndAlso (attr = "rawValue")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "lastMsg")) Then
+        If ((do_update) AndAlso (attr = "lastMsg")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "delayedPulseTimer")) Then
+        If ((do_update) AndAlso (attr = "delayedPulseTimer")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "rxCount")) Then
+        If ((do_update) AndAlso (attr = "rxCount")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "txCount")) Then
+        If ((do_update) AndAlso (attr = "txCount")) Then
           do_update = False
         End If
-        If ((do_update) And (attr = "msgCount")) Then
+        If ((do_update) AndAlso (attr = "msgCount")) Then
           do_update = False
         End If
         If (do_update) Then
@@ -7270,8 +7271,8 @@ Module yocto_api
           newval = new_val_arr(i)
           j = 0
           found = False
-          While ((j < old_jpath.Count) And Not (found))
-            If ((new_jpath_len(i) = old_jpath_len(j)) And (new_jpath(i) = old_jpath(j))) Then
+          While ((j < old_jpath.Count) AndAlso Not (found))
+            If ((new_jpath_len(i) = old_jpath_len(j)) AndAlso (new_jpath(i) = old_jpath(j))) Then
               found = True
               oldval = old_val_arr(j)
               If (Not (newval = oldval)) Then
@@ -7289,8 +7290,8 @@ Module yocto_api
             new_calib = newval
             j = 0
             found = False
-            While ((j < old_jpath.Count) And Not (found))
-              If ((new_jpath_len(i) = old_jpath_len(j)) And (new_jpath(i) = old_jpath(j))) Then
+            While ((j < old_jpath.Count) AndAlso Not (found))
+              If ((new_jpath_len(i) = old_jpath_len(j)) AndAlso (new_jpath(i) = old_jpath(j))) Then
                 found = True
                 old_calib = old_val_arr(j)
               End If
@@ -7299,7 +7300,7 @@ Module yocto_api
             tmp = fun + "/unit"
             j = 0
             found = False
-            While ((j < new_jpath.Count) And Not (found))
+            While ((j < new_jpath.Count) AndAlso Not (found))
               If (tmp = new_jpath(j)) Then
                 found = True
                 unit_name = new_val_arr(j)
@@ -7309,7 +7310,7 @@ Module yocto_api
             tmp = fun + "/sensorType"
             j = 0
             found = False
-            While ((j < new_jpath.Count) And Not (found))
+            While ((j < new_jpath.Count) AndAlso Not (found))
               If (tmp = new_jpath(j)) Then
                 found = True
                 sensorType = new_val_arr(j)
@@ -8263,7 +8264,7 @@ Module yocto_api
       End If
       Me._valueCallbackSensor = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -8303,7 +8304,7 @@ Module yocto_api
         Me._resolution = 0.0001
       End If
       REM // Old format: supported when there is no calibration
-      If (Me._calibrationParam = "" Or Me._calibrationParam = "0") Then
+      If (Me._calibrationParam = "" OrElse Me._calibrationParam = "0") Then
         Me._caltyp = 0
         Return 0
       End If
@@ -8688,7 +8689,7 @@ Module yocto_api
         End If
       End If
       REM // Detect old firmware
-      If ((Me._caltyp < 0) Or (Me._scale < 0)) Then
+      If ((Me._caltyp < 0) OrElse (Me._scale < 0)) Then
         Me._throw(YAPI.NOT_SUPPORTED, "Calibration parameters format mismatch. Please upgrade your library or firmware.")
         Return "0"
       End If
@@ -8794,7 +8795,7 @@ Module yocto_api
           avgRaw = 0
           byteVal = 0
           i = 2
-          While ((sublen > 0) And (i < report.Count))
+          While ((sublen > 0) AndAlso (i < report.Count))
             byteVal = report(i)
             avgRaw = avgRaw + poww * byteVal
             poww = poww * &H100
@@ -8807,7 +8808,7 @@ Module yocto_api
           sublen = 1 + ((((report(1)) >> (2))) And (3))
           poww = 1
           difRaw = 0
-          While ((sublen > 0) And (i < report.Count))
+          While ((sublen > 0) AndAlso (i < report.Count))
             byteVal = report(i)
             difRaw = difRaw + poww * byteVal
             poww = poww * &H100
@@ -8818,7 +8819,7 @@ Module yocto_api
           sublen = 1 + ((((report(1)) >> (4))) And (3))
           poww = 1
           difRaw = 0
-          While ((sublen > 0) And (i < report.Count))
+          While ((sublen > 0) AndAlso (i < report.Count))
             byteVal = report(i)
             difRaw = difRaw + poww * byteVal
             poww = poww * &H100

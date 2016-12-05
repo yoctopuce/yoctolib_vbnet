@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_servo.vb 25275 2016-08-24 13:42:24Z mvuilleu $
+'* $Id: yocto_servo.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindServo(), the high-level API for Servo functions
 '*
@@ -618,7 +618,7 @@ End Class
       End If
       Me._valueCallbackServo = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)

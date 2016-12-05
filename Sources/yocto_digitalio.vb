@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_digitalio.vb 25871 2016-11-15 14:32:56Z seb $
+'* $Id: yocto_digitalio.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '*
@@ -545,7 +545,7 @@ Module yocto_digitalio
       End If
       Me._valueCallbackDigitalIO = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)

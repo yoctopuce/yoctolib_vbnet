@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 25289 2016-09-01 16:11:04Z seb $
+'* $Id: yocto_refframe.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -354,7 +354,7 @@ end enum
       End If
       Me._valueCallbackRefFrame = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -697,28 +697,28 @@ end enum
       yVal = YAPI._atoi(Me._json_get_key(jsonData, "yValue")) / 65536.0
       zVal = YAPI._atoi(Me._json_get_key(jsonData, "zValue")) / 65536.0
       xSq = xVal * xVal
-      If (xSq >= 0.04 And xSq < 0.64) Then
+      If (xSq >= 0.04 AndAlso xSq < 0.64) Then
         Return YAPI.SUCCESS
       End If
       If (xSq >= 1.44) Then
         Return YAPI.SUCCESS
       End If
       ySq = yVal * yVal
-      If (ySq >= 0.04 And ySq < 0.64) Then
+      If (ySq >= 0.04 AndAlso ySq < 0.64) Then
         Return YAPI.SUCCESS
       End If
       If (ySq >= 1.44) Then
         Return YAPI.SUCCESS
       End If
       zSq = zVal * zVal
-      If (zSq >= 0.04 And zSq < 0.64) Then
+      If (zSq >= 0.04 AndAlso zSq < 0.64) Then
         Return YAPI.SUCCESS
       End If
       If (zSq >= 1.44) Then
         Return YAPI.SUCCESS
       End If
       norm = Math.sqrt(xSq + ySq + zSq)
-      If (norm < 0.8 Or norm > 1.2) Then
+      If (norm < 0.8 OrElse norm > 1.2) Then
         Return YAPI.SUCCESS
       End If
       Me._calibPrevTick = currTick
@@ -804,13 +804,13 @@ end enum
       While (idx < 6)
         intpos = idx * Me._calibCount + (Me._calibCount \ 2)
         orient = Me._calibOrient(idx)
-        If (orient = 0 Or orient = 1) Then
+        If (orient = 0 OrElse orient = 1) Then
           zVal = zVal + Me._calibDataAccZ(intpos)
         End If
-        If (orient = 2 Or orient = 3) Then
+        If (orient = 2 OrElse orient = 3) Then
           xVal = xVal + Me._calibDataAccX(intpos)
         End If
-        If (orient = 4 Or orient = 5) Then
+        If (orient = 4 OrElse orient = 5) Then
           yVal = yVal + Me._calibDataAccY(intpos)
         End If
         idx = idx + 1
@@ -842,13 +842,13 @@ end enum
       While (idx < 6)
         intpos = idx * Me._calibCount + (Me._calibCount \ 2)
         orient = Me._calibOrient(idx)
-        If (orient = 0 Or orient = 1) Then
+        If (orient = 0 OrElse orient = 1) Then
           zVal = zVal + Me._calibDataAcc(intpos)
         End If
-        If (orient = 2 Or orient = 3) Then
+        If (orient = 2 OrElse orient = 3) Then
           xVal = xVal + Me._calibDataAcc(intpos)
         End If
-        If (orient = 4 Or orient = 5) Then
+        If (orient = 4 OrElse orient = 5) Then
           yVal = yVal + Me._calibDataAcc(intpos)
         End If
         idx = idx + 1
@@ -1049,13 +1049,13 @@ end enum
       scaleX = CType(Math.Round(2048.0 / Me._calibAccXScale), Integer) - 2048
       scaleY = CType(Math.Round(2048.0 / Me._calibAccYScale), Integer) - 2048
       scaleZ = CType(Math.Round(2048.0 / Me._calibAccZScale), Integer) - 2048
-      If (scaleX < -2048 Or scaleX >= 2048 Or scaleY < -2048 Or scaleY >= 2048 Or scaleZ < -2048 Or scaleZ >= 2048) Then
+      If (scaleX < -2048 OrElse scaleX >= 2048 OrElse scaleY < -2048 OrElse scaleY >= 2048 OrElse scaleZ < -2048 OrElse scaleZ >= 2048) Then
         scaleExp = 3
       Else
-        If (scaleX < -1024 Or scaleX >= 1024 Or scaleY < -1024 Or scaleY >= 1024 Or scaleZ < -1024 Or scaleZ >= 1024) Then
+        If (scaleX < -1024 OrElse scaleX >= 1024 OrElse scaleY < -1024 OrElse scaleY >= 1024 OrElse scaleZ < -1024 OrElse scaleZ >= 1024) Then
           scaleExp = 2
         Else
-          If (scaleX < -512 Or scaleX >= 512 Or scaleY < -512 Or scaleY >= 512 Or scaleZ < -512 Or scaleZ >= 512) Then
+          If (scaleX < -512 OrElse scaleX >= 512 OrElse scaleY < -512 OrElse scaleY >= 512 OrElse scaleZ < -512 OrElse scaleZ >= 512) Then
             scaleExp = 1
           Else
             scaleExp = 0

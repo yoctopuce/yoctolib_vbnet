@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 25609 2016-10-19 12:37:17Z seb $
+'* $Id: yocto_cellular.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -1049,7 +1049,7 @@ Module yocto_cellular
       End If
       Me._valueCallbackCellular = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -1218,7 +1218,7 @@ Module yocto_cellular
         buffstr = YAPI.DefaultEncoding.GetString(buff)
         buffstrlen = (buffstr).Length
         idx = bufflen - 1
-        While ((idx > 0) And (buff(idx) <> 64) And (buff(idx) <> 10) And (buff(idx) <> 13))
+        While ((idx > 0) AndAlso (buff(idx) <> 64) AndAlso (buff(idx) <> 10) AndAlso (buff(idx) <> 13))
           idx = idx - 1
         End While
         If (buff(idx) = 64) Then

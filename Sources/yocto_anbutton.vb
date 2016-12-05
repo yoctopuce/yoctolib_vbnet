@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_anbutton.vb 25275 2016-08-24 13:42:24Z mvuilleu $
+'* $Id: yocto_anbutton.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindAnButton(), the high-level API for AnButton functions
 '*
@@ -671,7 +671,7 @@ Module yocto_anbutton
       End If
       Me._valueCallbackAnButton = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)

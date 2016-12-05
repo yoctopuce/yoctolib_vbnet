@@ -1,8 +1,8 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwminput.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: pic24config.php 25964 2016-11-21 15:30:59Z mvuilleu $
 '*
-'* Implements yFindPwmInput(), the high-level API for PwmInput functions
+'* Implements yFindProximity(), the high-level API for Proximity functions
 '*
 '* - - - - - - - - - License information: - - - - - - - - - 
 '*
@@ -43,106 +43,98 @@ Imports YFUN_DESCR = System.Int32
 Imports System.Runtime.InteropServices
 Imports System.Text
 
-Module yocto_pwminput
+Module yocto_proximity
 
-    REM --- (YPwmInput return codes)
-    REM --- (end of YPwmInput return codes)
-    REM --- (YPwmInput dlldef)
-    REM --- (end of YPwmInput dlldef)
-  REM --- (YPwmInput globals)
+    REM --- (YProximity return codes)
+    REM --- (end of YProximity return codes)
+    REM --- (YProximity dlldef)
+    REM --- (end of YProximity dlldef)
+  REM --- (YProximity globals)
 
-  Public Const Y_DUTYCYCLE_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_PULSEDURATION_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_FREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_PERIOD_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_DETECTIONTHRESHOLD_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_ISPRESENT_FALSE As Integer = 0
+  Public Const Y_ISPRESENT_TRUE As Integer = 1
+  Public Const Y_ISPRESENT_INVALID As Integer = -1
+  Public Const Y_LASTTIMEAPPROACHED_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_LASTTIMEREMOVED_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
-  Public Const Y_PWMREPORTMODE_PWM_DUTYCYCLE As Integer = 0
-  Public Const Y_PWMREPORTMODE_PWM_FREQUENCY As Integer = 1
-  Public Const Y_PWMREPORTMODE_PWM_PULSEDURATION As Integer = 2
-  Public Const Y_PWMREPORTMODE_PWM_EDGECOUNT As Integer = 3
-  Public Const Y_PWMREPORTMODE_INVALID As Integer = -1
-  Public Delegate Sub YPwmInputValueCallback(ByVal func As YPwmInput, ByVal value As String)
-  Public Delegate Sub YPwmInputTimedReportCallback(ByVal func As YPwmInput, ByVal measure As YMeasure)
-  REM --- (end of YPwmInput globals)
+  Public Delegate Sub YProximityValueCallback(ByVal func As YProximity, ByVal value As String)
+  Public Delegate Sub YProximityTimedReportCallback(ByVal func As YProximity, ByVal measure As YMeasure)
+  REM --- (end of YProximity globals)
 
-  REM --- (YPwmInput class start)
+  REM --- (YProximity class start)
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YPwmInput allows you to read and configure Yoctopuce PWM
+  '''   The Yoctopuce class YProximity allows you to use and configure Yoctopuce proximity
   '''   sensors.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
   '''   register callback functions, access to the autonomous datalogger.
-  '''   This class adds the ability to configure the signal parameter used to transmit
-  '''   information: the duty cycle, the frequency or the pulse width.
+  '''   This class adds the ability to easily perform a one-point linear calibration
+  '''   to compensate the effect of a glass or filter placed in front of the sensor.
   ''' </para>
   ''' </summary>
   '''/
-  Public Class YPwmInput
+  Public Class YProximity
     Inherits YSensor
-    REM --- (end of YPwmInput class start)
+    REM --- (end of YProximity class start)
 
-    REM --- (YPwmInput definitions)
-    Public Const DUTYCYCLE_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const PULSEDURATION_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const FREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const PERIOD_INVALID As Double = YAPI.INVALID_DOUBLE
+    REM --- (YProximity definitions)
+    Public Const DETECTIONTHRESHOLD_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const ISPRESENT_FALSE As Integer = 0
+    Public Const ISPRESENT_TRUE As Integer = 1
+    Public Const ISPRESENT_INVALID As Integer = -1
+    Public Const LASTTIMEAPPROACHED_INVALID As Long = YAPI.INVALID_LONG
+    Public Const LASTTIMEREMOVED_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
-    Public Const PWMREPORTMODE_PWM_DUTYCYCLE As Integer = 0
-    Public Const PWMREPORTMODE_PWM_FREQUENCY As Integer = 1
-    Public Const PWMREPORTMODE_PWM_PULSEDURATION As Integer = 2
-    Public Const PWMREPORTMODE_PWM_EDGECOUNT As Integer = 3
-    Public Const PWMREPORTMODE_INVALID As Integer = -1
-    REM --- (end of YPwmInput definitions)
+    REM --- (end of YProximity definitions)
 
-    REM --- (YPwmInput attributes declaration)
-    Protected _dutyCycle As Double
-    Protected _pulseDuration As Double
-    Protected _frequency As Double
-    Protected _period As Double
+    REM --- (YProximity attributes declaration)
+    Protected _detectionThreshold As Integer
+    Protected _isPresent As Integer
+    Protected _lastTimeApproached As Long
+    Protected _lastTimeRemoved As Long
     Protected _pulseCounter As Long
     Protected _pulseTimer As Long
-    Protected _pwmReportMode As Integer
-    Protected _valueCallbackPwmInput As YPwmInputValueCallback
-    Protected _timedReportCallbackPwmInput As YPwmInputTimedReportCallback
-    REM --- (end of YPwmInput attributes declaration)
+    Protected _valueCallbackProximity As YProximityValueCallback
+    Protected _timedReportCallbackProximity As YProximityTimedReportCallback
+    REM --- (end of YProximity attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
-      _classname = "PwmInput"
-      REM --- (YPwmInput attributes initialization)
-      _dutyCycle = DUTYCYCLE_INVALID
-      _pulseDuration = PULSEDURATION_INVALID
-      _frequency = FREQUENCY_INVALID
-      _period = PERIOD_INVALID
+      _classname = "Proximity"
+      REM --- (YProximity attributes initialization)
+      _detectionThreshold = DETECTIONTHRESHOLD_INVALID
+      _isPresent = ISPRESENT_INVALID
+      _lastTimeApproached = LASTTIMEAPPROACHED_INVALID
+      _lastTimeRemoved = LASTTIMEREMOVED_INVALID
       _pulseCounter = PULSECOUNTER_INVALID
       _pulseTimer = PULSETIMER_INVALID
-      _pwmReportMode = PWMREPORTMODE_INVALID
-      _valueCallbackPwmInput = Nothing
-      _timedReportCallbackPwmInput = Nothing
-      REM --- (end of YPwmInput attributes initialization)
+      _valueCallbackProximity = Nothing
+      _timedReportCallbackProximity = Nothing
+      REM --- (end of YProximity attributes initialization)
     End Sub
 
-    REM --- (YPwmInput private methods declaration)
+    REM --- (YProximity private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "dutyCycle") Then
-        _dutyCycle = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+      If (member.name = "detectionThreshold") Then
+        _detectionThreshold = CInt(member.ivalue)
         Return 1
       End If
-      If (member.name = "pulseDuration") Then
-        _pulseDuration = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+      If (member.name = "isPresent") Then
+        If (member.ivalue > 0) Then _isPresent = 1 Else _isPresent = 0
         Return 1
       End If
-      If (member.name = "frequency") Then
-        _frequency = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+      If (member.name = "lastTimeApproached") Then
+        _lastTimeApproached = member.ivalue
         Return 1
       End If
-      If (member.name = "period") Then
-        _period = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+      If (member.name = "lastTimeRemoved") Then
+        _lastTimeRemoved = member.ivalue
         Return 1
       End If
       If (member.name = "pulseCounter") Then
@@ -153,119 +145,153 @@ Module yocto_pwminput
         _pulseTimer = member.ivalue
         Return 1
       End If
-      If (member.name = "pwmReportMode") Then
-        _pwmReportMode = CInt(member.ivalue)
-        Return 1
-      End If
       Return MyBase._parseAttr(member)
     End Function
 
-    REM --- (end of YPwmInput private methods declaration)
+    REM --- (end of YProximity private methods declaration)
 
-    REM --- (YPwmInput public methods declaration)
+    REM --- (YProximity public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the PWM duty cycle, in per cents.
+    '''   Returns the threshold used to determine the logical state of the proximity sensor, when considered
+    '''   as a binary input (on/off).
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the PWM duty cycle, in per cents
+    '''   an integer corresponding to the threshold used to determine the logical state of the proximity
+    '''   sensor, when considered
+    '''   as a binary input (on/off)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DUTYCYCLE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_DETECTIONTHRESHOLD_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_dutyCycle() As Double
+    Public Function get_detectionThreshold() As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return DUTYCYCLE_INVALID
+          Return DETECTIONTHRESHOLD_INVALID
         End If
       End If
-      Return Me._dutyCycle
+      Return Me._detectionThreshold
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the threshold used to determine the logical state of the proximity sensor, when considered
+    '''   as a binary input (on/off).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the threshold used to determine the logical state of the proximity
+    '''   sensor, when considered
+    '''   as a binary input (on/off)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_detectionThreshold(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("detectionThreshold", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns true if the input (considered as binary) is active (detection value is smaller than the specified <c>threshold</c>), and false otherwise.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_ISPRESENT_FALSE</c> or <c>Y_ISPRESENT_TRUE</c>, according to true if the input
+    '''   (considered as binary) is active (detection value is smaller than the specified <c>threshold</c>),
+    '''   and false otherwise
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_ISPRESENT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_isPresent() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return ISPRESENT_INVALID
+        End If
+      End If
+      Return Me._isPresent
     End Function
 
     '''*
     ''' <summary>
-    '''   Returns the PWM pulse length in milliseconds, as a floating point number.
+    '''   Returns the number of elapsed milliseconds between the module power on and the last time
+    '''   the input button was pressed (the input contact transitioned from absent to present).
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the PWM pulse length in milliseconds, as a floating point number
+    '''   an integer corresponding to the number of elapsed milliseconds between the module power on and the last time
+    '''   the input button was pressed (the input contact transitioned from absent to present)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSEDURATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_LASTTIMEAPPROACHED_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_pulseDuration() As Double
+    Public Function get_lastTimeApproached() As Long
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return PULSEDURATION_INVALID
+          Return LASTTIMEAPPROACHED_INVALID
         End If
       End If
-      Return Me._pulseDuration
+      Return Me._lastTimeApproached
     End Function
 
     '''*
     ''' <summary>
-    '''   Returns the PWM frequency in Hz.
+    '''   Returns the number of elapsed milliseconds between the module power on and the last time
+    '''   the input button was released (the input contact transitioned from present to absent).
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the PWM frequency in Hz
+    '''   an integer corresponding to the number of elapsed milliseconds between the module power on and the last time
+    '''   the input button was released (the input contact transitioned from present to absent)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FREQUENCY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_LASTTIMEREMOVED_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_frequency() As Double
+    Public Function get_lastTimeRemoved() As Long
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return FREQUENCY_INVALID
+          Return LASTTIMEREMOVED_INVALID
         End If
       End If
-      Return Me._frequency
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the PWM period in milliseconds.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a floating point number corresponding to the PWM period in milliseconds
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PERIOD_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_period() As Double
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return PERIOD_INVALID
-        End If
-      End If
-      Return Me._period
+      Return Me._lastTimeRemoved
     End Function
 
     '''*
     ''' <summary>
     '''   Returns the pulse counter value.
     ''' <para>
-    '''   Actually that
-    '''   counter is incremented twice per period. That counter is
-    '''   limited  to 1 billion
+    '''   The value is a 32 bit integer. In case
+    '''   of overflow (>=2^32), the counter will wrap. To reset the counter, just
+    '''   call the resetCounter() method.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -318,64 +344,7 @@ Module yocto_pwminput
 
     '''*
     ''' <summary>
-    '''   Returns the parameter (frequency/duty cycle, pulse width, edges count) returned by the get_currentValue function and callbacks.
-    ''' <para>
-    '''   Attention
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a value among <c>Y_PWMREPORTMODE_PWM_DUTYCYCLE</c>, <c>Y_PWMREPORTMODE_PWM_FREQUENCY</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c> and <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c> corresponding to
-    '''   the parameter (frequency/duty cycle, pulse width, edges count) returned by the get_currentValue
-    '''   function and callbacks
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PWMREPORTMODE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_pwmReportMode() As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return PWMREPORTMODE_INVALID
-        End If
-      End If
-      Return Me._pwmReportMode
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Modifies the  parameter  type (frequency/duty cycle, pulse width, or edge count) returned by the get_currentValue function and callbacks.
-    ''' <para>
-    '''   The edge count value is limited to the 6 lowest digits. For values greater than one million, use
-    '''   get_pulseCounter().
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a value among <c>Y_PWMREPORTMODE_PWM_DUTYCYCLE</c>, <c>Y_PWMREPORTMODE_PWM_FREQUENCY</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c> and <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c>
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_pwmReportMode(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("pwmReportMode", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Retrieves a PWM input for a given identifier.
+    '''   Retrieves a proximity sensor for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -399,28 +368,28 @@ Module yocto_pwminput
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the PWM input is online at the time
+    '''   This function does not require that the proximity sensor is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YPwmInput.isOnline()</c> to test if the PWM input is
+    '''   Use the method <c>YProximity.isOnline()</c> to test if the proximity sensor is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a PWM input by logical name, no error is notified: the first instance
+    '''   a proximity sensor by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the PWM input
+    '''   a string that uniquely characterizes the proximity sensor
     ''' </param>
     ''' <returns>
-    '''   a <c>YPwmInput</c> object allowing you to drive the PWM input.
+    '''   a <c>YProximity</c> object allowing you to drive the proximity sensor.
     ''' </returns>
     '''/
-    Public Shared Function FindPwmInput(func As String) As YPwmInput
-      Dim obj As YPwmInput
-      obj = CType(YFunction._FindFromCache("PwmInput", func), YPwmInput)
+    Public Shared Function FindProximity(func As String) As YProximity
+      Dim obj As YProximity
+      obj = CType(YFunction._FindFromCache("Proximity", func), YProximity)
       If ((obj Is Nothing)) Then
-        obj = New YPwmInput(func)
-        YFunction._AddToCache("PwmInput", func, obj)
+        obj = New YProximity(func)
+        YFunction._AddToCache("Proximity", func, obj)
       End If
       Return obj
     End Function
@@ -443,14 +412,14 @@ Module yocto_pwminput
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerValueCallback(callback As YPwmInputValueCallback) As Integer
+    Public Overloads Function registerValueCallback(callback As YProximityValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
         YFunction._UpdateValueCallbackList(Me, True)
       Else
         YFunction._UpdateValueCallbackList(Me, False)
       End If
-      Me._valueCallbackPwmInput = callback
+      Me._valueCallbackProximity = callback
       REM // Immediately invoke value callback with current value
       If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
@@ -462,8 +431,8 @@ Module yocto_pwminput
     End Function
 
     Public Overrides Function _invokeValueCallback(value As String) As Integer
-      If (Not (Me._valueCallbackPwmInput Is Nothing)) Then
-        Me._valueCallbackPwmInput(Me, value)
+      If (Not (Me._valueCallbackProximity Is Nothing)) Then
+        Me._valueCallbackProximity(Me, value)
       Else
         MyBase._invokeValueCallback(value)
       End If
@@ -488,7 +457,7 @@ Module yocto_pwminput
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerTimedReportCallback(callback As YPwmInputTimedReportCallback) As Integer
+    Public Overloads Function registerTimedReportCallback(callback As YProximityTimedReportCallback) As Integer
       Dim sensor As YSensor
       sensor = Me
       If (Not (callback Is Nothing)) Then
@@ -496,13 +465,13 @@ Module yocto_pwminput
       Else
         YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
-      Me._timedReportCallbackPwmInput = callback
+      Me._timedReportCallbackProximity = callback
       Return 0
     End Function
 
     Public Overrides Function _invokeTimedReportCallback(value As YMeasure) As Integer
-      If (Not (Me._timedReportCallbackPwmInput Is Nothing)) Then
-        Me._timedReportCallbackPwmInput(Me, value)
+      If (Not (Me._timedReportCallbackProximity Is Nothing)) Then
+        Me._timedReportCallbackProximity(Me, value)
       Else
         MyBase._invokeTimedReportCallback(value)
       End If
@@ -529,17 +498,17 @@ Module yocto_pwminput
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of PWM inputs started using <c>yFirstPwmInput()</c>.
+    '''   Continues the enumeration of proximity sensors started using <c>yFirstProximity()</c>.
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YPwmInput</c> object, corresponding to
-    '''   a PWM input currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more PWM inputs to enumerate.
+    '''   a pointer to a <c>YProximity</c> object, corresponding to
+    '''   a proximity sensor currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more proximity sensors to enumerate.
     ''' </returns>
     '''/
-    Public Function nextPwmInput() As YPwmInput
+    Public Function nextProximity() As YProximity
       Dim hwid As String = ""
       If (YISERR(_nextFunction(hwid))) Then
         Return Nothing
@@ -547,24 +516,24 @@ Module yocto_pwminput
       If (hwid = "") Then
         Return Nothing
       End If
-      Return YPwmInput.FindPwmInput(hwid)
+      Return YProximity.FindProximity(hwid)
     End Function
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of PWM inputs currently accessible.
+    '''   Starts the enumeration of proximity sensors currently accessible.
     ''' <para>
-    '''   Use the method <c>YPwmInput.nextPwmInput()</c> to iterate on
-    '''   next PWM inputs.
+    '''   Use the method <c>YProximity.nextProximity()</c> to iterate on
+    '''   next proximity sensors.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YPwmInput</c> object, corresponding to
-    '''   the first PWM input currently online, or a <c>Nothing</c> pointer
+    '''   a pointer to a <c>YProximity</c> object, corresponding to
+    '''   the first proximity sensor currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
-    Public Shared Function FirstPwmInput() As YPwmInput
+    Public Shared Function FirstProximity() As YProximity
       Dim v_fundescr(1) As YFUN_DESCR
       Dim dev As YDEV_DESCR
       Dim neededsize, err As Integer
@@ -573,7 +542,7 @@ Module yocto_pwminput
       Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
       Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
 
-      err = yapiGetFunctionsByClass("PwmInput", 0, p, size, neededsize, errmsg)
+      err = yapiGetFunctionsByClass("Proximity", 0, p, size, neededsize, errmsg)
       Marshal.Copy(p, v_fundescr, 0, 1)
       Marshal.FreeHGlobal(p)
 
@@ -588,18 +557,18 @@ Module yocto_pwminput
       If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
         Return Nothing
       End If
-      Return YPwmInput.FindPwmInput(serial + "." + funcId)
+      Return YProximity.FindProximity(serial + "." + funcId)
     End Function
 
-    REM --- (end of YPwmInput public methods declaration)
+    REM --- (end of YProximity public methods declaration)
 
   End Class
 
-  REM --- (PwmInput functions)
+  REM --- (Proximity functions)
 
   '''*
   ''' <summary>
-  '''   Retrieves a PWM input for a given identifier.
+  '''   Retrieves a proximity sensor for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -623,45 +592,45 @@ Module yocto_pwminput
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the PWM input is online at the time
+  '''   This function does not require that the proximity sensor is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YPwmInput.isOnline()</c> to test if the PWM input is
+  '''   Use the method <c>YProximity.isOnline()</c> to test if the proximity sensor is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a PWM input by logical name, no error is notified: the first instance
+  '''   a proximity sensor by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the PWM input
+  '''   a string that uniquely characterizes the proximity sensor
   ''' </param>
   ''' <returns>
-  '''   a <c>YPwmInput</c> object allowing you to drive the PWM input.
+  '''   a <c>YProximity</c> object allowing you to drive the proximity sensor.
   ''' </returns>
   '''/
-  Public Function yFindPwmInput(ByVal func As String) As YPwmInput
-    Return YPwmInput.FindPwmInput(func)
+  Public Function yFindProximity(ByVal func As String) As YProximity
+    Return YProximity.FindProximity(func)
   End Function
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of PWM inputs currently accessible.
+  '''   Starts the enumeration of proximity sensors currently accessible.
   ''' <para>
-  '''   Use the method <c>YPwmInput.nextPwmInput()</c> to iterate on
-  '''   next PWM inputs.
+  '''   Use the method <c>YProximity.nextProximity()</c> to iterate on
+  '''   next proximity sensors.
   ''' </para>
   ''' </summary>
   ''' <returns>
-  '''   a pointer to a <c>YPwmInput</c> object, corresponding to
-  '''   the first PWM input currently online, or a <c>Nothing</c> pointer
+  '''   a pointer to a <c>YProximity</c> object, corresponding to
+  '''   the first proximity sensor currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
-  Public Function yFirstPwmInput() As YPwmInput
-    Return YPwmInput.FirstPwmInput()
+  Public Function yFirstProximity() As YProximity
+    Return YProximity.FirstProximity()
   End Function
 
 
-  REM --- (end of PwmInput functions)
+  REM --- (end of Proximity functions)
 
 End Module

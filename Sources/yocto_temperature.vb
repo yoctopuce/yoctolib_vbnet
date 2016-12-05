@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 25275 2016-08-24 13:42:24Z mvuilleu $
+'* $Id: yocto_temperature.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -399,7 +399,7 @@ Module yocto_temperature
       End If
       Me._valueCallbackTemperature = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -563,7 +563,7 @@ Module yocto_temperature
         idx = 0
         While (idx < siz)
           idxres = resValues(idx)
-          If ((idxres > prev) And (idxres < curr)) Then
+          If ((idxres > prev) AndAlso (idxres < curr)) Then
             curr = idxres
             currTemp = tempValues(idx)
             found = 1
@@ -650,7 +650,7 @@ Module yocto_temperature
         idx = 0
         While (idx < siz)
           temp = templist(idx)
-          If ((temp > prev) And (temp < curr)) Then
+          If ((temp > prev) AndAlso (temp < curr)) Then
             curr = temp
             currRes = Double.Parse(paramlist(2*idx))/1000.0
             found = 1

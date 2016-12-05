@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 25275 2016-08-24 13:42:24Z mvuilleu $
+'* $Id: yocto_serialport.vb 26128 2016-12-01 13:56:29Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -740,7 +740,7 @@ Module yocto_serialport
       End If
       Me._valueCallbackSerialPort = callback
       REM // Immediately invoke value callback with current value
-      If (Not (callback Is Nothing) And Me.isOnline()) Then
+      If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
         If (Not (val = "")) Then
           Me._invokeValueCallback(val)
@@ -834,9 +834,9 @@ Module yocto_serialport
         REM
         ch = &H20
         idx = 0
-        While ((idx < bufflen) And (ch <> 0))
+        While ((idx < bufflen) AndAlso (ch <> 0))
           ch = buff(idx)
-          If ((ch >= &H20) And (ch < &H7f)) Then
+          If ((ch >= &H20) AndAlso (ch < &H7f)) Then
             idx = idx + 1
           Else
             ch = 0
@@ -974,9 +974,9 @@ Module yocto_serialport
         REM
         ch = &H20
         idx = 0
-        While ((idx < bufflen) And (ch <> 0))
+        While ((idx < bufflen) AndAlso (ch <> 0))
           ch = buff(idx)
-          If ((ch >= &H20) And (ch < &H7f)) Then
+          If ((ch >= &H20) AndAlso (ch < &H7f)) Then
             idx = idx + 1
           Else
             ch = 0
@@ -1017,7 +1017,7 @@ Module yocto_serialport
       
       REM // first check if we have the requested character in the look-ahead buffer
       bufflen = (Me._rxbuff).Length
-      If ((Me._rxptr >= Me._rxbuffptr) And (Me._rxptr < Me._rxbuffptr+bufflen)) Then
+      If ((Me._rxptr >= Me._rxbuffptr) AndAlso (Me._rxptr < Me._rxbuffptr+bufflen)) Then
         res = Me._rxbuff(Me._rxptr-Me._rxbuffptr)
         Me._rxptr = Me._rxptr + 1
         Return res
@@ -1055,7 +1055,7 @@ Module yocto_serialport
       bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
-      While ((bufflen > 0) And (buff(bufflen) <> 64))
+      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
         endpos = endpos + mult * (buff(bufflen) - 48)
         mult = mult * 10
         bufflen = bufflen - 1
@@ -1100,7 +1100,7 @@ Module yocto_serialport
       bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
-      While ((bufflen > 0) And (buff(bufflen) <> 64))
+      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
         endpos = endpos + mult * (buff(bufflen) - 48)
         mult = mult * 10
         bufflen = bufflen - 1
@@ -1143,7 +1143,7 @@ Module yocto_serialport
       bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
-      While ((bufflen > 0) And (buff(bufflen) <> 64))
+      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
         endpos = endpos + mult * (buff(bufflen) - 48)
         mult = mult * 10
         bufflen = bufflen - 1
@@ -1192,7 +1192,7 @@ Module yocto_serialport
       bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
-      While ((bufflen > 0) And (buff(bufflen) <> 64))
+      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
         endpos = endpos + mult * (buff(bufflen) - 48)
         mult = mult * 10
         bufflen = bufflen - 1
@@ -1242,7 +1242,7 @@ Module yocto_serialport
       bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
-      While ((bufflen > 0) And (buff(bufflen) <> 64))
+      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
         endpos = endpos + mult * (buff(bufflen) - 48)
         mult = mult * 10
         bufflen = bufflen - 1
@@ -1418,7 +1418,7 @@ Module yocto_serialport
       REM // may throw an exception
       buff = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
       bufflen = (buff).Length - 1
-      While ((bufflen > 0) And (buff(bufflen) <> 64))
+      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
         bufflen = bufflen - 1
       End While
       res = YAPI._atoi((YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen))
