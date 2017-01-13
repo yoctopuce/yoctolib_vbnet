@@ -171,6 +171,9 @@
 <Compile Include="..\..\Sources\yocto_motor.vb">
 <Link>yocto_api\yocto_motor.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_multiaxiscontroller.vb">
+<Link>yocto_api\yocto_multiaxiscontroller.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_network.vb">
 <Link>yocto_api\yocto_network.vb</Link>
 </Compile>
@@ -200,6 +203,9 @@
 </Compile>
 <Compile Include="..\..\Sources\yocto_quadraturedecoder.vb">
 <Link>yocto_api\yocto_quadraturedecoder.vb</Link>
+</Compile>
+<Compile Include="..\..\Sources\yocto_rangefinder.vb">
+<Link>yocto_api\yocto_rangefinder.vb</Link>
 </Compile>
 <Compile Include="..\..\Sources\yocto_realtimeclock.vb">
 <Link>yocto_api\yocto_realtimeclock.vb</Link>

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voltage.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_voltage.vb 26183 2016-12-15 00:14:02Z mvuilleu $
 '*
 '* Implements yFindVoltage(), the high-level API for Voltage functions
 '*
@@ -51,6 +51,9 @@ Module yocto_voltage
     REM --- (end of YVoltage dlldef)
   REM --- (YVoltage globals)
 
+  Public Const Y_ENABLED_FALSE As Integer = 0
+  Public Const Y_ENABLED_TRUE As Integer = 1
+  Public Const Y_ENABLED_INVALID As Integer = -1
   Public Delegate Sub YVoltageValueCallback(ByVal func As YVoltage, ByVal value As String)
   Public Delegate Sub YVoltageTimedReportCallback(ByVal func As YVoltage, ByVal measure As YMeasure)
   REM --- (end of YVoltage globals)
@@ -72,9 +75,13 @@ Module yocto_voltage
     REM --- (end of YVoltage class start)
 
     REM --- (YVoltage definitions)
+    Public Const ENABLED_FALSE As Integer = 0
+    Public Const ENABLED_TRUE As Integer = 1
+    Public Const ENABLED_INVALID As Integer = -1
     REM --- (end of YVoltage definitions)
 
     REM --- (YVoltage attributes declaration)
+    Protected _enabled As Integer
     Protected _valueCallbackVoltage As YVoltageValueCallback
     Protected _timedReportCallbackVoltage As YVoltageTimedReportCallback
     REM --- (end of YVoltage attributes declaration)
@@ -83,6 +90,7 @@ Module yocto_voltage
       MyBase.New(func)
       _classname = "Voltage"
       REM --- (YVoltage attributes initialization)
+      _enabled = ENABLED_INVALID
       _valueCallbackVoltage = Nothing
       _timedReportCallbackVoltage = Nothing
       REM --- (end of YVoltage attributes initialization)
@@ -91,12 +99,31 @@ Module yocto_voltage
     REM --- (YVoltage private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "enabled") Then
+        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
+        Return 1
+      End If
       Return MyBase._parseAttr(member)
     End Function
 
     REM --- (end of YVoltage private methods declaration)
 
     REM --- (YVoltage public methods declaration)
+    Public Function get_enabled() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return ENABLED_INVALID
+        End If
+      End If
+      Return Me._enabled
+    End Function
+
+
+    Public Function set_enabled(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("enabled", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves a voltage sensor for a given identifier.

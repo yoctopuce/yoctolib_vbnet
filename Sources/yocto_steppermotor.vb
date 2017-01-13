@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: pic24config.php 25964 2016-11-21 15:30:59Z mvuilleu $
+'* $Id: yocto_steppermotor.vb 26277 2017-01-04 15:35:59Z seb $
 '*
 '* Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '*
@@ -70,11 +70,12 @@ Module yocto_steppermotor
   Public Const Y_STEPPING_HALFSTEP As Integer = 3
   Public Const Y_STEPPING_FULLSTEP As Integer = 4
   Public Const Y_STEPPING_INVALID As Integer = -1
-  Public Const Y_USTEPMAXSPEED_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_OVERCURRENT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TCURRSTOP_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TCURRRUN_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ALERTMODE_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_AUXMODE_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_AUXSIGNAL_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YStepperMotorValueCallback(ByVal func As YStepperMotor, ByVal value As String)
   Public Delegate Sub YStepperMotorTimedReportCallback(ByVal func As YStepperMotor, ByVal measure As YMeasure)
@@ -113,11 +114,12 @@ Module yocto_steppermotor
     Public Const STEPPING_HALFSTEP As Integer = 3
     Public Const STEPPING_FULLSTEP As Integer = 4
     Public Const STEPPING_INVALID As Integer = -1
-    Public Const USTEPMAXSPEED_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const OVERCURRENT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TCURRSTOP_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TCURRRUN_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ALERTMODE_INVALID As String = YAPI.INVALID_STRING
+    Public Const AUXMODE_INVALID As String = YAPI.INVALID_STRING
+    Public Const AUXSIGNAL_INVALID As Integer = YAPI.INVALID_INT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YStepperMotor definitions)
 
@@ -130,11 +132,12 @@ Module yocto_steppermotor
     Protected _maxAccel As Double
     Protected _maxSpeed As Double
     Protected _stepping As Integer
-    Protected _ustepMaxSpeed As Double
     Protected _overcurrent As Integer
     Protected _tCurrStop As Integer
     Protected _tCurrRun As Integer
     Protected _alertMode As String
+    Protected _auxMode As String
+    Protected _auxSignal As Integer
     Protected _command As String
     Protected _valueCallbackStepperMotor As YStepperMotorValueCallback
     REM --- (end of YStepperMotor attributes declaration)
@@ -151,11 +154,12 @@ Module yocto_steppermotor
       _maxAccel = MAXACCEL_INVALID
       _maxSpeed = MAXSPEED_INVALID
       _stepping = STEPPING_INVALID
-      _ustepMaxSpeed = USTEPMAXSPEED_INVALID
       _overcurrent = OVERCURRENT_INVALID
       _tCurrStop = TCURRSTOP_INVALID
       _tCurrRun = TCURRRUN_INVALID
       _alertMode = ALERTMODE_INVALID
+      _auxMode = AUXMODE_INVALID
+      _auxSignal = AUXSIGNAL_INVALID
       _command = COMMAND_INVALID
       _valueCallbackStepperMotor = Nothing
       REM --- (end of YStepperMotor attributes initialization)
@@ -196,10 +200,6 @@ Module yocto_steppermotor
         _stepping = CInt(member.ivalue)
         Return 1
       End If
-      If (member.name = "ustepMaxSpeed") Then
-        _ustepMaxSpeed = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
-      End If
       If (member.name = "overcurrent") Then
         _overcurrent = CInt(member.ivalue)
         Return 1
@@ -214,6 +214,14 @@ Module yocto_steppermotor
       End If
       If (member.name = "alertMode") Then
         _alertMode = member.svalue
+        Return 1
+      End If
+      If (member.name = "auxMode") Then
+        _auxMode = member.svalue
+        Return 1
+      End If
+      If (member.name = "auxSignal") Then
+        _auxSignal = CInt(member.ivalue)
         Return 1
       End If
       If (member.name = "command") Then
@@ -563,58 +571,6 @@ Module yocto_steppermotor
       rest_val = Ltrim(Str(newval))
       Return _setAttr("stepping", rest_val)
     End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the maximal motor speed for micro-stepping, measured in steps per second.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a floating point number corresponding to the maximal motor speed for micro-stepping, measured in
-    '''   steps per second
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_ustepMaxSpeed(ByVal newval As Double) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
-      Return _setAttr("ustepMaxSpeed", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Returns the maximal motor speed for micro-stepping, measured in steps per second.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a floating point number corresponding to the maximal motor speed for micro-stepping, measured in
-    '''   steps per second
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_USTEPMAXSPEED_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_ustepMaxSpeed() As Double
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return USTEPMAXSPEED_INVALID
-        End If
-      End If
-      Return Me._ustepMaxSpeed
-    End Function
-
     '''*
     ''' <summary>
     '''   Returns the overcurrent alert and emergency stop threshold, measured in mA.
@@ -780,6 +736,72 @@ Module yocto_steppermotor
       rest_val = newval
       Return _setAttr("alertMode", rest_val)
     End Function
+    Public Function get_auxMode() As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return AUXMODE_INVALID
+        End If
+      End If
+      Return Me._auxMode
+    End Function
+
+
+    Public Function set_auxMode(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("auxMode", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the current value of the signal generated on the auxiliary output.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the current value of the signal generated on the auxiliary output
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_AUXSIGNAL_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_auxSignal() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return AUXSIGNAL_INVALID
+        End If
+      End If
+      Return Me._auxSignal
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the value of the signal generated on the auxiliary output.
+    ''' <para>
+    '''   Acceptable values depend on the auxiliary output signal type configured.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the value of the signal generated on the auxiliary output
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_auxSignal(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("auxSignal", rest_val)
+    End Function
     Public Function get_command() As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
@@ -927,7 +949,7 @@ Module yocto_steppermotor
     ''' </returns>
     '''/
     Public Overridable Function findHomePosition(speed As Double) As Integer
-      Return Me.sendCommand("H")
+      Return Me.sendCommand("H" + Convert.ToString(CType(Math.Round(1000*speed), Integer)))
     End Function
 
     '''*
@@ -948,7 +970,7 @@ Module yocto_steppermotor
     ''' </returns>
     '''/
     Public Overridable Function changeSpeed(speed As Double) As Integer
-      Return Me.sendCommand("R" + Convert.ToString(Math.Round(1000*speed)))
+      Return Me.sendCommand("R" + Convert.ToString(CType(Math.Round(1000*speed), Integer)))
     End Function
 
     '''*
@@ -969,18 +991,16 @@ Module yocto_steppermotor
     ''' </returns>
     '''/
     Public Overridable Function moveTo(absPos As Double) As Integer
-      Return Me.sendCommand("M" + Convert.ToString(Math.Round(16*absPos)))
+      Return Me.sendCommand("M" + Convert.ToString(CType(Math.Round(16*absPos), Integer)))
     End Function
 
     '''*
     ''' <summary>
-    '''   Starts the motor to reach a given absolute position.
+    '''   Starts the motor to reach a given relative position.
     ''' <para>
     '''   The time needed to reach the requested
     '''   position will depend on the acceleration and max speed parameters configured for
     '''   the motor.
-    ''' </para>
-    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="relPos">
@@ -988,13 +1008,29 @@ Module yocto_steppermotor
     ''' </param>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
+    ''' </returns>
     '''/
     Public Overridable Function moveRel(relPos As Double) As Integer
-      Return Me.sendCommand("m" + Convert.ToString(Math.Round(16*relPos)))
+      Return Me.sendCommand("m" + Convert.ToString(CType(Math.Round(16*relPos), Integer)))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Keep the motor in the same state for the specified amount of time, before processing next command.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="waitMs">
+    '''   wait time, specified in milliseconds.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function pause(waitMs As Integer) As Integer
+      Return Me.sendCommand("_" + Convert.ToString(waitMs))
     End Function
 
     '''*

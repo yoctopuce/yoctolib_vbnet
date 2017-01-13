@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 26132 2016-12-01 17:02:38Z seb $
+'* $Id: yocto_api.vb 26329 2017-01-11 14:04:39Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "26144"
+  Public Const YOCTO_API_BUILD_NO As String = "26380"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -4700,6 +4700,33 @@ Module yocto_api
     '''/
     Public Overridable Function unmuteValueCallbacks() As Integer
       Return Me.set_advertisedValue("")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the current value of a single function attribute, as a text string, as quickly as
+    '''   possible but without using the cached value.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="attrName">
+    '''   le nom de l'attribut désiré
+    ''' </param>
+    ''' <returns>
+    '''   une chaîne de caractères représentant la valeur actuelle de l'attribut.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty string.
+    ''' </para>
+    '''/
+    Public Overridable Function loadAttribute(attrName As String) As String
+      Dim url As String
+      Dim attrVal As Byte()
+      url = "api/" +  Me.get_functionId() + "/" + attrName
+      attrVal = Me._download(url)
+      Return YAPI.DefaultEncoding.GetString(attrVal)
     End Function
 
     Public Overridable Function _parserHelper() As Integer

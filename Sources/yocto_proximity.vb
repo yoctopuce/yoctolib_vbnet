@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: pic24config.php 25964 2016-11-21 15:30:59Z mvuilleu $
+'* $Id: pic24config.php 26169 2016-12-12 01:36:34Z mvuilleu $
 '*
 '* Implements yFindProximity(), the high-level API for Proximity functions
 '*
@@ -235,16 +235,16 @@ Module yocto_proximity
 
     '''*
     ''' <summary>
-    '''   Returns the number of elapsed milliseconds between the module power on and the last time
-    '''   the input button was pressed (the input contact transitioned from absent to present).
+    '''   Returns the number of elapsed milliseconds between the module power on and the last observed
+    '''   detection (the input contact transitioned from absent to present).
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the number of elapsed milliseconds between the module power on and the last time
-    '''   the input button was pressed (the input contact transitioned from absent to present)
+    '''   an integer corresponding to the number of elapsed milliseconds between the module power on and the last observed
+    '''   detection (the input contact transitioned from absent to present)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_LASTTIMEAPPROACHED_INVALID</c>.
@@ -261,16 +261,16 @@ Module yocto_proximity
 
     '''*
     ''' <summary>
-    '''   Returns the number of elapsed milliseconds between the module power on and the last time
-    '''   the input button was released (the input contact transitioned from present to absent).
+    '''   Returns the number of elapsed milliseconds between the module power on and the last observed
+    '''   detection (the input contact transitioned from present to absent).
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the number of elapsed milliseconds between the module power on and the last time
-    '''   the input button was released (the input contact transitioned from present to absent)
+    '''   an integer corresponding to the number of elapsed milliseconds between the module power on and the last observed
+    '''   detection (the input contact transitioned from present to absent)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_LASTTIMEREMOVED_INVALID</c>.

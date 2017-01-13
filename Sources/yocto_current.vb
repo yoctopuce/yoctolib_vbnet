@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_current.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_current.vb 26183 2016-12-15 00:14:02Z mvuilleu $
 '*
 '* Implements yFindCurrent(), the high-level API for Current functions
 '*
@@ -51,6 +51,9 @@ Module yocto_current
     REM --- (end of YCurrent dlldef)
   REM --- (YCurrent globals)
 
+  Public Const Y_ENABLED_FALSE As Integer = 0
+  Public Const Y_ENABLED_TRUE As Integer = 1
+  Public Const Y_ENABLED_INVALID As Integer = -1
   Public Delegate Sub YCurrentValueCallback(ByVal func As YCurrent, ByVal value As String)
   Public Delegate Sub YCurrentTimedReportCallback(ByVal func As YCurrent, ByVal measure As YMeasure)
   REM --- (end of YCurrent globals)
@@ -72,9 +75,13 @@ Module yocto_current
     REM --- (end of YCurrent class start)
 
     REM --- (YCurrent definitions)
+    Public Const ENABLED_FALSE As Integer = 0
+    Public Const ENABLED_TRUE As Integer = 1
+    Public Const ENABLED_INVALID As Integer = -1
     REM --- (end of YCurrent definitions)
 
     REM --- (YCurrent attributes declaration)
+    Protected _enabled As Integer
     Protected _valueCallbackCurrent As YCurrentValueCallback
     Protected _timedReportCallbackCurrent As YCurrentTimedReportCallback
     REM --- (end of YCurrent attributes declaration)
@@ -83,6 +90,7 @@ Module yocto_current
       MyBase.New(func)
       _classname = "Current"
       REM --- (YCurrent attributes initialization)
+      _enabled = ENABLED_INVALID
       _valueCallbackCurrent = Nothing
       _timedReportCallbackCurrent = Nothing
       REM --- (end of YCurrent attributes initialization)
@@ -91,12 +99,31 @@ Module yocto_current
     REM --- (YCurrent private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "enabled") Then
+        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
+        Return 1
+      End If
       Return MyBase._parseAttr(member)
     End Function
 
     REM --- (end of YCurrent private methods declaration)
 
     REM --- (YCurrent public methods declaration)
+    Public Function get_enabled() As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return ENABLED_INVALID
+        End If
+      End If
+      Return Me._enabled
+    End Function
+
+
+    Public Function set_enabled(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("enabled", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves a current sensor for a given identifier.
