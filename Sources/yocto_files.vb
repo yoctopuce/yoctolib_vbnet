@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_files.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -182,12 +182,14 @@ Module yocto_files
     ''' </para>
     '''/
     Public Function get_filesCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return FILESCOUNT_INVALID
         End If
       End If
-      Return Me._filesCount
+      res = Me._filesCount
+      Return res
     End Function
 
     '''*
@@ -206,12 +208,14 @@ Module yocto_files
     ''' </para>
     '''/
     Public Function get_freeSpace() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return FREESPACE_INVALID
         End If
       End If
-      Return Me._freeSpace
+      res = Me._freeSpace
+      Return res
     End Function
 
     '''*

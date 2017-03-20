@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_multiaxiscontroller.vb 26277 2017-01-04 15:35:59Z seb $
+'* $Id: yocto_multiaxiscontroller.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '*
@@ -144,12 +144,14 @@ Module yocto_multiaxiscontroller
     ''' </para>
     '''/
     Public Function get_nAxis() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return NAXIS_INVALID
         End If
       End If
-      Return Me._nAxis
+      res = Me._nAxis
+      Return res
     End Function
 
 
@@ -196,21 +198,25 @@ Module yocto_multiaxiscontroller
     ''' </para>
     '''/
     Public Function get_globalState() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return GLOBALSTATE_INVALID
         End If
       End If
-      Return Me._globalState
+      res = Me._globalState
+      Return res
     End Function
 
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

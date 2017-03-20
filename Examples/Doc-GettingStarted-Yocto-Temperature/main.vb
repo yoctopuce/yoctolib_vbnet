@@ -11,14 +11,12 @@ Module Module1
     End
   End Sub
 
-
   Sub Main()
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
     Dim target As String
 
     Dim tsensor As YTemperature
-
 
     If argv.Length < 2 Then Usage()
 
@@ -33,7 +31,6 @@ Module Module1
     If target = "any" Then
       tsensor = yFirstTemperature()
 
-
       If tsensor Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
@@ -47,7 +44,8 @@ Module Module1
         Console.WriteLine("Module not connected (check identification and USB cable)")
         End
       End If
-      Console.WriteLine("Current temperature: " + Str(tsensor.get_currentValue()) + " °C")
+      Console.WriteLine("Current temperature: " + Str(tsensor.get_currentValue()) _
+                        + " °C")
       Console.WriteLine("  (press Ctrl-C to exit)")
       ySleep(1000, errmsg)
     End While

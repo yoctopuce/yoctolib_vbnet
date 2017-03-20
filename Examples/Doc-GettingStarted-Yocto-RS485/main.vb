@@ -1,9 +1,7 @@
-
 Imports System.IO
 Imports System.Environment
 
 Module Module1
-
 
   Sub Main()
 

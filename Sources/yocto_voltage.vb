@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voltage.vb 26183 2016-12-15 00:14:02Z mvuilleu $
+'* $Id: yocto_voltage.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindVoltage(), the high-level API for Voltage functions
 '*
@@ -66,7 +66,7 @@ Module yocto_voltage
   '''   sensors.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   to register callback functions, to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
@@ -110,12 +110,14 @@ Module yocto_voltage
 
     REM --- (YVoltage public methods declaration)
     Public Function get_enabled() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ENABLED_INVALID
         End If
       End If
-      Return Me._enabled
+      res = Me._enabled
+      Return res
     End Function
 
 

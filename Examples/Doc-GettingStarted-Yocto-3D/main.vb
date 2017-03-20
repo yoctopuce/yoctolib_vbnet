@@ -11,7 +11,6 @@ Module Module1
     End
   End Sub
 
-
   Sub Main()
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
@@ -62,7 +61,8 @@ Module Module1
       End If
 
       If (count Mod 10 = 0) Then
-        Console.WriteLine("tilt1" + Chr(9) + "tilt2" + Chr(9) + "compass" + Chr(9) + "acc" + Chr(9) + "gyro")
+        Console.WriteLine("tilt1" + Chr(9) + "tilt2" + Chr(9) + "compass" _
+                          + Chr(9) + "acc" + Chr(9) + "gyro")
       End If
       Console.Write(tilt1.get_currentValue().ToString() + Chr(9))
       Console.Write(tilt2.get_currentValue().ToString() + Chr(9))

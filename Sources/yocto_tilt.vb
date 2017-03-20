@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_tilt.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_tilt.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindTilt(), the high-level API for Tilt functions
 '*
@@ -141,12 +141,14 @@ Module yocto_tilt
     ''' </para>
     '''/
     Public Function get_bandwidth() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BANDWIDTH_INVALID
         End If
       End If
-      Return Me._bandwidth
+      res = Me._bandwidth
+      Return res
     End Function
 
 
@@ -178,12 +180,14 @@ Module yocto_tilt
       Return _setAttr("bandwidth", rest_val)
     End Function
     Public Function get_axis() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return AXIS_INVALID
         End If
       End If
-      Return Me._axis
+      res = Me._axis
+      Return res
     End Function
 
     '''*

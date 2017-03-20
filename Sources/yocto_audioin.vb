@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_audioin.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_audioin.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindAudioIn(), the high-level API for AudioIn functions
 '*
@@ -152,12 +152,14 @@ Module yocto_audioin
     ''' </para>
     '''/
     Public Function get_volume() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return VOLUME_INVALID
         End If
       End If
-      Return Me._volume
+      res = Me._volume
+      Return res
     End Function
 
 
@@ -202,12 +204,14 @@ Module yocto_audioin
     ''' </para>
     '''/
     Public Function get_mute() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MUTE_INVALID
         End If
       End If
-      Return Me._mute
+      res = Me._mute
+      Return res
     End Function
 
 
@@ -258,12 +262,14 @@ Module yocto_audioin
     ''' </para>
     '''/
     Public Function get_volumeRange() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return VOLUMERANGE_INVALID
         End If
       End If
-      Return Me._volumeRange
+      res = Me._volumeRange
+      Return res
     End Function
 
     '''*
@@ -282,12 +288,14 @@ Module yocto_audioin
     ''' </para>
     '''/
     Public Function get_signal() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNAL_INVALID
         End If
       End If
-      Return Me._signal
+      res = Me._signal
+      Return res
     End Function
 
     '''*
@@ -306,12 +314,14 @@ Module yocto_audioin
     ''' </para>
     '''/
     Public Function get_noSignalFor() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return NOSIGNALFOR_INVALID
         End If
       End If
-      Return Me._noSignalFor
+      res = Me._noSignalFor
+      Return res
     End Function
 
     '''*

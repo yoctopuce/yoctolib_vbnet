@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_digitalio.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_digitalio.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '*
@@ -174,12 +174,14 @@ Module yocto_digitalio
     ''' </para>
     '''/
     Public Function get_portState() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PORTSTATE_INVALID
         End If
       End If
-      Return Me._portState
+      res = Me._portState
+      Return res
     End Function
 
 
@@ -227,12 +229,14 @@ Module yocto_digitalio
     ''' </para>
     '''/
     Public Function get_portDirection() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PORTDIRECTION_INVALID
         End If
       End If
-      Return Me._portDirection
+      res = Me._portDirection
+      Return res
     End Function
 
 
@@ -281,12 +285,14 @@ Module yocto_digitalio
     ''' </para>
     '''/
     Public Function get_portOpenDrain() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PORTOPENDRAIN_INVALID
         End If
       End If
-      Return Me._portOpenDrain
+      res = Me._portOpenDrain
+      Return res
     End Function
 
 
@@ -336,12 +342,14 @@ Module yocto_digitalio
     ''' </para>
     '''/
     Public Function get_portPolarity() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PORTPOLARITY_INVALID
         End If
       End If
-      Return Me._portPolarity
+      res = Me._portPolarity
+      Return res
     End Function
 
 
@@ -390,12 +398,14 @@ Module yocto_digitalio
     ''' </para>
     '''/
     Public Function get_portSize() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PORTSIZE_INVALID
         End If
       End If
-      Return Me._portSize
+      res = Me._portSize
+      Return res
     End Function
 
     '''*
@@ -415,12 +425,14 @@ Module yocto_digitalio
     ''' </para>
     '''/
     Public Function get_outputVoltage() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return OUTPUTVOLTAGE_INVALID
         End If
       End If
-      Return Me._outputVoltage
+      res = Me._outputVoltage
+      Return res
     End Function
 
 
@@ -452,12 +464,14 @@ Module yocto_digitalio
       Return _setAttr("outputVoltage", rest_val)
     End Function
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

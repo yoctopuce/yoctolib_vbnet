@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupmonitor.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_wakeupmonitor.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '*
@@ -175,12 +175,14 @@ Module yocto_wakeupmonitor
     ''' </para>
     '''/
     Public Function get_powerDuration() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return POWERDURATION_INVALID
         End If
       End If
-      Return Me._powerDuration
+      res = Me._powerDuration
+      Return res
     End Function
 
 
@@ -225,12 +227,14 @@ Module yocto_wakeupmonitor
     ''' </para>
     '''/
     Public Function get_sleepCountdown() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SLEEPCOUNTDOWN_INVALID
         End If
       End If
-      Return Me._sleepCountdown
+      res = Me._sleepCountdown
+      Return res
     End Function
 
 
@@ -275,12 +279,14 @@ Module yocto_wakeupmonitor
     ''' </para>
     '''/
     Public Function get_nextWakeUp() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return NEXTWAKEUP_INVALID
         End If
       End If
-      Return Me._nextWakeUp
+      res = Me._nextWakeUp
+      Return res
     End Function
 
 
@@ -327,12 +333,14 @@ Module yocto_wakeupmonitor
     ''' </para>
     '''/
     Public Function get_wakeUpReason() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return WAKEUPREASON_INVALID
         End If
       End If
-      Return Me._wakeUpReason
+      res = Me._wakeUpReason
+      Return res
     End Function
 
     '''*
@@ -352,12 +360,14 @@ Module yocto_wakeupmonitor
     ''' </para>
     '''/
     Public Function get_wakeUpState() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return WAKEUPSTATE_INVALID
         End If
       End If
-      Return Me._wakeUpState
+      res = Me._wakeUpState
+      Return res
     End Function
 
 
@@ -367,12 +377,14 @@ Module yocto_wakeupmonitor
       Return _setAttr("wakeUpState", rest_val)
     End Function
     Public Function get_rtcTime() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RTCTIME_INVALID
         End If
       End If
-      Return Me._rtcTime
+      res = Me._rtcTime
+      Return res
     End Function
 
     '''*

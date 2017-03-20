@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voc.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_voc.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindVoc(), the high-level API for Voc functions
 '*
@@ -63,7 +63,7 @@ Module yocto_voc
   '''   Compound sensors.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   to register callback functions, to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/

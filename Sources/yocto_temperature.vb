@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_temperature.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -80,8 +80,8 @@ Module yocto_temperature
   '''   The Yoctopuce class YTemperature allows you to read and configure Yoctopuce temperature
   '''   sensors.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   It inherits from YSensor class the core functions to read measurements, to
+  '''   register callback functions, to access the autonomous datalogger.
   '''   This class adds the ability to configure some specific parameters for some
   '''   sensors (connection type, temperature mapping table).
   ''' </para>
@@ -214,12 +214,14 @@ Module yocto_temperature
     ''' </para>
     '''/
     Public Function get_sensorType() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SENSORTYPE_INVALID
         End If
       End If
-      Return Me._sensorType
+      res = Me._sensorType
+      Return res
     End Function
 
 
@@ -273,12 +275,14 @@ Module yocto_temperature
     ''' </para>
     '''/
     Public Function get_signalValue() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALVALUE_INVALID
         End If
       End If
-      Return Math.Round(Me._signalValue * 1000) / 1000
+      res = Math.Round(Me._signalValue * 1000) / 1000
+      Return res
     End Function
 
     '''*
@@ -297,21 +301,25 @@ Module yocto_temperature
     ''' </para>
     '''/
     Public Function get_signalUnit() As String
+      Dim res As String
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALUNIT_INVALID
         End If
       End If
-      Return Me._signalUnit
+      res = Me._signalUnit
+      Return res
     End Function
 
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 
@@ -458,7 +466,7 @@ Module yocto_temperature
 
     '''*
     ''' <summary>
-    '''   Configure NTC thermistor parameters in order to properly compute the temperature from
+    '''   Configures NTC thermistor parameters in order to properly compute the temperature from
     '''   the measured resistance.
     ''' <para>
     '''   For increased precision, you can enter a complete mapping

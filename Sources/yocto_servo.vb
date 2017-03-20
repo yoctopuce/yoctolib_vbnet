@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_servo.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_servo.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindServo(), the high-level API for Servo functions
 '*
@@ -195,12 +195,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_position() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return POSITION_INVALID
         End If
       End If
-      Return Me._position
+      res = Me._position
+      Return res
     End Function
 
 
@@ -245,12 +247,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_enabled() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ENABLED_INVALID
         End If
       End If
-      Return Me._enabled
+      res = Me._enabled
+      Return res
     End Function
 
 
@@ -295,12 +299,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_range() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RANGE_INVALID
         End If
       End If
-      Return Me._range
+      res = Me._range
+      Return res
     End Function
 
 
@@ -351,12 +357,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_neutral() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return NEUTRAL_INVALID
         End If
       End If
-      Return Me._neutral
+      res = Me._neutral
+      Return res
     End Function
 
 
@@ -391,12 +399,14 @@ End Class
       Return _setAttr("neutral", rest_val)
     End Function
     Public Function get_move() As YServoMove
+      Dim res As YServoMove
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MOVE_INVALID
         End If
       End If
-      Return Me._move
+      res = Me._move
+      Return res
     End Function
 
 
@@ -450,12 +460,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_positionAtPowerOn() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return POSITIONATPOWERON_INVALID
         End If
       End If
-      Return Me._positionAtPowerOn
+      res = Me._positionAtPowerOn
+      Return res
     End Function
 
 
@@ -503,12 +515,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_enabledAtPowerOn() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ENABLEDATPOWERON_INVALID
         End If
       End If
-      Return Me._enabledAtPowerOn
+      res = Me._enabledAtPowerOn
+      Return res
     End Function
 
 

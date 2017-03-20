@@ -11,7 +11,6 @@ Module Module1
     End
   End Sub
 
-
   Sub Main()
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
@@ -50,10 +49,12 @@ Module Module1
         Console.WriteLine("Module not connected (check identification and USB cable)")
         End
       End If
-      Console.WriteLine("Current altitude:    " + Str(asensor.get_currentValue()) + " m " +
-                        "(QNH=" + Str(asensor.get_qnh()) + "hPa)")
-      Console.WriteLine("Current pressure:    " + Str(psensor.get_currentValue()) + " hPa")
-      Console.WriteLine("Current temperature: " + Str(tsensor.get_currentValue()) + " °C")
+      Console.WriteLine("Current altitude:    " + Str(asensor.get_currentValue()) _
+                        + " m " + "(QNH=" + Str(asensor.get_qnh()) + "hPa)")
+      Console.WriteLine("Current pressure:    " + Str(psensor.get_currentValue()) _
+                        + " hPa")
+      Console.WriteLine("Current temperature: " + Str(tsensor.get_currentValue()) _
+                        + " °C")
       Console.WriteLine("  (press Ctrl-C to exit)")
       ySleep(1000, errmsg)
     End While

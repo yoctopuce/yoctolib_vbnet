@@ -11,14 +11,12 @@ Module Module1
     End
   End Sub
 
-
   Sub Main()
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
     Dim target As String
 
     Dim psensor As YPower
-
 
     If argv.Length < 2 Then Usage()
 

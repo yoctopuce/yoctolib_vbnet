@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_buzzer.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_buzzer.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindBuzzer(), the high-level API for Buzzer functions
 '*
@@ -185,12 +185,14 @@ Module yocto_buzzer
     ''' </para>
     '''/
     Public Function get_frequency() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return FREQUENCY_INVALID
         End If
       End If
-      Return Me._frequency
+      res = Me._frequency
+      Return res
     End Function
 
     '''*
@@ -209,12 +211,14 @@ Module yocto_buzzer
     ''' </para>
     '''/
     Public Function get_volume() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return VOLUME_INVALID
         End If
       End If
-      Return Me._volume
+      res = Me._volume
+      Return res
     End Function
 
 
@@ -259,12 +263,14 @@ Module yocto_buzzer
     ''' </para>
     '''/
     Public Function get_playSeqSize() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PLAYSEQSIZE_INVALID
         End If
       End If
-      Return Me._playSeqSize
+      res = Me._playSeqSize
+      Return res
     End Function
 
     '''*
@@ -283,12 +289,14 @@ Module yocto_buzzer
     ''' </para>
     '''/
     Public Function get_playSeqMaxSize() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PLAYSEQMAXSIZE_INVALID
         End If
       End If
-      Return Me._playSeqMaxSize
+      res = Me._playSeqMaxSize
+      Return res
     End Function
 
     '''*
@@ -311,21 +319,25 @@ Module yocto_buzzer
     ''' </para>
     '''/
     Public Function get_playSeqSignature() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PLAYSEQSIGNATURE_INVALID
         End If
       End If
-      Return Me._playSeqSignature
+      res = Me._playSeqSignature
+      Return res
     End Function
 
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

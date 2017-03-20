@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_steppermotor.vb 26277 2017-01-04 15:35:59Z seb $
+'* $Id: yocto_steppermotor.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '*
@@ -252,12 +252,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_motorState() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MOTORSTATE_INVALID
         End If
       End If
-      Return Me._motorState
+      res = Me._motorState
+      Return res
     End Function
 
     '''*
@@ -276,12 +278,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_diags() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DIAGS_INVALID
         End If
       End If
-      Return Me._diags
+      res = Me._diags
+      Return res
     End Function
 
 
@@ -332,12 +336,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_stepPos() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return STEPPOS_INVALID
         End If
       End If
-      Return Me._stepPos
+      res = Me._stepPos
+      Return res
     End Function
 
     '''*
@@ -357,12 +363,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_speed() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SPEED_INVALID
         End If
       End If
-      Return Me._speed
+      res = Me._speed
+      Return res
     End Function
 
 
@@ -409,12 +417,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_pullinSpeed() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PULLINSPEED_INVALID
         End If
       End If
-      Return Me._pullinSpeed
+      res = Me._pullinSpeed
+      Return res
     End Function
 
 
@@ -459,12 +469,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_maxAccel() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MAXACCEL_INVALID
         End If
       End If
-      Return Me._maxAccel
+      res = Me._maxAccel
+      Return res
     End Function
 
 
@@ -509,12 +521,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_maxSpeed() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MAXSPEED_INVALID
         End If
       End If
-      Return Me._maxSpeed
+      res = Me._maxSpeed
+      Return res
     End Function
 
     '''*
@@ -535,12 +549,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_stepping() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return STEPPING_INVALID
         End If
       End If
-      Return Me._stepping
+      res = Me._stepping
+      Return res
     End Function
 
 
@@ -587,12 +603,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_overcurrent() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return OVERCURRENT_INVALID
         End If
       End If
-      Return Me._overcurrent
+      res = Me._overcurrent
+      Return res
     End Function
 
 
@@ -637,12 +655,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_tCurrStop() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return TCURRSTOP_INVALID
         End If
       End If
-      Return Me._tCurrStop
+      res = Me._tCurrStop
+      Return res
     End Function
 
 
@@ -687,12 +707,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_tCurrRun() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return TCURRRUN_INVALID
         End If
       End If
-      Return Me._tCurrRun
+      res = Me._tCurrRun
+      Return res
     End Function
 
 
@@ -722,12 +744,14 @@ Module yocto_steppermotor
       Return _setAttr("tCurrRun", rest_val)
     End Function
     Public Function get_alertMode() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ALERTMODE_INVALID
         End If
       End If
-      Return Me._alertMode
+      res = Me._alertMode
+      Return res
     End Function
 
 
@@ -737,12 +761,14 @@ Module yocto_steppermotor
       Return _setAttr("alertMode", rest_val)
     End Function
     Public Function get_auxMode() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return AUXMODE_INVALID
         End If
       End If
-      Return Me._auxMode
+      res = Me._auxMode
+      Return res
     End Function
 
 
@@ -767,12 +793,14 @@ Module yocto_steppermotor
     ''' </para>
     '''/
     Public Function get_auxSignal() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return AUXSIGNAL_INVALID
         End If
       End If
-      Return Me._auxSignal
+      res = Me._auxSignal
+      Return res
     End Function
 
 
@@ -803,12 +831,14 @@ Module yocto_steppermotor
       Return _setAttr("auxSignal", rest_val)
     End Function
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

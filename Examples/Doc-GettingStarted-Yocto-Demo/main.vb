@@ -24,7 +24,6 @@ Module Module1
     target = argv(1)
     on_off = argv(2).ToUpper()
 
-
     REM Setup the API to use local USB devices
     If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)

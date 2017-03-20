@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_altitude.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_altitude.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindAltitude(), the high-level API for Altitude functions
 '*
@@ -65,7 +65,7 @@ Module yocto_altitude
   '''   sensors.
   ''' <para>
   '''   It inherits from the YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   to register callback functions, to access the autonomous datalogger.
   '''   This class adds the ability to configure the barometric pressure adjusted to
   '''   sea level (QNH) for barometric sensors.
   ''' </para>
@@ -191,12 +191,14 @@ Module yocto_altitude
     ''' </para>
     '''/
     Public Function get_qnh() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return QNH_INVALID
         End If
       End If
-      Return Me._qnh
+      res = Me._qnh
+      Return res
     End Function
 
     '''*
@@ -218,12 +220,14 @@ Module yocto_altitude
     ''' </para>
     '''/
     Public Function get_technology() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return TECHNOLOGY_INVALID
         End If
       End If
-      Return Me._technology
+      res = Me._technology
+      Return res
     End Function
 
     '''*

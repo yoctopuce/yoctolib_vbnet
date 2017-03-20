@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_poweroutput.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_poweroutput.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindPowerOutput(), the high-level API for PowerOutput functions
 '*
@@ -126,12 +126,14 @@ Module yocto_poweroutput
     ''' </para>
     '''/
     Public Function get_voltage() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return VOLTAGE_INVALID
         End If
       End If
-      Return Me._voltage
+      res = Me._voltage
+      Return res
     End Function
 
 

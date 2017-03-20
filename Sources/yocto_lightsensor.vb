@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_lightsensor.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_lightsensor.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindLightSensor(), the high-level API for LightSensor functions
 '*
@@ -69,7 +69,7 @@ Module yocto_lightsensor
   '''   sensors.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   to register callback functions, to access the autonomous datalogger.
   '''   This class adds the ability to easily perform a one-point linear calibration
   '''   to compensate the effect of a glass or filter placed in front of the sensor.
   '''   For some light sensors with several working modes, this class can select the
@@ -174,18 +174,20 @@ Module yocto_lightsensor
     ''' </para>
     '''/
     Public Function get_measureType() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MEASURETYPE_INVALID
         End If
       End If
-      Return Me._measureType
+      res = Me._measureType
+      Return res
     End Function
 
 
     '''*
     ''' <summary>
-    '''   Modify the light sensor type used in the device.
+    '''   Modifies the light sensor type used in the device.
     ''' <para>
     '''   The measure can either
     '''   approximate the response of the human eye, focus on a specific light

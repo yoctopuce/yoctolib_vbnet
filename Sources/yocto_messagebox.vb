@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_messagebox.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -1390,12 +1390,14 @@ Module yocto_messagebox
     ''' </para>
     '''/
     Public Function get_slotsInUse() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SLOTSINUSE_INVALID
         End If
       End If
-      Return Me._slotsInUse
+      res = Me._slotsInUse
+      Return res
     End Function
 
     '''*
@@ -1414,21 +1416,25 @@ Module yocto_messagebox
     ''' </para>
     '''/
     Public Function get_slotsCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SLOTSCOUNT_INVALID
         End If
       End If
-      Return Me._slotsCount
+      res = Me._slotsCount
+      Return res
     End Function
 
     Public Function get_slotsBitmap() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SLOTSBITMAP_INVALID
         End If
       End If
-      Return Me._slotsBitmap
+      res = Me._slotsBitmap
+      Return res
     End Function
 
     '''*
@@ -1447,12 +1453,14 @@ Module yocto_messagebox
     ''' </para>
     '''/
     Public Function get_pduSent() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PDUSENT_INVALID
         End If
       End If
-      Return Me._pduSent
+      res = Me._pduSent
+      Return res
     End Function
 
 
@@ -1497,12 +1505,14 @@ Module yocto_messagebox
     ''' </para>
     '''/
     Public Function get_pduReceived() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PDURECEIVED_INVALID
         End If
       End If
-      Return Me._pduReceived
+      res = Me._pduReceived
+      Return res
     End Function
 
 
@@ -1532,12 +1542,14 @@ Module yocto_messagebox
       Return _setAttr("pduReceived", rest_val)
     End Function
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_magnetometer.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_magnetometer.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindMagnetometer(), the high-level API for Magnetometer functions
 '*
@@ -151,12 +151,14 @@ Module yocto_magnetometer
     ''' </para>
     '''/
     Public Function get_bandwidth() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BANDWIDTH_INVALID
         End If
       End If
-      Return Me._bandwidth
+      res = Me._bandwidth
+      Return res
     End Function
 
 
@@ -203,12 +205,14 @@ Module yocto_magnetometer
     ''' </para>
     '''/
     Public Function get_xValue() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return XVALUE_INVALID
         End If
       End If
-      Return Me._xValue
+      res = Me._xValue
+      Return res
     End Function
 
     '''*
@@ -227,12 +231,14 @@ Module yocto_magnetometer
     ''' </para>
     '''/
     Public Function get_yValue() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return YVALUE_INVALID
         End If
       End If
-      Return Me._yValue
+      res = Me._yValue
+      Return res
     End Function
 
     '''*
@@ -251,12 +257,14 @@ Module yocto_magnetometer
     ''' </para>
     '''/
     Public Function get_zValue() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ZVALUE_INVALID
         End If
       End If
-      Return Me._zValue
+      res = Me._zValue
+      Return res
     End Function
 
     '''*

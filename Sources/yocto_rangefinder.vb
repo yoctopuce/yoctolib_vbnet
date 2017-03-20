@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_rangefinder.vb 26329 2017-01-11 14:04:39Z mvuilleu $
+'* $Id: yocto_rangefinder.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindRangeFinder(), the high-level API for RangeFinder functions
 '*
@@ -56,6 +56,8 @@ Module yocto_rangefinder
   Public Const Y_RANGEFINDERMODE_HIGH_ACCURACY As Integer = 2
   Public Const Y_RANGEFINDERMODE_HIGH_SPEED As Integer = 3
   Public Const Y_RANGEFINDERMODE_INVALID As Integer = -1
+  Public Const Y_HARDWARECALIBRATION_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_CURRENTTEMPERATURE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YRangeFinderValueCallback(ByVal func As YRangeFinder, ByVal value As String)
   Public Delegate Sub YRangeFinderTimedReportCallback(ByVal func As YRangeFinder, ByVal measure As YMeasure)
@@ -65,11 +67,11 @@ Module yocto_rangefinder
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YRangeFinder allows you to use and configure Yoctopuce range finders
+  '''   The Yoctopuce class YRangeFinder allows you to use and configure Yoctopuce range finder
   '''   sensors.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   It inherits from the YSensor class the core functions to read measurements,
+  '''   register callback functions, access the autonomous datalogger.
   '''   This class adds the ability to easily perform a one-point linear calibration
   '''   to compensate the effect of a glass or filter placed in front of the sensor.
   ''' </para>
@@ -85,11 +87,15 @@ Module yocto_rangefinder
     Public Const RANGEFINDERMODE_HIGH_ACCURACY As Integer = 2
     Public Const RANGEFINDERMODE_HIGH_SPEED As Integer = 3
     Public Const RANGEFINDERMODE_INVALID As Integer = -1
+    Public Const HARDWARECALIBRATION_INVALID As String = YAPI.INVALID_STRING
+    Public Const CURRENTTEMPERATURE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YRangeFinder definitions)
 
     REM --- (YRangeFinder attributes declaration)
     Protected _rangeFinderMode As Integer
+    Protected _hardwareCalibration As String
+    Protected _currentTemperature As Double
     Protected _command As String
     Protected _valueCallbackRangeFinder As YRangeFinderValueCallback
     Protected _timedReportCallbackRangeFinder As YRangeFinderTimedReportCallback
@@ -100,6 +106,8 @@ Module yocto_rangefinder
       _classname = "RangeFinder"
       REM --- (YRangeFinder attributes initialization)
       _rangeFinderMode = RANGEFINDERMODE_INVALID
+      _hardwareCalibration = HARDWARECALIBRATION_INVALID
+      _currentTemperature = CURRENTTEMPERATURE_INVALID
       _command = COMMAND_INVALID
       _valueCallbackRangeFinder = Nothing
       _timedReportCallbackRangeFinder = Nothing
@@ -111,6 +119,14 @@ Module yocto_rangefinder
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
       If (member.name = "rangeFinderMode") Then
         _rangeFinderMode = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "hardwareCalibration") Then
+        _hardwareCalibration = member.svalue
+        Return 1
+      End If
+      If (member.name = "currentTemperature") Then
+        _currentTemperature = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
         Return 1
       End If
       If (member.name = "command") Then
@@ -126,10 +142,10 @@ Module yocto_rangefinder
 
     '''*
     ''' <summary>
-    '''   Changes the measuring unit for the measured temperature.
+    '''   Changes the measuring unit for the measured range.
     ''' <para>
     '''   That unit is a string.
-    '''   String value can be <c>"</c> or <c>mm</c>. Any other value will be ignored.
+    '''   String value can be <c>"</c> or <c>mm</c>. Any other value is ignored.
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     '''   WARNING: if a specific calibration is defined for the rangeFinder function, a
     '''   unit system change will probably break it.
@@ -138,7 +154,7 @@ Module yocto_rangefinder
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a string corresponding to the measuring unit for the measured temperature
+    '''   a string corresponding to the measuring unit for the measured range
     ''' </param>
     ''' <para>
     ''' </para>
@@ -156,10 +172,10 @@ Module yocto_rangefinder
     End Function
     '''*
     ''' <summary>
-    '''   Returns the rangefinder running mode.
+    '''   Returns the range finder running mode.
     ''' <para>
     '''   The rangefinder running mode
-    '''   allows to put priority on precision, speed or maximum range.
+    '''   allows you to put priority on precision, speed or maximum range.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -167,25 +183,27 @@ Module yocto_rangefinder
     ''' <returns>
     '''   a value among <c>Y_RANGEFINDERMODE_DEFAULT</c>, <c>Y_RANGEFINDERMODE_LONG_RANGE</c>,
     '''   <c>Y_RANGEFINDERMODE_HIGH_ACCURACY</c> and <c>Y_RANGEFINDERMODE_HIGH_SPEED</c> corresponding to the
-    '''   rangefinder running mode
+    '''   range finder running mode
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_RANGEFINDERMODE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rangeFinderMode() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RANGEFINDERMODE_INVALID
         End If
       End If
-      Return Me._rangeFinderMode
+      res = Me._rangeFinderMode
+      Return res
     End Function
 
 
     '''*
     ''' <summary>
-    '''   Changes the rangefinder running mode, allowing to put priority on
+    '''   Changes the rangefinder running mode, allowing you to put priority on
     '''   precision, speed or maximum range.
     ''' <para>
     ''' </para>
@@ -195,7 +213,7 @@ Module yocto_rangefinder
     ''' <param name="newval">
     '''   a value among <c>Y_RANGEFINDERMODE_DEFAULT</c>, <c>Y_RANGEFINDERMODE_LONG_RANGE</c>,
     '''   <c>Y_RANGEFINDERMODE_HIGH_ACCURACY</c> and <c>Y_RANGEFINDERMODE_HIGH_SPEED</c> corresponding to the
-    '''   rangefinder running mode, allowing to put priority on
+    '''   rangefinder running mode, allowing you to put priority on
     '''   precision, speed or maximum range
     ''' </param>
     ''' <para>
@@ -212,13 +230,58 @@ Module yocto_rangefinder
       rest_val = Ltrim(Str(newval))
       Return _setAttr("rangeFinderMode", rest_val)
     End Function
+    Public Function get_hardwareCalibration() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return HARDWARECALIBRATION_INVALID
+        End If
+      End If
+      res = Me._hardwareCalibration
+      Return res
+    End Function
+
+
+    Public Function set_hardwareCalibration(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("hardwareCalibration", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the current sensor temperature, as a floating point number.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the current sensor temperature, as a floating point number
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CURRENTTEMPERATURE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_currentTemperature() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return CURRENTTEMPERATURE_INVALID
+        End If
+      End If
+      res = Me._currentTemperature
+      Return res
+    End Function
+
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 
@@ -365,12 +428,35 @@ Module yocto_rangefinder
 
     '''*
     ''' <summary>
+    '''   Returns the temperature at the time when the latest calibration was performed.
+    ''' <para>
+    '''   This function can be used to determine if a new calibration for ambient temperature
+    '''   is required.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a temperature, as a floating point number.
+    '''   On failure, throws an exception or return YAPI_INVALID_DOUBLE.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_hardwareCalibrationTemperature() As Double
+      Dim hwcal As String
+      
+      hwcal = Me.get_hardwareCalibration()
+      If (Not ((hwcal).Substring(0, 1) = "@")) Then
+        Return YAPI.INVALID_DOUBLE
+      End If
+      Return YAPI._atoi((hwcal).Substring(1, (hwcal).Length))
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Triggers a sensor calibration according to the current ambient temperature.
     ''' <para>
     '''   That
     '''   calibration process needs no physical interaction with the sensor. It is performed
     '''   automatically at device startup, but it is recommended to start it again when the
-    '''   temperature delta since last calibration exceeds 8°C.
+    '''   temperature delta since the latest calibration exceeds 8°C.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -378,8 +464,101 @@ Module yocto_rangefinder
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
-    Public Overridable Function triggerTempCalibration() As Integer
+    Public Overridable Function triggerTemperatureCalibration() As Integer
       Return Me.set_command("T")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Triggers the photon detector hardware calibration.
+    ''' <para>
+    '''   This function is part of the calibration procedure to compensate for the the effect
+    '''   of a cover glass. Make sure to read the chapter about hardware calibration for details
+    '''   on the calibration procedure for proper results.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function triggerSpadCalibration() As Integer
+      Return Me.set_command("S")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Triggers the hardware offset calibration of the distance sensor.
+    ''' <para>
+    '''   This function is part of the calibration procedure to compensate for the the effect
+    '''   of a cover glass. Make sure to read the chapter about hardware calibration for details
+    '''   on the calibration procedure for proper results.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="targetDist">
+    '''   true distance of the calibration target, in mm or inches, depending
+    '''   on the unit selected in the device
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function triggerOffsetCalibration(targetDist As Double) As Integer
+      Dim distmm As Integer = 0
+      
+      If (Me.get_unit() = """") Then
+        distmm = CType(Math.Round(targetDist * 25.4), Integer)
+      Else
+        distmm = CType(Math.Round(targetDist), Integer)
+      End If
+      Return Me.set_command("O" + Convert.ToString(distmm))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Triggers the hardware cross-talk calibration of the distance sensor.
+    ''' <para>
+    '''   This function is part of the calibration procedure to compensate for the the effect
+    '''   of a cover glass. Make sure to read the chapter about hardware calibration for details
+    '''   on the calibration procedure for proper results.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="targetDist">
+    '''   true distance of the calibration target, in mm or inches, depending
+    '''   on the unit selected in the device
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function triggerXTalkCalibration(targetDist As Double) As Integer
+      Dim distmm As Integer = 0
+      
+      If (Me.get_unit() = """") Then
+        distmm = CType(Math.Round(targetDist * 25.4), Integer)
+      Else
+        distmm = CType(Math.Round(targetDist), Integer)
+      End If
+      Return Me.set_command("X" + Convert.ToString(distmm))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Cancels the effect of previous hardware calibration procedures to compensate
+    '''   for cover glass, and restores factory settings.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function cancelCoverGlassCalibrations() As Integer
+      Return Me.set_hardwareCalibration("")
     End Function
 
 

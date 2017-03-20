@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_humidity.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_humidity.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindHumidity(), the high-level API for Humidity functions
 '*
@@ -65,7 +65,7 @@ Module yocto_humidity
   '''   sensors.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   to register callback functions, to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
@@ -163,12 +163,14 @@ Module yocto_humidity
     ''' </para>
     '''/
     Public Function get_relHum() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RELHUM_INVALID
         End If
       End If
-      Return Me._relHum
+      res = Me._relHum
+      Return res
     End Function
 
     '''*
@@ -187,12 +189,14 @@ Module yocto_humidity
     ''' </para>
     '''/
     Public Function get_absHum() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ABSHUM_INVALID
         End If
       End If
-      Return Me._absHum
+      res = Me._absHum
+      Return res
     End Function
 
     '''*

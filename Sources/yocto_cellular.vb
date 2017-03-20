@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_cellular.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -352,12 +352,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_linkQuality() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LINKQUALITY_INVALID
         End If
       End If
-      Return Me._linkQuality
+      res = Me._linkQuality
+      Return res
     End Function
 
     '''*
@@ -376,12 +378,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_cellOperator() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CELLOPERATOR_INVALID
         End If
       End If
-      Return Me._cellOperator
+      res = Me._cellOperator
+      Return res
     End Function
 
     '''*
@@ -400,12 +404,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_cellIdentifier() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CELLIDENTIFIER_INVALID
         End If
       End If
-      Return Me._cellIdentifier
+      res = Me._cellIdentifier
+      Return res
     End Function
 
     '''*
@@ -425,12 +431,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_cellType() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CELLTYPE_INVALID
         End If
       End If
-      Return Me._cellType
+      res = Me._cellType
+      Return res
     End Function
 
     '''*
@@ -453,12 +461,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_imsi() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return IMSI_INVALID
         End If
       End If
-      Return Me._imsi
+      res = Me._imsi
+      Return res
     End Function
 
     '''*
@@ -477,12 +487,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_message() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MESSAGE_INVALID
         End If
       End If
-      Return Me._message
+      res = Me._message
+      Return res
     End Function
 
     '''*
@@ -505,12 +517,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_pin() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PIN_INVALID
         End If
       End If
-      Return Me._pin
+      res = Me._pin
+      Return res
     End Function
 
 
@@ -570,12 +584,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_lockedOperator() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LOCKEDOPERATOR_INVALID
         End If
       End If
-      Return Me._lockedOperator
+      res = Me._lockedOperator
+      Return res
     End Function
 
 
@@ -624,12 +640,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_airplaneMode() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return AIRPLANEMODE_INVALID
         End If
       End If
-      Return Me._airplaneMode
+      res = Me._airplaneMode
+      Return res
     End Function
 
 
@@ -678,12 +696,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_enableData() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ENABLEDATA_INVALID
         End If
       End If
-      Return Me._enableData
+      res = Me._enableData
+      Return res
     End Function
 
 
@@ -737,12 +757,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_apn() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return APN_INVALID
         End If
       End If
-      Return Me._apn
+      res = Me._apn
+      Return res
     End Function
 
 
@@ -791,12 +813,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_apnSecret() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return APNSECRET_INVALID
         End If
       End If
-      Return Me._apnSecret
+      res = Me._apnSecret
+      Return res
     End Function
 
 
@@ -821,12 +845,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_pingInterval() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PINGINTERVAL_INVALID
         End If
       End If
-      Return Me._pingInterval
+      res = Me._pingInterval
+      Return res
     End Function
 
 
@@ -871,12 +897,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_dataSent() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DATASENT_INVALID
         End If
       End If
-      Return Me._dataSent
+      res = Me._dataSent
+      Return res
     End Function
 
 
@@ -921,12 +949,14 @@ Module yocto_cellular
     ''' </para>
     '''/
     Public Function get_dataReceived() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DATARECEIVED_INVALID
         End If
       End If
-      Return Me._dataReceived
+      res = Me._dataReceived
+      Return res
     End Function
 
 
@@ -956,12 +986,14 @@ Module yocto_cellular
       Return _setAttr("dataReceived", rest_val)
     End Function
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

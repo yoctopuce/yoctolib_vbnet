@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_network.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -91,6 +91,7 @@ Module yocto_network
   Public Const Y_CALLBACKENCODING_INVALID As Integer = -1
   Public Const Y_CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_CALLBACKSCHEDULE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_POECURRENT_INVALID As Integer = YAPI.INVALID_UINT
@@ -153,6 +154,7 @@ Module yocto_network
     Public Const CALLBACKENCODING_INVALID As Integer = -1
     Public Const CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const CALLBACKSCHEDULE_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKMINDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALLBACKMAXDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const POECURRENT_INVALID As Integer = YAPI.INVALID_UINT
@@ -179,6 +181,7 @@ Module yocto_network
     Protected _callbackEncoding As Integer
     Protected _callbackCredentials As String
     Protected _callbackInitialDelay As Integer
+    Protected _callbackSchedule As String
     Protected _callbackMinDelay As Integer
     Protected _callbackMaxDelay As Integer
     Protected _poeCurrent As Integer
@@ -209,6 +212,7 @@ Module yocto_network
       _callbackEncoding = CALLBACKENCODING_INVALID
       _callbackCredentials = CALLBACKCREDENTIALS_INVALID
       _callbackInitialDelay = CALLBACKINITIALDELAY_INVALID
+      _callbackSchedule = CALLBACKSCHEDULE_INVALID
       _callbackMinDelay = CALLBACKMINDELAY_INVALID
       _callbackMaxDelay = CALLBACKMAXDELAY_INVALID
       _poeCurrent = POECURRENT_INVALID
@@ -299,6 +303,10 @@ Module yocto_network
         _callbackInitialDelay = CInt(member.ivalue)
         Return 1
       End If
+      If (member.name = "callbackSchedule") Then
+        _callbackSchedule = member.svalue
+        Return 1
+      End If
       If (member.name = "callbackMinDelay") Then
         _callbackMinDelay = CInt(member.ivalue)
         Return 1
@@ -348,12 +356,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_readiness() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return READINESS_INVALID
         End If
       End If
-      Return Me._readiness
+      res = Me._readiness
+      Return res
     End Function
 
     '''*
@@ -374,12 +384,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_macAddress() As String
+      Dim res As String
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MACADDRESS_INVALID
         End If
       End If
-      Return Me._macAddress
+      res = Me._macAddress
+      Return res
     End Function
 
     '''*
@@ -400,12 +412,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_ipAddress() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return IPADDRESS_INVALID
         End If
       End If
-      Return Me._ipAddress
+      res = Me._ipAddress
+      Return res
     End Function
 
     '''*
@@ -424,12 +438,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_subnetMask() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SUBNETMASK_INVALID
         End If
       End If
-      Return Me._subnetMask
+      res = Me._subnetMask
+      Return res
     End Function
 
     '''*
@@ -448,21 +464,54 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_router() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ROUTER_INVALID
         End If
       End If
-      Return Me._router
+      res = Me._router
+      Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the IP configuration of the network interface.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   If the network interface is setup to use a static IP address, the string starts with "STATIC:" and
+    '''   is followed by three
+    '''   parameters, separated by "/". The first is the device IP address, followed by the subnet mask
+    '''   length, and finally the
+    '''   router IP address (default gateway). For instance: "STATIC:192.168.1.14/16/192.168.1.1"
+    ''' </para>
+    ''' <para>
+    '''   If the network interface is configured to receive its IP from a DHCP server, the string start with
+    '''   "DHCP:" and is followed by
+    '''   three parameters separated by "/". The first is the fallback IP address, then the fallback subnet
+    '''   mask length and finally the
+    '''   fallback router IP address. These three parameters are used when no DHCP reply is received.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the IP configuration of the network interface
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_IPCONFIG_INVALID</c>.
+    ''' </para>
+    '''/
     Public Function get_ipConfig() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return IPCONFIG_INVALID
         End If
       End If
-      Return Me._ipConfig
+      res = Me._ipConfig
+      Return res
     End Function
 
 
@@ -487,12 +536,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_primaryDNS() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PRIMARYDNS_INVALID
         End If
       End If
-      Return Me._primaryDNS
+      res = Me._primaryDNS
+      Return res
     End Function
 
 
@@ -539,12 +590,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_secondaryDNS() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SECONDARYDNS_INVALID
         End If
       End If
-      Return Me._secondaryDNS
+      res = Me._secondaryDNS
+      Return res
     End Function
 
 
@@ -591,12 +644,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_ntpServer() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return NTPSERVER_INVALID
         End If
       End If
-      Return Me._ntpServer
+      res = Me._ntpServer
+      Return res
     End Function
 
 
@@ -644,12 +699,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_userPassword() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return USERPASSWORD_INVALID
         End If
       End If
-      Return Me._userPassword
+      res = Me._userPassword
+      Return res
     End Function
 
 
@@ -701,12 +758,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_adminPassword() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ADMINPASSWORD_INVALID
         End If
       End If
-      Return Me._adminPassword
+      res = Me._adminPassword
+      Return res
     End Function
 
 
@@ -756,12 +815,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_httpPort() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return HTTPPORT_INVALID
         End If
       End If
-      Return Me._httpPort
+      res = Me._httpPort
+      Return res
     End Function
 
 
@@ -809,12 +870,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_defaultPage() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DEFAULTPAGE_INVALID
         End If
       End If
-      Return Me._defaultPage
+      res = Me._defaultPage
+      Return res
     End Function
 
 
@@ -865,12 +928,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_discoverable() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISCOVERABLE_INVALID
         End If
       End If
-      Return Me._discoverable
+      res = Me._discoverable
+      Return res
     End Function
 
 
@@ -922,12 +987,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_wwwWatchdogDelay() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return WWWWATCHDOGDELAY_INVALID
         End If
       End If
-      Return Me._wwwWatchdogDelay
+      res = Me._wwwWatchdogDelay
+      Return res
     End Function
 
 
@@ -977,12 +1044,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackUrl() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKURL_INVALID
         End If
       End If
-      Return Me._callbackUrl
+      res = Me._callbackUrl
+      Return res
     End Function
 
 
@@ -1031,12 +1100,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackMethod() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKMETHOD_INVALID
         End If
       End If
-      Return Me._callbackMethod
+      res = Me._callbackMethod
+      Return res
     End Function
 
 
@@ -1088,12 +1159,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackEncoding() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKENCODING_INVALID
         End If
       End If
-      Return Me._callbackEncoding
+      res = Me._callbackEncoding
+      Return res
     End Function
 
 
@@ -1145,12 +1218,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackCredentials() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKCREDENTIALS_INVALID
         End If
       End If
-      Return Me._callbackCredentials
+      res = Me._callbackCredentials
+      Return res
     End Function
 
 
@@ -1237,12 +1312,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_callbackInitialDelay() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKINITIALDELAY_INVALID
         End If
       End If
-      Return Me._callbackInitialDelay
+      res = Me._callbackInitialDelay
+      Return res
     End Function
 
 
@@ -1273,39 +1350,93 @@ Module yocto_network
     End Function
     '''*
     ''' <summary>
-    '''   Returns the minimum waiting time between two callback notifications, in seconds.
+    '''   Returns the HTTP callback schedule strategy, as a text string.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the minimum waiting time between two callback notifications, in seconds
+    '''   a string corresponding to the HTTP callback schedule strategy, as a text string
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CALLBACKMINDELAY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_CALLBACKSCHEDULE_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_callbackMinDelay() As Integer
+    Public Function get_callbackSchedule() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return CALLBACKMINDELAY_INVALID
+          Return CALLBACKSCHEDULE_INVALID
         End If
       End If
-      Return Me._callbackMinDelay
+      res = Me._callbackSchedule
+      Return res
     End Function
 
 
     '''*
     ''' <summary>
-    '''   Changes the minimum waiting time between two callback notifications, in seconds.
+    '''   Changes the HTTP callback schedule strategy, as a text string.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the minimum waiting time between two callback notifications, in seconds
+    '''   a string corresponding to the HTTP callback schedule strategy, as a text string
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_callbackSchedule(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("callbackSchedule", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the minimum waiting time between two HTTP callbacks, in seconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the minimum waiting time between two HTTP callbacks, in seconds
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CALLBACKMINDELAY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_callbackMinDelay() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return CALLBACKMINDELAY_INVALID
+        End If
+      End If
+      res = Me._callbackMinDelay
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the minimum waiting time between two HTTP callbacks, in seconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the minimum waiting time between two HTTP callbacks, in seconds
     ''' </param>
     ''' <para>
     ''' </para>
@@ -1323,39 +1454,41 @@ Module yocto_network
     End Function
     '''*
     ''' <summary>
-    '''   Returns the maximum waiting time between two callback notifications, in seconds.
+    '''   Returns the waiting time between two HTTP callbacks when there is nothing new.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the maximum waiting time between two callback notifications, in seconds
+    '''   an integer corresponding to the waiting time between two HTTP callbacks when there is nothing new
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_CALLBACKMAXDELAY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_callbackMaxDelay() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALLBACKMAXDELAY_INVALID
         End If
       End If
-      Return Me._callbackMaxDelay
+      res = Me._callbackMaxDelay
+      Return res
     End Function
 
 
     '''*
     ''' <summary>
-    '''   Changes the maximum waiting time between two callback notifications, in seconds.
+    '''   Changes the waiting time between two HTTP callbacks when there is nothing new.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the maximum waiting time between two callback notifications, in seconds
+    '''   an integer corresponding to the waiting time between two HTTP callbacks when there is nothing new
     ''' </param>
     ''' <para>
     ''' </para>
@@ -1389,12 +1522,14 @@ Module yocto_network
     ''' </para>
     '''/
     Public Function get_poeCurrent() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return POECURRENT_INVALID
         End If
       End If
-      Return Me._poeCurrent
+      res = Me._poeCurrent
+      Return res
     End Function
 
     '''*

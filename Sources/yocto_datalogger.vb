@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_datalogger.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -428,12 +428,14 @@ Module yocto_datalogger
     ''' </para>
     '''/
     Public Function get_currentRunIndex() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CURRENTRUNINDEX_INVALID
         End If
       End If
-      Return Me._currentRunIndex
+      res = Me._currentRunIndex
+      Return res
     End Function
 
     '''*
@@ -452,12 +454,14 @@ Module yocto_datalogger
     ''' </para>
     '''/
     Public Function get_timeUTC() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return TIMEUTC_INVALID
         End If
       End If
-      Return Me._timeUTC
+      res = Me._timeUTC
+      Return res
     End Function
 
 
@@ -503,12 +507,14 @@ Module yocto_datalogger
     ''' </para>
     '''/
     Public Function get_recording() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RECORDING_INVALID
         End If
       End If
-      Return Me._recording
+      res = Me._recording
+      Return res
     End Function
 
 
@@ -555,12 +561,14 @@ Module yocto_datalogger
     ''' </para>
     '''/
     Public Function get_autoStart() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return AUTOSTART_INVALID
         End If
       End If
-      Return Me._autoStart
+      res = Me._autoStart
+      Return res
     End Function
 
 
@@ -594,26 +602,29 @@ Module yocto_datalogger
     End Function
     '''*
     ''' <summary>
-    '''   Return true if the data logger is synchronised with the localization beacon.
+    '''   Returns true if the data logger is synchronised with the localization beacon.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_BEACONDRIVEN_OFF</c> or <c>Y_BEACONDRIVEN_ON</c>
+    '''   either <c>Y_BEACONDRIVEN_OFF</c> or <c>Y_BEACONDRIVEN_ON</c>, according to true if the data logger
+    '''   is synchronised with the localization beacon
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_BEACONDRIVEN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_beaconDriven() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BEACONDRIVEN_INVALID
         End If
       End If
-      Return Me._beaconDriven
+      res = Me._beaconDriven
+      Return res
     End Function
 
 
@@ -646,12 +657,14 @@ Module yocto_datalogger
       Return _setAttr("beaconDriven", rest_val)
     End Function
     Public Function get_clearHistory() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CLEARHISTORY_INVALID
         End If
       End If
-      Return Me._clearHistory
+      res = Me._clearHistory
+      Return res
     End Function
 
 

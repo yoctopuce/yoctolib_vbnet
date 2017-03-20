@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_latitude.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_latitude.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindLatitude(), the high-level API for Latitude functions
 '*
@@ -63,7 +63,7 @@ Module yocto_latitude
   '''   geolocalization sensors.
   ''' <para>
   '''   It inherits from the YSensor class the core functions to
-  '''   read measurements, register callback functions, access the autonomous
+  '''   read measurements, to register callback functions, to access the autonomous
   '''   datalogger.
   ''' </para>
   ''' </summary>

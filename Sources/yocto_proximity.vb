@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: pic24config.php 26169 2016-12-12 01:36:34Z mvuilleu $
+'* $Id: pic24config.php 26780 2017-03-16 14:02:09Z mvuilleu $
 '*
 '* Implements yFindProximity(), the high-level API for Proximity functions
 '*
@@ -51,6 +51,7 @@ Module yocto_proximity
     REM --- (end of YProximity dlldef)
   REM --- (YProximity globals)
 
+  Public Const Y_SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_DETECTIONTHRESHOLD_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ISPRESENT_FALSE As Integer = 0
   Public Const Y_ISPRESENT_TRUE As Integer = 1
@@ -59,6 +60,10 @@ Module yocto_proximity
   Public Const Y_LASTTIMEREMOVED_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_PROXIMITYREPORTMODE_NUMERIC As Integer = 0
+  Public Const Y_PROXIMITYREPORTMODE_PRESENCE As Integer = 1
+  Public Const Y_PROXIMITYREPORTMODE_PULSECOUNT As Integer = 2
+  Public Const Y_PROXIMITYREPORTMODE_INVALID As Integer = -1
   Public Delegate Sub YProximityValueCallback(ByVal func As YProximity, ByVal value As String)
   Public Delegate Sub YProximityTimedReportCallback(ByVal func As YProximity, ByVal measure As YMeasure)
   REM --- (end of YProximity globals)
@@ -70,8 +75,8 @@ Module yocto_proximity
   '''   The Yoctopuce class YProximity allows you to use and configure Yoctopuce proximity
   '''   sensors.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   It inherits from the YSensor class the core functions to read measurements,
+  '''   to register callback functions, to access the autonomous datalogger.
   '''   This class adds the ability to easily perform a one-point linear calibration
   '''   to compensate the effect of a glass or filter placed in front of the sensor.
   ''' </para>
@@ -82,6 +87,7 @@ Module yocto_proximity
     REM --- (end of YProximity class start)
 
     REM --- (YProximity definitions)
+    Public Const SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const DETECTIONTHRESHOLD_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ISPRESENT_FALSE As Integer = 0
     Public Const ISPRESENT_TRUE As Integer = 1
@@ -90,15 +96,21 @@ Module yocto_proximity
     Public Const LASTTIMEREMOVED_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
+    Public Const PROXIMITYREPORTMODE_NUMERIC As Integer = 0
+    Public Const PROXIMITYREPORTMODE_PRESENCE As Integer = 1
+    Public Const PROXIMITYREPORTMODE_PULSECOUNT As Integer = 2
+    Public Const PROXIMITYREPORTMODE_INVALID As Integer = -1
     REM --- (end of YProximity definitions)
 
     REM --- (YProximity attributes declaration)
+    Protected _signalValue As Double
     Protected _detectionThreshold As Integer
     Protected _isPresent As Integer
     Protected _lastTimeApproached As Long
     Protected _lastTimeRemoved As Long
     Protected _pulseCounter As Long
     Protected _pulseTimer As Long
+    Protected _proximityReportMode As Integer
     Protected _valueCallbackProximity As YProximityValueCallback
     Protected _timedReportCallbackProximity As YProximityTimedReportCallback
     REM --- (end of YProximity attributes declaration)
@@ -107,12 +119,14 @@ Module yocto_proximity
       MyBase.New(func)
       _classname = "Proximity"
       REM --- (YProximity attributes initialization)
+      _signalValue = SIGNALVALUE_INVALID
       _detectionThreshold = DETECTIONTHRESHOLD_INVALID
       _isPresent = ISPRESENT_INVALID
       _lastTimeApproached = LASTTIMEAPPROACHED_INVALID
       _lastTimeRemoved = LASTTIMEREMOVED_INVALID
       _pulseCounter = PULSECOUNTER_INVALID
       _pulseTimer = PULSETIMER_INVALID
+      _proximityReportMode = PROXIMITYREPORTMODE_INVALID
       _valueCallbackProximity = Nothing
       _timedReportCallbackProximity = Nothing
       REM --- (end of YProximity attributes initialization)
@@ -121,6 +135,10 @@ Module yocto_proximity
     REM --- (YProximity private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
+      If (member.name = "signalValue") Then
+        _signalValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
+        Return 1
+      End If
       If (member.name = "detectionThreshold") Then
         _detectionThreshold = CInt(member.ivalue)
         Return 1
@@ -145,12 +163,42 @@ Module yocto_proximity
         _pulseTimer = member.ivalue
         Return 1
       End If
+      If (member.name = "proximityReportMode") Then
+        _proximityReportMode = CInt(member.ivalue)
+        Return 1
+      End If
       Return MyBase._parseAttr(member)
     End Function
 
     REM --- (end of YProximity private methods declaration)
 
     REM --- (YProximity public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the current value of signal measured by the proximity sensor.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the current value of signal measured by the proximity sensor
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_SIGNALVALUE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_signalValue() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return SIGNALVALUE_INVALID
+        End If
+      End If
+      res = Math.Round(Me._signalValue * 1000) / 1000
+      Return res
+    End Function
+
     '''*
     ''' <summary>
     '''   Returns the threshold used to determine the logical state of the proximity sensor, when considered
@@ -170,12 +218,14 @@ Module yocto_proximity
     ''' </para>
     '''/
     Public Function get_detectionThreshold() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DETECTIONTHRESHOLD_INVALID
         End If
       End If
-      Return Me._detectionThreshold
+      res = Me._detectionThreshold
+      Return res
     End Function
 
 
@@ -225,12 +275,14 @@ Module yocto_proximity
     ''' </para>
     '''/
     Public Function get_isPresent() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ISPRESENT_INVALID
         End If
       End If
-      Return Me._isPresent
+      res = Me._isPresent
+      Return res
     End Function
 
     '''*
@@ -251,12 +303,14 @@ Module yocto_proximity
     ''' </para>
     '''/
     Public Function get_lastTimeApproached() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LASTTIMEAPPROACHED_INVALID
         End If
       End If
-      Return Me._lastTimeApproached
+      res = Me._lastTimeApproached
+      Return res
     End Function
 
     '''*
@@ -277,12 +331,14 @@ Module yocto_proximity
     ''' </para>
     '''/
     Public Function get_lastTimeRemoved() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LASTTIMEREMOVED_INVALID
         End If
       End If
-      Return Me._lastTimeRemoved
+      res = Me._lastTimeRemoved
+      Return res
     End Function
 
     '''*
@@ -304,12 +360,14 @@ Module yocto_proximity
     ''' </para>
     '''/
     Public Function get_pulseCounter() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PULSECOUNTER_INVALID
         End If
       End If
-      Return Me._pulseCounter
+      res = Me._pulseCounter
+      Return res
     End Function
 
 
@@ -320,28 +378,87 @@ Module yocto_proximity
     End Function
     '''*
     ''' <summary>
-    '''   Returns the timer of the pulses counter (ms).
+    '''   Returns the timer of the pulse counter (ms).
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the timer of the pulses counter (ms)
+    '''   an integer corresponding to the timer of the pulse counter (ms)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_PULSETIMER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseTimer() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PULSETIMER_INVALID
         End If
       End If
-      Return Me._pulseTimer
+      res = Me._pulseTimer
+      Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the parameter (sensor value, presence or pulse count) returned by the get_currentValue function and callbacks.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_PROXIMITYREPORTMODE_NUMERIC</c>, <c>Y_PROXIMITYREPORTMODE_PRESENCE</c> and
+    '''   <c>Y_PROXIMITYREPORTMODE_PULSECOUNT</c> corresponding to the parameter (sensor value, presence or
+    '''   pulse count) returned by the get_currentValue function and callbacks
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PROXIMITYREPORTMODE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_proximityReportMode() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return PROXIMITYREPORTMODE_INVALID
+        End If
+      End If
+      res = Me._proximityReportMode
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Modifies the  parameter  type (sensor value, presence or pulse count) returned by the get_currentValue function and callbacks.
+    ''' <para>
+    '''   The edge count value is limited to the 6 lowest digits. For values greater than one million, use
+    '''   get_pulseCounter().
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>Y_PROXIMITYREPORTMODE_NUMERIC</c>, <c>Y_PROXIMITYREPORTMODE_PRESENCE</c> and
+    '''   <c>Y_PROXIMITYREPORTMODE_PULSECOUNT</c>
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_proximityReportMode(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("proximityReportMode", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves a proximity sensor for a given identifier.
@@ -480,7 +597,7 @@ Module yocto_proximity
 
     '''*
     ''' <summary>
-    '''   Returns the pulse counter value as well as its timer.
+    '''   Resets the pulse counter value as well as its timer.
     ''' <para>
     ''' </para>
     ''' </summary>

@@ -16,7 +16,6 @@ Module Module1
     End
   End Sub
 
-
   Sub Main()
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
@@ -57,10 +56,12 @@ Module Module1
     While (m.isOnline())
       Console.WriteLine("PWM1: " + pwm1.get_frequency().ToString() + "Hz " _
                                  + pwm1.get_dutyCycle().ToString() + "% " _
-                                 + pwm1.get_pulseCounter().ToString() + " pulse edges")
+                                 + pwm1.get_pulseCounter().ToString() _
+                                 + " pulse edges")
       Console.WriteLine("PWM2: " + pwm2.get_frequency().ToString() + "Hz " _
                                  + pwm2.get_dutyCycle().ToString() + "% " _
-                                 + pwm2.get_pulseCounter().ToString() + " pulse edges")
+                                 + pwm2.get_pulseCounter().ToString() _
+                                 + " pulse edges")
       Console.WriteLine("  (press Ctrl-C to exit)")
       ySleep(1000, errmsg)
     End While

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorled.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_colorled.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindColorLed(), the high-level API for ColorLed functions
 '*
@@ -217,12 +217,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_rgbColor() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RGBCOLOR_INVALID
         End If
       End If
-      Return Me._rgbColor
+      res = Me._rgbColor
+      Return res
     End Function
 
 
@@ -268,12 +270,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_hslColor() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return HSLCOLOR_INVALID
         End If
       End If
-      Return Me._hslColor
+      res = Me._hslColor
+      Return res
     End Function
 
 
@@ -304,12 +308,14 @@ End Class
       Return _setAttr("hslColor", rest_val)
     End Function
     Public Function get_rgbMove() As YColorLedMove
+      Dim res As YColorLedMove
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RGBMOVE_INVALID
         End If
       End If
-      Return Me._rgbMove
+      res = Me._rgbMove
+      Return res
     End Function
 
 
@@ -348,12 +354,14 @@ End Class
       Return _setAttr("rgbMove", rest_val)
     End Function
     Public Function get_hslMove() As YColorLedMove
+      Dim res As YColorLedMove
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return HSLMOVE_INVALID
         End If
       End If
-      Return Me._hslMove
+      res = Me._hslMove
+      Return res
     End Function
 
 
@@ -407,12 +415,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_rgbColorAtPowerOn() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RGBCOLORATPOWERON_INVALID
         End If
       End If
-      Return Me._rgbColorAtPowerOn
+      res = Me._rgbColorAtPowerOn
+      Return res
     End Function
 
 
@@ -457,12 +467,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_blinkSeqSize() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BLINKSEQSIZE_INVALID
         End If
       End If
-      Return Me._blinkSeqSize
+      res = Me._blinkSeqSize
+      Return res
     End Function
 
     '''*
@@ -481,12 +493,14 @@ End Class
     ''' </para>
     '''/
     Public Function get_blinkSeqMaxSize() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BLINKSEQMAXSIZE_INVALID
         End If
       End If
-      Return Me._blinkSeqMaxSize
+      res = Me._blinkSeqMaxSize
+      Return res
     End Function
 
     '''*
@@ -509,21 +523,25 @@ End Class
     ''' </para>
     '''/
     Public Function get_blinkSeqSignature() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BLINKSEQSIGNATURE_INVALID
         End If
       End If
-      Return Me._blinkSeqSignature
+      res = Me._blinkSeqSignature
+      Return res
     End Function
 
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

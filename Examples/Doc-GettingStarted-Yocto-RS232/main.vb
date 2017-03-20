@@ -1,17 +1,16 @@
 ﻿Module Module1
 
   Private Sub Usage()
-    Dim execname = System.AppDomain.CurrentDomain.FriendlyName
+    Dim ex = System.AppDomain.CurrentDomain.FriendlyName
     Console.WriteLine("Usage")
-    Console.WriteLine(execname + " <serial_number>  <frequency> <dutyCycle>")
-    Console.WriteLine(execname + " <logical_name> <frequency> <dutyCycle>")
-    Console.WriteLine(execname + " any  <frequency> <dutyCycle>   (use any discovered device)")
+    Console.WriteLine(ex + " <serial_number>  <frequency> <dutyCycle>")
+    Console.WriteLine(ex + " <logical_name> <frequency> <dutyCycle>")
+    Console.WriteLine(ex + " any  <frequency> <dutyCycle>   (use any discovered device)")
     Console.WriteLine("     <frequency>: integer between 1Hz and 1000000Hz")
     Console.WriteLine("     <dutyCycle>: floating point number between 0.0 and 100.0")
     System.Threading.Thread.Sleep(2500)
     End
   End Sub
-
 
   Sub Main()
     Dim argv() As String = System.Environment.GetCommandLineArgs()

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_currentloopoutput.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_currentloopoutput.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindCurrentLoopOutput(), the high-level API for CurrentLoopOutput functions
 '*
@@ -176,21 +176,25 @@ Module yocto_currentloopoutput
     ''' </para>
     '''/
     Public Function get_current() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CURRENT_INVALID
         End If
       End If
-      Return Me._current
+      res = Me._current
+      Return res
     End Function
 
     Public Function get_currentTransition() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CURRENTTRANSITION_INVALID
         End If
       End If
-      Return Me._currentTransition
+      res = Me._currentTransition
+      Return res
     End Function
 
 
@@ -243,12 +247,14 @@ Module yocto_currentloopoutput
     ''' </para>
     '''/
     Public Function get_currentAtStartUp() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CURRENTATSTARTUP_INVALID
         End If
       End If
-      Return Me._currentAtStartUp
+      res = Me._currentAtStartUp
+      Return res
     End Function
 
     '''*
@@ -271,12 +277,14 @@ Module yocto_currentloopoutput
     ''' </para>
     '''/
     Public Function get_loopPower() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LOOPPOWER_INVALID
         End If
       End If
-      Return Me._loopPower
+      res = Me._loopPower
+      Return res
     End Function
 
     '''*

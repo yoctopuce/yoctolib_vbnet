@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_serialport.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -227,12 +227,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_rxCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RXCOUNT_INVALID
         End If
       End If
-      Return Me._rxCount
+      res = Me._rxCount
+      Return res
     End Function
 
     '''*
@@ -251,12 +253,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_txCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return TXCOUNT_INVALID
         End If
       End If
-      Return Me._txCount
+      res = Me._txCount
+      Return res
     End Function
 
     '''*
@@ -275,12 +279,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_errCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ERRCOUNT_INVALID
         End If
       End If
-      Return Me._errCount
+      res = Me._errCount
+      Return res
     End Function
 
     '''*
@@ -299,12 +305,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_rxMsgCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RXMSGCOUNT_INVALID
         End If
       End If
-      Return Me._rxMsgCount
+      res = Me._rxMsgCount
+      Return res
     End Function
 
     '''*
@@ -323,12 +331,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_txMsgCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return TXMSGCOUNT_INVALID
         End If
       End If
-      Return Me._txMsgCount
+      res = Me._txMsgCount
+      Return res
     End Function
 
     '''*
@@ -347,12 +357,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_lastMsg() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LASTMSG_INVALID
         End If
       End If
-      Return Me._lastMsg
+      res = Me._lastMsg
+      Return res
     End Function
 
     '''*
@@ -371,12 +383,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_currentJob() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CURRENTJOB_INVALID
         End If
       End If
-      Return Me._currentJob
+      res = Me._currentJob
+      Return res
     End Function
 
 
@@ -423,12 +437,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_startupJob() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return STARTUPJOB_INVALID
         End If
       End If
-      Return Me._startupJob
+      res = Me._startupJob
+      Return res
     End Function
 
 
@@ -460,12 +476,14 @@ Module yocto_serialport
       Return _setAttr("startupJob", rest_val)
     End Function
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 
@@ -492,12 +510,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_voltageLevel() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return VOLTAGELEVEL_INVALID
         End If
       End If
-      Return Me._voltageLevel
+      res = Me._voltageLevel
+      Return res
     End Function
 
 
@@ -555,12 +575,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_protocol() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PROTOCOL_INVALID
         End If
       End If
-      Return Me._protocol
+      res = Me._protocol
+      Return res
     End Function
 
 
@@ -620,12 +642,14 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Function get_serialMode() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SERIALMODE_INVALID
         End If
       End If
-      Return Me._serialMode
+      res = Me._serialMode
+      Return res
     End Function
 
 

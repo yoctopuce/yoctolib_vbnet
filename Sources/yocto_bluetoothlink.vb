@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_bluetoothlink.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_bluetoothlink.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindBluetoothLink(), the high-level API for BluetoothLink functions
 '*
@@ -206,12 +206,14 @@ Module yocto_bluetoothlink
     ''' </para>
     '''/
     Public Function get_ownAddress() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return OWNADDRESS_INVALID
         End If
       End If
-      Return Me._ownAddress
+      res = Me._ownAddress
+      Return res
     End Function
 
     '''*
@@ -234,12 +236,14 @@ Module yocto_bluetoothlink
     ''' </para>
     '''/
     Public Function get_pairingPin() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PAIRINGPIN_INVALID
         End If
       End If
-      Return Me._pairingPin
+      res = Me._pairingPin
+      Return res
     End Function
 
 
@@ -286,12 +290,14 @@ Module yocto_bluetoothlink
     ''' </para>
     '''/
     Public Function get_remoteAddress() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return REMOTEADDRESS_INVALID
         End If
       End If
-      Return Me._remoteAddress
+      res = Me._remoteAddress
+      Return res
     End Function
 
 
@@ -336,12 +342,14 @@ Module yocto_bluetoothlink
     ''' </para>
     '''/
     Public Function get_remoteName() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return REMOTENAME_INVALID
         End If
       End If
-      Return Me._remoteName
+      res = Me._remoteName
+      Return res
     End Function
 
     '''*
@@ -360,12 +368,14 @@ Module yocto_bluetoothlink
     ''' </para>
     '''/
     Public Function get_mute() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MUTE_INVALID
         End If
       End If
-      Return Me._mute
+      res = Me._mute
+      Return res
     End Function
 
 
@@ -412,12 +422,14 @@ Module yocto_bluetoothlink
     ''' </para>
     '''/
     Public Function get_preAmplifier() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PREAMPLIFIER_INVALID
         End If
       End If
-      Return Me._preAmplifier
+      res = Me._preAmplifier
+      Return res
     End Function
 
 
@@ -462,12 +474,14 @@ Module yocto_bluetoothlink
     ''' </para>
     '''/
     Public Function get_volume() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return VOLUME_INVALID
         End If
       End If
-      Return Me._volume
+      res = Me._volume
+      Return res
     End Function
 
 
@@ -514,12 +528,14 @@ Module yocto_bluetoothlink
     ''' </para>
     '''/
     Public Function get_linkState() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LINKSTATE_INVALID
         End If
       End If
-      Return Me._linkState
+      res = Me._linkState
+      Return res
     End Function
 
     '''*
@@ -539,21 +555,25 @@ Module yocto_bluetoothlink
     ''' </para>
     '''/
     Public Function get_linkQuality() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LINKQUALITY_INVALID
         End If
       End If
-      Return Me._linkQuality
+      res = Me._linkQuality
+      Return res
     End Function
 
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

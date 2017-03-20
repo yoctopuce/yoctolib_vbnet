@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_carbondioxide.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_carbondioxide.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '*
@@ -65,7 +65,7 @@ Module yocto_carbondioxide
   '''   sensors.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   to register callback functions,  to access the autonomous datalogger.
   '''   This class adds the ability to perform manual calibration if reuired.
   ''' </para>
   ''' </summary>
@@ -132,12 +132,14 @@ Module yocto_carbondioxide
     ''' </para>
     '''/
     Public Function get_abcPeriod() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ABCPERIOD_INVALID
         End If
       End If
-      Return Me._abcPeriod
+      res = Me._abcPeriod
+      Return res
     End Function
 
 
@@ -172,12 +174,14 @@ Module yocto_carbondioxide
       Return _setAttr("abcPeriod", rest_val)
     End Function
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

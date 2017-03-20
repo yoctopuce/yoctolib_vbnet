@@ -117,6 +117,9 @@
 <Compile Include="..\..\Sources\yocto_currentloopoutput.vb">
 <Link>yocto_api\yocto_currentloopoutput.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_daisychain.vb">
+<Link>yocto_api\yocto_daisychain.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_datalogger.vb">
 <Link>yocto_api\yocto_datalogger.vb</Link>
 </Compile>

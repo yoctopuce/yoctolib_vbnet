@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_refframe.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -176,12 +176,14 @@ end enum
 
     REM --- (YRefFrame public methods declaration)
     Public Function get_mountPos() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MOUNTPOS_INVALID
         End If
       End If
-      Return Me._mountPos
+      res = Me._mountPos
+      Return res
     End Function
 
 
@@ -252,21 +254,25 @@ end enum
     ''' </para>
     '''/
     Public Function get_bearing() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BEARING_INVALID
         End If
       End If
-      Return Me._bearing
+      res = Me._bearing
+      Return res
     End Function
 
     Public Function get_calibrationParam() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALIBRATIONPARAM_INVALID
         End If
       End If
-      Return Me._calibrationParam
+      res = Me._calibrationParam
+      Return res
     End Function
 
 

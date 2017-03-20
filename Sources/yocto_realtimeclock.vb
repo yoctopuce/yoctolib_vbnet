@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_realtimeclock.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_realtimeclock.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '*
@@ -148,12 +148,14 @@ Module yocto_realtimeclock
     ''' </para>
     '''/
     Public Function get_unixTime() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return UNIXTIME_INVALID
         End If
       End If
-      Return Me._unixTime
+      res = Me._unixTime
+      Return res
     End Function
 
 
@@ -199,12 +201,14 @@ Module yocto_realtimeclock
     ''' </para>
     '''/
     Public Function get_dateTime() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DATETIME_INVALID
         End If
       End If
-      Return Me._dateTime
+      res = Me._dateTime
+      Return res
     End Function
 
     '''*
@@ -223,12 +227,14 @@ Module yocto_realtimeclock
     ''' </para>
     '''/
     Public Function get_utcOffset() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return UTCOFFSET_INVALID
         End If
       End If
-      Return Me._utcOffset
+      res = Me._utcOffset
+      Return res
     End Function
 
 
@@ -275,12 +281,14 @@ Module yocto_realtimeclock
     ''' </para>
     '''/
     Public Function get_timeSet() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return TIMESET_INVALID
         End If
       End If
-      Return Me._timeSet
+      res = Me._timeSet
+      Return res
     End Function
 
     '''*

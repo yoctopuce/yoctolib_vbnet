@@ -11,13 +11,11 @@
     End
   End Sub
 
-
   Sub Main()
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
     Dim target, serial As String
     Dim sensor, ch1, ch2 As YGenericSensor
-
 
     If argv.Length < 2 Then Usage()
 

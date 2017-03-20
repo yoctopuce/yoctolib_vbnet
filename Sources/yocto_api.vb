@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 26329 2017-01-11 14:04:39Z mvuilleu $
+'* $Id: yocto_api.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "26380"
+  Public Const YOCTO_API_BUILD_NO As String = "26849"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -4494,12 +4494,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_logicalName() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LOGICALNAME_INVALID
         End If
       End If
-      Return Me._logicalName
+      res = Me._logicalName
+      Return res
     End Function
 
 
@@ -4552,12 +4554,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_advertisedValue() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ADVERTISEDVALUE_INVALID
         End If
       End If
-      Return Me._advertisedValue
+      res = Me._advertisedValue
+      Return res
     End Function
 
 
@@ -4663,7 +4667,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Disable the propagation of every new advertised value to the parent hub.
+    '''   Disables the propagation of every new advertised value to the parent hub.
     ''' <para>
     '''   You can use this function to save bandwidth and CPU on computers with limited
     '''   resources, or to prevent unwanted invocations of the HTTP callback.
@@ -4684,7 +4688,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Re-enable the propagation of every new advertised value to the parent hub.
+    '''   Re-enables the propagation of every new advertised value to the parent hub.
     ''' <para>
     '''   This function reverts the effect of a previous call to <c>muteValueCallbacks()</c>.
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the
@@ -4712,10 +4716,10 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="attrName">
-    '''   le nom de l'attribut désiré
+    '''   the name of the requested attribute
     ''' </param>
     ''' <returns>
-    '''   une chaîne de caractères représentant la valeur actuelle de l'attribut.
+    '''   a string with the value of the the attribute
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns an empty string.
@@ -5912,12 +5916,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_productName() As String
+      Dim res As String
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PRODUCTNAME_INVALID
         End If
       End If
-      Return Me._productName
+      res = Me._productName
+      Return res
     End Function
 
     '''*
@@ -5936,12 +5942,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_serialNumber() As String
+      Dim res As String
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SERIALNUMBER_INVALID
         End If
       End If
-      Return Me._serialNumber
+      res = Me._serialNumber
+      Return res
     End Function
 
     '''*
@@ -5960,12 +5968,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_productId() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PRODUCTID_INVALID
         End If
       End If
-      Return Me._productId
+      res = Me._productId
+      Return res
     End Function
 
     '''*
@@ -5984,12 +5994,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_productRelease() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PRODUCTRELEASE_INVALID
         End If
       End If
-      Return Me._productRelease
+      res = Me._productRelease
+      Return res
     End Function
 
     '''*
@@ -6008,12 +6020,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_firmwareRelease() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return FIRMWARERELEASE_INVALID
         End If
       End If
-      Return Me._firmwareRelease
+      res = Me._firmwareRelease
+      Return res
     End Function
 
     '''*
@@ -6033,12 +6047,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_persistentSettings() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return PERSISTENTSETTINGS_INVALID
         End If
       End If
-      Return Me._persistentSettings
+      res = Me._persistentSettings
+      Return res
     End Function
 
 
@@ -6063,12 +6079,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_luminosity() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LUMINOSITY_INVALID
         End If
       End If
-      Return Me._luminosity
+      res = Me._luminosity
+      Return res
     End Function
 
 
@@ -6117,12 +6135,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_beacon() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BEACON_INVALID
         End If
       End If
-      Return Me._beacon
+      res = Me._beacon
+      Return res
     End Function
 
 
@@ -6167,12 +6187,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_upTime() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return UPTIME_INVALID
         End If
       End If
-      Return Me._upTime
+      res = Me._upTime
+      Return res
     End Function
 
     '''*
@@ -6191,12 +6213,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_usbCurrent() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return USBCURRENT_INVALID
         End If
       End If
-      Return Me._usbCurrent
+      res = Me._usbCurrent
+      Return res
     End Function
 
     '''*
@@ -6217,12 +6241,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_rebootCountdown() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return REBOOTCOUNTDOWN_INVALID
         End If
       End If
-      Return Me._rebootCountdown
+      res = Me._rebootCountdown
+      Return res
     End Function
 
 
@@ -6248,12 +6274,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_userVar() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return USERVAR_INVALID
         End If
       End If
-      Return Me._userVar
+      res = Me._userVar
+      Return res
     End Function
 
 
@@ -7837,12 +7865,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_unit() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return UNIT_INVALID
         End If
       End If
-      Return Me._unit
+      res = Me._unit
+      Return res
     End Function
 
     '''*
@@ -7873,7 +7903,8 @@ Module yocto_api
         res = Me._currentValue
       End If
       res = res * Me._iresol
-      Return Math.Round(res) / Me._iresol
+      res = Math.Round(res) / Me._iresol
+      Return res
     End Function
 
 
@@ -7925,7 +7956,8 @@ Module yocto_api
         End If
       End If
       res = Me._lowestValue * Me._iresol
-      Return Math.Round(res) / Me._iresol
+      res = Math.Round(res) / Me._iresol
+      Return res
     End Function
 
 
@@ -7977,7 +8009,8 @@ Module yocto_api
         End If
       End If
       res = Me._highestValue * Me._iresol
-      Return Math.Round(res) / Me._iresol
+      res = Math.Round(res) / Me._iresol
+      Return res
     End Function
 
     '''*
@@ -7997,12 +8030,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_currentRawValue() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CURRENTRAWVALUE_INVALID
         End If
       End If
-      Return Me._currentRawValue
+      res = Me._currentRawValue
+      Return res
     End Function
 
     '''*
@@ -8023,12 +8058,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_logFrequency() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LOGFREQUENCY_INVALID
         End If
       End If
-      Return Me._logFrequency
+      res = Me._logFrequency
+      Return res
     End Function
 
 
@@ -8079,12 +8116,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_reportFrequency() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return REPORTFREQUENCY_INVALID
         End If
       End If
-      Return Me._reportFrequency
+      res = Me._reportFrequency
+      Return res
     End Function
 
 
@@ -8118,12 +8157,14 @@ Module yocto_api
       Return _setAttr("reportFrequency", rest_val)
     End Function
     Public Function get_calibrationParam() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CALIBRATIONPARAM_INVALID
         End If
       End If
-      Return Me._calibrationParam
+      res = Me._calibrationParam
+      Return res
     End Function
 
 
@@ -8178,12 +8219,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_resolution() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return RESOLUTION_INVALID
         End If
       End If
-      Return Me._resolution
+      res = Me._resolution
+      Return res
     End Function
 
     '''*
@@ -8204,12 +8247,14 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function get_sensorState() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SENSORSTATE_INVALID
         End If
       End If
-      Return Me._sensorState
+      res = Me._sensorState
+      Return res
     End Function
 
     '''*

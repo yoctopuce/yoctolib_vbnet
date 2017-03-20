@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_segmenteddisplay.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_segmenteddisplay.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindSegmentedDisplay(), the high-level API for SegmentedDisplay functions
 '*
@@ -132,12 +132,14 @@ Module yocto_segmenteddisplay
     ''' </para>
     '''/
     Public Function get_displayedText() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISPLAYEDTEXT_INVALID
         End If
       End If
-      Return Me._displayedText
+      res = Me._displayedText
+      Return res
     End Function
 
 
@@ -167,12 +169,14 @@ Module yocto_segmenteddisplay
       Return _setAttr("displayedText", rest_val)
     End Function
     Public Function get_displayMode() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISPLAYMODE_INVALID
         End If
       End If
-      Return Me._displayMode
+      res = Me._displayMode
+      Return res
     End Function
 
 

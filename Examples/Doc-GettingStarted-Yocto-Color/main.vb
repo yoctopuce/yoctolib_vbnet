@@ -37,8 +37,6 @@ Module Module1
       color = CInt(Val("&H" + color_str))
     End If
 
-
-
     REM Setup the API to use local USB devices
     If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)

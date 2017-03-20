@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_power.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_power.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindPower(), the high-level API for Power functions
 '*
@@ -66,7 +66,7 @@ Module yocto_power
   '''   sensors.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   to register callback functions, to access the autonomous datalogger.
   '''   This class adds the ability to access the energy counter and the power factor.
   ''' </para>
   ''' </summary>
@@ -140,12 +140,14 @@ Module yocto_power
     ''' </para>
     '''/
     Public Function get_cosPhi() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COSPHI_INVALID
         End If
       End If
-      Return Me._cosPhi
+      res = Me._cosPhi
+      Return res
     End Function
 
 
@@ -172,12 +174,14 @@ Module yocto_power
     ''' </para>
     '''/
     Public Function get_meter() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return METER_INVALID
         End If
       End If
-      Return Me._meter
+      res = Me._meter
+      Return res
     End Function
 
     '''*
@@ -196,12 +200,14 @@ Module yocto_power
     ''' </para>
     '''/
     Public Function get_meterTimer() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return METERTIMER_INVALID
         End If
       End If
-      Return Me._meterTimer
+      res = Me._meterTimer
+      Return res
     End Function
 
     '''*

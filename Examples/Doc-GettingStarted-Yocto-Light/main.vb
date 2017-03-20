@@ -11,7 +11,6 @@ Module Module1
     End
   End Sub
 
-
   Sub Main()
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
@@ -43,7 +42,8 @@ Module Module1
         Console.WriteLine("Module not connected (check identification and USB cable)")
         End
       End If
-      Console.WriteLine("Current ambient light: " + Str(sensor.get_currentValue()) + " lx")
+      Console.WriteLine("Current ambient light: " + Str(sensor.get_currentValue()) _
+                        + " lx")
       Console.WriteLine("  (press Ctrl-C to exit)")
       ySleep(1000, errmsg)
 

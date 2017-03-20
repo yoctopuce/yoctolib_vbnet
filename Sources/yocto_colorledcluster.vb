@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_colorledcluster.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -156,12 +156,14 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Function get_activeLedCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ACTIVELEDCOUNT_INVALID
         End If
       End If
-      Return Me._activeLedCount
+      res = Me._activeLedCount
+      Return res
     End Function
 
 
@@ -206,12 +208,14 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Function get_maxLedCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MAXLEDCOUNT_INVALID
         End If
       End If
-      Return Me._maxLedCount
+      res = Me._maxLedCount
+      Return res
     End Function
 
     '''*
@@ -230,12 +234,14 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Function get_blinkSeqMaxCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BLINKSEQMAXCOUNT_INVALID
         End If
       End If
-      Return Me._blinkSeqMaxCount
+      res = Me._blinkSeqMaxCount
+      Return res
     End Function
 
     '''*
@@ -254,21 +260,25 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Function get_blinkSeqMaxSize() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BLINKSEQMAXSIZE_INVALID
         End If
       End If
-      Return Me._blinkSeqMaxSize
+      res = Me._blinkSeqMaxSize
+      Return res
     End Function
 
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

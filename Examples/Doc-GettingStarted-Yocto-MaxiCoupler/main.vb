@@ -44,7 +44,11 @@ Module Module1
     relay = yFindRelay(target + ".relay" + channel)
 
     If (relay.isOnline()) Then
-      If state = "ON" Then relay.set_output(Y_OUTPUT_ON) Else relay.set_output(Y_OUTPUT_OFF)
+      If state = "ON" Then
+        relay.set_output(Y_OUTPUT_ON)
+      Else
+        relay.set_output(Y_OUTPUT_OFF)
+      End If
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If

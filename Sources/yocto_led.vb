@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_led.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_led.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindLed(), the high-level API for Led functions
 '*
@@ -150,12 +150,14 @@ Module yocto_led
     ''' </para>
     '''/
     Public Function get_power() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return POWER_INVALID
         End If
       End If
-      Return Me._power
+      res = Me._power
+      Return res
     End Function
 
 
@@ -200,12 +202,14 @@ Module yocto_led
     ''' </para>
     '''/
     Public Function get_luminosity() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LUMINOSITY_INVALID
         End If
       End If
-      Return Me._luminosity
+      res = Me._luminosity
+      Return res
     End Function
 
 
@@ -252,12 +256,14 @@ Module yocto_led
     ''' </para>
     '''/
     Public Function get_blinking() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BLINKING_INVALID
         End If
       End If
-      Return Me._blinking
+      res = Me._blinking
+      Return res
     End Function
 
 

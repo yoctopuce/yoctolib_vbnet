@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_quadraturedecoder.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_quadraturedecoder.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '*
@@ -67,7 +67,7 @@ Module yocto_quadraturedecoder
   '''   quadrature encoder.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   to register callback functions, to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
@@ -160,12 +160,14 @@ Module yocto_quadraturedecoder
     ''' </para>
     '''/
     Public Function get_speed() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SPEED_INVALID
         End If
       End If
-      Return Me._speed
+      res = Me._speed
+      Return res
     End Function
 
     '''*
@@ -185,12 +187,14 @@ Module yocto_quadraturedecoder
     ''' </para>
     '''/
     Public Function get_decoding() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DECODING_INVALID
         End If
       End If
-      Return Me._decoding
+      res = Me._decoding
+      Return res
     End Function
 
 

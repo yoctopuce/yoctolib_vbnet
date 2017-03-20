@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_genericsensor.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_genericsensor.vb 26826 2017-03-17 11:20:57Z mvuilleu $
 '*
 '* Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '*
@@ -73,7 +73,7 @@ Module yocto_genericsensor
   '''   transducers.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
-  '''   register callback functions, access to the autonomous datalogger.
+  '''   to register callback functions, to access the autonomous datalogger.
   '''   This class adds the ability to configure the automatic conversion between the
   '''   measured signal and the corresponding engineering unit.
   ''' </para>
@@ -199,12 +199,14 @@ Module yocto_genericsensor
     ''' </para>
     '''/
     Public Function get_signalValue() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALVALUE_INVALID
         End If
       End If
-      Return Math.Round(Me._signalValue * 1000) / 1000
+      res = Math.Round(Me._signalValue * 1000) / 1000
+      Return res
     End Function
 
     '''*
@@ -223,12 +225,14 @@ Module yocto_genericsensor
     ''' </para>
     '''/
     Public Function get_signalUnit() As String
+      Dim res As String
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALUNIT_INVALID
         End If
       End If
-      Return Me._signalUnit
+      res = Me._signalUnit
+      Return res
     End Function
 
     '''*
@@ -247,12 +251,14 @@ Module yocto_genericsensor
     ''' </para>
     '''/
     Public Function get_signalRange() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALRANGE_INVALID
         End If
       End If
-      Return Me._signalRange
+      res = Me._signalRange
+      Return res
     End Function
 
 
@@ -260,6 +266,7 @@ Module yocto_genericsensor
     ''' <summary>
     '''   Changes the electric signal range used by the sensor.
     ''' <para>
+    '''   Default value is "-999999.999...999999.999".
     ''' </para>
     ''' <para>
     ''' </para>
@@ -297,12 +304,14 @@ Module yocto_genericsensor
     ''' </para>
     '''/
     Public Function get_valueRange() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return VALUERANGE_INVALID
         End If
       End If
-      Return Me._valueRange
+      res = Me._valueRange
+      Return res
     End Function
 
 
@@ -311,7 +320,7 @@ Module yocto_genericsensor
     '''   Changes the physical value range measured by the sensor.
     ''' <para>
     '''   As a side effect, the range modification may
-    '''   automatically modify the display resolution.
+    '''   automatically modify the display resolution. Default value is "-999999.999...999999.999".
     ''' </para>
     ''' <para>
     ''' </para>
@@ -379,12 +388,14 @@ Module yocto_genericsensor
     ''' </para>
     '''/
     Public Function get_signalBias() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALBIAS_INVALID
         End If
       End If
-      Return Me._signalBias
+      res = Me._signalBias
+      Return res
     End Function
 
     '''*
@@ -410,12 +421,14 @@ Module yocto_genericsensor
     ''' </para>
     '''/
     Public Function get_signalSampling() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SIGNALSAMPLING_INVALID
         End If
       End If
-      Return Me._signalSampling
+      res = Me._signalSampling
+      Return res
     End Function
 
 

@@ -11,7 +11,6 @@ Module Module1
     End
   End Sub
 
-
   Sub Main()
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
@@ -38,14 +37,12 @@ Module Module1
       End If
       target = p.get_module().get_serialNumber()
 
-
     Else
       p = yFindProximity(target + ".proximity1")
     End If
 
     al = yFindLightSensor(target + ".lightSensor1")
     ir = yFindLightSensor(target + ".lightSensor2")
-
 
     While (True)
       If Not (p.isOnline()) Then

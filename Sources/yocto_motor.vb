@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_motor.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_motor.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindMotor(), the high-level API for Motor functions
 '*
@@ -216,12 +216,14 @@ Module yocto_motor
     ''' </para>
     '''/
     Public Function get_motorStatus() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MOTORSTATUS_INVALID
         End If
       End If
-      Return Me._motorStatus
+      res = Me._motorStatus
+      Return res
     End Function
 
 
@@ -277,12 +279,14 @@ Module yocto_motor
     ''' </para>
     '''/
     Public Function get_drivingForce() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DRIVINGFORCE_INVALID
         End If
       End If
-      Return Me._drivingForce
+      res = Me._drivingForce
+      Return res
     End Function
 
 
@@ -330,12 +334,14 @@ Module yocto_motor
     ''' </para>
     '''/
     Public Function get_brakingForce() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BRAKINGFORCE_INVALID
         End If
       End If
-      Return Me._brakingForce
+      res = Me._brakingForce
+      Return res
     End Function
 
 
@@ -392,12 +398,14 @@ Module yocto_motor
     ''' </para>
     '''/
     Public Function get_cutOffVoltage() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CUTOFFVOLTAGE_INVALID
         End If
       End If
-      Return Me._cutOffVoltage
+      res = Me._cutOffVoltage
+      Return res
     End Function
 
     '''*
@@ -419,12 +427,14 @@ Module yocto_motor
     ''' </para>
     '''/
     Public Function get_overCurrentLimit() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return OVERCURRENTLIMIT_INVALID
         End If
       End If
-      Return Me._overCurrentLimit
+      res = Me._overCurrentLimit
+      Return res
     End Function
 
 
@@ -504,12 +514,14 @@ Module yocto_motor
     ''' </para>
     '''/
     Public Function get_frequency() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return FREQUENCY_INVALID
         End If
       End If
-      Return Me._frequency
+      res = Me._frequency
+      Return res
     End Function
 
     '''*
@@ -530,12 +542,14 @@ Module yocto_motor
     ''' </para>
     '''/
     Public Function get_starterTime() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return STARTERTIME_INVALID
         End If
       End If
-      Return Me._starterTime
+      res = Me._starterTime
+      Return res
     End Function
 
 
@@ -587,12 +601,14 @@ Module yocto_motor
     ''' </para>
     '''/
     Public Function get_failSafeTimeout() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return FAILSAFETIMEOUT_INVALID
         End If
       End If
-      Return Me._failSafeTimeout
+      res = Me._failSafeTimeout
+      Return res
     End Function
 
 
@@ -627,12 +643,14 @@ Module yocto_motor
       Return _setAttr("failSafeTimeout", rest_val)
     End Function
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

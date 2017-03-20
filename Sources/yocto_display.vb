@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_display.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -1048,12 +1048,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_enabled() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ENABLED_INVALID
         End If
       End If
-      Return Me._enabled
+      res = Me._enabled
+      Return res
     End Function
 
 
@@ -1098,12 +1100,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_startupSeq() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return STARTUPSEQ_INVALID
         End If
       End If
-      Return Me._startupSeq
+      res = Me._startupSeq
+      Return res
     End Function
 
 
@@ -1150,12 +1154,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_brightness() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return BRIGHTNESS_INVALID
         End If
       End If
-      Return Me._brightness
+      res = Me._brightness
+      Return res
     End Function
 
 
@@ -1204,12 +1210,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_orientation() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ORIENTATION_INVALID
         End If
       End If
-      Return Me._orientation
+      res = Me._orientation
+      Return res
     End Function
 
 
@@ -1257,12 +1265,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_displayWidth() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISPLAYWIDTH_INVALID
         End If
       End If
-      Return Me._displayWidth
+      res = Me._displayWidth
+      Return res
     End Function
 
     '''*
@@ -1281,12 +1291,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_displayHeight() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISPLAYHEIGHT_INVALID
         End If
       End If
-      Return Me._displayHeight
+      res = Me._displayHeight
+      Return res
     End Function
 
     '''*
@@ -1306,12 +1318,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_displayType() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DISPLAYTYPE_INVALID
         End If
       End If
-      Return Me._displayType
+      res = Me._displayType
+      Return res
     End Function
 
     '''*
@@ -1330,12 +1344,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_layerWidth() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LAYERWIDTH_INVALID
         End If
       End If
-      Return Me._layerWidth
+      res = Me._layerWidth
+      Return res
     End Function
 
     '''*
@@ -1354,12 +1370,14 @@ end enum
     ''' </para>
     '''/
     Public Function get_layerHeight() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LAYERHEIGHT_INVALID
         End If
       End If
-      Return Me._layerHeight
+      res = Me._layerHeight
+      Return res
     End Function
 
     '''*
@@ -1378,21 +1396,25 @@ end enum
     ''' </para>
     '''/
     Public Function get_layerCount() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LAYERCOUNT_INVALID
         End If
       End If
-      Return Me._layerCount
+      res = Me._layerCount
+      Return res
     End Function
 
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

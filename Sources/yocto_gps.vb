@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gps.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_gps.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindGps(), the high-level API for Gps functions
 '*
@@ -228,12 +228,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_isFixed() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ISFIXED_INVALID
         End If
       End If
-      Return Me._isFixed
+      res = Me._isFixed
+      Return res
     End Function
 
     '''*
@@ -252,12 +254,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_satCount() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SATCOUNT_INVALID
         End If
       End If
-      Return Me._satCount
+      res = Me._satCount
+      Return res
     End Function
 
     '''*
@@ -277,12 +281,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_coordSystem() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COORDSYSTEM_INVALID
         End If
       End If
-      Return Me._coordSystem
+      res = Me._coordSystem
+      Return res
     End Function
 
 
@@ -328,12 +334,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_latitude() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LATITUDE_INVALID
         End If
       End If
-      Return Me._latitude
+      res = Me._latitude
+      Return res
     End Function
 
     '''*
@@ -352,12 +360,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_longitude() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LONGITUDE_INVALID
         End If
       End If
-      Return Me._longitude
+      res = Me._longitude
+      Return res
     End Function
 
     '''*
@@ -378,12 +388,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_dilution() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DILUTION_INVALID
         End If
       End If
-      Return Me._dilution
+      res = Me._dilution
+      Return res
     End Function
 
     '''*
@@ -404,12 +416,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_altitude() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return ALTITUDE_INVALID
         End If
       End If
-      Return Me._altitude
+      res = Me._altitude
+      Return res
     End Function
 
     '''*
@@ -428,12 +442,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_groundSpeed() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return GROUNDSPEED_INVALID
         End If
       End If
-      Return Me._groundSpeed
+      res = Me._groundSpeed
+      Return res
     End Function
 
     '''*
@@ -454,12 +470,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_direction() As Double
+      Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DIRECTION_INVALID
         End If
       End If
-      Return Me._direction
+      res = Me._direction
+      Return res
     End Function
 
     '''*
@@ -480,12 +498,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_unixTime() As Long
+      Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return UNIXTIME_INVALID
         End If
       End If
-      Return Me._unixTime
+      res = Me._unixTime
+      Return res
     End Function
 
     '''*
@@ -504,12 +524,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_dateTime() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return DATETIME_INVALID
         End If
       End If
-      Return Me._dateTime
+      res = Me._dateTime
+      Return res
     End Function
 
     '''*
@@ -528,12 +550,14 @@ Module yocto_gps
     ''' </para>
     '''/
     Public Function get_utcOffset() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return UTCOFFSET_INVALID
         End If
       End If
-      Return Me._utcOffset
+      res = Me._utcOffset
+      Return res
     End Function
 
 
@@ -565,12 +589,14 @@ Module yocto_gps
       Return _setAttr("utcOffset", rest_val)
     End Function
     Public Function get_command() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If
-      Return Me._command
+      res = Me._command
+      Return res
     End Function
 
 

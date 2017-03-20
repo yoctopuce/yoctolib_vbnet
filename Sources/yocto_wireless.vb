@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_wireless.vb 26677 2017-02-28 13:46:34Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -229,12 +229,14 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Function get_linkQuality() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return LINKQUALITY_INVALID
         End If
       End If
-      Return Me._linkQuality
+      res = Me._linkQuality
+      Return res
     End Function
 
     '''*
@@ -253,12 +255,14 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Function get_ssid() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SSID_INVALID
         End If
       End If
-      Return Me._ssid
+      res = Me._ssid
+      Return res
     End Function
 
     '''*
@@ -277,12 +281,14 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Function get_channel() As Integer
+      Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return CHANNEL_INVALID
         End If
       End If
-      Return Me._channel
+      res = Me._channel
+      Return res
     End Function
 
     '''*
@@ -303,12 +309,14 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Function get_security() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return SECURITY_INVALID
         End If
       End If
-      Return Me._security
+      res = Me._security
+      Return res
     End Function
 
     '''*
@@ -327,21 +335,25 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Function get_message() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return MESSAGE_INVALID
         End If
       End If
-      Return Me._message
+      res = Me._message
+      Return res
     End Function
 
     Public Function get_wlanConfig() As String
+      Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
           Return WLANCONFIG_INVALID
         End If
       End If
-      Return Me._wlanConfig
+      res = Me._wlanConfig
+      Return res
     End Function
 
 
