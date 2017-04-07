@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_motor.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_motor.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindMotor(), the high-level API for Motor functions
 '*
@@ -768,7 +768,6 @@ Module yocto_motor
     ''' </summary>
     '''/
     Public Overridable Function keepALive() As Integer
-      REM // may throw an exception
       Return Me.set_command("K")
     End Function
 
@@ -782,7 +781,6 @@ Module yocto_motor
     ''' </summary>
     '''/
     Public Overridable Function resetStatus() As Integer
-      REM // may throw an exception
       Return Me.set_motorStatus(MOTORSTATUS_IDLE)
     End Function
 

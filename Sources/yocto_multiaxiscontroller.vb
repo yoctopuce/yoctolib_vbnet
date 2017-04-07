@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_multiaxiscontroller.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_multiaxiscontroller.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '*
@@ -323,7 +323,6 @@ Module yocto_multiaxiscontroller
     End Function
 
     Public Overridable Function sendCommand(command As String) As Integer
-      REM //may throw an exception
       Return Me.set_command(command)
     End Function
 

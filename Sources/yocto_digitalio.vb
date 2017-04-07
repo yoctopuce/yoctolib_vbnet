@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_digitalio.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_digitalio.vb 26949 2017-03-28 15:36:15Z mvuilleu $
 '*
 '* Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '*
@@ -55,6 +55,7 @@ Module yocto_digitalio
   Public Const Y_PORTDIRECTION_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_PORTOPENDRAIN_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_PORTPOLARITY_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_PORTDIAGS_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_PORTSIZE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_OUTPUTVOLTAGE_USB_5V As Integer = 0
   Public Const Y_OUTPUTVOLTAGE_USB_3V As Integer = 1
@@ -87,6 +88,7 @@ Module yocto_digitalio
     Public Const PORTDIRECTION_INVALID As Integer = YAPI.INVALID_UINT
     Public Const PORTOPENDRAIN_INVALID As Integer = YAPI.INVALID_UINT
     Public Const PORTPOLARITY_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const PORTDIAGS_INVALID As Integer = YAPI.INVALID_UINT
     Public Const PORTSIZE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const OUTPUTVOLTAGE_USB_5V As Integer = 0
     Public Const OUTPUTVOLTAGE_USB_3V As Integer = 1
@@ -100,6 +102,7 @@ Module yocto_digitalio
     Protected _portDirection As Integer
     Protected _portOpenDrain As Integer
     Protected _portPolarity As Integer
+    Protected _portDiags As Integer
     Protected _portSize As Integer
     Protected _outputVoltage As Integer
     Protected _command As String
@@ -114,6 +117,7 @@ Module yocto_digitalio
       _portDirection = PORTDIRECTION_INVALID
       _portOpenDrain = PORTOPENDRAIN_INVALID
       _portPolarity = PORTPOLARITY_INVALID
+      _portDiags = PORTDIAGS_INVALID
       _portSize = PORTSIZE_INVALID
       _outputVoltage = OUTPUTVOLTAGE_INVALID
       _command = COMMAND_INVALID
@@ -138,6 +142,10 @@ Module yocto_digitalio
       End If
       If (member.name = "portPolarity") Then
         _portPolarity = CInt(member.ivalue)
+        Return 1
+      End If
+      If (member.name = "portDiags") Then
+        _portDiags = CInt(member.ivalue)
         Return 1
       End If
       If (member.name = "portSize") Then
@@ -382,6 +390,35 @@ Module yocto_digitalio
       rest_val = Ltrim(Str(newval))
       Return _setAttr("portPolarity", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the port state diagnostics (Yocto-IO and Yocto-MaxiIO-V2 only).
+    ''' <para>
+    '''   Bit 0 indicates a shortcut on
+    '''   output 0, etc. Bit 8 indicates a power failure, and bit 9 signals overheating (overcurrent).
+    '''   During normal use, all diagnostic bits should stay clear.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the port state diagnostics (Yocto-IO and Yocto-MaxiIO-V2 only)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PORTDIAGS_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_portDiags() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return PORTDIAGS_INVALID
+        End If
+      End If
+      res = Me._portDiags
+      Return res
+    End Function
+
     '''*
     ''' <summary>
     '''   Returns the number of bits implemented in the I/O port.

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_buzzer.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_buzzer.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindBuzzer(), the high-level API for Buzzer functions
 '*
@@ -444,8 +444,7 @@ Module yocto_buzzer
     End Function
 
     Public Overridable Function sendCommand(command As String) As Integer
-      REM //may throw an exception
-              Return Me.set_command(command)
+      Return Me.set_command(command)
     End Function
 
     '''*
@@ -517,11 +516,190 @@ Module yocto_buzzer
 
     '''*
     ''' <summary>
+    '''   Adds notes to the playing sequence.
+    ''' <para>
+    '''   Notes are provided as text words, separated by
+    '''   spaces. The pitch is specified using the usual letter from A to G. The duration is
+    '''   specified as the divisor of a whole note: 4 for a fourth, 8 for an eight note, etc.
+    '''   Some modifiers are supported: <c>#</c> and <c>b</c> to alter a note pitch,
+    '''   <c>'</c> and <c>,</c> to move to the upper/lower octave, <c>.</c> to enlarge
+    '''   the note duration.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="notes">
+    '''   notes to be played, as a text string.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function addNotesToPlaySeq(notes As String) As Integer
+      Dim tempo As Integer = 0
+      Dim prevPitch As Integer = 0
+      Dim prevDuration As Integer = 0
+      Dim prevFreq As Integer = 0
+      Dim note As Integer = 0
+      Dim num As Integer = 0
+      Dim typ As Integer = 0
+      Dim ascNotes As Byte()
+      Dim notesLen As Integer = 0
+      Dim i As Integer = 0
+      Dim ch As Integer = 0
+      Dim dNote As Integer = 0
+      Dim pitch As Integer = 0
+      Dim freq As Integer = 0
+      Dim ms As Integer = 0
+      Dim ms16 As Integer = 0
+      Dim rest As Integer = 0
+      tempo = 100
+      prevPitch = 3
+      prevDuration = 4
+      prevFreq = 110
+      note = -99
+      num = 0
+      typ = 3
+      ascNotes = YAPI.DefaultEncoding.GetBytes(notes)
+      notesLen = (ascNotes).Length
+      i = 0
+      While (i < notesLen)
+        ch = ascNotes(i)
+        REM // A (note))
+        If (ch = 65) Then
+          note = 0
+        End If
+        REM // B (note)
+        If (ch = 66) Then
+          note = 2
+        End If
+        REM // C (note)
+        If (ch = 67) Then
+          note = 3
+        End If
+        REM // D (note)
+        If (ch = 68) Then
+          note = 5
+        End If
+        REM // E (note)
+        If (ch = 69) Then
+          note = 7
+        End If
+        REM // F (note)
+        If (ch = 70) Then
+          note = 8
+        End If
+        REM // G (note)
+        If (ch = 71) Then
+          note = 10
+        End If
+        REM // '#' (sharp modifier)
+        If (ch = 35) Then
+          note = note + 1
+        End If
+        REM // 'b' (flat modifier)
+        If (ch = 98) Then
+          note = note - 1
+        End If
+        REM // ' (octave up)
+        If (ch = 39) Then
+          prevPitch = prevPitch + 12
+        End If
+        REM // , (octave down)
+        If (ch = 44) Then
+          prevPitch = prevPitch - 12
+        End If
+        REM // R (rest)
+        If (ch = 82) Then
+          typ = 0
+        End If
+        REM // ! (staccato modifier)
+        If (ch = 33) Then
+          typ = 1
+        End If
+        REM // ^ (short modifier)
+        If (ch = 94) Then
+          typ = 2
+        End If
+        REM // _ (legato modifier)
+        If (ch = 95) Then
+          typ = 4
+        End If
+        REM // - (glissando modifier)
+        If (ch = 45) Then
+          typ = 5
+        End If
+        REM // % (tempo change)
+        If ((ch = 37) AndAlso (num > 0)) Then
+          tempo = num
+          num = 0
+        End If
+        If ((ch >= 48) AndAlso (ch <= 57)) Then
+          REM // 0-9 (number)
+          num = (num * 10) + (ch - 48)
+        End If
+        If (ch = 46) Then
+          REM // . (duration modifier)
+          num = (num * 2 \ 3)
+        End If
+        If (((ch = 32) OrElse (i+1 = notesLen)) AndAlso ((note > -99) OrElse (typ <> 3))) Then
+          If (num = 0) Then
+            num = prevDuration
+          Else
+            prevDuration = num
+          End If
+          ms = CType(Math.Round(320000.0 / (tempo * num)), Integer)
+          If (typ = 0) Then
+            Me.addPulseToPlaySeq(0, ms)
+          Else
+            dNote = note - (((prevPitch) Mod (12)))
+            If (dNote > 6) Then
+              dNote = dNote - 12
+            End If
+            If (dNote <= -6) Then
+              dNote = dNote + 12
+            End If
+            pitch = prevPitch + dNote
+            freq = CType(Math.Round(440 * Math.exp(pitch * 0.05776226504666)), Integer)
+            ms16 = ((ms) >> (4))
+            rest = 0
+            If (typ = 3) Then
+              rest = 2 * ms16
+            End If
+            If (typ = 2) Then
+              rest = 8 * ms16
+            End If
+            If (typ = 1) Then
+              rest = 12 * ms16
+            End If
+            If (typ = 5) Then
+              Me.addPulseToPlaySeq(prevFreq, ms16)
+              Me.addFreqMoveToPlaySeq(freq, 8 * ms16)
+              Me.addPulseToPlaySeq(freq, ms - 9 * ms16)
+            Else
+              Me.addPulseToPlaySeq(freq, ms - rest)
+              If (rest > 0) Then
+                Me.addPulseToPlaySeq(0, rest)
+              End If
+            End If
+            prevFreq = freq
+            prevPitch = pitch
+          End If
+          note = -99
+          num = 0
+          typ = 3
+        End If
+        i = i + 1
+      End While
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Starts the preprogrammed playing sequence.
     ''' <para>
     '''   The sequence
     '''   runs in loop until it is stopped by stopPlaySeq or an explicit
-    '''   change.
+    '''   change. To play the sequence only once, use <c>oncePlaySeq()</c>.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -561,6 +739,21 @@ Module yocto_buzzer
     '''/
     Public Overridable Function resetPlaySeq() As Integer
       Return Me.sendCommand("Z")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Starts the preprogrammed playing sequence and run it once only.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function oncePlaySeq() As Integer
+      Return Me.sendCommand("s")
     End Function
 
     '''*
@@ -630,6 +823,32 @@ Module yocto_buzzer
     '''/
     Public Overridable Function volumeMove(volume As Integer, duration As Integer) As Integer
       Return Me.set_command("V" + Convert.ToString(volume) + "," + Convert.ToString(duration))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Immediately play a note sequence.
+    ''' <para>
+    '''   Notes are provided as text words, separated by
+    '''   spaces. The pitch is specified using the usual letter from A to G. The duration is
+    '''   specified as the divisor of a whole note: 4 for a fourth, 8 for an eight note, etc.
+    '''   Some modifiers are supported: <c>#</c> and <c>b</c> to alter a note pitch,
+    '''   <c>'</c> and <c>,</c> to move to the upper/lower octave, <c>.</c> to enlarge
+    '''   the note duration.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="notes">
+    '''   notes to be played, as a text string.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function playNotes(notes As String) As Integer
+      Me.resetPlaySeq()
+      Me.addNotesToPlaySeq(notes)
+      Return Me.oncePlaySeq()
     End Function
 
 

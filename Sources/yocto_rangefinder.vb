@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_rangefinder.vb 26826 2017-03-17 11:20:57Z mvuilleu $
+'* $Id: yocto_rangefinder.vb 26996 2017-03-30 16:18:14Z seb $
 '*
 '* Implements yFindRangeFinder(), the high-level API for RangeFinder functions
 '*
@@ -441,7 +441,6 @@ Module yocto_rangefinder
     '''/
     Public Overridable Function get_hardwareCalibrationTemperature() As Double
       Dim hwcal As String
-      
       hwcal = Me.get_hardwareCalibration()
       If (Not ((hwcal).Substring(0, 1) = "@")) Then
         Return YAPI.INVALID_DOUBLE
@@ -506,7 +505,6 @@ Module yocto_rangefinder
     '''/
     Public Overridable Function triggerOffsetCalibration(targetDist As Double) As Integer
       Dim distmm As Integer = 0
-      
       If (Me.get_unit() = """") Then
         distmm = CType(Math.Round(targetDist * 25.4), Integer)
       Else
@@ -535,7 +533,6 @@ Module yocto_rangefinder
     '''/
     Public Overridable Function triggerXTalkCalibration(targetDist As Double) As Integer
       Dim distmm As Integer = 0
-      
       If (Me.get_unit() = """") Then
         distmm = CType(Math.Round(targetDist * 25.4), Integer)
       Else

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_serialport.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -783,7 +783,6 @@ Module yocto_serialport
     End Function
 
     Public Overridable Function sendCommand(text As String) As Integer
-      REM // may throw an exception
       Return Me.set_command(text)
     End Function
 
@@ -806,7 +805,7 @@ Module yocto_serialport
       Me._rxptr = 0
       Me._rxbuffptr = 0
       ReDim Me._rxbuff(0-1)
-      REM // may throw an exception
+      
       Return Me.sendCommand("Z")
     End Function
 
@@ -827,7 +826,6 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function writeByte(code As Integer) As Integer
-      REM // may throw an exception
       Return Me.sendCommand("$" + YAPI._intToHex(code,02))
     End Function
 
@@ -855,7 +853,7 @@ Module yocto_serialport
       buff = YAPI.DefaultEncoding.GetBytes(text)
       bufflen = (buff).Length
       If (bufflen < 100) Then
-        REM
+        REM // if string is pure text, we can send it as a simple command (faster)
         ch = &H20
         idx = 0
         While ((idx < bufflen) AndAlso (ch <> 0))
@@ -867,7 +865,6 @@ Module yocto_serialport
           End If
         End While
         If (idx >= bufflen) Then
-          REM
           Return Me.sendCommand("+" + text)
         End If
       End If
@@ -892,7 +889,6 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function writeBin(buff As Byte()) As Integer
-      REM // may throw an exception
       Return Me._upload("txdata", buff)
     End Function
 
@@ -926,7 +922,7 @@ Module yocto_serialport
         buff( idx) = Convert.ToByte(hexb And &HFF)
         idx = idx + 1
       End While
-      REM // may throw an exception
+      
       res = Me._upload("txdata", buff)
       Return res
     End Function
@@ -955,7 +951,6 @@ Module yocto_serialport
       Dim res As Integer = 0
       bufflen = (hexString).Length
       If (bufflen < 100) Then
-        REM
         Return Me.sendCommand("$" + hexString)
       End If
       bufflen = ((bufflen) >> (1))
@@ -966,7 +961,7 @@ Module yocto_serialport
         buff( idx) = Convert.ToByte(hexb And &HFF)
         idx = idx + 1
       End While
-      REM // may throw an exception
+      
       res = Me._upload("txdata", buff)
       Return res
     End Function
@@ -995,7 +990,7 @@ Module yocto_serialport
       buff = YAPI.DefaultEncoding.GetBytes("" + text + "" + vbCr + "" + vbLf + "")
       bufflen = (buff).Length-2
       If (bufflen < 100) Then
-        REM
+        REM // if string is pure text, we can send it as a simple command (faster)
         ch = &H20
         idx = 0
         While ((idx < bufflen) AndAlso (ch <> 0))
@@ -1007,7 +1002,6 @@ Module yocto_serialport
           End If
         End While
         If (idx >= bufflen) Then
-          REM
           Return Me.sendCommand("!" + text)
         End If
       End If
@@ -1074,7 +1068,7 @@ Module yocto_serialport
       REM // still mixed, need to process character by character
       Me._rxptr = currpos
       
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=1")
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1119,7 +1113,7 @@ Module yocto_serialport
       If (nChars > 65535) Then
         nChars = 65535
       End If
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1162,7 +1156,7 @@ Module yocto_serialport
       If (nChars > 65535) Then
         nChars = 65535
       End If
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1211,7 +1205,7 @@ Module yocto_serialport
       If (nChars > 65535) Then
         nChars = 65535
       End If
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1261,7 +1255,7 @@ Module yocto_serialport
       If (nBytes > 65535) Then
         nBytes = 65535
       End If
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nBytes))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1311,7 +1305,7 @@ Module yocto_serialport
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
-      REM // may throw an exception
+      
       url = "rxmsg.json?pos=" + Convert.ToString(Me._rxptr) + "&len=1&maxw=1"
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
@@ -1368,7 +1362,7 @@ Module yocto_serialport
       Dim msglen As Integer = 0
       Dim res As List(Of String) = New List(Of String)()
       Dim idx As Integer = 0
-      REM // may throw an exception
+      
       url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&pat=" + pattern
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
@@ -1439,7 +1433,7 @@ Module yocto_serialport
       Dim buff As Byte()
       Dim bufflen As Integer = 0
       Dim res As Integer = 0
-      REM // may throw an exception
+      
       buff = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
       bufflen = (buff).Length - 1
       While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
@@ -1476,7 +1470,7 @@ Module yocto_serialport
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
-      REM // may throw an exception
+      
       url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + query
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
@@ -1541,7 +1535,6 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function selectJob(jobfile As String) As Integer
-      REM // may throw an exception
       Return Me.set_currentJob(jobfile)
     End Function
 
@@ -1566,7 +1559,6 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function set_RTS(val As Integer) As Integer
-      REM // may throw an exception
       Return Me.sendCommand("R" + Convert.ToString(val))
     End Function
 
@@ -1590,7 +1582,7 @@ Module yocto_serialport
     Public Overridable Function get_CTS() As Integer
       Dim buff As Byte()
       Dim res As Integer = 0
-      REM // may throw an exception
+      
       buff = Me._download("cts.txt")
       If Not((buff).Length = 1) Then
         me._throw( YAPI.IO_ERROR,  "invalid CTS reply")
@@ -1619,7 +1611,6 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function writeMODBUS(hexString As String) As Integer
-      REM // may throw an exception
       Return Me.sendCommand(":" + hexString)
     End Function
 
@@ -1667,7 +1658,7 @@ Module yocto_serialport
         cmd = "" +  cmd + "" + YAPI._intToHex(((pduBytes(i)) And (&Hff)),02)
         i = i + 1
       End While
-      REM // may throw an exception
+      
       url = "rxmsg.json?cmd=:" +  cmd + "&pat=:" + pat
       msgs = Me._download(url)
       reps = Me._json_get_array(msgs)
@@ -1745,7 +1736,7 @@ Module yocto_serialport
       pdu.Add(((nBits) >> (8)))
       pdu.Add(((nBits) And (&Hff)))
       
-      REM // may throw an exception
+      
       reply = Me.queryMODBUS(slaveNo, pdu)
       If (reply.Count = 0) Then
         Return res
@@ -1815,7 +1806,7 @@ Module yocto_serialport
       pdu.Add(((nBits) >> (8)))
       pdu.Add(((nBits) And (&Hff)))
       
-      REM // may throw an exception
+      
       reply = Me.queryMODBUS(slaveNo, pdu)
       If (reply.Count = 0) Then
         Return res
@@ -1884,7 +1875,7 @@ Module yocto_serialport
       pdu.Add(((nWords) >> (8)))
       pdu.Add(((nWords) And (&Hff)))
       
-      REM // may throw an exception
+      
       reply = Me.queryMODBUS(slaveNo, pdu)
       If (reply.Count = 0) Then
         Return res
@@ -1944,7 +1935,7 @@ Module yocto_serialport
       pdu.Add(((nWords) >> (8)))
       pdu.Add(((nWords) And (&Hff)))
       
-      REM // may throw an exception
+      
       reply = Me.queryMODBUS(slaveNo, pdu)
       If (reply.Count = 0) Then
         Return res
@@ -2005,7 +1996,7 @@ Module yocto_serialport
       pdu.Add(value)
       pdu.Add(&H00)
       
-      REM // may throw an exception
+      
       reply = Me.queryMODBUS(slaveNo, pdu)
       If (reply.Count = 0) Then
         Return res
@@ -2079,7 +2070,7 @@ Module yocto_serialport
         pdu.Add(val)
       End If
       
-      REM // may throw an exception
+      
       reply = Me.queryMODBUS(slaveNo, pdu)
       If (reply.Count = 0) Then
         Return res
@@ -2127,7 +2118,7 @@ Module yocto_serialport
       pdu.Add(((value) >> (8)))
       pdu.Add(((value) And (&Hff)))
       
-      REM // may throw an exception
+      
       reply = Me.queryMODBUS(slaveNo, pdu)
       If (reply.Count = 0) Then
         Return res
@@ -2188,7 +2179,7 @@ Module yocto_serialport
         regpos = regpos + 1
       End While
       
-      REM // may throw an exception
+      
       reply = Me.queryMODBUS(slaveNo, pdu)
       If (reply.Count = 0) Then
         Return res
@@ -2261,7 +2252,7 @@ Module yocto_serialport
         regpos = regpos + 1
       End While
       
-      REM // may throw an exception
+      
       reply = Me.queryMODBUS(slaveNo, pdu)
       If (reply.Count = 0) Then
         Return res

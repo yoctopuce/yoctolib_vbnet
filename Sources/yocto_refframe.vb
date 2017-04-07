@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_refframe.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -509,7 +509,7 @@ end enum
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
       Dim caltyp As Integer = 0
       Dim res As Integer = 0
-      REM // may throw an exception
+      
       calibParam = Me.get_calibrationParam()
       iCalib = YAPI._decodeFloats(calibParam)
       caltyp = (iCalib(0) \ 1000)
@@ -545,7 +545,7 @@ end enum
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
       Dim caltyp As Integer = 0
       Dim res As Integer = 0
-      REM // may throw an exception
+      
       calibParam = Me.get_calibrationParam()
       iCalib = YAPI._decodeFloats(calibParam)
       caltyp = (iCalib(0) \ 1000)
@@ -619,7 +619,6 @@ end enum
     ''' </summary>
     '''/
     Public Overridable Function start3DCalibration() As Integer
-      REM // may throw an exception
       If (Not (Me.isOnline())) Then
         Return YAPI.DEVICE_NOT_FOUND
       End If
@@ -660,7 +659,6 @@ end enum
     ''' </summary>
     '''/
     Public Overridable Function more3DCalibration() As Integer
-      REM // may throw an exception
       If (Me._calibV2) Then
         Return Me.more3DCalibrationV2()
       End If
@@ -668,7 +666,6 @@ end enum
     End Function
 
     Public Overridable Function more3DCalibrationV1() As Integer
-      REM // may throw an exception
       Dim currTick As Integer = 0
       Dim jsonData As Byte()
       Dim xVal As Double = 0
@@ -753,7 +750,7 @@ end enum
       End If
       REM // Discard measures that are not in the proper orientation
       If (Me._calibStageProgress = 0) Then
-        REM
+        REM // New stage, check that this orientation is not yet done
         idx = 0
         err = 0
         While (idx + 1 < Me._calibStage)
@@ -768,7 +765,7 @@ end enum
         End If
         Me._calibOrient.Add(orient)
       Else
-        REM
+        REM // Make sure device is not turned before stage is completed
         If (orient <> Me._calibOrient(Me._calibStage-1)) Then
           Me._calibStageHint = "Not yet done, please move back to the previous face"
           Return YAPI.SUCCESS
@@ -894,7 +891,7 @@ end enum
           Return YAPI.SUCCESS
         End If
       End If
-      REM // may throw an exception
+      
       calibParam = Me._download("api/refFrame/calibrationParam.txt")
       iCalib = YAPI._decodeFloats(YAPI.DefaultEncoding.GetString(calibParam))
       cal3 = (iCalib(1) \ 1000)
@@ -1017,7 +1014,6 @@ end enum
     ''' </summary>
     '''/
     Public Overridable Function save3DCalibration() As Integer
-      REM // may throw an exception
       If (Me._calibV2) Then
         Return Me.save3DCalibrationV2()
       End If
@@ -1025,7 +1021,6 @@ end enum
     End Function
 
     Public Overridable Function save3DCalibrationV1() As Integer
-      REM // may throw an exception
       Dim shiftX As Integer = 0
       Dim shiftY As Integer = 0
       Dim shiftZ As Integer = 0
@@ -1091,7 +1086,6 @@ end enum
     End Function
 
     Public Overridable Function save3DCalibrationV2() As Integer
-      REM // may throw an exception
       Return Me.set_calibrationParam("5,5,5,5,5,5")
     End Function
 
@@ -1109,7 +1103,7 @@ end enum
       If (Me._calibStage = 0) Then
         Return YAPI.SUCCESS
       End If
-      REM // may throw an exception
+      
       Me._calibStage = 0
       Return Me.set_calibrationParam(Me._calibSavedParams)
     End Function

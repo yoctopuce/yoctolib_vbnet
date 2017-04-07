@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_cellular.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -1180,7 +1180,7 @@ Module yocto_cellular
     '''/
     Public Overridable Function clearDataCounters() As Integer
       Dim retcode As Integer = 0
-      REM // may throw an exception
+      
       retcode = Me.set_dataReceived(0)
       If (retcode <> YAPI.SUCCESS) Then
         Return retcode
@@ -1244,7 +1244,6 @@ Module yocto_cellular
       REM // max 2 minutes (each iteration may take up to 5 seconds if waiting)
       waitMore = 24
       While (waitMore > 0)
-        REM
         buff = Me._download(cmd)
         bufflen = (buff).Length
         buffstr = YAPI.DefaultEncoding.GetString(buff)
@@ -1254,13 +1253,13 @@ Module yocto_cellular
           idx = idx - 1
         End While
         If (buff(idx) = 64) Then
-          REM
+          REM // continuation detected
           suffixlen = bufflen - idx
           cmd = "at.txt?cmd=" + (buffstr).Substring( buffstrlen - suffixlen, suffixlen)
           buffstr = (buffstr).Substring( 0, buffstrlen - suffixlen)
           waitMore = waitMore - 1
         Else
-          REM
+          REM // request complete
           waitMore = 0
         End If
         res = "" +  res + "" + buffstr
@@ -1287,7 +1286,7 @@ Module yocto_cellular
       Dim idx As Integer = 0
       Dim slen As Integer = 0
       Dim res As List(Of String) = New List(Of String)()
-      REM // may throw an exception
+      
       cops = Me._AT("+COPS=?")
       slen = (cops).Length
       res.Clear()
@@ -1341,7 +1340,7 @@ Module yocto_cellular
       Dim tad As Integer = 0
       Dim oper As String
       Dim res As List(Of YCellRecord) = New List(Of YCellRecord)()
-      REM // may throw an exception
+      
       moni = Me._AT("+CCED=0;#MONI=7;#MONI")
       mccs = (moni).Substring(7, 3)
       If ((mccs).Substring(0, 1) = "0") Then

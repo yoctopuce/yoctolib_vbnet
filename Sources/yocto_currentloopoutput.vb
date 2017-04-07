@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_currentloopoutput.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_currentloopoutput.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindCurrentLoopOutput(), the high-level API for CurrentLoopOutput functions
 '*
@@ -412,7 +412,7 @@ Module yocto_currentloopoutput
         mA_target = 21.0
       End If
       newval = "" + Convert.ToString( CType(Math.Round(mA_target*1000), Integer)) + ":" + Convert.ToString(ms_duration)
-      REM // may throw an exception
+      
       Return Me.set_currentTransition(newval)
     End Function
 

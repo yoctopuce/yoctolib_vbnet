@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorled.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_colorled.vb 27118 2017-04-06 22:38:36Z seb $
 '*
 '* Implements yFindColorLed(), the high-level API for ColorLed functions
 '*
@@ -648,7 +648,6 @@ End Class
     End Function
 
     Public Overridable Function sendCommand(command As String) As Integer
-      REM //may throw an exception
       Return Me.set_command(command)
     End Function
 

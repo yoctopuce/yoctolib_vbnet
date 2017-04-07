@@ -93,6 +93,9 @@
 <Compile Include="..\..\Sources\yocto_bluetoothlink.vb">
 <Link>yocto_api\yocto_bluetoothlink.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_bridgecontrol.vb">
+<Link>yocto_api\yocto_bridgecontrol.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_buzzer.vb">
 <Link>yocto_api\yocto_buzzer.vb</Link>
 </Compile>

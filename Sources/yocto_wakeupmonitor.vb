@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupmonitor.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_wakeupmonitor.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '*
@@ -492,7 +492,6 @@ Module yocto_wakeupmonitor
     ''' </summary>
     '''/
     Public Overridable Function wakeUp() As Integer
-      REM // may throw an exception
       Return Me.set_wakeUpState(WAKEUPSTATE_AWAKE)
     End Function
 

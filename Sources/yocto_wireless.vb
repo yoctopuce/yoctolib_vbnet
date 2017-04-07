@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_wireless.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -576,7 +576,7 @@ Module yocto_wireless
       Dim json As Byte()
       Dim wlanlist As List(Of String) = New List(Of String)()
       Dim res As List(Of YWlanRecord) = New List(Of YWlanRecord)()
-      REM // may throw an exception
+      
       json = Me._download("wlan.json?by=name")
       wlanlist = Me._json_get_array(json)
       res.Clear()

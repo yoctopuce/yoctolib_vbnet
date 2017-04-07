@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_spiport.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_spiport.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindSpiPort(), the high-level API for SpiPort functions
 '*
@@ -905,7 +905,6 @@ Module yocto_spiport
     End Function
 
     Public Overridable Function sendCommand(text As String) As Integer
-      REM // may throw an exception
       Return Me.set_command(text)
     End Function
 
@@ -928,7 +927,7 @@ Module yocto_spiport
       Me._rxptr = 0
       Me._rxbuffptr = 0
       ReDim Me._rxbuff(0-1)
-      REM // may throw an exception
+      
       Return Me.sendCommand("Z")
     End Function
 
@@ -949,7 +948,6 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function writeByte(code As Integer) As Integer
-      REM // may throw an exception
       Return Me.sendCommand("$" + YAPI._intToHex(code,02))
     End Function
 
@@ -977,7 +975,7 @@ Module yocto_spiport
       buff = YAPI.DefaultEncoding.GetBytes(text)
       bufflen = (buff).Length
       If (bufflen < 100) Then
-        REM
+        REM // if string is pure text, we can send it as a simple command (faster)
         ch = &H20
         idx = 0
         While ((idx < bufflen) AndAlso (ch <> 0))
@@ -989,7 +987,6 @@ Module yocto_spiport
           End If
         End While
         If (idx >= bufflen) Then
-          REM
           Return Me.sendCommand("+" + text)
         End If
       End If
@@ -1014,7 +1011,6 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function writeBin(buff As Byte()) As Integer
-      REM // may throw an exception
       Return Me._upload("txdata", buff)
     End Function
 
@@ -1048,7 +1044,7 @@ Module yocto_spiport
         buff( idx) = Convert.ToByte(hexb And &HFF)
         idx = idx + 1
       End While
-      REM // may throw an exception
+      
       res = Me._upload("txdata", buff)
       Return res
     End Function
@@ -1077,7 +1073,6 @@ Module yocto_spiport
       Dim res As Integer = 0
       bufflen = (hexString).Length
       If (bufflen < 100) Then
-        REM
         Return Me.sendCommand("$" + hexString)
       End If
       bufflen = ((bufflen) >> (1))
@@ -1088,7 +1083,7 @@ Module yocto_spiport
         buff( idx) = Convert.ToByte(hexb And &HFF)
         idx = idx + 1
       End While
-      REM // may throw an exception
+      
       res = Me._upload("txdata", buff)
       Return res
     End Function
@@ -1117,7 +1112,7 @@ Module yocto_spiport
       buff = YAPI.DefaultEncoding.GetBytes("" + text + "" + vbCr + "" + vbLf + "")
       bufflen = (buff).Length-2
       If (bufflen < 100) Then
-        REM
+        REM // if string is pure text, we can send it as a simple command (faster)
         ch = &H20
         idx = 0
         While ((idx < bufflen) AndAlso (ch <> 0))
@@ -1129,7 +1124,6 @@ Module yocto_spiport
           End If
         End While
         If (idx >= bufflen) Then
-          REM
           Return Me.sendCommand("!" + text)
         End If
       End If
@@ -1196,7 +1190,7 @@ Module yocto_spiport
       REM // still mixed, need to process character by character
       Me._rxptr = currpos
       
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=1")
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1241,7 +1235,7 @@ Module yocto_spiport
       If (nChars > 65535) Then
         nChars = 65535
       End If
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1284,7 +1278,7 @@ Module yocto_spiport
       If (nChars > 65535) Then
         nChars = 65535
       End If
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1333,7 +1327,7 @@ Module yocto_spiport
       If (nChars > 65535) Then
         nChars = 65535
       End If
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1383,7 +1377,7 @@ Module yocto_spiport
       If (nBytes > 65535) Then
         nBytes = 65535
       End If
-      REM // may throw an exception
+      
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nBytes))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1433,7 +1427,7 @@ Module yocto_spiport
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
-      REM // may throw an exception
+      
       url = "rxmsg.json?pos=" + Convert.ToString(Me._rxptr) + "&len=1&maxw=1"
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
@@ -1490,7 +1484,7 @@ Module yocto_spiport
       Dim msglen As Integer = 0
       Dim res As List(Of String) = New List(Of String)()
       Dim idx As Integer = 0
-      REM // may throw an exception
+      
       url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&pat=" + pattern
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
@@ -1561,7 +1555,7 @@ Module yocto_spiport
       Dim buff As Byte()
       Dim bufflen As Integer = 0
       Dim res As Integer = 0
-      REM // may throw an exception
+      
       buff = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
       bufflen = (buff).Length - 1
       While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
@@ -1598,7 +1592,7 @@ Module yocto_spiport
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
-      REM // may throw an exception
+      
       url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + query
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
@@ -1663,7 +1657,6 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function selectJob(jobfile As String) As Integer
-      REM // may throw an exception
       Return Me.set_currentJob(jobfile)
     End Function
 
@@ -1686,7 +1679,6 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function set_SS(val As Integer) As Integer
-      REM // may throw an exception
       Return Me.sendCommand("S" + Convert.ToString(val))
     End Function
 

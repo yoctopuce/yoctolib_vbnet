@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 26826 2017-03-17 11:20:57Z mvuilleu $
+'* $Id: yocto_api.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -572,7 +572,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "26849"
+  Public Const YOCTO_API_BUILD_NO As String = "27127"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2011,7 +2011,6 @@ Module yocto_api
             End If
           End If
           If (Me._progress < 100) Then
-            REM
             m.set_allSettingsAndFiles(Me._settings)
             m.saveToFlash()
             ReDim Me._settings(0-1)
@@ -2469,7 +2468,7 @@ Module yocto_api
         Me._nRows = 0
         Return YAPI.SUCCESS
       End If
-      REM // may throw an exception
+      
       udat = YAPI._decodeWords(Me._parent._json_get_string(sdata))
       Me._values.Clear()
       idx = 0
@@ -2519,7 +2518,6 @@ Module yocto_api
     End Function
 
     Public Overridable Function loadStream() As Integer
-      REM // may throw an exception
       Return Me._parseStream(Me._parent._download(Me._get_url()))
     End Function
 
@@ -3285,7 +3283,7 @@ Module yocto_api
       Dim minCol As Integer = 0
       Dim avgCol As Integer = 0
       Dim maxCol As Integer = 0
-      REM // may throw an exception
+      
       If (progress <> Me._progress) Then
         Return Me._progress
       End If
@@ -3602,7 +3600,7 @@ Module yocto_api
       Dim minCol As Integer = 0
       Dim avgCol As Integer = 0
       Dim maxCol As Integer = 0
-      REM // may throw an exception
+      
       startUtc = CType(Math.Round(measure.get_startTimeUTC()), Long)
       stream = Nothing
       For i_i = 0 To Me._streams.Count - 1
@@ -4734,7 +4732,6 @@ Module yocto_api
     End Function
 
     Public Overridable Function _parserHelper() As Integer
-      REM // By default, nothing to do
       Return 0
     End Function
 
@@ -6537,7 +6534,7 @@ Module yocto_api
     Public Overridable Function updateFirmwareEx(path As String, force As Boolean) As YFirmwareUpdate
       Dim serial As String
       Dim settings As Byte()
-      REM // may throw an exception
+      
       serial = Me.get_serialNumber()
       settings = Me.get_allSettings()
       If ((settings).Length = 0) Then
@@ -6565,7 +6562,6 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Overridable Function updateFirmware(path As String) As YFirmwareUpdate
-      REM // may throw an exception
       Return Me.updateFirmwareEx(path, False)
     End Function
 
@@ -6603,7 +6599,7 @@ Module yocto_api
       Dim ext_settings As String
       Dim filelist As List(Of String) = New List(Of String)()
       Dim templist As List(Of String) = New List(Of String)()
-      REM // may throw an exception
+      
       settings = Me._download("api.json")
       If ((settings).Length = 0) Then
         Return settings
@@ -6629,7 +6625,6 @@ Module yocto_api
       Next i_i
       ext_settings = ext_settings + "]," + vbLf + """files"":["
       If (Me.hasFunction("files")) Then
-        REM
         json = Me._download("files.json?a=dir&f=")
         If ((json).Length = 0) Then
           Return json
@@ -6659,7 +6654,7 @@ Module yocto_api
       Dim ofs As Integer = 0
       Dim size As Integer = 0
       url = "api/" + funcId + ".json?command=Z"
-      REM // may throw an exception
+      
       Me._download(url)
       REM // add records in growing resistance value
       values = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(jsonExtra))
@@ -6686,7 +6681,6 @@ Module yocto_api
         functionId = Me._decode_json_string(functionId)
         data = Me._get_json_path( extras(i_i), "json")
         If (Me.hasFunction(functionId)) Then
-          REM
           Me.loadThermistorExtra(functionId, data)
         End If
       Next i_i
@@ -6737,7 +6731,6 @@ Module yocto_api
         Dim res As String
         Dim name As String
         Dim data As String
-        REM
         down = Me._download("files.json?a=format")
         res = Me._get_json_path(YAPI.DefaultEncoding.GetString(down), "res")
         res = Me._decode_json_string(res)
@@ -6779,7 +6772,7 @@ Module yocto_api
       Dim count As Integer = 0
       Dim i As Integer = 0
       Dim fid As String
-      REM // may throw an exception
+      
       count  = Me.functionCount()
       i = 0
       While (i < count)
@@ -6812,7 +6805,7 @@ Module yocto_api
       Dim i As Integer = 0
       Dim ftype As String
       Dim res As List(Of String) = New List(Of String)()
-      REM // may throw an exception
+      
       count = Me.functionCount()
       i = 0
       
@@ -6941,11 +6934,11 @@ Module yocto_api
       paramScale = funScale
       paramOffset = funOffset
       If (funVer < 3) Then
-        REM
+        REM // Read the effective device scale if available
         If (funVer = 2) Then
           words = YAPI._decodeWords(currentFuncValue)
           If ((words(0) = 1366) AndAlso (words(1) = 12500)) Then
-            REM
+            REM // Yocto-3D RefFrame used a special encoding
             funScale = 1
             funOffset = 0
           Else
@@ -6963,11 +6956,11 @@ Module yocto_api
       calibData.Clear()
       calibType = 0
       If (paramVer < 3) Then
-        REM
+        REM // Handle old 16 bit parameters formats
         If (paramVer = 2) Then
           words = YAPI._decodeWords(param)
           If ((words(0) = 1366) AndAlso (words(1) = 12500)) Then
-            REM
+            REM // Yocto-3D RefFrame used a special encoding
             paramScale = 1
             paramOffset = 0
           Else
@@ -7020,16 +7013,16 @@ Module yocto_api
         i = 0
         While (i < calibData.Count)
           If (paramScale > 0) Then
-            REM
+            REM // scalar decoding
             calibData( i) = (calibData(i) - paramOffset) / paramScale
           Else
-            REM
+            REM // floating-point decoding
             calibData( i) = YAPI._decimalToDouble(CType(Math.Round(calibData(i)), Integer))
           End If
           i = i + 1
         End While
       Else
-        REM
+        REM // Handle latest 32bit parameter format
         iCalib = YAPI._decodeFloats(param)
         calibType = CType(Math.Round(iCalib(0) / 1000.0), Integer)
         If (calibType >= 30) Then
@@ -7042,7 +7035,7 @@ Module yocto_api
         End While
       End If
       If (funVer >= 3) Then
-        REM
+        REM // Encode parameters in new format
         If (calibData.Count = 0) Then
           param = "0,"
         Else
@@ -7061,7 +7054,7 @@ Module yocto_api
         End If
       Else
         If (funVer >= 1) Then
-          REM
+          REM // Encode parameters for older devices
           nPoints = (calibData.Count \ 2)
           param = (nPoints).ToString()
           i = 0
@@ -7075,7 +7068,7 @@ Module yocto_api
             i = i + 1
           End While
         Else
-          REM
+          REM // Initial V0 encoding used for old Yocto-Light
           If (calibData.Count = 4) Then
             param = (Math.Round(1000 * (calibData(3) - calibData(1)) / calibData(2) - calibData(0))).ToString()
           End If
@@ -7153,7 +7146,7 @@ Module yocto_api
       
       For i_i = 0 To old_dslist.Count - 1
         each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(old_dslist(i_i)))
-        REM
+        REM // split json path and attr
         leng = (each_str).Length
         eqpos = each_str.IndexOf("=")
         If ((eqpos < 0) OrElse (leng = 0)) Then
@@ -7170,7 +7163,7 @@ Module yocto_api
       
       
       
-      REM // may throw an exception
+      
       actualSettings = Me._download("api.json")
       actualSettings = Me._flattenJsonStruct(actualSettings)
       new_dslist = Me._json_get_array(actualSettings)
@@ -7178,9 +7171,9 @@ Module yocto_api
       
       
       For i_i = 0 To new_dslist.Count - 1
-        REM
+        REM // remove quotes
         each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(new_dslist(i_i)))
-        REM
+        REM // split json path and attr
         leng = (each_str).Length
         eqpos = each_str.IndexOf("=")
         If ((eqpos < 0) OrElse (leng = 0)) Then
@@ -7429,7 +7422,6 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Overridable Function get_icon2d() As Byte()
-      REM // may throw an exception
       Return Me._download("icon2d.png")
     End Function
 
@@ -7450,7 +7442,7 @@ Module yocto_api
     '''/
     Public Overridable Function get_lastLogs() As String
       Dim content As Byte()
-      REM // may throw an exception
+      
       content = Me._download("logs.txt")
       Return YAPI.DefaultEncoding.GetString(content)
     End Function
@@ -7500,7 +7492,7 @@ Module yocto_api
       Dim subdevice_list As String
       Dim subdevices As List(Of String) = New List(Of String)()
       Dim serial As String
-      REM // may throw an exception
+      
       serial = Me.get_serialNumber()
       fullsize = 0
       yapi_res = _yapiGetSubdevices(New StringBuilder(serial), smallbuff, 1024, fullsize, errmsg)
@@ -7545,7 +7537,7 @@ Module yocto_api
       Dim pathsize As Integer
       Dim yapi_res As Integer = 0
       Dim serial As String
-      REM // may throw an exception
+      
       serial = Me.get_serialNumber()
       REM // retrieve device object
       pathsize = 0
@@ -7574,7 +7566,7 @@ Module yocto_api
       Dim pathsize As Integer
       Dim yapi_res As Integer = 0
       Dim serial As String
-      REM // may throw an exception
+      
       serial = Me.get_serialNumber()
       REM // retrieve device object
       pathsize = 0
@@ -8381,23 +8373,23 @@ Module yocto_api
         Return 0
       End If
       If (Me._calibrationParam.IndexOf(",") >= 0) Then
-        REM
+        REM // Plain text format
         iCalib = YAPI._decodeFloats(Me._calibrationParam)
         Me._caltyp = (iCalib(0) \ 1000)
         If (Me._caltyp > 0) Then
           If (Me._caltyp < YOCTO_CALIB_TYPE_OFS) Then
-            REM
+            REM // Unknown calibration type: calibrated value will be provided by the device
             Me._caltyp = -1
             Return 0
           End If
           Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
           If (Not (Not (Me._calhdl Is Nothing))) Then
-            REM
+            REM // Unknown calibration type: calibrated value will be provided by the device
             Me._caltyp = -1
             Return 0
           End If
         End If
-        REM
+        REM // New 32bit text format
         Me._isScal = True
         Me._isScal32 = True
         Me._offset = 0
@@ -8422,14 +8414,14 @@ Module yocto_api
           position = position + 2
         End While
       Else
-        REM
+        REM // Recorder-encoded format, including encoding
         iCalib = YAPI._decodeWords(Me._calibrationParam)
-        REM
+        REM // In case of unknown format, calibrated value will be provided by the device
         If (iCalib.Count < 2) Then
           Me._caltyp = -1
           Return 0
         End If
-        REM
+        REM // Save variable format (scale for scalar, or decimal exponent)
         Me._isScal = (iCalib(1) > 0)
         If (Me._isScal) Then
           Me._offset = iCalib(0)
@@ -8448,14 +8440,14 @@ Module yocto_api
             position = position - 1
           End While
         End If
-        REM
+        REM // Shortcut when there is no calibration parameter
         If (iCalib.Count = 2) Then
           Me._caltyp = 0
           Return 0
         End If
         Me._caltyp = iCalib(2)
         Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
-        REM
+        REM // parse calibration points
         If (Me._caltyp <= 10) Then
           maxpos = Me._caltyp
         Else
@@ -8535,7 +8527,7 @@ Module yocto_api
     '''/
     Public Overridable Function startDataLogger() As Integer
       Dim res As Byte()
-      REM // may throw an exception
+      
       res = Me._download("api/dataLogger/recording?recording=1")
       If Not((res).Length>0) Then
         me._throw( YAPI.IO_ERROR,  "unable to start datalogger")
@@ -8556,7 +8548,7 @@ Module yocto_api
     '''/
     Public Overridable Function stopDataLogger() As Integer
       Dim res As Byte()
-      REM // may throw an exception
+      
       res = Me._download("api/dataLogger/recording?recording=0")
       If Not((res).Length>0) Then
         me._throw( YAPI.IO_ERROR,  "unable to stop datalogger")
@@ -8606,7 +8598,7 @@ Module yocto_api
     Public Overridable Function get_recordedData(startTime As Long, endTime As Long) As YDataSet
       Dim funcid As String
       Dim funit As String
-      REM // may throw an exception
+      
       funcid = Me.get_functionId()
       funit = Me.get_unit()
       Return New YDataSet(Me, funcid, funit, startTime, endTime)
@@ -8685,9 +8677,11 @@ Module yocto_api
     '''/
     Public Overridable Function calibrateFromPoints(rawValues As List(Of Double), refValues As List(Of Double)) As Integer
       Dim rest_val As String
-      REM // may throw an exception
+      Dim res As Integer = 0
+      
       rest_val = Me._encodeCalibrationPoints(rawValues, refValues)
-      Return Me._setAttr("calibrationParam", rest_val)
+      res = Me._setAttr("calibrationParam", rest_val)
+      Return res
     End Function
 
     '''*
@@ -8766,7 +8760,7 @@ Module yocto_api
         Return "0"
       End If
       If (Me._isScal32) Then
-        REM
+        REM // 32-bit fixed-point encoding
         res = "" + Convert.ToString(YOCTO_CALIB_TYPE_OFS)
         idx = 0
         While (idx < npt)
@@ -8775,7 +8769,7 @@ Module yocto_api
         End While
       Else
         If (Me._isScal) Then
-          REM
+          REM // 16-bit fixed-point encoding
           res = "" + Convert.ToString(npt)
           idx = 0
           While (idx < npt)
@@ -8785,7 +8779,7 @@ Module yocto_api
             idx = idx + 1
           End While
         Else
-          REM
+          REM // 16-bit floating-point decimal encoding
           res = "" + Convert.ToString(10 + npt)
           idx = 0
           While (idx < npt)
@@ -8836,9 +8830,9 @@ Module yocto_api
         startTime = endTime
       End If
       If (report(0) = 2) Then
-        REM
+        REM // 32bit timed report format
         If (report.Count <= 5) Then
-          REM
+          REM // sub-second report, 1-4 bytes
           poww = 1
           avgRaw = 0
           byteVal = 0
@@ -8861,7 +8855,7 @@ Module yocto_api
           minVal = avgVal
           maxVal = avgVal
         Else
-          REM
+          REM // averaged report: avg,avg-min,max-avg
           sublen = 1 + ((report(1)) And (3))
           poww = 1
           avgRaw = 0
@@ -8911,9 +8905,9 @@ Module yocto_api
           End If
         End If
       Else
-        REM
+        REM // 16bit timed report format
         If (report(0) = 0) Then
-          REM
+          REM // sub-second report, 1-4 bytes
           poww = 1
           avgRaw = 0
           byteVal = 0
@@ -8935,7 +8929,7 @@ Module yocto_api
           minVal = avgVal
           maxVal = avgVal
         Else
-          REM
+          REM // averaged report 2+4+2 bytes
           minRaw = report(1) + &H100 * report(2)
           maxRaw = report(3) + &H100 * report(4)
           avgRaw = report(5) + &H100 * report(6) + &H10000 * report(7)

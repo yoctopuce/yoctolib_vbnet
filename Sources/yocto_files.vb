@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_files.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -318,7 +318,7 @@ Module yocto_files
     Public Overridable Function sendCommand(command As String) As Byte()
       Dim url As String
       url = "files.json?a=" + command
-      REM // may throw an exception
+      
       Return Me._download(url)
     End Function
 

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gyro.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_gyro.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindGyro(), the high-level API for Gyro functions
 '*
@@ -785,7 +785,6 @@ Module yocto_gyro
           Me._qt_y = YQt.FindQt("" + Me._serial + ".qt3")
           Me._qt_z = YQt.FindQt("" + Me._serial + ".qt4")
         End If
-        REM
         If (Me._qt_w.load(9) <> YAPI.SUCCESS) Then
           Return YAPI.DEVICE_NOT_FOUND
         End If
@@ -814,7 +813,7 @@ Module yocto_gyro
       Dim sqz As Double = 0
       Dim norm As Double = 0
       Dim delta As Double = 0
-      REM // may throw an exception
+      
       If (Me._loadQuaternion() <> YAPI.SUCCESS) Then
         Return YAPI.DEVICE_NOT_FOUND
       End If
@@ -826,12 +825,12 @@ Module yocto_gyro
         norm = sqx + sqy + sqz + sqw
         delta = Me._y * Me._w - Me._x * Me._z
         If (delta > 0.499 * norm) Then
-          REM
+          REM // singularity at north pole
           Me._pitch = 90.0
           Me._head  = Math.Round(2.0 * 1800.0/Math.PI * Math.Atan2(Me._x,-Me._w)) / 10.0
         Else
           If (delta < -0.499 * norm) Then
-            REM
+            REM // singularity at south pole
             Me._pitch = -90.0
             Me._head  = Math.Round(-2.0 * 1800.0/Math.PI * Math.Atan2(Me._x,-Me._w)) / 10.0
           Else
@@ -864,7 +863,6 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_roll() As Double
-      REM // may throw an exception
       Me._loadAngles()
       Return Me._roll
     End Function
@@ -888,7 +886,6 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_pitch() As Double
-      REM // may throw an exception
       Me._loadAngles()
       Return Me._pitch
     End Function
@@ -912,7 +909,6 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_heading() As Double
-      REM // may throw an exception
       Me._loadAngles()
       Return Me._head
     End Function
@@ -934,7 +930,6 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_quaternionW() As Double
-      REM // may throw an exception
       Me._loadQuaternion()
       Return Me._w
     End Function
@@ -958,7 +953,6 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_quaternionX() As Double
-      REM // may throw an exception
       Me._loadQuaternion()
       Return Me._x
     End Function
@@ -982,7 +976,6 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_quaternionY() As Double
-      REM // may throw an exception
       Me._loadQuaternion()
       Return Me._y
     End Function
@@ -1006,7 +999,6 @@ Module yocto_gyro
     ''' </returns>
     '''/
     Public Overridable Function get_quaternionZ() As Double
-      REM // may throw an exception
       Me._loadQuaternion()
       Return Me._z
     End Function
@@ -1037,7 +1029,6 @@ Module yocto_gyro
     Public Overridable Function registerQuaternionCallback(callback As YQuatCallback) As Integer
       Me._quatCallback = callback
       If (Not (callback Is Nothing)) Then
-        REM
         If (Me._loadQuaternion() <> YAPI.SUCCESS) Then
           Return YAPI.DEVICE_NOT_FOUND
         End If
@@ -1086,7 +1077,6 @@ Module yocto_gyro
     Public Overridable Function registerAnglesCallback(callback As YAnglesCallback) As Integer
       Me._anglesCallback = callback
       If (Not (callback Is Nothing)) Then
-        REM
         If (Me._loadQuaternion() <> YAPI.SUCCESS) Then
           Return YAPI.DEVICE_NOT_FOUND
         End If
@@ -1127,7 +1117,6 @@ Module yocto_gyro
         Me._quatCallback(Me, Me._w, Me._x, Me._y, Me._z)
       End If
       If (Not (Me._anglesCallback Is Nothing)) Then
-        REM
         Me._loadAngles()
         Me._anglesCallback(Me, Me._roll, Me._pitch, Me._head)
       End If

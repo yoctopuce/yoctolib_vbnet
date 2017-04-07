@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_display.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -247,7 +247,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <param name="mode">
-    '''   <t>true</t> to enable antialiasing, <t>false</t> to
+    '''   <c>true</c> to enable antialiasing, <c>false</c> to
     '''   disable it.
     ''' </param>
     ''' <returns>

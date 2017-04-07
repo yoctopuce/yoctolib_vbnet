@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_network.vb 27104 2017-04-06 22:14:54Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -1707,7 +1707,7 @@ Module yocto_network
     '''/
     Public Overridable Function ping(host As String) As String
       Dim content As Byte()
-      REM // may throw an exception
+      
       content = Me._download("ping.txt?host=" + host)
       Return YAPI.DefaultEncoding.GetString(content)
     End Function
@@ -1730,8 +1730,6 @@ Module yocto_network
     ''' </para>
     '''/
     Public Overridable Function triggerCallback() As Integer
-      REM // Rewrite the callback method to trigger the callback
-      REM // may throw an exception
       Return Me.set_callbackMethod(Me.get_callbackMethod())
     End Function
 
