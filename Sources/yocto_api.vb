@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_api.vb 27242 2017-04-24 13:45:28Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -63,31 +63,21 @@ Imports System.Text
 Imports System.Math
 
 Module yocto_api
+  Public MustInherit Class YJSONContent
+    Friend _data As String
+    Friend _data_start As Integer
+    Protected _data_len As Integer
+    Friend _data_boundary As Integer
+    Protected _type As YJSONType
 
-  Public Enum TJSONRECORDTYPE
-    JSON_STRING
-    JSON_INTEGER
-    JSON_BOOLEAN
-    JSON_STRUCT
-    JSON_ARRAY
-  End Enum
+    Public Enum YJSONType
+      [STRING]
+      NUMBER
+      ARRAY
+      [OBJECT]
+    End Enum
 
-  Public Structure TJSONRECORD
-    Dim name As String
-    Dim recordtype As TJSONRECORDTYPE
-    Dim svalue As String
-    Dim ivalue As Long
-    Dim bvalue As Boolean
-    Dim membercount As Integer
-    Dim memberAllocated As Integer
-    Dim members() As TJSONRECORD
-    Dim itemcount As Integer
-    Dim itemAllocated As Integer
-    Dim items() As TJSONRECORD
-  End Structure
-
-  Public Class TJsonParser
-    Private Enum Tjstate
+    Protected Enum Tjstate
       JSTART
       JWAITFORNAME
       JWAITFORENDOFNAME
@@ -95,484 +85,717 @@ Module yocto_api
       JWAITFORDATA
       JWAITFORNEXTSTRUCTMEMBER
       JWAITFORNEXTARRAYITEM
-      JSCOMPLETED
       JWAITFORSTRINGVALUE
+      JWAITFORSTRINGVALUE_ESC
       JWAITFORINTVALUE
       JWAITFORBOOLVALUE
     End Enum
 
-    Private Const JSONGRANULARITY As Integer = 10
-    Public httpcode As Integer
-    Private data As TJSONRECORD
-
-    Public Sub New(ByVal jsonData As String)
-      Me.New(jsonData, True)
-    End Sub
-
-    Public Sub New(ByVal jsonData As String, ByVal withHTTPHeader As Boolean)
-      Const httpheader As String = "HTTP/1.1 "
-      Const okHeader As String = "OK" + Chr(13) + Chr(10)
-      Dim errmsg As String
-      Dim p1, p2 As Integer
-      Const CR As String = Chr(13) + Chr(10)
-
-      If withHTTPHeader Then
-        If Mid(jsonData, 1, Len(okHeader)) = okHeader Then
-          httpcode = 200
-        Else
-          If Mid(jsonData, 1, Len(httpheader)) <> httpheader Then
-            errmsg = "data should start with " + httpheader
-            Throw New System.Exception(errmsg)
-          End If
-          p1 = InStr(Len(httpheader) + 1, jsonData, " ")
-          p2 = InStr(jsonData, CR)
-          httpcode = CInt(Val(Mid(jsonData, Len(httpheader), p1 - Len(httpheader))))
-          If (httpcode <> 200) Then Exit Sub
-        End If
-        p1 = InStr(jsonData, CR + CR + "{") REM json data is a structure
-        If p1 <= 0 Then p1 = InStr(jsonData, CR + CR + "[") REM json data is an array
-
-        If p1 <= 0 Then
-          errmsg = "data  does not contain JSON data "
-          Throw New System.Exception(errmsg)
-        End If
-
-        jsonData = Mid(jsonData, p1 + 4, Len(jsonData) - p1 - 3)
+    Public Shared Function ParseJson(data As String, start As Integer, [stop] As Integer) As YJSONContent
+      Dim cur_pos As Integer = SkipGarbage(data, start, [stop])
+      Dim res As YJSONContent
+      If data(cur_pos) = "["c Then
+        res = New YJSONArray(data, start, [stop])
+      ElseIf data(cur_pos) = "{"c Then
+        res = New YJSONObject(data, start, [stop])
+      ElseIf data(cur_pos) = """"c Then
+        res = New YJSONString(data, start, [stop])
       Else
-        Dim start_struct As Integer = InStr(jsonData, "{") REM json data is a structure
-        Dim start_array As Integer = InStr(jsonData, "[") REM json data is an array
-        If ((start_struct < 0) And (start_array < 0)) Then
-          errmsg = "data  does not contain JSON data "
-          Throw New System.Exception(errmsg)
-        End If
-
+        res = New YJSONNumber(data, start, [stop])
       End If
-      data = CType(Parse(jsonData), TJSONRECORD)
-    End Sub
-
-    Public Function convertToString(ByVal p As Nullable(Of TJSONRECORD), ByVal showNamePrefix As Boolean) As String
-      Dim buffer As String
-
-      If (p Is Nothing) Then p = data
-
-      If (p.Value.name <> "" And showNamePrefix) Then
-        buffer = """" + p.Value.name + """:"
-      Else
-        buffer = ""
-      End If
-
-      Select Case p.Value.recordtype
-        Case TJSONRECORDTYPE.JSON_STRING
-          buffer = buffer + """" + p.Value.svalue + """"
-        Case TJSONRECORDTYPE.JSON_INTEGER
-          buffer = buffer + CStr(p.Value.ivalue)
-        Case TJSONRECORDTYPE.JSON_BOOLEAN
-          If p.Value.bvalue Then
-            buffer = buffer + "TRUE"
-          Else
-            buffer = buffer + "FALSE"
-          End If
-        Case TJSONRECORDTYPE.JSON_STRUCT
-          buffer = buffer + "{"
-          For i As Integer = 0 To p.Value.membercount - 1
-            If (i > 0) Then buffer = buffer + ","
-            buffer = buffer + Me.convertToString(p.Value.members(i), True)
-          Next i
-          buffer = buffer + "}"
-        Case TJSONRECORDTYPE.JSON_ARRAY
-          buffer = buffer + "["
-          For i As Integer = 0 To p.Value.itemcount - 1
-            If (i > 0) Then buffer = buffer + ","
-            buffer = buffer + Me.convertToString(p.Value.items(i), False)
-          Next i
-          buffer = buffer + "]"
-      End Select
-
-      Return buffer
-    End Function
-
-
-
-    Public Sub Dispose()
-      freestructure(data)
-    End Sub
-
-    Public Function GetRootNode() As TJSONRECORD
-      GetRootNode = data
-    End Function
-
-    Private Function Parse(ByVal st As String) As Nullable(Of TJSONRECORD)
-      Dim i As Integer
-      i = 1
-      st = """root"" : " + st + " "
-      Parse = ParseEx(Tjstate.JWAITFORNAME, "", st, i)
-    End Function
-
-    Private Sub ParseError(ByRef st As String, ByVal i As Integer, ByVal errmsg As String)
-      Dim ststart, stend As Integer
-      ststart = i - 10
-      stend = i + 10
-      If (ststart < 1) Then ststart = 1
-      If (stend > Len(st)) Then stend = Len(st)
-      errmsg = errmsg + " near " + Mid(st, ststart, i - ststart) + "*" + Mid(st, i, stend - i)
-      Throw New System.Exception(errmsg)
-    End Sub
-
-    Private Function createStructRecord(ByVal name As String) As TJSONRECORD
-      Dim res As TJSONRECORD
-      res.recordtype = TJSONRECORDTYPE.JSON_STRUCT
-      res.name = name
-      res.svalue = ""
-      res.ivalue = 0
-      res.bvalue = False
-      res.membercount = 0
-      res.memberAllocated = JSONGRANULARITY
-      ReDim Preserve res.members(res.memberAllocated - 1)
-      res.itemcount = 0
-      res.itemAllocated = 0
-      res.items = Nothing
-      createStructRecord = res
-    End Function
-
-    Private Function createArrayRecord(ByVal name As String) As TJSONRECORD
-      Dim res As TJSONRECORD
-      res.recordtype = TJSONRECORDTYPE.JSON_ARRAY
-      res.name = name
-      res.svalue = ""
-      res.ivalue = 0
-      res.bvalue = False
-      res.itemcount = 0
-      res.itemAllocated = JSONGRANULARITY
-      ReDim Preserve res.items(res.itemAllocated - 1)
-      res.membercount = 0
-      res.memberAllocated = 0
-      res.members = Nothing
-      createArrayRecord = res
-    End Function
-
-    Private Function createStrRecord(ByVal name As String, ByVal value As String) As TJSONRECORD
-      Dim res As TJSONRECORD
-      res.recordtype = TJSONRECORDTYPE.JSON_STRING
-      res.name = name
-      res.svalue = value
-      res.ivalue = 0
-      res.bvalue = False
-      res.itemcount = 0
-      res.itemAllocated = 0
-      res.items = Nothing
-      res.membercount = 0
-      res.memberAllocated = 0
-      res.members = Nothing
-      createStrRecord = res
-    End Function
-
-    Private Function createIntRecord(ByVal name As String, ByVal value As Long) As TJSONRECORD
-      Dim res As TJSONRECORD
-      res.recordtype = TJSONRECORDTYPE.JSON_INTEGER
-      res.name = name
-      res.svalue = ""
-      res.ivalue = value
-      res.bvalue = False
-      res.itemcount = 0
-      res.itemAllocated = 0
-      res.items = Nothing
-      res.membercount = 0
-      res.memberAllocated = 0
-      res.members = Nothing
-      createIntRecord = res
-    End Function
-
-    Private Function createBoolRecord(ByVal name As String, ByVal value As Boolean) As TJSONRECORD
-      Dim res As TJSONRECORD
-      res.recordtype = TJSONRECORDTYPE.JSON_BOOLEAN
-      res.name = name
-      res.svalue = ""
-      res.ivalue = 0
-      res.bvalue = value
-      res.itemcount = 0
-      res.itemAllocated = 0
-      res.items = Nothing
-      res.membercount = 0
-      res.memberAllocated = 0
-      res.members = Nothing
-      createBoolRecord = res
-    End Function
-
-    Private Sub add2StructRecord(ByRef container As TJSONRECORD, ByRef element As TJSONRECORD)
-      If container.recordtype <> TJSONRECORDTYPE.JSON_STRUCT Then Throw New System.Exception("container is not a struct type")
-      If (container.membercount >= container.memberAllocated) Then
-        ReDim Preserve container.members(0 To container.memberAllocated + JSONGRANULARITY - 1)
-        container.memberAllocated = container.memberAllocated + JSONGRANULARITY
-      End If
-      container.members(container.membercount) = element
-      container.membercount = container.membercount + 1
-    End Sub
-
-    Private Sub add2ArrayRecord(ByRef container As TJSONRECORD, ByRef element As TJSONRECORD)
-      If container.recordtype <> TJSONRECORDTYPE.JSON_ARRAY Then Throw New System.Exception("container is not an array type")
-      If (container.itemcount >= container.itemAllocated) Then
-        ReDim Preserve container.items(0 To container.itemAllocated + JSONGRANULARITY - 1)
-        container.itemAllocated = container.itemAllocated + JSONGRANULARITY
-      End If
-      container.items(container.itemcount) = element
-      container.itemcount = container.itemcount + 1
-    End Sub
-
-    Private Function Skipgarbage(ByRef st As String, ByRef i As Integer) As Char
-      Dim sti As Char = CChar(Mid(st, i, 1))
-      While (i <= Len(st) And (sti = Chr(32) Or sti = Chr(13) Or sti = Chr(10)))
-        i = i + 1
-        If (i <= Len(st)) Then sti = CChar(Mid(st, i, 1))
-      End While
-      Skipgarbage = sti
-    End Function
-
-
-    Private Function ParseEx(ByVal initialstate As Tjstate, ByVal defaultname As String, ByRef st As String, ByRef i As Integer) As Nullable(Of TJSONRECORD)
-      Dim res, value As TJSONRECORD
-      Dim state As Tjstate
-      Dim svalue As String = ""
-      Dim ivalue, isign As Long
-      Dim sti As Char
-
-      Dim name As String
-
-      name = defaultname
-      state = initialstate
-      isign = 1
-      res = Nothing
-      ivalue = 0
-
-      While i < Len(st)
-        sti = CChar(Mid(st, i, 1))
-        Select Case state
-          Case Tjstate.JWAITFORNAME
-            If sti = """" Then
-              state = Tjstate.JWAITFORENDOFNAME
-            Else
-              If Asc(sti) <> 32 And Asc(sti) <> 13 And Asc(sti) <> 10 Then ParseError(st, i, "invalid char: was expecting """)
-            End If
-
-          Case Tjstate.JWAITFORENDOFNAME
-            If sti = """" Then
-              state = Tjstate.JWAITFORCOLON
-            Else
-              If Asc(sti) >= 32 Then name = name + sti Else ParseError(st, i, "invalid char: was expecting an identifier compliant char")
-            End If
-
-          Case Tjstate.JWAITFORCOLON
-            If sti = ":" Then
-              state = Tjstate.JWAITFORDATA
-            Else
-              If Asc(sti) <> 32 And Asc(sti) <> 13 And Asc(sti) <> 10 Then ParseError(st, i, "invalid char: was expecting """)
-            End If
-          Case Tjstate.JWAITFORDATA
-            If sti = "{" Then
-              res = createStructRecord(name)
-              state = Tjstate.JWAITFORNEXTSTRUCTMEMBER
-            ElseIf sti = "[" Then
-              res = createArrayRecord(name)
-              state = Tjstate.JWAITFORNEXTARRAYITEM
-            ElseIf sti = """" Then
-              svalue = ""
-              state = Tjstate.JWAITFORSTRINGVALUE
-            ElseIf sti >= "0" And sti <= "9" Then
-              state = Tjstate.JWAITFORINTVALUE
-              ivalue = Asc(sti) - 48
-              isign = 1
-            ElseIf sti = "-" Then
-              state = Tjstate.JWAITFORINTVALUE
-              ivalue = 0
-              isign = -1
-            ElseIf UCase(sti) = "T" Or UCase(sti) = "F" Then
-              svalue = UCase(sti)
-              state = Tjstate.JWAITFORBOOLVALUE
-            ElseIf Asc(sti) <> 32 And Asc(sti) <> 13 And Asc(sti) <> 10 Then
-              ParseError(st, i, "invalid char: was expecting  "",0..9,t or f")
-            End If
-          Case Tjstate.JWAITFORSTRINGVALUE
-            If sti = "\" And i + 1 < Len(st) Then
-              svalue = svalue + CChar(Mid(st, i + 1, 1))
-              i = i + 1
-            ElseIf sti = """" Then
-              state = Tjstate.JSCOMPLETED
-              res = createStrRecord(name, svalue)
-            ElseIf Asc(sti) < 32 Then
-              ParseError(st, i, "invalid char: was expecting string value")
-            Else
-              svalue = svalue + sti
-            End If
-          Case Tjstate.JWAITFORINTVALUE
-            If sti >= "0" And sti <= "9" Then
-              ivalue = (ivalue * 10) + Asc(sti) - 48
-            Else
-              res = createIntRecord(name, isign * ivalue)
-              state = Tjstate.JSCOMPLETED
-              i = i - 1
-            End If
-          Case Tjstate.JWAITFORBOOLVALUE
-            If UCase(sti) < "A" Or UCase(sti) > "Z" Then
-              If svalue <> "TRUE" And svalue <> "FALSE" Then ParseError(st, i, "unexpected value, was expecting ""true"" or ""false""")
-              If svalue = "TRUE" Then res = createBoolRecord(name, True) Else res = createBoolRecord(name, False)
-              state = Tjstate.JSCOMPLETED
-              i = i - 1
-            Else
-              svalue = svalue + UCase(sti)
-            End If
-          Case Tjstate.JWAITFORNEXTSTRUCTMEMBER
-            sti = Skipgarbage(st, i)
-            If (i <= Len(st)) Then
-              If sti = "}" Then
-                ParseEx = res
-                i = i + 1
-                Exit Function
-              Else
-                value = CType(ParseEx(Tjstate.JWAITFORNAME, "", st, i), TJSONRECORD)
-                add2StructRecord(res, value)
-                sti = Skipgarbage(st, i)
-                If i < Len(st) Then
-                  If sti = "}" And i < Len(st) Then
-                    i = i - 1
-                  ElseIf Asc(sti) <> 32 And Asc(sti) <> 13 And Asc(sti) <> 10 And sti <> "," Then
-                    ParseError(st, i, "invalid char: vas expecting , or }")
-                  End If
-                End If
-              End If
-
-            End If
-          Case Tjstate.JWAITFORNEXTARRAYITEM
-            sti = Skipgarbage(st, i)
-            If i < Len(st) Then
-              If sti = "]" Then
-                ParseEx = res
-                i = i + 1
-                Exit Function
-              Else
-                value = CType(ParseEx(Tjstate.JWAITFORDATA, Str(res.itemcount), st, i), TJSONRECORD)
-                add2ArrayRecord(res, value)
-                sti = Skipgarbage(st, i)
-                If i < Len(st) Then
-                  If sti = "]" And i < Len(st) Then
-                    i = i - 1
-                  ElseIf Asc(sti) <> 32 And Asc(sti) <> 13 And Asc(sti) <> 10 And sti <> "," Then
-                    ParseError(st, i, "invalid char: vas expecting , or ]")
-                  End If
-                End If
-              End If
-            End If
-          Case Tjstate.JSCOMPLETED
-            ParseEx = res
-            Exit Function
-        End Select
-        i = i + 1
-      End While
-      ParseError(st, i, "unexpected end of data")
-      ParseEx = Nothing
-    End Function
-
-    Private Sub DumpStructureRec(ByRef p As TJSONRECORD, ByRef deep As Integer)
-      Dim line, indent As String
-      Dim i As Integer
-      line = ""
-      indent = ""
-      For i = 0 To deep * 2
-        indent = indent + " "
-      Next i
-      line = indent + p.name + ":"
-      Select Case p.recordtype
-        Case TJSONRECORDTYPE.JSON_STRING
-          line = line + " str=" + p.svalue
-          Console.WriteLine(line)
-        Case TJSONRECORDTYPE.JSON_INTEGER
-          line = line + " int =" + Str(p.ivalue)
-          Console.WriteLine(line)
-        Case TJSONRECORDTYPE.JSON_BOOLEAN
-          If p.bvalue Then line = line + " bool = TRUE" Else line = line + " bool = FALSE"
-          Console.WriteLine(line)
-        Case TJSONRECORDTYPE.JSON_STRUCT
-          Console.WriteLine(line + " struct")
-          For i = 0 To p.membercount - 1
-            DumpStructureRec(p.members(i), deep + 1)
-          Next i
-        Case TJSONRECORDTYPE.JSON_ARRAY
-          Console.WriteLine(line + " array")
-          For i = 0 To p.itemcount - 1
-            DumpStructureRec(p.items(i), deep + 1)
-          Next i
-      End Select
-    End Sub
-
-
-    Private Sub freestructure(ByRef p As TJSONRECORD)
-      Select Case p.recordtype
-        Case TJSONRECORDTYPE.JSON_STRUCT
-          For i As Integer = p.membercount - 1 To 0 Step -1
-            freestructure(p.members(i))
-          Next i
-          ReDim p.members(0)
-
-        Case TJSONRECORDTYPE.JSON_ARRAY
-          For i As Integer = p.itemcount - 1 To 0 Step -1
-            freestructure(p.items(i))
-          Next i
-          ReDim p.items(0)
-      End Select
-    End Sub
-
-
-    Public Sub DumpStructure()
-      DumpStructureRec(data, 0)
-    End Sub
-
-
-
-
-    Public Function GetChildNode(ByVal parent As Nullable(Of TJSONRECORD), ByVal nodename As String) As Nullable(Of TJSONRECORD)
-      Dim i, index As Integer
-      Dim p As Nullable(Of TJSONRECORD) = parent
-
-      If p Is Nothing Then p = data
-
-      If p.Value.recordtype = TJSONRECORDTYPE.JSON_STRUCT Then
-        For i = 0 To p.Value.membercount - 1
-          If p.Value.members(i).name = nodename Then
-            GetChildNode = p.Value.members(i)
-            Exit Function
-          End If
-
-        Next
-      ElseIf p.Value.recordtype = TJSONRECORDTYPE.JSON_ARRAY Then
-        index = CInt(Val(nodename))
-        If (index >= p.Value.itemcount) Then Throw New System.Exception("index out of bounds " + nodename + ">=" + Str(p.Value.itemcount))
-        GetChildNode = p.Value.items(index)
-        Exit Function
-      End If
-
-      GetChildNode = Nothing
-    End Function
-
-    Public Function GetAllChilds(ByVal parent As Nullable(Of TJSONRECORD)) As List(Of String)
-      Dim res As List(Of String) = New List(Of String)()
-      Dim p As Nullable(Of TJSONRECORD) = parent
-
-      If p Is Nothing Then p = data
-
-      If (p.Value.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-        For i As Integer = 0 To p.Value.membercount - 1
-          res.Add(Me.convertToString(p.Value.members(i), False))
-        Next i
-      ElseIf (p.Value.recordtype = TJSONRECORDTYPE.JSON_ARRAY) Then
-        For i As Integer = 0 To p.Value.itemcount - 1
-          res.Add(Me.convertToString(p.Value.items(i), False))
-        Next i
-      End If
+      res.parse()
       Return res
+    End Function
+
+    Protected Sub New(data As String, start As Integer, [stop] As Integer, type As YJSONType)
+      _data = data
+      _data_start = start
+      _data_boundary = [stop]
+      _type = type
+    End Sub
+
+    Protected Sub New(type As YJSONType)
+      _data = Nothing
+    End Sub
+
+    Public Function getJSONType() As YJSONType
+      Return _type
+    End Function
+    Public MustOverride Function parse() As Integer
+
+    Protected Shared Function SkipGarbage(data As String, start As Integer, [stop] As Integer) As Integer
+      If data.Length <= start Then
+        Return start
+      End If
+      Dim sti As Char = data(start)
+      While start < [stop] AndAlso (sti = ControlChars.Lf OrElse sti = ControlChars.Cr OrElse sti = " "c)
+        start += 1
+      End While
+      Return start
+    End Function
+
+    Protected Function FormatError(errmsg As String, cur_pos As Integer) As String
+      Dim ststart As Integer = cur_pos - 10
+      Dim stend As Integer = cur_pos + 10
+      If ststart < 0 Then
+        ststart = 0
+      End If
+      If stend > _data_boundary Then
+        stend = _data_boundary
+      End If
+      If _data Is Nothing Then
+        Return errmsg
+      End If
+      Return (errmsg & Convert.ToString(" near ")) + _data.Substring(ststart, cur_pos - ststart) + _data.Substring(cur_pos, stend - cur_pos)
+    End Function
+
+    Public MustOverride Function toJSON() As String
+  End Class
+
+  Friend Class YJSONArray
+    Inherits YJSONContent
+    Private _arrayValue As New List(Of YJSONContent)()
+
+    Public Sub New(data As String, start As Integer, [stop] As Integer)
+      MyBase.New(data, start, [stop], YJSONType.ARRAY)
+    End Sub
+
+    Public Sub New(data As String)
+      Me.New(data, 0, data.Length)
+    End Sub
+
+    Public Sub New()
+      MyBase.New(YJSONType.ARRAY)
+    End Sub
+
+    Public ReadOnly Property Length() As Integer
+      Get
+        Return _arrayValue.Count
+      End Get
+    End Property
+
+    Public Overrides Function parse() As Integer
+      Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
+
+      If _data(cur_pos) <> "["c Then
+        Throw New System.Exception(FormatError("Opening braces was expected", cur_pos))
+      End If
+      cur_pos += 1
+      Dim state As Tjstate = Tjstate.JWAITFORDATA
+
+      While cur_pos < _data_boundary
+        Dim sti As Char = _data(cur_pos)
+        Dim inc_pos As Boolean = True
+        Select Case state
+          Case Tjstate.JWAITFORDATA
+            If sti = "{"c Then
+              Dim jobj As New YJSONObject(_data, cur_pos, _data_boundary)
+              Dim len As Integer = jobj.parse()
+              cur_pos += len
+              _arrayValue.Add(jobj)
+              state = Tjstate.JWAITFORNEXTARRAYITEM
+              'cur_pos is already incremented
+              inc_pos = False
+              Exit Select
+            ElseIf sti = "["c Then
+              Dim jobj As New YJSONArray(_data, cur_pos, _data_boundary)
+              Dim len As Integer = jobj.parse()
+              cur_pos += len
+              _arrayValue.Add(jobj)
+              state = Tjstate.JWAITFORNEXTARRAYITEM
+              'cur_pos is already incremented
+              inc_pos = False
+              Exit Select
+            ElseIf sti = """"c Then
+              Dim jobj As New YJSONString(_data, cur_pos, _data_boundary)
+              Dim len As Integer = jobj.parse()
+              cur_pos += len
+              _arrayValue.Add(jobj)
+              state = Tjstate.JWAITFORNEXTARRAYITEM
+              'cur_pos is already incremented
+              inc_pos = False
+              Exit Select
+            ElseIf sti = "-"c OrElse (sti >= "0"c AndAlso sti <= "9"c) Then
+              Dim jobj As New YJSONNumber(_data, cur_pos, _data_boundary)
+              Dim len As Integer = jobj.parse()
+              cur_pos += len
+              _arrayValue.Add(jobj)
+              state = Tjstate.JWAITFORNEXTARRAYITEM
+              'cur_pos is already incremented
+              inc_pos = False
+              Exit Select
+            ElseIf sti = "]"c Then
+              _data_len = cur_pos + 1 - _data_start
+              Return _data_len
+            ElseIf sti <> " "c AndAlso sti <> ControlChars.Lf AndAlso sti <> ControlChars.Cr Then
+              Throw New System.Exception(FormatError("invalid char: was expecting  "",0..9,t or f", cur_pos))
+            End If
+            Exit Select
+          Case Tjstate.JWAITFORNEXTARRAYITEM
+            If sti = ","c Then
+              state = Tjstate.JWAITFORDATA
+            ElseIf sti = "]"c Then
+              _data_len = cur_pos + 1 - _data_start
+              Return _data_len
+            Else
+              If sti <> " "c AndAlso sti <> ControlChars.Lf AndAlso sti <> ControlChars.Cr Then
+                Throw New System.Exception(FormatError("invalid char: was expecting ,", cur_pos))
+              End If
+            End If
+            Exit Select
+          Case Else
+            Throw New System.Exception(FormatError("invalid state for YJSONObject", cur_pos))
+        End Select
+        If inc_pos Then cur_pos += 1
+      End While
+      Throw New System.Exception(FormatError("unexpected end of data", cur_pos))
+    End Function
+
+    Public Function getYJSONObject(i As Integer) As YJSONObject
+      Return DirectCast(_arrayValue(i), YJSONObject)
+    End Function
+
+    Public Function getString(i As Integer) As String
+      Dim ystr As YJSONString = DirectCast(_arrayValue(i), YJSONString)
+      Return ystr.getString()
+    End Function
+
+    Public Function [get](i As Integer) As YJSONContent
+      Return _arrayValue(i)
+    End Function
+
+    Public Function getYJSONArray(i As Integer) As YJSONArray
+      Return DirectCast(_arrayValue(i), YJSONArray)
+    End Function
+
+    Public Function getInt(i As Integer) As Integer
+      Dim ystr As YJSONNumber = DirectCast(_arrayValue(i), YJSONNumber)
+      Return ystr.getInt()
+    End Function
+
+    Public Function getLong(i As Integer) As Long
+      Dim ystr As YJSONNumber = DirectCast(_arrayValue(i), YJSONNumber)
+      Return ystr.getLong()
+    End Function
+
+    Public Sub put(flatAttr As String)
+      Dim strobj As New YJSONString()
+      strobj.setContent(flatAttr)
+      _arrayValue.Add(strobj)
+    End Sub
+
+    Public Overrides Function toJSON() As String
+      Dim res As New StringBuilder()
+      res.Append("["c)
+      Dim sep As String = ""
+      For Each yjsonContent As YJSONContent In _arrayValue
+        Dim subres As String = yjsonContent.toJSON()
+        res.Append(sep)
+        res.Append(subres)
+        sep = ","
+      Next
+      res.Append("]"c)
+      Return res.ToString()
+    End Function
+
+    Public Overrides Function ToString() As String
+      Dim res As New StringBuilder()
+      res.Append("["c)
+      Dim sep As String = ""
+      For Each yjsonContent As YJSONContent In _arrayValue
+        Dim subres As String = yjsonContent.ToString()
+        res.Append(sep)
+        res.Append(subres)
+        sep = ","
+      Next
+      res.Append("]"c)
+      Return res.ToString()
     End Function
   End Class
 
+  Friend Class YJSONString
+    Inherits YJSONContent
+    Private _stringValue As String
+
+    Public Sub New(data As String, start As Integer, [stop] As Integer)
+      MyBase.New(data, start, [stop], YJSONType.[STRING])
+    End Sub
+
+    Public Sub New(data As String)
+      Me.New(data, 0, data.Length)
+    End Sub
+
+    Public Sub New()
+      MyBase.New(YJSONType.[STRING])
+    End Sub
+
+    Public Overrides Function parse() As Integer
+      Dim value As String = ""
+      Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
+
+      If _data(cur_pos) <> """"c Then
+        Throw New System.Exception(FormatError("double quote was expected", cur_pos))
+      End If
+      cur_pos += 1
+      Dim str_start As Integer = cur_pos
+      Dim state As Tjstate = Tjstate.JWAITFORSTRINGVALUE
+
+      While cur_pos < _data_boundary
+        Dim sti As Char = _data(cur_pos)
+        Select Case state
+          Case Tjstate.JWAITFORSTRINGVALUE
+            If sti = "\"c Then
+              value += _data.Substring(str_start, cur_pos - str_start)
+              str_start = cur_pos
+              state = Tjstate.JWAITFORSTRINGVALUE_ESC
+            ElseIf sti = """"c Then
+              value += _data.Substring(str_start, cur_pos - str_start)
+              _stringValue = value
+              _data_len = (cur_pos + 1) - _data_start
+              Return _data_len
+            ElseIf Asc(sti) < 32 Then
+              Throw New System.Exception(FormatError("invalid char: was expecting string value", cur_pos))
+            End If
+            Exit Select
+          Case Tjstate.JWAITFORSTRINGVALUE_ESC
+            value += sti
+            state = Tjstate.JWAITFORSTRINGVALUE
+            str_start = cur_pos + 1
+            Exit Select
+          Case Else
+            Throw New System.Exception(FormatError("invalid state for YJSONObject", cur_pos))
+        End Select
+        cur_pos += 1
+      End While
+      Throw New System.Exception(FormatError("unexpected end of data", cur_pos))
+    End Function
+
+    Public Overrides Function toJSON() As String
+      Dim res As New StringBuilder(_stringValue.Length * 2)
+      res.Append(""""c)
+      For Each c As Char In _stringValue
+        Select Case c
+          Case """"c
+            res.Append("\""")
+            Exit Select
+          Case "\"c
+            res.Append("\\")
+            Exit Select
+          Case "/"c
+            res.Append("\/")
+            Exit Select
+          Case ControlChars.Back
+            res.Append("\b")
+            Exit Select
+          Case ControlChars.FormFeed
+            res.Append("\f")
+            Exit Select
+          Case ControlChars.Lf
+            res.Append("\n")
+            Exit Select
+          Case ControlChars.Cr
+            res.Append("\r")
+            Exit Select
+          Case ControlChars.Tab
+            res.Append("\t")
+            Exit Select
+          Case Else
+            res.Append(c)
+            Exit Select
+        End Select
+      Next
+      res.Append(""""c)
+      Return res.ToString()
+    End Function
+
+    Public Function getString() As String
+      Return _stringValue
+    End Function
+
+    Public Overrides Function ToString() As String
+      Return _stringValue
+    End Function
+
+    Public Sub setContent(value As String)
+      _stringValue = value
+    End Sub
+  End Class
+
+
+  Friend Class YJSONNumber
+    Inherits YJSONContent
+    Private _intValue As Long = 0
+    Private _doubleValue As Double = 0
+    Private _isFloat As Boolean = False
+
+    Public Sub New(data As String, start As Integer, [stop] As Integer)
+      MyBase.New(data, start, [stop], YJSONType.NUMBER)
+    End Sub
+
+    Public Overrides Function parse() As Integer
+
+      Dim neg As Boolean = False
+      Dim start As Integer, dotPos As Integer
+      Dim sti As Char
+      Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
+      sti = _data(cur_pos)
+      If sti = "-"c Then
+        neg = True
+        cur_pos += 1
+      End If
+      start = cur_pos
+      dotPos = start
+      While cur_pos < _data_boundary
+        sti = _data(cur_pos)
+        If sti = "."c AndAlso _isFloat = False Then
+          Dim int_part As String = _data.Substring(start, cur_pos - start)
+          _intValue = Convert.ToInt64(int_part)
+          _isFloat = True
+        ElseIf sti < "0"c OrElse sti > "9"c Then
+          Dim numberpart As String = _data.Substring(start, cur_pos - start)
+          If _isFloat Then
+            _doubleValue = Convert.ToDouble(numberpart)
+          Else
+            _intValue = Convert.ToInt64(numberpart)
+          End If
+          If neg Then
+            _doubleValue = 0 - _doubleValue
+            _intValue = 0 - _intValue
+          End If
+          Return cur_pos - _data_start
+        End If
+        cur_pos += 1
+      End While
+      Throw New System.Exception(FormatError("unexpected end of data", cur_pos))
+    End Function
+
+    Public Overrides Function toJSON() As String
+      If _isFloat Then
+        Return _doubleValue.ToString()
+      Else
+        Return _intValue.ToString()
+      End If
+    End Function
+
+    Public Function getLong() As Long
+      If _isFloat Then
+        Return CLng(_doubleValue)
+      Else
+        Return _intValue
+      End If
+    End Function
+
+    Public Function getInt() As Integer
+      If _isFloat Then
+        Return CInt(_doubleValue)
+      Else
+        Return CInt(_intValue)
+      End If
+    End Function
+
+    Public Function getDouble() As Double
+      If _isFloat Then
+        Return _doubleValue
+      Else
+        Return _intValue
+      End If
+    End Function
+
+    Public Overrides Function ToString() As String
+      If _isFloat Then
+        Return _doubleValue.ToString()
+      Else
+        Return _intValue.ToString()
+      End If
+    End Function
+  End Class
+
+
+  Public Class YJSONObject
+    Inherits YJSONContent
+    ReadOnly parsed As New Dictionary(Of String, YJSONContent)()
+    ReadOnly _keys As New List(Of String)(16)
+
+    Public Sub New(data As String)
+      MyBase.New(data, 0, data.Length, YJSONType.[OBJECT])
+    End Sub
+
+    Public Sub New(data As String, start As Integer, len As Integer)
+      MyBase.New(data, start, len, YJSONType.[OBJECT])
+    End Sub
+
+    Public Overrides Function parse() As Integer
+      Dim current_name As String = ""
+      Dim name_start As Integer = _data_start
+      Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
+
+      If _data.Length <= cur_pos OrElse _data(cur_pos) <> "{"c Then
+        Throw New System.Exception(FormatError("Opening braces was expected", cur_pos))
+      End If
+      cur_pos += 1
+      Dim state As Tjstate = Tjstate.JWAITFORNAME
+
+      While cur_pos < _data_boundary
+        Dim sti As Char = _data(cur_pos)
+        Dim inc_pos As Boolean = True
+        Select Case state
+          Case Tjstate.JWAITFORNAME
+            If sti = """"c Then
+              state = Tjstate.JWAITFORENDOFNAME
+              name_start = cur_pos + 1
+            ElseIf sti = "}"c Then
+              _data_len = cur_pos + 1 - _data_start
+              Return _data_len
+            Else
+              If sti <> " "c AndAlso sti <> ControlChars.Lf AndAlso sti <> ControlChars.Cr Then
+                Throw New System.Exception(FormatError("invalid char: was expecting """, cur_pos))
+              End If
+            End If
+            Exit Select
+          Case Tjstate.JWAITFORENDOFNAME
+            If sti = """"c Then
+              current_name = _data.Substring(name_start, cur_pos - name_start)
+
+              state = Tjstate.JWAITFORCOLON
+            Else
+              If Asc(sti) < 32 Then
+                Throw New System.Exception(FormatError("invalid char: was expecting an identifier compliant char", cur_pos))
+              End If
+            End If
+            Exit Select
+          Case Tjstate.JWAITFORCOLON
+            If sti = ":"c Then
+              state = Tjstate.JWAITFORDATA
+            Else
+              If sti <> " "c AndAlso sti <> ControlChars.Lf AndAlso sti <> ControlChars.Cr Then
+                Throw New System.Exception(FormatError("invalid char: was expecting """, cur_pos))
+              End If
+            End If
+            Exit Select
+          Case Tjstate.JWAITFORDATA
+            If sti = "{"c Then
+              Dim jobj As New YJSONObject(_data, cur_pos, _data_boundary)
+              Dim len As Integer = jobj.parse()
+              cur_pos += len
+              parsed.Add(current_name, jobj)
+              _keys.Add(current_name)
+              state = Tjstate.JWAITFORNEXTSTRUCTMEMBER
+              'cur_pos is already incremented
+              inc_pos = False
+              Exit Select
+            ElseIf sti = "["c Then
+              Dim jobj As New YJSONArray(_data, cur_pos, _data_boundary)
+              Dim len As Integer = jobj.parse()
+              cur_pos += len
+              parsed.Add(current_name, jobj)
+              _keys.Add(current_name)
+              state = Tjstate.JWAITFORNEXTSTRUCTMEMBER
+              'cur_pos is already incremented
+              inc_pos = False
+              Exit Select
+            ElseIf sti = """"c Then
+              Dim jobj As New YJSONString(_data, cur_pos, _data_boundary)
+              Dim len As Integer = jobj.parse()
+              cur_pos += len
+              parsed.Add(current_name, jobj)
+              _keys.Add(current_name)
+              state = Tjstate.JWAITFORNEXTSTRUCTMEMBER
+              'cur_pos is already incremented
+              inc_pos = False
+              Exit Select
+            ElseIf sti = "-"c OrElse (sti >= "0"c AndAlso sti <= "9"c) Then
+              Dim jobj As New YJSONNumber(_data, cur_pos, _data_boundary)
+              Dim len As Integer = jobj.parse()
+              cur_pos += len
+              parsed.Add(current_name, jobj)
+              _keys.Add(current_name)
+              state = Tjstate.JWAITFORNEXTSTRUCTMEMBER
+              'cur_pos is already incremented
+              inc_pos = False
+              Exit Select
+            ElseIf sti <> " "c AndAlso sti <> ControlChars.Lf AndAlso sti <> ControlChars.Cr Then
+              Throw New System.Exception(FormatError("invalid char: was expecting  "",0..9,t or f", cur_pos))
+            End If
+            Exit Select
+          Case Tjstate.JWAITFORNEXTSTRUCTMEMBER
+            If sti = ","c Then
+              state = Tjstate.JWAITFORNAME
+              name_start = cur_pos + 1
+            ElseIf sti = "}"c Then
+              _data_len = cur_pos + 1 - _data_start
+              Return _data_len
+            Else
+              If sti <> " "c AndAlso sti <> ControlChars.Lf AndAlso sti <> ControlChars.Cr Then
+                Throw New System.Exception(FormatError("invalid char: was expecting ,", cur_pos))
+              End If
+            End If
+            Exit Select
+          Case Tjstate.JWAITFORNEXTARRAYITEM, Tjstate.JWAITFORSTRINGVALUE, Tjstate.JWAITFORINTVALUE, Tjstate.JWAITFORBOOLVALUE
+            Throw New System.Exception(FormatError("invalid state for YJSONObject", cur_pos))
+        End Select
+        If inc_pos Then cur_pos += 1
+      End While
+      Throw New System.Exception(FormatError("unexpected end of data", cur_pos))
+    End Function
+
+    Public Function has(key As String) As Boolean
+      Return parsed.ContainsKey(key)
+    End Function
+
+    Public Function getYJSONObject(key As String) As YJSONObject
+      Return DirectCast(parsed(key), YJSONObject)
+    End Function
+
+    Friend Function getYJSONString(key As String) As YJSONString
+      Return DirectCast(parsed(key), YJSONString)
+    End Function
+
+    Friend Function getYJSONArray(key As String) As YJSONArray
+      Return DirectCast(parsed(key), YJSONArray)
+    End Function
+
+    Public Function keys() As List(Of String)
+      Return parsed.Keys.ToList()
+    End Function
+
+    Friend Function getYJSONNumber(key As String) As YJSONNumber
+      Return DirectCast(parsed(key), YJSONNumber)
+    End Function
+
+    Public Sub remove(key As String)
+      parsed.Remove(key)
+    End Sub
+
+    Public Function getString(key As String) As String
+      Dim ystr As YJSONString = DirectCast(parsed(key), YJSONString)
+      Return ystr.getString()
+    End Function
+
+    Public Function getInt(key As String) As Integer
+      Dim yint As YJSONNumber = DirectCast(parsed(key), YJSONNumber)
+      Return yint.getInt()
+    End Function
+
+    Public Function [get](key As String) As YJSONContent
+      Return parsed(key)
+    End Function
+
+    Public Function getLong(key As String) As Long
+      Dim yint As YJSONNumber = DirectCast(parsed(key), YJSONNumber)
+      Return yint.getLong()
+    End Function
+
+    Public Function getDouble(key As String) As Double
+      Dim yint As YJSONNumber = DirectCast(parsed(key), YJSONNumber)
+      Return yint.getDouble()
+    End Function
+
+    Public Overrides Function toJSON() As String
+      Dim res As New StringBuilder()
+      res.Append("{"c)
+      Dim sep As String = ""
+      For Each key As String In parsed.Keys.ToArray()
+        Dim subContent As YJSONContent = parsed(key)
+        Dim subres As String = subContent.toJSON()
+        res.Append(sep)
+        res.Append(""""c)
+        res.Append(key)
+        res.Append(""":")
+        res.Append(subres)
+        sep = ","
+      Next
+      res.Append("}"c)
+      Return res.ToString()
+    End Function
+
+    Public Overrides Function ToString() As String
+      Dim res As New StringBuilder()
+      res.Append("{"c)
+      Dim sep As String = ""
+      For Each key As String In parsed.Keys.ToArray()
+        Dim subContent As YJSONContent = parsed(key)
+        Dim subres As String = subContent.ToString()
+        res.Append(sep)
+        res.Append(key)
+        res.Append("=>")
+        res.Append(subres)
+        sep = ","
+      Next
+      res.Append("}"c)
+      Return res.ToString()
+    End Function
+
+
+
+    Public Sub parseWithRef(reference As YJSONObject)
+      If reference IsNot Nothing Then
+        Try
+          Dim yzon As New YJSONArray(_data, _data_start, _data_boundary)
+          yzon.parse()
+          convert(reference, yzon)
+          Return
+
+        Catch generatedExceptionName As Exception
+        End Try
+      End If
+      Me.parse()
+    End Sub
+
+    Private Sub convert(reference As YJSONObject, newArray As YJSONArray)
+      Dim length As Integer = newArray.Length
+      For i As Integer = 0 To length - 1
+        Dim key As String = reference.getKeyFromIdx(i)
+        Dim new_item As YJSONContent = newArray.[get](i)
+        Dim reference_item As YJSONContent = reference.[get](key)
+
+        If new_item.getJSONType() = reference_item.getJSONType() Then
+          parsed.Add(key, new_item)
+          _keys.Add(key)
+        ElseIf new_item.getJSONType() = YJSONType.ARRAY AndAlso reference_item.getJSONType() = YJSONType.[OBJECT] Then
+          Dim jobj As New YJSONObject(new_item._data, new_item._data_start, reference_item._data_boundary)
+          jobj.convert(DirectCast(reference_item, YJSONObject), DirectCast(new_item, YJSONArray))
+          parsed.Add(key, jobj)
+          _keys.Add(key)
+        Else
+
+          Throw New System.Exception("Unable to convert " + new_item.getJSONType().ToString() + " to " + reference.getJSONType().ToString())
+        End If
+      Next
+    End Sub
+
+    Private Function getKeyFromIdx(i As Integer) As String
+      Return _keys(i)
+    End Function
+
+  End Class
+
+
+  '=======================================================
+  'Service provided by Telerik (www.telerik.com)
+  'Conversion powered by NRefactory.
+  'Twitter: @telerik
+  'Facebook: facebook.com/telerik
+  '=======================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "27127"
+  Public Const YOCTO_API_BUILD_NO As String = "27243"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -659,6 +882,53 @@ Module yocto_api
     Public Const FILE_NOT_FOUND As Integer = -14 REM the file is not found
 
     REM --- (end of generated code: YFunction return codes)
+
+
+
+    Friend Shared Function ParseHTTP(data As String, start As Integer, [stop] As Integer, ByRef headerlen As Integer, ByRef errmsg As String) As Integer
+      Const httpheader As String = "HTTP/1.1 "
+      Const okHeader As String = "OK" & vbCr & vbLf
+      Dim p1 As Integer = 0
+      Dim p2 As Integer = 0
+      Const CR As String = vbCr & vbLf
+      Dim httpcode As Integer
+
+      If ([stop] - start) > okHeader.Length AndAlso data.Substring(start, okHeader.Length) = okHeader Then
+        httpcode = 200
+        errmsg = ""
+      Else
+        If ([stop] - start) < httpheader.Length OrElse data.Substring(start, httpheader.Length) <> httpheader Then
+          errmsg = Convert.ToString("data should start with ") & httpheader
+          headerlen = 0
+          Return -1
+        End If
+
+        p1 = data.IndexOf(" ", start + httpheader.Length - 1)
+        p2 = data.IndexOf(" ", p1 + 1)
+        If p1 < 0 OrElse p2 < 0 Then
+          errmsg = "Invalid HTTP header (invalid first line)"
+          headerlen = 0
+          Return -1
+        End If
+
+        httpcode = Convert.ToInt32(data.Substring(p1, p2 - p1 + 1))
+        If httpcode <> 200 Then
+          errmsg = String.Format("Unexpected HTTP return code:{0}", httpcode)
+        Else
+          errmsg = ""
+        End If
+      End If
+      p1 = data.IndexOf(CR & CR, start)
+      'json data is a structure
+      If p1 < 0 Then
+        errmsg = "Invalid HTTP header (missing header end)"
+        headerlen = 0
+        Return -1
+      End If
+      headerlen = p1 + 4
+      Return httpcode
+    End Function
+
 
     REM calibration handlers
     Private Shared _CalibHandlers As New Dictionary(Of String, yCalibrationHandler)
@@ -1623,7 +1893,7 @@ Module yocto_api
     '''/
     Public Shared Sub RegisterDeviceArrivalCallback(ByVal arrivalCallback As yDeviceUpdateFunc)
       yArrival = arrivalCallback
-      If (arrivalCallback <> Nothing) Then
+      If Not (arrivalCallback Is Nothing) Then
         Dim m As YModule = YModule.FirstModule()
         Dim errmsg As String = ""
         While m IsNot Nothing
@@ -1952,7 +2222,7 @@ Module yocto_api
       _serial = serial
       _firmwarepath = path
       _settings = settings
-      _force = false
+      _force = False
       REM --- (generated code: YFirmwareUpdate attributes initialization)
       _progress_c = 0
       _progress = 0
@@ -3167,71 +3437,62 @@ Module yocto_api
 
 
     Public Function _parse(data As String) As Integer
-      Dim p As TJsonParser
-      Dim obj As Object
-      Dim node As TJSONRECORD
-      Dim arr As TJSONRECORD
-      Dim stream As YDataStream
-      Dim summaryMinVal As Double = Double.MaxValue
-      Dim summaryMaxVal As Double = -Double.MaxValue
-      Dim summaryTotalTime As Double = 0
-      Dim summaryTotalAvg As Double = 0
-      Dim streamStartTime As Long
-      Dim streamEndTime As Long
-      Dim startTime As Long = &H7FFFFFFF
-      Dim endTime As Long = 0
+      Dim p As New YJSONObject(data)
+      Dim arr As YJSONArray
 
-      If Not (YAPI.ExceptionsDisabled) Then
-        p = New TJsonParser(data, False)
+      If Not YAPI.ExceptionsDisabled Then
+        p.parse()
       Else
         Try
-          p = New TJsonParser(data, False)
-        Catch E As Exception
-          Return YAPI_NOT_SUPPORTED
-          Exit Function
+          p.parse()
+        Catch
+          Return YAPI.IO_ERROR
         End Try
       End If
 
+      Dim stream As YDataStream
+      Dim streamStartTime As Long
+      Dim streamEndTime As Long
+      Dim startTime As Long = &H7fffffff
+      Dim endTime As Long = 0
+      Dim summaryMinVal As Double = [Double].MaxValue
+      Dim summaryMaxVal As Double = -[Double].MaxValue
+      Dim summaryTotalTime As Double = 0
+      Dim summaryTotalAvg As Double = 0
 
-      node = CType(p.GetChildNode(Nothing, "id"), TJSONRECORD)
-      _functionId = node.svalue
-      node = CType(p.GetChildNode(Nothing, "unit"), TJSONRECORD)
-      _unit = node.svalue
-      obj = p.GetChildNode(Nothing, "calib")
-      If (Not (obj Is Nothing)) Then
-        node = CType(obj, TJSONRECORD)
-        _calib = YAPI._decodeFloats(node.svalue)
-        _calib(0) = _calib(0) \ 1000
+      Me._functionId = p.getString("id")
+      Me._unit = p.getString("unit")
+      If p.has("calib") Then
+        Me._calib = YAPI._decodeFloats(p.getString("calib"))
+        Me._calib(0) = Me._calib(0) \ 1000
       Else
-        node = CType(p.GetChildNode(Nothing, "cal"), TJSONRECORD)
-        _calib = YAPI._decodeWords(node.svalue)
+        Me._calib = YAPI._decodeWords(p.getString("cal"))
       End If
-      arr = CType(p.GetChildNode(Nothing, "streams"), TJSONRECORD)
-      _streams = New List(Of YDataStream)()
-      _preview = New List(Of YMeasure)()
-      _measures = New List(Of YMeasure)()
-
-      For i As Integer = 0 To arr.itemcount - 1 Step 1
-        stream = _parent._findDataStream(Me, arr.items.ElementAt(i).svalue)
+      arr = p.getYJSONArray("streams")
+      Me._streams = New List(Of YDataStream)()
+      Me._preview = New List(Of YMeasure)()
+      Me._measures = New List(Of YMeasure)()
+      For i As Integer = 0 To arr.Length - 1
+        stream = _parent._findDataStream(Me, arr.getString(i))
         streamStartTime = stream.get_startTimeUTC() - CLng(stream.get_dataSamplesIntervalMs() / 1000)
         streamEndTime = stream.get_startTimeUTC() + stream.get_duration()
-        If (_startTime > 0 And streamEndTime <= _startTime) Then
+        If _startTime > 0 AndAlso streamEndTime <= _startTime Then
           REM this stream is too early, drop it
-        ElseIf (_endTime > 0 And stream.get_startTimeUTC() > _endTime) Then
+        ElseIf _endTime > 0 AndAlso stream.get_startTimeUTC() > Me._endTime Then
           REM this stream is too late, drop it
         Else
           _streams.Add(stream)
-          If (startTime > streamStartTime) Then
+          If startTime > streamStartTime Then
             startTime = streamStartTime
           End If
-          If (endTime < streamEndTime) Then
+          If endTime < streamEndTime Then
             endTime = streamEndTime
           End If
-          If (stream.isClosed() And stream.get_startTimeUTC() >= _startTime And (_endTime = 0 Or streamEndTime <= _endTime)) Then
-            If (summaryMinVal > stream.get_minValue()) Then
+          If stream.isClosed() AndAlso stream.get_startTimeUTC() >= Me._startTime AndAlso (Me._endTime = 0 OrElse streamEndTime <= Me._endTime) Then
+            If summaryMinVal > stream.get_minValue() Then
               summaryMinVal = stream.get_minValue()
             End If
-            If (summaryMaxVal < stream.get_maxValue()) Then
+            If summaryMaxVal < stream.get_maxValue() Then
               summaryMaxVal = stream.get_maxValue()
             End If
             summaryTotalAvg += stream.get_averageValue() * stream.get_duration()
@@ -3696,132 +3957,145 @@ Module yocto_api
 
 
 
+
   Public Class YDevice
-    Private _devdescr As YDEV_DESCR
+    Private ReadOnly _devdescr As YDEV_DESCR
     Private _cacheStamp As yu64
-    Private _cacheJson As TJsonParser
-    Private _functions As New List(Of yu32)
-    Private _http_result As String
+    Private _cacheJson As YJSONObject
+    Private ReadOnly _lock As New [Object]()
+    Private ReadOnly _functions As New List(Of yu32)()
+
     Private _rootdevice As String
     Private _subpath As String
+
     Private _subpathinit As Boolean
 
-    Public Sub New(ByVal devdesc As YDEV_DESCR)
+    Private Sub New(devdesc As YDEV_DESCR)
       _devdescr = devdesc
       _cacheStamp = 0
       _cacheJson = Nothing
     End Sub
 
-    Public Sub dispose()
 
-      If _cacheJson IsNot Nothing Then _cacheJson.Dispose()
-      _cacheJson = Nothing
+    Friend Sub dispose()
+      clearCache(True)
+    End Sub
+
+
+    Friend Sub clearCache(clearSubpath As Boolean)
+      SyncLock _lock
+        _cacheStamp = 0
+        If clearSubpath Then
+          _cacheJson = Nothing
+          _subpathinit = False
+        End If
+      End SyncLock
+    End Sub
+
+
+    Friend Shared Sub PlugDevice(devdescr As YDEV_DESCR)
+      For idx As Integer = 0 To YDevice_devCache.Count - 1
+        Dim dev As YDevice = YDevice_devCache(idx)
+        If dev._devdescr = devdescr Then
+          dev.clearCache(True)
+          Exit For
+        End If
+      Next
 
     End Sub
 
-    Public Shared Function getDevice(ByVal devdescr As YDEV_DESCR) As YDevice
+    Friend Shared Function getDevice(devdescr As YDEV_DESCR) As YDevice
       Dim idx As Integer
-      Dim dev As YDevice
+      Dim dev As YDevice = Nothing
       For idx = 0 To YDevice_devCache.Count - 1
         If YDevice_devCache(idx)._devdescr = devdescr Then
-          getDevice = YDevice_devCache(idx)
-          Exit Function
+          Return YDevice_devCache(idx)
         End If
       Next
       dev = New YDevice(devdescr)
       YDevice_devCache.Add(dev)
-      getDevice = dev
+      Return dev
     End Function
 
-    Public Shared Sub PlugDevice(ByVal devdescr As YDEV_DESCR)
-      Dim idx As Integer
-      For idx = 0 To YDevice_devCache.Count - 1
-        If YDevice_devCache(idx)._devdescr = devdescr Then
-          YDevice_devCache(idx)._cacheStamp = 0
-          YDevice_devCache(idx)._subpathinit = False
-          Exit Sub
-        End If
-      Next
-    End Sub
-
-    Public Shared Function HTTPRequestSync(ByVal device As String, ByVal request As String, ByRef reply As String, ByRef errmsg As String) As YRETCODE
-      Dim binreply As Byte()
-      Dim res As YRETCODE
-
-      ReDim binreply(-1)
-      res = HTTPRequestSync(device, YAPI.DefaultEncoding.GetBytes(request), binreply, errmsg)
-      reply = YAPI.DefaultEncoding.GetString(binreply)
-      Return res
-    End Function
-
-    Public Shared Function HTTPRequestSync(ByVal device As String, ByVal request As Byte(), ByRef reply As Byte(), ByRef errmsg As String) As YRETCODE
+    Private Function HTTPRequestSync(request_org As Byte(), ByRef reply As Byte(), ByRef errmsg As String) As YRETCODE
       Dim iohdl As YIOHDL
       Dim requestbuf As IntPtr = IntPtr.Zero
-      Dim buffer As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim buffer As New StringBuilder(YOCTO_ERRMSG_LEN)
       Dim preply As IntPtr = IntPtr.Zero
       Dim replysize As Integer = 0
+      Dim fullrequest As Byte() = Nothing
       Dim res As YRETCODE
 
-      iohdl.raw = 0  REM dummy, useless init to avoid compiler warning
+      SyncLock _lock
 
-      requestbuf = Marshal.AllocHGlobal(request.Length)
-      Marshal.Copy(request, 0, requestbuf, request.Length)
-      res = _yapiHTTPRequestSyncStartEx(iohdl, New StringBuilder(device), requestbuf, request.Length, preply, replysize, buffer)
-      If (res < 0) Then
-        errmsg = buffer.ToString()
-        Return res
-      End If
+        res = HTTPRequestPrepare(request_org, fullrequest, errmsg)
+        If YISERR(res) Then
+          Return res
+        End If
 
-      ReDim reply(replysize - 1)
-      If (replysize > 0 And preply <> IntPtr.Zero) Then
-        Marshal.Copy(preply, reply, 0, replysize)
-      End If
-      res = _yapiHTTPRequestSyncDone(iohdl, buffer)
+        iohdl.raw = 0  REM dummy, useless init to avoid compiler warning
+
+        requestbuf = Marshal.AllocHGlobal(fullrequest.Length)
+        Marshal.Copy(fullrequest, 0, requestbuf, fullrequest.Length)
+
+        res = _yapiHTTPRequestSyncStartEx(iohdl, New StringBuilder(_rootdevice), requestbuf, fullrequest.Length, preply, replysize,
+                                                            buffer)
+        Marshal.FreeHGlobal(requestbuf)
+        If res < 0 Then
+          errmsg = buffer.ToString()
+          Return res
+        End If
+        reply = New Byte(replysize - 1) {}
+        If reply.Length > 0 AndAlso preply <> IntPtr.Zero Then
+          Marshal.Copy(preply, reply, 0, replysize)
+        End If
+        res = _yapiHTTPRequestSyncDone(iohdl, buffer)
+      End SyncLock
       errmsg = buffer.ToString()
       Return res
     End Function
 
-    Public Function HTTPRequestAsync(ByVal request As String, ByRef errmsg As String) As YRETCODE
-      Return HTTPRequestAsync(YAPI.DefaultEncoding.GetBytes(request), errmsg)
-    End Function
-
-    Public Function HTTPRequestAsync(ByVal request As Byte(), ByRef errmsg As String) As YRETCODE
-      Dim fullrequest As Byte()
+    Private Function HTTPRequestAsync(request As Byte(), ByRef errmsg As String) As YRETCODE
+      Dim fullrequest As Byte() = Nothing
       Dim requestbuf As IntPtr = IntPtr.Zero
-      Dim buffer As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim buffer As New StringBuilder(YOCTO_ERRMSG_LEN)
       Dim res As YRETCODE
+      SyncLock _lock
+        res = HTTPRequestPrepare(request, fullrequest, errmsg)
+        If YISERR(res) Then
+          Return res
+        End If
 
-      ReDim fullrequest(-1)
-      res = HTTPRequestPrepare(request, fullrequest, errmsg)
-      requestbuf = Marshal.AllocHGlobal(fullrequest.Length)
-      Marshal.Copy(fullrequest, 0, requestbuf, fullrequest.Length)
-      res = _yapiHTTPRequestAsyncEx(New StringBuilder(_rootdevice), requestbuf, fullrequest.Length, IntPtr.Zero, IntPtr.Zero, buffer)
+        requestbuf = Marshal.AllocHGlobal(fullrequest.Length)
+        Marshal.Copy(fullrequest, 0, requestbuf, fullrequest.Length)
+        res = _yapiHTTPRequestAsyncEx(New StringBuilder(_rootdevice), requestbuf, fullrequest.Length, Nothing, Nothing, buffer)
+      End SyncLock
       Marshal.FreeHGlobal(requestbuf)
       errmsg = buffer.ToString()
       Return res
     End Function
 
-    Public Function HTTPRequestPrepare(ByVal request As Byte(), ByRef fullrequest As Byte(), ByRef errmsg As String) As YRETCODE
-      Dim res As YRETCODE
+    Private Function HTTPRequestPrepare(request As Byte(), ByRef fullrequest As Byte(), ByRef errmsg As String) As YRETCODE
+      Dim res As YRETCODE = Nothing
       Dim errbuf As New StringBuilder(YOCTO_ERRMSG_LEN)
-      Dim b As StringBuilder
-      Dim neededsize As Integer
-      Dim p As Integer
+      Dim b As StringBuilder = Nothing
+      Dim neededsize As Integer = 0
+      Dim p As Integer = 0
       Dim root As New StringBuilder(YOCTO_SERIAL_LEN)
-      Dim tmp As Integer
+      Dim tmp As Integer = 0
 
-      _cacheStamp = CULng(YAPI.GetTickCount())  REM invalidate cache
-
-      If (Not (_subpathinit)) Then
+      ' no need to lock since it's already done by the called.
+      If Not _subpathinit Then
         res = _yapiGetDevicePath(_devdescr, root, Nothing, 0, neededsize, errbuf)
-        If (YISERR(res)) Then
+
+        If YISERR(res) Then
           errmsg = errbuf.ToString()
           Return res
         End If
 
         b = New StringBuilder(neededsize)
         res = _yapiGetDevicePath(_devdescr, root, b, neededsize, tmp, errbuf)
-        If (YISERR(res)) Then
+        If YISERR(res) Then
           errmsg = errbuf.ToString()
           Return res
         End If
@@ -3830,133 +4104,137 @@ Module yocto_api
         _subpath = b.ToString()
         _subpathinit = True
       End If
-
-      REM Search for the first '/'
+      ' search for the first '/'
       p = 0
-      While p < request.Length And request(p) <> 47
+      While p < request.Length AndAlso request(p) <> 47
         p += 1
       End While
-      ReDim fullrequest(request.Length - 1 + _subpath.Length - 1)
+      fullrequest = New Byte(request.Length - 1 + (_subpath.Length - 1)) {}
       Buffer.BlockCopy(request, 0, fullrequest, 0, p)
       Buffer.BlockCopy(System.Text.Encoding.ASCII.GetBytes(_subpath), 0, fullrequest, p, _subpath.Length)
       Buffer.BlockCopy(request, p + 1, fullrequest, p + _subpath.Length, request.Length - p - 1)
 
-      Return YAPI_SUCCESS
+      Return YAPI.SUCCESS
     End Function
 
-    Public Function HTTPRequest(ByVal request As String, ByRef buffer As String, ByRef errmsg As String) As YRETCODE
-      Dim binreply As Byte()
-      Dim res As YRETCODE
 
-      ReDim binreply(-1)
-      res = HTTPRequest(YAPI.DefaultEncoding.GetBytes(request), binreply, errmsg)
+    Friend Function requestAPI(ByRef apires As YJSONObject, ByRef errmsg As String) As YRETCODE
+      Dim buffer As String = ""
+      Dim res As Integer = 0
+      Dim http_headerlen As Integer
+
+      apires = Nothing
+      SyncLock _lock
+        ' Check if we have a valid cache value
+        If _cacheStamp > YAPI.GetTickCount() Then
+          apires = _cacheJson
+          Return YAPI.SUCCESS
+        End If
+        Dim request As String
+        If _cacheJson Is Nothing Then
+          request = "GET /api.json " & vbCr & vbLf & vbCr & vbLf
+        Else
+          request = "GET /api.json?fw=" + _cacheJson.getYJSONObject("module").getString("firmwareRelease") + " " & vbCr & vbLf & vbCr & vbLf
+        End If
+        res = HTTPRequest(request, buffer, errmsg)
+        If YISERR(res) Then
+          ' make sure a device scan does not solve the issue
+          res = yapiUpdateDeviceList(1, errmsg)
+          If YISERR(res) Then
+            Return res
+          End If
+          res = HTTPRequest(request, buffer, errmsg)
+          If YISERR(res) Then
+            Return res
+          End If
+        End If
+        Dim httpcode As Integer = YAPI.ParseHTTP(buffer, 0, buffer.Length, http_headerlen, errmsg)
+        If httpcode <> 200 Then
+          Return YAPI.IO_ERROR
+        End If
+        Try
+          apires = New YJSONObject(buffer, http_headerlen, buffer.Length)
+          apires.parseWithRef(_cacheJson)
+        Catch E As Exception
+          errmsg = "unexpected JSON structure: " + E.Message
+          Return YAPI.IO_ERROR
+        End Try
+
+
+        ' store result in cache
+        _cacheJson = apires
+        _cacheStamp = CULng(YAPI.GetTickCount() + YAPI.DefaultCacheValidity)
+      End SyncLock
+      Return YAPI.SUCCESS
+    End Function
+
+
+    Friend Function getFunctions(ByRef functions As List(Of yu32), ByRef errmsg As String) As YRETCODE
+      Dim res As Integer = 0
+      Dim neededsize As Integer = 0
+      Dim i As Integer = 0
+      Dim count As Integer = 0
+      Dim p As IntPtr = Nothing
+      Dim ids As ys32() = Nothing
+      SyncLock _lock
+        If _functions.Count = 0 Then
+          res = yapiGetFunctionsByDevice(_devdescr, 0, IntPtr.Zero, 64, neededsize, errmsg)
+          If YISERR(res) Then
+            Return res
+          End If
+
+          p = Marshal.AllocHGlobal(neededsize)
+
+          res = yapiGetFunctionsByDevice(_devdescr, 0, p, 64, neededsize, errmsg)
+          If YISERR(res) Then
+            Marshal.FreeHGlobal(p)
+            Return res
+          End If
+
+          count = Convert.ToInt32(neededsize / Marshal.SizeOf(i))
+          '  i is an 32 bits integer
+          Array.Resize(ids, count + 1)
+          Marshal.Copy(p, ids, 0, count)
+          For i = 0 To count - 1
+            _functions.Add(Convert.ToUInt32(ids(i)))
+          Next
+
+          Marshal.FreeHGlobal(p)
+        End If
+        functions = _functions
+      End SyncLock
+      Return YAPI.SUCCESS
+    End Function
+
+    '
+    '         * Thread safe hepers
+    '         
+
+
+    Friend Function HTTPRequest(request As Byte(), ByRef buffer As Byte(), ByRef errmsg As String) As YRETCODE
+      Return HTTPRequestSync(request, buffer, errmsg)
+    End Function
+
+
+    Friend Function HTTPRequest(request As String, ByRef buffer As String, ByRef errmsg As String) As YRETCODE
+      Dim binreply As Byte() = New Byte(-1) {}
+      Dim res As YRETCODE = HTTPRequestSync(YAPI.DefaultEncoding.GetBytes(request), binreply, errmsg)
       buffer = YAPI.DefaultEncoding.GetString(binreply)
-
       Return res
     End Function
 
-    Public Function HTTPRequest(ByVal request As String, ByRef buffer As Byte(), ByRef errmsg As String) As YRETCODE
-      Return HTTPRequest(YAPI.DefaultEncoding.GetBytes(request), buffer, errmsg)
-    End Function
-
-    Public Function HTTPRequest(ByVal request As Byte(), ByRef buffer As Byte(), ByRef errmsg As String) As YRETCODE
-      Dim fullrequest As Byte() = Nothing
-
-      Dim res As Integer = HTTPRequestPrepare(request, fullrequest, errmsg)
-      If (YISERR(res)) Then
-        Return res
-      End If
-
-      HTTPRequest = HTTPRequestSync(_rootdevice, fullrequest, buffer, errmsg)
+    Friend Function HTTPRequest(request As String, ByRef buffer As Byte(), ByRef errmsg As String) As YRETCODE
+      Return HTTPRequestSync(YAPI.DefaultEncoding.GetBytes(request), buffer, errmsg)
     End Function
 
 
-    Function requestAPI(ByRef apires As TJsonParser, ByRef errmsg As String) As YRETCODE
-      Dim buffer As String = ""
-      Dim res As Integer
-      apires = Nothing
-
-      REM Check if we have a valid cache value
-      If (_cacheStamp > YAPI.GetTickCount()) Then
-        apires = _cacheJson
-        requestAPI = YAPI_SUCCESS
-        Exit Function
-      End If
-
-      res = HTTPRequest("GET /api.json " + Chr(13) + Chr(10) + Chr(13) + Chr(10), buffer, errmsg)
-
-      If (YISERR(res)) Then
-
-        REM make sure a device scan does not solve the issue
-        res = yapiUpdateDeviceList(1, errmsg)
-        If (YISERR(res)) Then
-          requestAPI = res
-          Exit Function
-        End If
-        res = HTTPRequest("GET /api.json " + Chr(13) + Chr(10) + Chr(13) + Chr(10), buffer, errmsg)
-        If (YISERR(res)) Then
-          requestAPI = res
-          Exit Function
-        End If
-      End If
-      Try
-        apires = New TJsonParser(buffer)
-      Catch E As Exception
-        errmsg = "unexpected JSON structure: " + E.Message
-        requestAPI = YAPI_IO_ERROR
-        Exit Function
-      End Try
-      If (apires.httpcode <> 200) Then
-        errmsg = String.Format("Unexpected HTTP return code:{0}", apires.httpcode)
-        requestAPI = YAPI.IO_ERROR
-        Exit Function
-      End If
-      REM store result in cache
-      _cacheJson = apires
-      _cacheStamp = CULng(YAPI.GetTickCount() + YAPI.DefaultCacheValidity)
-      requestAPI = YAPI_SUCCESS
+    Friend Function HTTPRequestAsync(request As String, ByRef errmsg As String) As YRETCODE
+      Return Me.HTTPRequestAsync(YAPI.DefaultEncoding.GetBytes(request), errmsg)
     End Function
 
-    Sub clearCache()
-      If _cacheJson IsNot Nothing Then _cacheJson.Dispose()
-      _cacheJson = Nothing
-      _cacheStamp = 0
-    End Sub
-
-    Public Function getFunctions(ByRef functions As List(Of yu32), ByRef errmsg As String) As YRETCODE
-      Dim res, neededsize, i, count As Integer
-      Dim p As IntPtr
-      Dim ids() As ys32
-      If (_functions.Count = 0) Then
-        res = yapiGetFunctionsByDevice(_devdescr, 0, Nothing, 64, neededsize, errmsg)
-        If (YISERR(res)) Then
-          getFunctions = res
-          Exit Function
-        End If
-
-        p = Marshal.AllocHGlobal(neededsize)
-
-        res = yapiGetFunctionsByDevice(_devdescr, 0, p, 64, neededsize, errmsg)
-        If (YISERR(res)) Then
-          Marshal.FreeHGlobal(p)
-          getFunctions = res
-          Exit Function
-        End If
-
-        count = CInt(neededsize / Marshal.SizeOf(i))  REM  i is an 32 bits integer
-        ReDim Preserve ids(count)
-        Marshal.Copy(p, ids, 0, count)
-        For i = 0 To count - 1
-          _functions.Add(CUInt(ids(i)))
-        Next i
-
-        Marshal.FreeHGlobal(p)
-      End If
-      functions = _functions
-      getFunctions = YAPI_SUCCESS
-    End Function
 
   End Class
+
 
   REM --- (generated code: YFunction class start)
 
@@ -4423,16 +4701,8 @@ Module yocto_api
       _dataStreams.Clear()
     End Sub
 
-    Protected Function _parse(ByRef j As TJSONRECORD) As Integer
-      Dim member As TJSONRECORD
-      Dim i As Integer
-      If (j.recordtype <> TJSONRECORDTYPE.JSON_STRUCT) Then
-        Return -1
-      End If
-      For i = 0 To j.membercount - 1
-        member = j.members(i)
-        _parseAttr(member)
-      Next i
+    Protected Function _parse(ByRef j As YJSONObject) As Integer
+      _parseAttr(j)
       _parserHelper()
       Return 0
     End Function
@@ -4461,14 +4731,12 @@ Module yocto_api
 
     REM --- (generated code: YFunction private methods declaration)
 
-    Protected Overridable Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "logicalName") Then
-        _logicalName = member.svalue
-        Return 1
+    Protected Overridable Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("logicalName") Then
+        _logicalName = json_val.getString("logicalName")
       End If
-      If (member.name = "advertisedValue") Then
-        _advertisedValue = member.svalue
-        Return 1
+      If json_val.has("advertisedValue") Then
+        _advertisedValue = json_val.getString("advertisedValue")
       End If
       Return 0
     End Function
@@ -5049,7 +5317,7 @@ Module yocto_api
 
       Dim dev As YDevice = Nothing
       Dim errmsg As String = ""
-      Dim apires As TJsonParser = Nothing
+      Dim apires As YJSONObject = Nothing
 
       REM  A valid value in cache means that the device is online
       If (_cacheExpiration > YAPI.GetTickCount()) Then
@@ -5075,73 +5343,91 @@ Module yocto_api
       isOnline = True
     End Function
 
+
     Protected Function _json_get_key(ByVal data As Byte(), ByVal key As String) As String
-      Dim node As Nullable(Of TJSONRECORD)
-
-      Dim st As String = YAPI.DefaultEncoding.GetString(data)
-      Dim p As TJsonParser
-
-      If Not (YAPI.ExceptionsDisabled) Then
-        p = New TJsonParser(st, False)
-      Else
-        Try
-          p = New TJsonParser(st, False)
-        Catch E As Exception
-          Return ""
-          Exit Function
-        End Try
+      Dim obj As New YJSONObject(YAPI.DefaultEncoding.GetString(data))
+      obj.parse()
+      If obj.has(key) Then
+        Dim val As String = obj.getString(key)
+        If val Is Nothing Then
+          val = obj.ToString()
+        End If
+        Return val
       End If
-
-      node = p.GetChildNode(Nothing, key)
-
-      Return node.Value.svalue
+      Throw New YAPI_Exception(YAPI.INVALID_ARGUMENT, (Convert.ToString("No key ") & key) + "in JSON struct")
     End Function
 
-    Protected Function _json_get_array(ByVal data As Byte()) As List(Of String)
-      Dim st As String = YAPI.DefaultEncoding.GetString(data)
-      Dim p As TJsonParser
-
-      If Not (YAPI.ExceptionsDisabled) Then
-        p = New TJsonParser(st, False)
-      Else
-        Try
-          p = New TJsonParser(st, False)
-        Catch E As Exception
-          Return Nothing
-          Exit Function
-        End Try
-      End If
-
-
-      Return p.GetAllChilds(Nothing)
+    Protected Function _json_get_array(data As Byte()) As List(Of String)
+      Dim array As New YJSONArray(YAPI.DefaultEncoding.GetString(data))
+      array.parse()
+      Dim list As New List(Of String)()
+      Dim len As Integer = array.Length
+      For i As Integer = 0 To len - 1
+        Dim o As YJSONContent = array.[get](i)
+        list.Add(o.toJSON())
+      Next
+      Return list
     End Function
 
-    Public Function _json_get_string(ByVal data As Byte()) As String
-      Dim json_str As String = YAPI.DefaultEncoding.GetString(data)
-      Dim p As TJsonParser = New TJsonParser("[" + json_str + "]", False)
-      Dim node As TJSONRECORD = p.GetRootNode()
-      Return node.items.ElementAt(0).svalue
+    Public Function _json_get_string(data As Byte()) As String
+      Dim s As String = YAPI.DefaultEncoding.GetString(data)
+      Dim jstring As New YJSONString(s, 0, s.Length)
+      jstring.parse()
+      Return jstring.getString()
+    End Function
+
+
+    Private Function get_json_path_struct(jsonObject As YJSONObject, paths As String(), ofs As Integer) As String
+
+      Dim key As String = paths(ofs)
+      If Not jsonObject.has(key) Then
+        Return ""
+      End If
+
+      Dim obj As YJSONContent = jsonObject.[get](key)
+      If obj IsNot Nothing Then
+        If paths.Length = ofs + 1 Then
+          Return obj.toJSON()
+        End If
+
+        If TypeOf obj Is YJSONArray Then
+          Return get_json_path_array(jsonObject.getYJSONArray(key), paths, ofs + 1)
+        ElseIf TypeOf obj Is YJSONObject Then
+          Return get_json_path_struct(jsonObject.getYJSONObject(key), paths, ofs + 1)
+        End If
+      End If
+      Return ""
+    End Function
+
+    Private Function get_json_path_array(jsonArray As YJSONArray, paths As String(), ofs As Integer) As String
+      Dim key As Integer = Convert.ToInt32(paths(ofs))
+      If jsonArray.Length <= key Then
+        Return ""
+      End If
+
+      Dim obj As YJSONContent = jsonArray.[get](key)
+      If obj IsNot Nothing Then
+        If paths.Length = ofs + 1 Then
+          Return obj.ToString()
+        End If
+
+        If TypeOf obj Is YJSONArray Then
+          Return get_json_path_array(jsonArray.getYJSONArray(key), paths, ofs + 1)
+        ElseIf TypeOf obj Is YJSONObject Then
+          Return get_json_path_struct(jsonArray.getYJSONObject(key), paths, ofs + 1)
+        End If
+      End If
+      Return ""
     End Function
 
 
     Public Function _get_json_path(ByVal json As String, ByVal path As String) As String
-      Dim errbuff As StringBuilder
-      Dim p As IntPtr = IntPtr.Zero
-      Dim dllres As Integer
-      Dim result As String
 
-      errbuff = New StringBuilder(YOCTO_ERRMSG_LEN)
-      dllres = 0
-      result = ""
-      dllres = _yapiJsonGetPath(New StringBuilder(path), New StringBuilder(json), json.Length, p, errbuff)
-      If (dllres > 0) Then
-        Dim reply As Byte()
-        ReDim reply(dllres - 1)
-        Marshal.Copy(p, reply, 0, dllres)
-        _yapiFreeMem(p)
-        result = YAPI.DefaultEncoding.GetString(reply)
-      End If
-      Return result
+      Dim jsonObject As YJSONObject = Nothing
+      jsonObject = New YJSONObject(json)
+      jsonObject.parse()
+      Dim split As String() = path.Split(New Char() {"\"C, "|"C})
+      Return get_json_path_struct(jsonObject, split, 0)
     End Function
 
     Public Function _decode_json_string(ByVal json As String) As String
@@ -5178,19 +5464,18 @@ Module yocto_api
     ''' </para>
     '''/
     Public Function load(ByVal msValidity As Integer) As YRETCODE
-
       Dim dev As YDevice = Nothing
       Dim errmsg As String = ""
-      Dim apires As TJsonParser = Nothing
-      Dim fundescr As YFUN_DESCR
-      Dim res As Integer
+      Dim apires As YJSONObject = Nothing
+      Dim fundescr As YFUN_DESCR = Nothing
+      Dim res As Integer = 0
       Dim errbuf As String = ""
       Dim funcId As String = ""
-      Dim devdesc As YDEV_DESCR
+      Dim devdesc As YDEV_DESCR = Nothing
       Dim serial As String = ""
       Dim funcName As String = ""
       Dim funcVal As String = ""
-      Dim node As Nullable(Of TJSONRECORD)
+      Dim node As YJSONObject
 
       REM Resolve our reference to our device, load REST API
       res = _getDevice(dev, errmsg)
@@ -5201,7 +5486,7 @@ Module yocto_api
       End If
 
       res = dev.requestAPI(apires, errmsg)
-      If (YISERR(res)) Then
+      If YISERR(res) Then
         _throw(res, errmsg)
         load = res
         Exit Function
@@ -5209,7 +5494,7 @@ Module yocto_api
 
       REM Get our function Id
       fundescr = yapiGetFunction(_className, _func, errmsg)
-      If (YISERR(fundescr)) Then
+      If YISERR(fundescr) Then
         _throw(res, errmsg)
         load = res
         Exit Function
@@ -5217,7 +5502,7 @@ Module yocto_api
 
       devdesc = 0
       res = yapiGetFunctionInfo(fundescr, devdesc, serial, funcId, funcName, funcVal, errbuf)
-      If (YISERR(res)) Then
+      If YISERR(res) Then
         _throw(res, errmsg)
         load = res
         Exit Function
@@ -5227,14 +5512,15 @@ Module yocto_api
       _funId = funcId
       _hwId = _serial + "." + _funId
 
-      node = apires.GetChildNode(Nothing, funcId)
-      If Not (node.HasValue) Then
-        _throw(YAPI_IO_ERROR, "unexpected JSON structure: missing function " + funcId)
-        load = res
+      Try
+        node = apires.getYJSONObject(funcId)
+      Catch generatedExceptionName As Exception
+        _throw(YAPI.IO_ERROR, Convert.ToString("unexpected JSON structure: missing function ") & funcId)
+        load = YAPI.IO_ERROR
         Exit Function
-      End If
+      End Try
 
-      _parse(CType(node, TJSONRECORD))
+      _parse(node)
       load = YAPI_SUCCESS
     End Function
 
@@ -5261,7 +5547,7 @@ Module yocto_api
       If (YISERR(res)) Then
         Exit Sub
       End If
-      dev.clearCache()
+      dev.clearCache(False)
       If _cacheExpiration > 0 Then
         _cacheExpiration = YAPI.GetTickCount()
       End If
@@ -5503,56 +5789,44 @@ Module yocto_api
 
     REM --- (generated code: YModule private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "productName") Then
-        _productName = member.svalue
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("productName") Then
+        _productName = json_val.getString("productName")
       End If
-      If (member.name = "serialNumber") Then
-        _serialNumber = member.svalue
-        Return 1
+      If json_val.has("serialNumber") Then
+        _serialNumber = json_val.getString("serialNumber")
       End If
-      If (member.name = "productId") Then
-        _productId = CInt(member.ivalue)
-        Return 1
+      If json_val.has("productId") Then
+        _productId = CInt(json_val.getLong("productId"))
       End If
-      If (member.name = "productRelease") Then
-        _productRelease = CInt(member.ivalue)
-        Return 1
+      If json_val.has("productRelease") Then
+        _productRelease = CInt(json_val.getLong("productRelease"))
       End If
-      If (member.name = "firmwareRelease") Then
-        _firmwareRelease = member.svalue
-        Return 1
+      If json_val.has("firmwareRelease") Then
+        _firmwareRelease = json_val.getString("firmwareRelease")
       End If
-      If (member.name = "persistentSettings") Then
-        _persistentSettings = CInt(member.ivalue)
-        Return 1
+      If json_val.has("persistentSettings") Then
+        _persistentSettings = CInt(json_val.getLong("persistentSettings"))
       End If
-      If (member.name = "luminosity") Then
-        _luminosity = CInt(member.ivalue)
-        Return 1
+      If json_val.has("luminosity") Then
+        _luminosity = CInt(json_val.getLong("luminosity"))
       End If
-      If (member.name = "beacon") Then
-        If (member.ivalue > 0) Then _beacon = 1 Else _beacon = 0
-        Return 1
+      If json_val.has("beacon") Then
+        If (json_val.getInt("beacon") > 0) Then _beacon = 1 Else _beacon = 0
       End If
-      If (member.name = "upTime") Then
-        _upTime = member.ivalue
-        Return 1
+      If json_val.has("upTime") Then
+        _upTime = json_val.getLong("upTime")
       End If
-      If (member.name = "usbCurrent") Then
-        _usbCurrent = CInt(member.ivalue)
-        Return 1
+      If json_val.has("usbCurrent") Then
+        _usbCurrent = CInt(json_val.getLong("usbCurrent"))
       End If
-      If (member.name = "rebootCountdown") Then
-        _rebootCountdown = CInt(member.ivalue)
-        Return 1
+      If json_val.has("rebootCountdown") Then
+        _rebootCountdown = CInt(json_val.getLong("rebootCountdown"))
       End If
-      If (member.name = "userVar") Then
-        _userVar = CInt(member.ivalue)
-        Return 1
+      If json_val.has("userVar") Then
+        _userVar = CInt(json_val.getLong("userVar"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YModule private methods declaration)
@@ -7794,48 +8068,38 @@ Module yocto_api
 
     REM --- (generated code: YSensor private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "unit") Then
-        _unit = member.svalue
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("unit") Then
+        _unit = json_val.getString("unit")
       End If
-      If (member.name = "currentValue") Then
-        _currentValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("currentValue") Then
+        _currentValue = Math.Round(json_val.getDouble("currentValue") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "lowestValue") Then
-        _lowestValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("lowestValue") Then
+        _lowestValue = Math.Round(json_val.getDouble("lowestValue") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "highestValue") Then
-        _highestValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("highestValue") Then
+        _highestValue = Math.Round(json_val.getDouble("highestValue") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "currentRawValue") Then
-        _currentRawValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("currentRawValue") Then
+        _currentRawValue = Math.Round(json_val.getDouble("currentRawValue") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "logFrequency") Then
-        _logFrequency = member.svalue
-        Return 1
+      If json_val.has("logFrequency") Then
+        _logFrequency = json_val.getString("logFrequency")
       End If
-      If (member.name = "reportFrequency") Then
-        _reportFrequency = member.svalue
-        Return 1
+      If json_val.has("reportFrequency") Then
+        _reportFrequency = json_val.getString("reportFrequency")
       End If
-      If (member.name = "calibrationParam") Then
-        _calibrationParam = member.svalue
-        Return 1
+      If json_val.has("calibrationParam") Then
+        _calibrationParam = json_val.getString("calibrationParam")
       End If
-      If (member.name = "resolution") Then
-        _resolution = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("resolution") Then
+        _resolution = Math.Round(json_val.getDouble("resolution") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "sensorState") Then
-        _sensorState = CInt(member.ivalue)
-        Return 1
+      If json_val.has("sensorState") Then
+        _sensorState = CInt(json_val.getLong("sensorState"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YSensor private methods declaration)
@@ -9152,7 +9416,7 @@ Module yocto_api
 
   REM - Internal callback registered into YAPI using a protected delegate
   Private Sub native_yLogFunction(ByVal log As IntPtr, ByVal loglen As yu32)
-    If ylog <> Nothing Then ylog(Marshal.PtrToStringAnsi(log))
+    If Not ylog Is Nothing Then ylog(Marshal.PtrToStringAnsi(log))
   End Sub
 
   '''*
@@ -9201,19 +9465,19 @@ Module yocto_api
     Public Sub invoke()
       Select Case _ev
         Case EVTYPE.ARRIVAL
-          If yArrival <> Nothing Then
+          If Not (yArrival Is Nothing) Then
             yArrival(_module)
           End If
         Case EVTYPE.REMOVAL
-          If yRemoval <> Nothing Then
+          If Not (yRemoval Is Nothing) Then
             yRemoval(_module)
           End If
         Case EVTYPE.CHANGE
-          If (yChange <> Nothing) Then
+          If Not (yChange Is Nothing) Then
             yChange(_module)
           End If
         Case EVTYPE.HUB_DISCOVERY
-          If (_HubDiscoveryCallback <> Nothing) Then
+          If Not (_HubDiscoveryCallback Is Nothing) Then
             _HubDiscoveryCallback(_serial, _url)
           End If
       End Select
@@ -9286,7 +9550,7 @@ Module yocto_api
     modul = YModule.FindModule(infos.serial + ".module")
     modul.setImmutableAttributes(infos)
     ev = New PlugEvent(PlugEvent.EVTYPE.ARRIVAL, modul)
-    If (yArrival <> Nothing) Then _PlugEvents.Add(ev)
+    If Not (yArrival Is Nothing) Then _PlugEvents.Add(ev)
   End Sub
 
   '''*
@@ -9312,7 +9576,7 @@ Module yocto_api
     Dim modul As YModule
     Dim infos As yDeviceSt = emptyDeviceSt()
     Dim errmsg As String = ""
-    If (yRemoval = Nothing) Then Exit Sub
+    If (yRemoval Is Nothing) Then Exit Sub
     infos.deviceid = 0
     If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then Exit Sub
     modul = YModule.FindModule(infos.serial + ".module")
@@ -9376,7 +9640,7 @@ Module yocto_api
     Dim infos As yDeviceSt = emptyDeviceSt()
     Dim errmsg As String = ""
 
-    If (yChange = Nothing) Then Exit Sub
+    If (yChange Is Nothing) Then Exit Sub
     If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then Exit Sub
     modul = YModule.FindModule(infos.serial + ".module")
     ev = New PlugEvent(PlugEvent.EVTYPE.CHANGE, modul)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupschedule.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_wakeupschedule.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindWakeUpSchedule(), the high-level API for WakeUpSchedule functions
 '*
@@ -116,36 +116,29 @@ Module yocto_wakeupschedule
 
     REM --- (YWakeUpSchedule private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "minutesA") Then
-        _minutesA = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("minutesA") Then
+        _minutesA = CInt(json_val.getLong("minutesA"))
       End If
-      If (member.name = "minutesB") Then
-        _minutesB = CInt(member.ivalue)
-        Return 1
+      If json_val.has("minutesB") Then
+        _minutesB = CInt(json_val.getLong("minutesB"))
       End If
-      If (member.name = "hours") Then
-        _hours = CInt(member.ivalue)
-        Return 1
+      If json_val.has("hours") Then
+        _hours = CInt(json_val.getLong("hours"))
       End If
-      If (member.name = "weekDays") Then
-        _weekDays = CInt(member.ivalue)
-        Return 1
+      If json_val.has("weekDays") Then
+        _weekDays = CInt(json_val.getLong("weekDays"))
       End If
-      If (member.name = "monthDays") Then
-        _monthDays = CInt(member.ivalue)
-        Return 1
+      If json_val.has("monthDays") Then
+        _monthDays = CInt(json_val.getLong("monthDays"))
       End If
-      If (member.name = "months") Then
-        _months = CInt(member.ivalue)
-        Return 1
+      If json_val.has("months") Then
+        _months = CInt(json_val.getLong("months"))
       End If
-      If (member.name = "nextOccurence") Then
-        _nextOccurence = member.ivalue
-        Return 1
+      If json_val.has("nextOccurence") Then
+        _nextOccurence = json_val.getLong("nextOccurence")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YWakeUpSchedule private methods declaration)

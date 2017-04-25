@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_serialport.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -156,56 +156,44 @@ Module yocto_serialport
 
     REM --- (YSerialPort private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "rxCount") Then
-        _rxCount = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("rxCount") Then
+        _rxCount = CInt(json_val.getLong("rxCount"))
       End If
-      If (member.name = "txCount") Then
-        _txCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("txCount") Then
+        _txCount = CInt(json_val.getLong("txCount"))
       End If
-      If (member.name = "errCount") Then
-        _errCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("errCount") Then
+        _errCount = CInt(json_val.getLong("errCount"))
       End If
-      If (member.name = "rxMsgCount") Then
-        _rxMsgCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("rxMsgCount") Then
+        _rxMsgCount = CInt(json_val.getLong("rxMsgCount"))
       End If
-      If (member.name = "txMsgCount") Then
-        _txMsgCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("txMsgCount") Then
+        _txMsgCount = CInt(json_val.getLong("txMsgCount"))
       End If
-      If (member.name = "lastMsg") Then
-        _lastMsg = member.svalue
-        Return 1
+      If json_val.has("lastMsg") Then
+        _lastMsg = json_val.getString("lastMsg")
       End If
-      If (member.name = "currentJob") Then
-        _currentJob = member.svalue
-        Return 1
+      If json_val.has("currentJob") Then
+        _currentJob = json_val.getString("currentJob")
       End If
-      If (member.name = "startupJob") Then
-        _startupJob = member.svalue
-        Return 1
+      If json_val.has("startupJob") Then
+        _startupJob = json_val.getString("startupJob")
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      If (member.name = "voltageLevel") Then
-        _voltageLevel = CInt(member.ivalue)
-        Return 1
+      If json_val.has("voltageLevel") Then
+        _voltageLevel = CInt(json_val.getLong("voltageLevel"))
       End If
-      If (member.name = "protocol") Then
-        _protocol = member.svalue
-        Return 1
+      If json_val.has("protocol") Then
+        _protocol = json_val.getString("protocol")
       End If
-      If (member.name = "serialMode") Then
-        _serialMode = member.svalue
-        Return 1
+      If json_val.has("serialMode") Then
+        _serialMode = json_val.getString("serialMode")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YSerialPort private methods declaration)

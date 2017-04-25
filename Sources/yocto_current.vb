@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_current.vb 26826 2017-03-17 11:20:57Z mvuilleu $
+'* $Id: yocto_current.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindCurrent(), the high-level API for Current functions
 '*
@@ -98,12 +98,11 @@ Module yocto_current
 
     REM --- (YCurrent private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "enabled") Then
-        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("enabled") Then
+        If (json_val.getInt("enabled") > 0) Then _enabled = 1 Else _enabled = 0
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YCurrent private methods declaration)

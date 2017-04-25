@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwminput.vb 26826 2017-03-17 11:20:57Z mvuilleu $
+'* $Id: yocto_pwminput.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindPwmInput(), the high-level API for PwmInput functions
 '*
@@ -128,36 +128,29 @@ Module yocto_pwminput
 
     REM --- (YPwmInput private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "dutyCycle") Then
-        _dutyCycle = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("dutyCycle") Then
+        _dutyCycle = Math.Round(json_val.getDouble("dutyCycle") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "pulseDuration") Then
-        _pulseDuration = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("pulseDuration") Then
+        _pulseDuration = Math.Round(json_val.getDouble("pulseDuration") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "frequency") Then
-        _frequency = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("frequency") Then
+        _frequency = Math.Round(json_val.getDouble("frequency") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "period") Then
-        _period = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("period") Then
+        _period = Math.Round(json_val.getDouble("period") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "pulseCounter") Then
-        _pulseCounter = member.ivalue
-        Return 1
+      If json_val.has("pulseCounter") Then
+        _pulseCounter = json_val.getLong("pulseCounter")
       End If
-      If (member.name = "pulseTimer") Then
-        _pulseTimer = member.ivalue
-        Return 1
+      If json_val.has("pulseTimer") Then
+        _pulseTimer = json_val.getLong("pulseTimer")
       End If
-      If (member.name = "pwmReportMode") Then
-        _pwmReportMode = CInt(member.ivalue)
-        Return 1
+      If json_val.has("pwmReportMode") Then
+        _pwmReportMode = CInt(json_val.getLong("pwmReportMode"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YPwmInput private methods declaration)

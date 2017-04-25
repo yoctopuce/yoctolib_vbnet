@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_compass.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_compass.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindCompass(), the high-level API for Compass functions
 '*
@@ -114,20 +114,17 @@ Module yocto_compass
 
     REM --- (YCompass private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "bandwidth") Then
-        _bandwidth = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("bandwidth") Then
+        _bandwidth = CInt(json_val.getLong("bandwidth"))
       End If
-      If (member.name = "axis") Then
-        _axis = CInt(member.ivalue)
-        Return 1
+      If json_val.has("axis") Then
+        _axis = CInt(json_val.getLong("axis"))
       End If
-      If (member.name = "magneticHeading") Then
-        _magneticHeading = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("magneticHeading") Then
+        _magneticHeading = Math.Round(json_val.getDouble("magneticHeading") * 1000.0 / 65536.0) / 1000.0
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YCompass private methods declaration)

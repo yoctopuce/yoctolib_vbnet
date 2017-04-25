@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_carbondioxide.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_carbondioxide.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '*
@@ -99,16 +99,14 @@ Module yocto_carbondioxide
 
     REM --- (YCarbonDioxide private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "abcPeriod") Then
-        _abcPeriod = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("abcPeriod") Then
+        _abcPeriod = CInt(json_val.getLong("abcPeriod"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YCarbonDioxide private methods declaration)

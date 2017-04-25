@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_groundspeed.vb 26128 2016-12-01 13:56:29Z seb $
+'* $Id: yocto_groundspeed.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindGroundSpeed(), the high-level API for GroundSpeed functions
 '*
@@ -91,8 +91,8 @@ Module yocto_groundspeed
 
     REM --- (YGroundSpeed private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      Return MyBase._parseAttr(member)
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YGroundSpeed private methods declaration)

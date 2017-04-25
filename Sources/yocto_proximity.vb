@@ -134,40 +134,32 @@ Module yocto_proximity
 
     REM --- (YProximity private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "signalValue") Then
-        _signalValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("signalValue") Then
+        _signalValue = Math.Round(json_val.getDouble("signalValue") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "detectionThreshold") Then
-        _detectionThreshold = CInt(member.ivalue)
-        Return 1
+      If json_val.has("detectionThreshold") Then
+        _detectionThreshold = CInt(json_val.getLong("detectionThreshold"))
       End If
-      If (member.name = "isPresent") Then
-        If (member.ivalue > 0) Then _isPresent = 1 Else _isPresent = 0
-        Return 1
+      If json_val.has("isPresent") Then
+        If (json_val.getInt("isPresent") > 0) Then _isPresent = 1 Else _isPresent = 0
       End If
-      If (member.name = "lastTimeApproached") Then
-        _lastTimeApproached = member.ivalue
-        Return 1
+      If json_val.has("lastTimeApproached") Then
+        _lastTimeApproached = json_val.getLong("lastTimeApproached")
       End If
-      If (member.name = "lastTimeRemoved") Then
-        _lastTimeRemoved = member.ivalue
-        Return 1
+      If json_val.has("lastTimeRemoved") Then
+        _lastTimeRemoved = json_val.getLong("lastTimeRemoved")
       End If
-      If (member.name = "pulseCounter") Then
-        _pulseCounter = member.ivalue
-        Return 1
+      If json_val.has("pulseCounter") Then
+        _pulseCounter = json_val.getLong("pulseCounter")
       End If
-      If (member.name = "pulseTimer") Then
-        _pulseTimer = member.ivalue
-        Return 1
+      If json_val.has("pulseTimer") Then
+        _pulseTimer = json_val.getLong("pulseTimer")
       End If
-      If (member.name = "proximityReportMode") Then
-        _proximityReportMode = CInt(member.ivalue)
-        Return 1
+      If json_val.has("proximityReportMode") Then
+        _proximityReportMode = CInt(json_val.getLong("proximityReportMode"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YProximity private methods declaration)

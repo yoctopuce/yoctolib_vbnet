@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_genericsensor.vb 26826 2017-03-17 11:20:57Z mvuilleu $
+'* $Id: yocto_genericsensor.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '*
@@ -124,32 +124,26 @@ Module yocto_genericsensor
 
     REM --- (YGenericSensor private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "signalValue") Then
-        _signalValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("signalValue") Then
+        _signalValue = Math.Round(json_val.getDouble("signalValue") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "signalUnit") Then
-        _signalUnit = member.svalue
-        Return 1
+      If json_val.has("signalUnit") Then
+        _signalUnit = json_val.getString("signalUnit")
       End If
-      If (member.name = "signalRange") Then
-        _signalRange = member.svalue
-        Return 1
+      If json_val.has("signalRange") Then
+        _signalRange = json_val.getString("signalRange")
       End If
-      If (member.name = "valueRange") Then
-        _valueRange = member.svalue
-        Return 1
+      If json_val.has("valueRange") Then
+        _valueRange = json_val.getString("valueRange")
       End If
-      If (member.name = "signalBias") Then
-        _signalBias = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("signalBias") Then
+        _signalBias = Math.Round(json_val.getDouble("signalBias") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "signalSampling") Then
-        _signalSampling = CInt(member.ivalue)
-        Return 1
+      If json_val.has("signalSampling") Then
+        _signalSampling = CInt(json_val.getLong("signalSampling"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YGenericSensor private methods declaration)

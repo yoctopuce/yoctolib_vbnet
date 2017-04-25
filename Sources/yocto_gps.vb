@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gps.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_gps.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindGps(), the high-level API for Gps functions
 '*
@@ -152,60 +152,47 @@ Module yocto_gps
 
     REM --- (YGps private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "isFixed") Then
-        If (member.ivalue > 0) Then _isFixed = 1 Else _isFixed = 0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("isFixed") Then
+        If (json_val.getInt("isFixed") > 0) Then _isFixed = 1 Else _isFixed = 0
       End If
-      If (member.name = "satCount") Then
-        _satCount = member.ivalue
-        Return 1
+      If json_val.has("satCount") Then
+        _satCount = json_val.getLong("satCount")
       End If
-      If (member.name = "coordSystem") Then
-        _coordSystem = CInt(member.ivalue)
-        Return 1
+      If json_val.has("coordSystem") Then
+        _coordSystem = CInt(json_val.getLong("coordSystem"))
       End If
-      If (member.name = "latitude") Then
-        _latitude = member.svalue
-        Return 1
+      If json_val.has("latitude") Then
+        _latitude = json_val.getString("latitude")
       End If
-      If (member.name = "longitude") Then
-        _longitude = member.svalue
-        Return 1
+      If json_val.has("longitude") Then
+        _longitude = json_val.getString("longitude")
       End If
-      If (member.name = "dilution") Then
-        _dilution = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("dilution") Then
+        _dilution = Math.Round(json_val.getDouble("dilution") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "altitude") Then
-        _altitude = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("altitude") Then
+        _altitude = Math.Round(json_val.getDouble("altitude") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "groundSpeed") Then
-        _groundSpeed = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("groundSpeed") Then
+        _groundSpeed = Math.Round(json_val.getDouble("groundSpeed") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "direction") Then
-        _direction = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("direction") Then
+        _direction = Math.Round(json_val.getDouble("direction") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "unixTime") Then
-        _unixTime = member.ivalue
-        Return 1
+      If json_val.has("unixTime") Then
+        _unixTime = json_val.getLong("unixTime")
       End If
-      If (member.name = "dateTime") Then
-        _dateTime = member.svalue
-        Return 1
+      If json_val.has("dateTime") Then
+        _dateTime = json_val.getString("dateTime")
       End If
-      If (member.name = "utcOffset") Then
-        _utcOffset = CInt(member.ivalue)
-        Return 1
+      If json_val.has("utcOffset") Then
+        _utcOffset = CInt(json_val.getLong("utcOffset"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YGps private methods declaration)

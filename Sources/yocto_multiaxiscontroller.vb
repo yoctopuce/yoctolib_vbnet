@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_multiaxiscontroller.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_multiaxiscontroller.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '*
@@ -109,20 +109,17 @@ Module yocto_multiaxiscontroller
 
     REM --- (YMultiAxisController private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "nAxis") Then
-        _nAxis = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("nAxis") Then
+        _nAxis = CInt(json_val.getLong("nAxis"))
       End If
-      If (member.name = "globalState") Then
-        _globalState = CInt(member.ivalue)
-        Return 1
+      If json_val.has("globalState") Then
+        _globalState = CInt(json_val.getLong("globalState"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YMultiAxisController private methods declaration)
@@ -362,7 +359,7 @@ Module yocto_multiaxiscontroller
       ndim = speed.Count
       cmd = "H" + Convert.ToString(CType(Math.Round(1000*speed(0)), Integer))
       i = 1
-      While (i + 1 < ndim)
+      While (i < ndim)
         cmd = "" +  cmd + "," + Convert.ToString(CType(Math.Round(1000*speed(i)), Integer))
         i = i + 1
       End While
@@ -393,7 +390,7 @@ Module yocto_multiaxiscontroller
       ndim = absPos.Count
       cmd = "M" + Convert.ToString(CType(Math.Round(16*absPos(0)), Integer))
       i = 1
-      While (i + 1 < ndim)
+      While (i < ndim)
         cmd = "" +  cmd + "," + Convert.ToString(CType(Math.Round(16*absPos(i)), Integer))
         i = i + 1
       End While
@@ -424,7 +421,7 @@ Module yocto_multiaxiscontroller
       ndim = relPos.Count
       cmd = "m" + Convert.ToString(CType(Math.Round(16*relPos(0)), Integer))
       i = 1
-      While (i + 1 < ndim)
+      While (i < ndim)
         cmd = "" +  cmd + "," + Convert.ToString(CType(Math.Round(16*relPos(i)), Integer))
         i = i + 1
       End While

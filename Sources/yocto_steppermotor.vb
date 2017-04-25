@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_steppermotor.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_steppermotor.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '*
@@ -167,68 +167,53 @@ Module yocto_steppermotor
 
     REM --- (YStepperMotor private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "motorState") Then
-        _motorState = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("motorState") Then
+        _motorState = CInt(json_val.getLong("motorState"))
       End If
-      If (member.name = "diags") Then
-        _diags = CInt(member.ivalue)
-        Return 1
+      If json_val.has("diags") Then
+        _diags = CInt(json_val.getLong("diags"))
       End If
-      If (member.name = "stepPos") Then
-        _stepPos = member.ivalue / 16.0
-        Return 1
+      If json_val.has("stepPos") Then
+        _stepPos = json_val.getDouble("stepPos") / 16.0
       End If
-      If (member.name = "speed") Then
-        _speed = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("speed") Then
+        _speed = Math.Round(json_val.getDouble("speed") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "pullinSpeed") Then
-        _pullinSpeed = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("pullinSpeed") Then
+        _pullinSpeed = Math.Round(json_val.getDouble("pullinSpeed") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "maxAccel") Then
-        _maxAccel = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("maxAccel") Then
+        _maxAccel = Math.Round(json_val.getDouble("maxAccel") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "maxSpeed") Then
-        _maxSpeed = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("maxSpeed") Then
+        _maxSpeed = Math.Round(json_val.getDouble("maxSpeed") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "stepping") Then
-        _stepping = CInt(member.ivalue)
-        Return 1
+      If json_val.has("stepping") Then
+        _stepping = CInt(json_val.getLong("stepping"))
       End If
-      If (member.name = "overcurrent") Then
-        _overcurrent = CInt(member.ivalue)
-        Return 1
+      If json_val.has("overcurrent") Then
+        _overcurrent = CInt(json_val.getLong("overcurrent"))
       End If
-      If (member.name = "tCurrStop") Then
-        _tCurrStop = CInt(member.ivalue)
-        Return 1
+      If json_val.has("tCurrStop") Then
+        _tCurrStop = CInt(json_val.getLong("tCurrStop"))
       End If
-      If (member.name = "tCurrRun") Then
-        _tCurrRun = CInt(member.ivalue)
-        Return 1
+      If json_val.has("tCurrRun") Then
+        _tCurrRun = CInt(json_val.getLong("tCurrRun"))
       End If
-      If (member.name = "alertMode") Then
-        _alertMode = member.svalue
-        Return 1
+      If json_val.has("alertMode") Then
+        _alertMode = json_val.getString("alertMode")
       End If
-      If (member.name = "auxMode") Then
-        _auxMode = member.svalue
-        Return 1
+      If json_val.has("auxMode") Then
+        _auxMode = json_val.getString("auxMode")
       End If
-      If (member.name = "auxSignal") Then
-        _auxSignal = CInt(member.ivalue)
-        Return 1
+      If json_val.has("auxSignal") Then
+        _auxSignal = CInt(json_val.getLong("auxSignal"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YStepperMotor private methods declaration)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_cellular.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -265,72 +265,56 @@ Module yocto_cellular
 
     REM --- (generated code: YCellular private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "linkQuality") Then
-        _linkQuality = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("linkQuality") Then
+        _linkQuality = CInt(json_val.getLong("linkQuality"))
       End If
-      If (member.name = "cellOperator") Then
-        _cellOperator = member.svalue
-        Return 1
+      If json_val.has("cellOperator") Then
+        _cellOperator = json_val.getString("cellOperator")
       End If
-      If (member.name = "cellIdentifier") Then
-        _cellIdentifier = member.svalue
-        Return 1
+      If json_val.has("cellIdentifier") Then
+        _cellIdentifier = json_val.getString("cellIdentifier")
       End If
-      If (member.name = "cellType") Then
-        _cellType = CInt(member.ivalue)
-        Return 1
+      If json_val.has("cellType") Then
+        _cellType = CInt(json_val.getLong("cellType"))
       End If
-      If (member.name = "imsi") Then
-        _imsi = member.svalue
-        Return 1
+      If json_val.has("imsi") Then
+        _imsi = json_val.getString("imsi")
       End If
-      If (member.name = "message") Then
-        _message = member.svalue
-        Return 1
+      If json_val.has("message") Then
+        _message = json_val.getString("message")
       End If
-      If (member.name = "pin") Then
-        _pin = member.svalue
-        Return 1
+      If json_val.has("pin") Then
+        _pin = json_val.getString("pin")
       End If
-      If (member.name = "lockedOperator") Then
-        _lockedOperator = member.svalue
-        Return 1
+      If json_val.has("lockedOperator") Then
+        _lockedOperator = json_val.getString("lockedOperator")
       End If
-      If (member.name = "airplaneMode") Then
-        If (member.ivalue > 0) Then _airplaneMode = 1 Else _airplaneMode = 0
-        Return 1
+      If json_val.has("airplaneMode") Then
+        If (json_val.getInt("airplaneMode") > 0) Then _airplaneMode = 1 Else _airplaneMode = 0
       End If
-      If (member.name = "enableData") Then
-        _enableData = CInt(member.ivalue)
-        Return 1
+      If json_val.has("enableData") Then
+        _enableData = CInt(json_val.getLong("enableData"))
       End If
-      If (member.name = "apn") Then
-        _apn = member.svalue
-        Return 1
+      If json_val.has("apn") Then
+        _apn = json_val.getString("apn")
       End If
-      If (member.name = "apnSecret") Then
-        _apnSecret = member.svalue
-        Return 1
+      If json_val.has("apnSecret") Then
+        _apnSecret = json_val.getString("apnSecret")
       End If
-      If (member.name = "pingInterval") Then
-        _pingInterval = CInt(member.ivalue)
-        Return 1
+      If json_val.has("pingInterval") Then
+        _pingInterval = CInt(json_val.getLong("pingInterval"))
       End If
-      If (member.name = "dataSent") Then
-        _dataSent = CInt(member.ivalue)
-        Return 1
+      If json_val.has("dataSent") Then
+        _dataSent = CInt(json_val.getLong("dataSent"))
       End If
-      If (member.name = "dataReceived") Then
-        _dataReceived = CInt(member.ivalue)
-        Return 1
+      If json_val.has("dataReceived") Then
+        _dataReceived = CInt(json_val.getLong("dataReceived"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YCellular private methods declaration)

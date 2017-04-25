@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_display.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -980,52 +980,41 @@ end enum
 
     REM --- (generated code: YDisplay private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "enabled") Then
-        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("enabled") Then
+        If (json_val.getInt("enabled") > 0) Then _enabled = 1 Else _enabled = 0
       End If
-      If (member.name = "startupSeq") Then
-        _startupSeq = member.svalue
-        Return 1
+      If json_val.has("startupSeq") Then
+        _startupSeq = json_val.getString("startupSeq")
       End If
-      If (member.name = "brightness") Then
-        _brightness = CInt(member.ivalue)
-        Return 1
+      If json_val.has("brightness") Then
+        _brightness = CInt(json_val.getLong("brightness"))
       End If
-      If (member.name = "orientation") Then
-        _orientation = CInt(member.ivalue)
-        Return 1
+      If json_val.has("orientation") Then
+        _orientation = CInt(json_val.getLong("orientation"))
       End If
-      If (member.name = "displayWidth") Then
-        _displayWidth = CInt(member.ivalue)
-        Return 1
+      If json_val.has("displayWidth") Then
+        _displayWidth = CInt(json_val.getLong("displayWidth"))
       End If
-      If (member.name = "displayHeight") Then
-        _displayHeight = CInt(member.ivalue)
-        Return 1
+      If json_val.has("displayHeight") Then
+        _displayHeight = CInt(json_val.getLong("displayHeight"))
       End If
-      If (member.name = "displayType") Then
-        _displayType = CInt(member.ivalue)
-        Return 1
+      If json_val.has("displayType") Then
+        _displayType = CInt(json_val.getLong("displayType"))
       End If
-      If (member.name = "layerWidth") Then
-        _layerWidth = CInt(member.ivalue)
-        Return 1
+      If json_val.has("layerWidth") Then
+        _layerWidth = CInt(json_val.getLong("layerWidth"))
       End If
-      If (member.name = "layerHeight") Then
-        _layerHeight = CInt(member.ivalue)
-        Return 1
+      If json_val.has("layerHeight") Then
+        _layerHeight = CInt(json_val.getLong("layerHeight"))
       End If
-      If (member.name = "layerCount") Then
-        _layerCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("layerCount") Then
+        _layerCount = CInt(json_val.getLong("layerCount"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YDisplay private methods declaration)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_motor.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_motor.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindMotor(), the high-level API for Motor functions
 '*
@@ -142,44 +142,35 @@ Module yocto_motor
 
     REM --- (YMotor private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "motorStatus") Then
-        _motorStatus = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("motorStatus") Then
+        _motorStatus = CInt(json_val.getLong("motorStatus"))
       End If
-      If (member.name = "drivingForce") Then
-        _drivingForce = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("drivingForce") Then
+        _drivingForce = Math.Round(json_val.getDouble("drivingForce") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "brakingForce") Then
-        _brakingForce = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("brakingForce") Then
+        _brakingForce = Math.Round(json_val.getDouble("brakingForce") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "cutOffVoltage") Then
-        _cutOffVoltage = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("cutOffVoltage") Then
+        _cutOffVoltage = Math.Round(json_val.getDouble("cutOffVoltage") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "overCurrentLimit") Then
-        _overCurrentLimit = CInt(member.ivalue)
-        Return 1
+      If json_val.has("overCurrentLimit") Then
+        _overCurrentLimit = CInt(json_val.getLong("overCurrentLimit"))
       End If
-      If (member.name = "frequency") Then
-        _frequency = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("frequency") Then
+        _frequency = Math.Round(json_val.getDouble("frequency") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "starterTime") Then
-        _starterTime = CInt(member.ivalue)
-        Return 1
+      If json_val.has("starterTime") Then
+        _starterTime = CInt(json_val.getLong("starterTime"))
       End If
-      If (member.name = "failSafeTimeout") Then
-        _failSafeTimeout = CInt(member.ivalue)
-        Return 1
+      If json_val.has("failSafeTimeout") Then
+        _failSafeTimeout = CInt(json_val.getLong("failSafeTimeout"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YMotor private methods declaration)

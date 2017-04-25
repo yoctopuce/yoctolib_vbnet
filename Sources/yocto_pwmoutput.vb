@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmoutput.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_pwmoutput.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '*
@@ -125,40 +125,32 @@ Module yocto_pwmoutput
 
     REM --- (YPwmOutput private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "enabled") Then
-        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("enabled") Then
+        If (json_val.getInt("enabled") > 0) Then _enabled = 1 Else _enabled = 0
       End If
-      If (member.name = "frequency") Then
-        _frequency = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("frequency") Then
+        _frequency = Math.Round(json_val.getDouble("frequency") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "period") Then
-        _period = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("period") Then
+        _period = Math.Round(json_val.getDouble("period") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "dutyCycle") Then
-        _dutyCycle = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("dutyCycle") Then
+        _dutyCycle = Math.Round(json_val.getDouble("dutyCycle") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "pulseDuration") Then
-        _pulseDuration = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("pulseDuration") Then
+        _pulseDuration = Math.Round(json_val.getDouble("pulseDuration") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "pwmTransition") Then
-        _pwmTransition = member.svalue
-        Return 1
+      If json_val.has("pwmTransition") Then
+        _pwmTransition = json_val.getString("pwmTransition")
       End If
-      If (member.name = "enabledAtPowerOn") Then
-        If (member.ivalue > 0) Then _enabledAtPowerOn = 1 Else _enabledAtPowerOn = 0
-        Return 1
+      If json_val.has("enabledAtPowerOn") Then
+        If (json_val.getInt("enabledAtPowerOn") > 0) Then _enabledAtPowerOn = 1 Else _enabledAtPowerOn = 0
       End If
-      If (member.name = "dutyCycleAtPowerOn") Then
-        _dutyCycleAtPowerOn = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("dutyCycleAtPowerOn") Then
+        _dutyCycleAtPowerOn = Math.Round(json_val.getDouble("dutyCycleAtPowerOn") * 1000.0 / 65536.0) / 1000.0
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YPwmOutput private methods declaration)

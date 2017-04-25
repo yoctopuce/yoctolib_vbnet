@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_relay.vb 27118 2017-04-06 22:38:36Z seb $
+'* $Id: yocto_relay.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindRelay(), the high-level API for Relay functions
 '*
@@ -139,53 +139,41 @@ End Class
 
     REM --- (YRelay private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "state") Then
-        If (member.ivalue > 0) Then _state = 1 Else _state = 0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("state") Then
+        If (json_val.getInt("state") > 0) Then _state = 1 Else _state = 0
       End If
-      If (member.name = "stateAtPowerOn") Then
-        _stateAtPowerOn = CInt(member.ivalue)
-        Return 1
+      If json_val.has("stateAtPowerOn") Then
+        _stateAtPowerOn = CInt(json_val.getLong("stateAtPowerOn"))
       End If
-      If (member.name = "maxTimeOnStateA") Then
-        _maxTimeOnStateA = member.ivalue
-        Return 1
+      If json_val.has("maxTimeOnStateA") Then
+        _maxTimeOnStateA = json_val.getLong("maxTimeOnStateA")
       End If
-      If (member.name = "maxTimeOnStateB") Then
-        _maxTimeOnStateB = member.ivalue
-        Return 1
+      If json_val.has("maxTimeOnStateB") Then
+        _maxTimeOnStateB = json_val.getLong("maxTimeOnStateB")
       End If
-      If (member.name = "output") Then
-        If (member.ivalue > 0) Then _output = 1 Else _output = 0
-        Return 1
+      If json_val.has("output") Then
+        If (json_val.getInt("output") > 0) Then _output = 1 Else _output = 0
       End If
-      If (member.name = "pulseTimer") Then
-        _pulseTimer = member.ivalue
-        Return 1
+      If json_val.has("pulseTimer") Then
+        _pulseTimer = json_val.getLong("pulseTimer")
       End If
-      If (member.name = "delayedPulseTimer") Then
-        If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-          Dim submemb As TJSONRECORD
-          Dim l As Integer
-          For l = 0 To member.membercount - 1
-            submemb = member.members(l)
-            If (submemb.name = "moving") Then
-              _delayedPulseTimer.moving = CInt(submemb.ivalue)
-            ElseIf (submemb.name = "target") Then
-              _delayedPulseTimer.target = CInt(submemb.ivalue)
-            ElseIf (submemb.name = "ms") Then
-              _delayedPulseTimer.ms = CInt(submemb.ivalue)
-            End If
-          Next l
+      If json_val.has("delayedPulseTimer") Then
+        Dim subjson As YJSONObject = json_val.getYJSONObject("delayedPulseTimer")
+        If (subjson.has("moving")) Then
+            _delayedPulseTimer.moving = subjson.getInt("moving")
         End If
-        Return 1
+        If (subjson.has("target")) Then
+            _delayedPulseTimer.target = subjson.getInt("target")
+        End If
+        If (subjson.has("ms")) Then
+            _delayedPulseTimer.ms = subjson.getInt("ms")
+        End If
       End If
-      If (member.name = "countdown") Then
-        _countdown = member.ivalue
-        Return 1
+      If json_val.has("countdown") Then
+        _countdown = json_val.getLong("countdown")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YRelay private methods declaration)

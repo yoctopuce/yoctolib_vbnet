@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_bridgecontrol.vb 27017 2017-03-31 14:47:59Z seb $
+'* $Id: yocto_bridgecontrol.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindBridgeControl(), the high-level API for BridgeControl functions
 '*
@@ -111,24 +111,20 @@ Module yocto_bridgecontrol
 
     REM --- (YBridgeControl private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "excitationMode") Then
-        _excitationMode = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("excitationMode") Then
+        _excitationMode = CInt(json_val.getLong("excitationMode"))
       End If
-      If (member.name = "bridgeLatency") Then
-        _bridgeLatency = CInt(member.ivalue)
-        Return 1
+      If json_val.has("bridgeLatency") Then
+        _bridgeLatency = CInt(json_val.getLong("bridgeLatency"))
       End If
-      If (member.name = "adValue") Then
-        _adValue = CInt(member.ivalue)
-        Return 1
+      If json_val.has("adValue") Then
+        _adValue = CInt(json_val.getLong("adValue"))
       End If
-      If (member.name = "adGain") Then
-        _adGain = CInt(member.ivalue)
-        Return 1
+      If json_val.has("adGain") Then
+        _adGain = CInt(json_val.getLong("adGain"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YBridgeControl private methods declaration)

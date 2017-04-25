@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_bluetoothlink.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_bluetoothlink.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindBluetoothLink(), the high-level API for BluetoothLink functions
 '*
@@ -142,48 +142,38 @@ Module yocto_bluetoothlink
 
     REM --- (YBluetoothLink private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "ownAddress") Then
-        _ownAddress = member.svalue
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("ownAddress") Then
+        _ownAddress = json_val.getString("ownAddress")
       End If
-      If (member.name = "pairingPin") Then
-        _pairingPin = member.svalue
-        Return 1
+      If json_val.has("pairingPin") Then
+        _pairingPin = json_val.getString("pairingPin")
       End If
-      If (member.name = "remoteAddress") Then
-        _remoteAddress = member.svalue
-        Return 1
+      If json_val.has("remoteAddress") Then
+        _remoteAddress = json_val.getString("remoteAddress")
       End If
-      If (member.name = "remoteName") Then
-        _remoteName = member.svalue
-        Return 1
+      If json_val.has("remoteName") Then
+        _remoteName = json_val.getString("remoteName")
       End If
-      If (member.name = "mute") Then
-        If (member.ivalue > 0) Then _mute = 1 Else _mute = 0
-        Return 1
+      If json_val.has("mute") Then
+        If (json_val.getInt("mute") > 0) Then _mute = 1 Else _mute = 0
       End If
-      If (member.name = "preAmplifier") Then
-        _preAmplifier = CInt(member.ivalue)
-        Return 1
+      If json_val.has("preAmplifier") Then
+        _preAmplifier = CInt(json_val.getLong("preAmplifier"))
       End If
-      If (member.name = "volume") Then
-        _volume = CInt(member.ivalue)
-        Return 1
+      If json_val.has("volume") Then
+        _volume = CInt(json_val.getLong("volume"))
       End If
-      If (member.name = "linkState") Then
-        _linkState = CInt(member.ivalue)
-        Return 1
+      If json_val.has("linkState") Then
+        _linkState = CInt(json_val.getLong("linkState"))
       End If
-      If (member.name = "linkQuality") Then
-        _linkQuality = CInt(member.ivalue)
-        Return 1
+      If json_val.has("linkQuality") Then
+        _linkQuality = CInt(json_val.getLong("linkQuality"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YBluetoothLink private methods declaration)

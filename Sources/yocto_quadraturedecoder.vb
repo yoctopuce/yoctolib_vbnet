@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_quadraturedecoder.vb 26826 2017-03-17 11:20:57Z mvuilleu $
+'* $Id: yocto_quadraturedecoder.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '*
@@ -102,16 +102,14 @@ Module yocto_quadraturedecoder
 
     REM --- (YQuadratureDecoder private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "speed") Then
-        _speed = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("speed") Then
+        _speed = Math.Round(json_val.getDouble("speed") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "decoding") Then
-        If (member.ivalue > 0) Then _decoding = 1 Else _decoding = 0
-        Return 1
+      If json_val.has("decoding") Then
+        If (json_val.getInt("decoding") > 0) Then _decoding = 1 Else _decoding = 0
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YQuadratureDecoder private methods declaration)

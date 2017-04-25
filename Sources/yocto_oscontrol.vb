@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_oscontrol.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_oscontrol.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindOsControl(), the high-level API for OsControl functions
 '*
@@ -91,12 +91,11 @@ Module yocto_oscontrol
 
     REM --- (YOsControl private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "shutdownCountdown") Then
-        _shutdownCountdown = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("shutdownCountdown") Then
+        _shutdownCountdown = CInt(json_val.getLong("shutdownCountdown"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YOsControl private methods declaration)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_buzzer.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_buzzer.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindBuzzer(), the high-level API for Buzzer functions
 '*
@@ -111,32 +111,26 @@ Module yocto_buzzer
 
     REM --- (YBuzzer private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "frequency") Then
-        _frequency = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("frequency") Then
+        _frequency = Math.Round(json_val.getDouble("frequency") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "volume") Then
-        _volume = CInt(member.ivalue)
-        Return 1
+      If json_val.has("volume") Then
+        _volume = CInt(json_val.getLong("volume"))
       End If
-      If (member.name = "playSeqSize") Then
-        _playSeqSize = CInt(member.ivalue)
-        Return 1
+      If json_val.has("playSeqSize") Then
+        _playSeqSize = CInt(json_val.getLong("playSeqSize"))
       End If
-      If (member.name = "playSeqMaxSize") Then
-        _playSeqMaxSize = CInt(member.ivalue)
-        Return 1
+      If json_val.has("playSeqMaxSize") Then
+        _playSeqMaxSize = CInt(json_val.getLong("playSeqMaxSize"))
       End If
-      If (member.name = "playSeqSignature") Then
-        _playSeqSignature = CInt(member.ivalue)
-        Return 1
+      If json_val.has("playSeqSignature") Then
+        _playSeqSignature = CInt(json_val.getLong("playSeqSignature"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YBuzzer private methods declaration)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_realtimeclock.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_realtimeclock.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '*
@@ -109,24 +109,20 @@ Module yocto_realtimeclock
 
     REM --- (YRealTimeClock private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "unixTime") Then
-        _unixTime = member.ivalue
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("unixTime") Then
+        _unixTime = json_val.getLong("unixTime")
       End If
-      If (member.name = "dateTime") Then
-        _dateTime = member.svalue
-        Return 1
+      If json_val.has("dateTime") Then
+        _dateTime = json_val.getString("dateTime")
       End If
-      If (member.name = "utcOffset") Then
-        _utcOffset = CInt(member.ivalue)
-        Return 1
+      If json_val.has("utcOffset") Then
+        _utcOffset = CInt(json_val.getLong("utcOffset"))
       End If
-      If (member.name = "timeSet") Then
-        If (member.ivalue > 0) Then _timeSet = 1 Else _timeSet = 0
-        Return 1
+      If json_val.has("timeSet") Then
+        If (json_val.getInt("timeSet") > 0) Then _timeSet = 1 Else _timeSet = 0
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YRealTimeClock private methods declaration)

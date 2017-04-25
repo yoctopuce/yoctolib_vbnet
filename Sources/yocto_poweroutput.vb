@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_poweroutput.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_poweroutput.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindPowerOutput(), the high-level API for PowerOutput functions
 '*
@@ -96,12 +96,11 @@ Module yocto_poweroutput
 
     REM --- (YPowerOutput private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "voltage") Then
-        _voltage = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("voltage") Then
+        _voltage = CInt(json_val.getLong("voltage"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YPowerOutput private methods declaration)

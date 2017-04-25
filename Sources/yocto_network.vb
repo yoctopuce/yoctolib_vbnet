@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_network.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -222,104 +222,80 @@ Module yocto_network
 
     REM --- (YNetwork private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "readiness") Then
-        _readiness = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("readiness") Then
+        _readiness = CInt(json_val.getLong("readiness"))
       End If
-      If (member.name = "macAddress") Then
-        _macAddress = member.svalue
-        Return 1
+      If json_val.has("macAddress") Then
+        _macAddress = json_val.getString("macAddress")
       End If
-      If (member.name = "ipAddress") Then
-        _ipAddress = member.svalue
-        Return 1
+      If json_val.has("ipAddress") Then
+        _ipAddress = json_val.getString("ipAddress")
       End If
-      If (member.name = "subnetMask") Then
-        _subnetMask = member.svalue
-        Return 1
+      If json_val.has("subnetMask") Then
+        _subnetMask = json_val.getString("subnetMask")
       End If
-      If (member.name = "router") Then
-        _router = member.svalue
-        Return 1
+      If json_val.has("router") Then
+        _router = json_val.getString("router")
       End If
-      If (member.name = "ipConfig") Then
-        _ipConfig = member.svalue
-        Return 1
+      If json_val.has("ipConfig") Then
+        _ipConfig = json_val.getString("ipConfig")
       End If
-      If (member.name = "primaryDNS") Then
-        _primaryDNS = member.svalue
-        Return 1
+      If json_val.has("primaryDNS") Then
+        _primaryDNS = json_val.getString("primaryDNS")
       End If
-      If (member.name = "secondaryDNS") Then
-        _secondaryDNS = member.svalue
-        Return 1
+      If json_val.has("secondaryDNS") Then
+        _secondaryDNS = json_val.getString("secondaryDNS")
       End If
-      If (member.name = "ntpServer") Then
-        _ntpServer = member.svalue
-        Return 1
+      If json_val.has("ntpServer") Then
+        _ntpServer = json_val.getString("ntpServer")
       End If
-      If (member.name = "userPassword") Then
-        _userPassword = member.svalue
-        Return 1
+      If json_val.has("userPassword") Then
+        _userPassword = json_val.getString("userPassword")
       End If
-      If (member.name = "adminPassword") Then
-        _adminPassword = member.svalue
-        Return 1
+      If json_val.has("adminPassword") Then
+        _adminPassword = json_val.getString("adminPassword")
       End If
-      If (member.name = "httpPort") Then
-        _httpPort = CInt(member.ivalue)
-        Return 1
+      If json_val.has("httpPort") Then
+        _httpPort = CInt(json_val.getLong("httpPort"))
       End If
-      If (member.name = "defaultPage") Then
-        _defaultPage = member.svalue
-        Return 1
+      If json_val.has("defaultPage") Then
+        _defaultPage = json_val.getString("defaultPage")
       End If
-      If (member.name = "discoverable") Then
-        If (member.ivalue > 0) Then _discoverable = 1 Else _discoverable = 0
-        Return 1
+      If json_val.has("discoverable") Then
+        If (json_val.getInt("discoverable") > 0) Then _discoverable = 1 Else _discoverable = 0
       End If
-      If (member.name = "wwwWatchdogDelay") Then
-        _wwwWatchdogDelay = CInt(member.ivalue)
-        Return 1
+      If json_val.has("wwwWatchdogDelay") Then
+        _wwwWatchdogDelay = CInt(json_val.getLong("wwwWatchdogDelay"))
       End If
-      If (member.name = "callbackUrl") Then
-        _callbackUrl = member.svalue
-        Return 1
+      If json_val.has("callbackUrl") Then
+        _callbackUrl = json_val.getString("callbackUrl")
       End If
-      If (member.name = "callbackMethod") Then
-        _callbackMethod = CInt(member.ivalue)
-        Return 1
+      If json_val.has("callbackMethod") Then
+        _callbackMethod = CInt(json_val.getLong("callbackMethod"))
       End If
-      If (member.name = "callbackEncoding") Then
-        _callbackEncoding = CInt(member.ivalue)
-        Return 1
+      If json_val.has("callbackEncoding") Then
+        _callbackEncoding = CInt(json_val.getLong("callbackEncoding"))
       End If
-      If (member.name = "callbackCredentials") Then
-        _callbackCredentials = member.svalue
-        Return 1
+      If json_val.has("callbackCredentials") Then
+        _callbackCredentials = json_val.getString("callbackCredentials")
       End If
-      If (member.name = "callbackInitialDelay") Then
-        _callbackInitialDelay = CInt(member.ivalue)
-        Return 1
+      If json_val.has("callbackInitialDelay") Then
+        _callbackInitialDelay = CInt(json_val.getLong("callbackInitialDelay"))
       End If
-      If (member.name = "callbackSchedule") Then
-        _callbackSchedule = member.svalue
-        Return 1
+      If json_val.has("callbackSchedule") Then
+        _callbackSchedule = json_val.getString("callbackSchedule")
       End If
-      If (member.name = "callbackMinDelay") Then
-        _callbackMinDelay = CInt(member.ivalue)
-        Return 1
+      If json_val.has("callbackMinDelay") Then
+        _callbackMinDelay = CInt(json_val.getLong("callbackMinDelay"))
       End If
-      If (member.name = "callbackMaxDelay") Then
-        _callbackMaxDelay = CInt(member.ivalue)
-        Return 1
+      If json_val.has("callbackMaxDelay") Then
+        _callbackMaxDelay = CInt(json_val.getLong("callbackMaxDelay"))
       End If
-      If (member.name = "poeCurrent") Then
-        _poeCurrent = CInt(member.ivalue)
-        Return 1
+      If json_val.has("poeCurrent") Then
+        _poeCurrent = CInt(json_val.getLong("poeCurrent"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YNetwork private methods declaration)

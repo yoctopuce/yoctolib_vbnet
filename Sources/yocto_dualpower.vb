@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_dualpower.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_dualpower.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindDualPower(), the high-level API for DualPower functions
 '*
@@ -115,20 +115,17 @@ Module yocto_dualpower
 
     REM --- (YDualPower private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "powerState") Then
-        _powerState = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("powerState") Then
+        _powerState = CInt(json_val.getLong("powerState"))
       End If
-      If (member.name = "powerControl") Then
-        _powerControl = CInt(member.ivalue)
-        Return 1
+      If json_val.has("powerControl") Then
+        _powerControl = CInt(json_val.getLong("powerControl"))
       End If
-      If (member.name = "extVoltage") Then
-        _extVoltage = CInt(member.ivalue)
-        Return 1
+      If json_val.has("extVoltage") Then
+        _extVoltage = CInt(json_val.getLong("extVoltage"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YDualPower private methods declaration)

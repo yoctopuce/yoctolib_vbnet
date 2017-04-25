@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_audioout.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_audioout.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindAudioOut(), the high-level API for AudioOut functions
 '*
@@ -109,28 +109,23 @@ Module yocto_audioout
 
     REM --- (YAudioOut private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "volume") Then
-        _volume = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("volume") Then
+        _volume = CInt(json_val.getLong("volume"))
       End If
-      If (member.name = "mute") Then
-        If (member.ivalue > 0) Then _mute = 1 Else _mute = 0
-        Return 1
+      If json_val.has("mute") Then
+        If (json_val.getInt("mute") > 0) Then _mute = 1 Else _mute = 0
       End If
-      If (member.name = "volumeRange") Then
-        _volumeRange = member.svalue
-        Return 1
+      If json_val.has("volumeRange") Then
+        _volumeRange = json_val.getString("volumeRange")
       End If
-      If (member.name = "signal") Then
-        _signal = CInt(member.ivalue)
-        Return 1
+      If json_val.has("signal") Then
+        _signal = CInt(json_val.getLong("signal"))
       End If
-      If (member.name = "noSignalFor") Then
-        _noSignalFor = CInt(member.ivalue)
-        Return 1
+      If json_val.has("noSignalFor") Then
+        _noSignalFor = CInt(json_val.getLong("noSignalFor"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YAudioOut private methods declaration)

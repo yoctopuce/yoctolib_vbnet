@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_rangefinder.vb 26996 2017-03-30 16:18:14Z seb $
+'* $Id: yocto_rangefinder.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindRangeFinder(), the high-level API for RangeFinder functions
 '*
@@ -116,24 +116,20 @@ Module yocto_rangefinder
 
     REM --- (YRangeFinder private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "rangeFinderMode") Then
-        _rangeFinderMode = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("rangeFinderMode") Then
+        _rangeFinderMode = CInt(json_val.getLong("rangeFinderMode"))
       End If
-      If (member.name = "hardwareCalibration") Then
-        _hardwareCalibration = member.svalue
-        Return 1
+      If json_val.has("hardwareCalibration") Then
+        _hardwareCalibration = json_val.getString("hardwareCalibration")
       End If
-      If (member.name = "currentTemperature") Then
-        _currentTemperature = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("currentTemperature") Then
+        _currentTemperature = Math.Round(json_val.getDouble("currentTemperature") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YRangeFinder private methods declaration)

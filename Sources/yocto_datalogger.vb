@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_datalogger.vb 27243 2017-04-24 15:05:41Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -144,17 +144,15 @@ Module yocto_datalogger
     Public Overloads Function get_dataSamplesInterval() As Integer
       get_dataSamplesInterval = CInt(_interval)
     End Function
-
-
+    
     Private Overloads Function loadStream() As Integer
-      Dim json As TJsonParser = Nothing
-      Dim res, count As Integer
-      Dim root, el As TJSONRECORD
-      Dim name As String
+      Dim raw_json As YJSONContent = Nothing
+      Dim json As YJSONObject
+      Dim res As Integer
       Dim coldiv As List(Of Integer) = New List(Of Integer)
       Dim coltype As List(Of Integer) = New List(Of Integer)
-      Dim udat As List(Of UInteger) = New List(Of UInteger)
-      Dim dat As List(Of Double) = New List(Of Double)
+      Dim udat As List(Of Integer) = New List(Of Integer)
+      Dim [date] As New List(Of Double)()
       Dim colscl As List(Of Double) = New List(Of Double)
       Dim colofs As List(Of Integer) = New List(Of Integer)
       Dim caltyp As List(Of Integer) = New List(Of Integer)
@@ -162,159 +160,125 @@ Module yocto_datalogger
       Dim calpar As List(Of List(Of Integer)) = New List(Of List(Of Integer))
       Dim calraw As List(Of List(Of Double)) = New List(Of List(Of Double))
       Dim calref As List(Of List(Of Double)) = New List(Of List(Of Double))
-      Dim x, i, j As Integer
-      Dim value As Double
-      Dim sdat As String
 
-      res = _dataLogger.getData(_runNo, _timeStamp, json)
-      If (res <> YAPI_SUCCESS) Then
-        loadStream = res
-        Exit Function
+      Dim x As Integer = 0
+      Dim j As Integer = 0
+
+      res = _dataLogger.getData(_runNo, _timeStamp, raw_json)
+      If (res <> YAPI.SUCCESS) Then
+        Return res
       End If
 
       _nRows = 0
       _nCols = 0
       _columnNames.Clear()
+      _values = New List(Of List(Of Double))()
+      json = DirectCast(raw_json, YJSONObject)
 
-      root = json.GetRootNode()
-      For i = 0 To root.membercount - 1
 
-        el = root.members(i)
-        name = el.name
-        If (name = "time") Then
+      If json.has("time") Then
+        _timeStamp = json.getInt("time")
+      End If
+      If json.has("UTC") Then
+        _utcStamp = json.getLong("UTC")
+      End If
+      If json.has("interval") Then
+        _interval = json.getInt("interval")
+      End If
+      If json.has("nRows") Then
+        _nRows = json.getInt("nRows")
+      End If
+      If json.has("keys") Then
+        Dim jsonkeys As YJSONArray = json.getYJSONArray("keys")
+        _nCols = jsonkeys.Length
+        For j = 0 To _nCols - 1
+          _columnNames.Add(jsonkeys.getString(j))
+        Next
+      End If
+      If json.has("div") Then
+        Dim arr As YJSONArray = json.getYJSONArray("div")
+        _nCols = arr.Length
+        For j = 0 To _nCols - 1
+          coldiv.Add(arr.getInt(j))
+        Next
+      End If
+      If json.has("type") Then
+        Dim arr As YJSONArray = json.getYJSONArray("type")
+        _nCols = arr.Length
+        For j = 0 To _nCols - 1
+          coltype.Add(arr.getInt(j))
+        Next
+      End If
+      If json.has("scal") Then
+        Dim arr As YJSONArray = json.getYJSONArray("type")
+        _nCols = arr.Length
+        For j = 0 To _nCols - 1
+          colscl.Add(arr.getInt(j) / 65536.0)
+          If coltype(j) <> 0 Then
+            colofs.Add(-32767)
+          Else
+            colofs.Add(0)
+          End If
 
-          _timeStamp = el.ivalue
-        ElseIf (name = "UTC") Then
-          _utcStamp = CUInt(el.ivalue)
-        ElseIf (name = "interval") Then
-          _interval = el.ivalue
-        ElseIf (name = "nRows") Then
-          _nRows = CInt(el.ivalue)
-        ElseIf (name = "keys") Then
-          _nCols = el.itemcount
+        Next
+      End If
+      If json.has("cal") Then
+        REM old calibration is not supported
+      End If
+      If json.has("data") Then
+        If colscl.Count <= 0 Then
           For j = 0 To _nCols - 1
-            _columnNames.Add(el.items(j).svalue)
-          Next j
-        ElseIf (name = "div") Then
-          _nCols = el.itemcount
-          For j = 0 To _nCols - 1
-            coldiv.Add(CInt(el.items(j).ivalue))
-          Next j
-        ElseIf (name = "type") Then
-          _nCols = el.itemcount
-          For j = 0 To _nCols - 1
-            coltype.Add(CInt(el.items(j).ivalue))
-          Next j
-        ElseIf (name = "scal") Then
-          _nCols = el.itemcount
-          For j = 0 To _nCols - 1
-            colscl.Add(el.items(j).ivalue / 65536.0)
+            colscl.Add(1.0 / coldiv(j))
             If coltype(j) <> 0 Then
               colofs.Add(-32767)
             Else
               colofs.Add(0)
             End If
-          Next j
-        ElseIf (name = "cal") Then
-          _nCols = el.itemcount
-          For j = 0 To _nCols - 1
-            Dim calibration_Str As String = el.items(j).svalue
-            Dim cur_calpar As List(Of Integer) = Nothing
-            Dim cur_calraw As List(Of Double) = Nothing
-            Dim cur_calref As List(Of Double) = Nothing
-            Dim calibType As Integer = 0
-            caltyp.Add(calibType)
-            calhdl.Add(YAPI._getCalibrationHandler(calibType))
-            calpar.Add(cur_calpar)
-            calraw.Add(cur_calraw)
-            calref.Add(cur_calref)
-          Next j
-        ElseIf (name = "data") Then
-          If (colscl.Count <= 0) Then
-            For j = 0 To _nCols - 1
-              colscl.Add(1.0 / coldiv(j))
-              If (coltype(j) <> 0) Then
-                colofs.Add(-32767)
-              Else
-                colofs.Add(0)
-              End If
-            Next j
-          End If
-          count = el.itemcount
-          udat.Clear()
-          If (el.recordtype = TJSONRECORDTYPE.JSON_STRING) Then
-            sdat = el.svalue
-            Dim p As Integer = 0
-            While (p < sdat.Length)
-              Dim val As UInteger
-              Dim c As UInteger = CUInt(Asc(sdat.Substring(p, 1)))
-              p += 1
-              If (c >= 97) Then REM 97 ='a'
-                Dim srcpos As Integer = CInt((udat.Count - 1 - (c - 97)))
-                If (srcpos < 0) Then
-                  _dataLogger.throw_friend(YAPI_IO_ERROR, "Unexpected JSON reply format")
-                  Return YAPI_IO_ERROR
-                End If
-                val = udat.ElementAt(srcpos)
-              Else
-                If (p + 2 > sdat.Length) Then
-                  _dataLogger.throw_friend(YAPI_IO_ERROR, "Unexpected JSON reply format")
-                  Return YAPI_IO_ERROR
-                End If
-                val = CUInt(c - 48) REM 48='0'
-                c = CUInt(Asc(sdat.Substring(p, 1)))
-                p += 1
-                val += CUInt(c - 48) << 5
-                c = CUInt(Asc(sdat.Substring(p, 1)))
-                p += 1
-                If (c = 122) Then REM 122 ='z'
-                  c = 92 REM 92 ='\'
-                End If
-                val += CUInt(c - 48) << 10
-              End If
-              udat.Add(val)
-            End While
-          Else
-            count = el.itemcount
-            For j = 0 To count - 1
-              Dim tmp As UInteger = CUInt(el.items(j).ivalue)
-              udat.Add(tmp)
-            Next
-          End If
-
-
-          _values = New List(Of List(Of Double))()
-          dat = New List(Of Double)()
-          x = 0
-          For Each uval As Integer In udat
-            If coltype(x) < 2 Then
-              value = (uval + colofs(x)) * colscl(x)
-            Else
-              value = YAPI._decimalToDouble(uval - 32767)
-            End If
-            If (caltyp(x) > 0 And calhdl(x) <> Nothing) Then
-              Dim handler As yCalibrationHandler = calhdl(x)
-              If (caltyp(x) <= 10) Then
-                value = handler((uval + coldiv(x)) / coldiv(x), caltyp(x), calpar(x), calraw(x), calref(x))
-              ElseIf (caltyp(x) > 20) Then
-                value = handler(value, caltyp(x), calpar(x), calraw(x), calref(x))
-              End If
-            End If
-            dat.Add(value)
-            x = x + 1
-            If (x = _nCols) Then
-              _values.Add(dat)
-              dat.Clear()
-              x = 0
-            End If
           Next
         End If
-      Next i
-
-      json = Nothing
-
-      loadStream = YAPI_SUCCESS
+        udat.Clear()
+        Dim data As String = Nothing
+        Try
+          data = json.getString("data")
+          udat = YAPI._decodeWords(data)
+        Catch generatedExceptionName As Exception
+        End Try
+        If data Is Nothing Then
+          Dim jsonData As YJSONArray = json.getYJSONArray("data")
+          For j = 0 To jsonData.Length - 1
+            Dim tmp As Integer = CInt(jsonData.getInt(j))
+            udat.Add(tmp)
+          Next
+        End If
+        _values = New List(Of List(Of Double))()
+        Dim dat As New List(Of Double)()
+        For Each uval As Integer In udat
+          Dim value As Double
+          If coltype(x) < 2 Then
+            value = (uval + colofs(x)) * colscl(x)
+          Else
+            value = YAPI._decimalToDouble(uval - 32767)
+          End If
+          If caltyp(x) > 0 AndAlso calhdl(x) IsNot Nothing Then
+              Dim handler As yCalibrationHandler = calhdl(x)
+            If caltyp(x) <= 10 Then
+              value = handler((uval + colofs(x)) / coldiv(x), caltyp(x), calpar(x), calraw(x), calref(x))
+            ElseIf caltyp(x) > 20 Then
+              value = handler(value, caltyp(x), calpar(x), calraw(x), calref(x))
+            End If
+          End If
+          dat.Add(value)
+          x += 1
+          If x = _nCols Then
+            _values.Add(dat)
+            dat.Clear()
+            x = 0
+          End If
+        Next
+      End If
+      Return YAPI.SUCCESS
     End Function
+
 
 
   End Class
@@ -379,32 +343,26 @@ Module yocto_datalogger
 
     REM --- (generated code: YDataLogger private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "currentRunIndex") Then
-        _currentRunIndex = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("currentRunIndex") Then
+        _currentRunIndex = CInt(json_val.getLong("currentRunIndex"))
       End If
-      If (member.name = "timeUTC") Then
-        _timeUTC = member.ivalue
-        Return 1
+      If json_val.has("timeUTC") Then
+        _timeUTC = json_val.getLong("timeUTC")
       End If
-      If (member.name = "recording") Then
-        _recording = CInt(member.ivalue)
-        Return 1
+      If json_val.has("recording") Then
+        _recording = CInt(json_val.getLong("recording"))
       End If
-      If (member.name = "autoStart") Then
-        If (member.ivalue > 0) Then _autoStart = 1 Else _autoStart = 0
-        Return 1
+      If json_val.has("autoStart") Then
+        If (json_val.getInt("autoStart") > 0) Then _autoStart = 1 Else _autoStart = 0
       End If
-      If (member.name = "beaconDriven") Then
-        If (member.ivalue > 0) Then _beaconDriven = 1 Else _beaconDriven = 0
-        Return 1
+      If json_val.has("beaconDriven") Then
+        If (json_val.getInt("beaconDriven") > 0) Then _beaconDriven = 1 Else _beaconDriven = 0
       End If
-      If (member.name = "clearHistory") Then
-        If (member.ivalue > 0) Then _clearHistory = 1 Else _clearHistory = 0
-        Return 1
+      If json_val.has("clearHistory") Then
+        If (json_val.getInt("clearHistory") > 0) Then _clearHistory = 1 Else _clearHistory = 0
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YDataLogger private methods declaration)
@@ -897,26 +855,26 @@ Module yocto_datalogger
     REM --- (end of generated code: YDataLogger public methods declaration)
 
 
-    Public Function getData(ByVal runIdx As Long, ByVal timeIdx As Long, ByRef jsondata As TJsonParser) As Integer
-
+    Public Function getData(runIdx As Long, timeIdx As Long, ByRef jsondata As YJSONContent) As Integer
       Dim dev As YDevice = Nothing
       Dim errmsg As String = ""
-      Dim query As String
+      Dim query As String = Nothing
       Dim buffer As String = ""
-      Dim res As Integer
+      Dim res As Integer = 0
+      Dim http_headerlen As Integer
 
-      If (_dataLoggerURL = "") Then
+      If _dataLoggerURL = "" Then
         _dataLoggerURL = "/logger.json"
       End If
       REM Resolve our reference to our device, load REST API
       res = _getDevice(dev, errmsg)
-      If (YISERR(res)) Then
+      If YISERR(res) Then
         _throw(res, errmsg)
-        getData = res
-        Exit Function
+        jsondata = Nothing
+        Return res
       End If
 
-      If (timeIdx > 0) Then
+      If timeIdx > 0 Then
         query = "GET " + _dataLoggerURL + "?run=" + LTrim(Str(runIdx)) + "&time=" + LTrim(Str(timeIdx)) + " HTTP/1.1" + Chr(13) + Chr(10) + Chr(13) + Chr(10)
       Else
         query = "GET " + _dataLoggerURL + " HTTP/1.1" + Chr(13) + Chr(10) + Chr(13) + Chr(10)
@@ -924,35 +882,42 @@ Module yocto_datalogger
 
       res = dev.HTTPRequest(query, buffer, errmsg)
       REM make sure a device scan does not solve the issue
-      If (YISERR(res)) Then
+      If YISERR(res) Then
         res = yapiUpdateDeviceList(1, errmsg)
-        If (YISERR(res)) Then
-          getData = res
-          Exit Function
+        If YISERR(res) Then
+          _throw(res, errmsg)
+          jsondata = Nothing
+          Return res
         End If
 
         res = dev.HTTPRequest("GET " + _dataLoggerURL + " HTTP/1.1" + Chr(13) + Chr(10) + Chr(13) + Chr(10), buffer, errmsg)
-        If (YISERR(res)) Then
+        If YISERR(res) Then
           _throw(res, errmsg)
-          getData = res
-          Exit Function
+          jsondata = Nothing
+          Return res
         End If
       End If
 
-      Try
-        jsondata = New TJsonParser(buffer)
-      Catch e As Exception
-        errmsg = "unexpected JSON structure: " + e.Message
-        _throw(YAPI_IO_ERROR, errmsg)
-        getData = YAPI_IO_ERROR
-        Exit Function
-      End Try
-      If (jsondata.httpcode = 404 And _dataLoggerURL <> "/dataLogger.json") Then
+      Dim httpcode As Integer = YAPI.ParseHTTP(buffer, 0, buffer.Length, http_headerlen, errmsg)
+      If httpcode = 404 AndAlso _dataLoggerURL <> "/dataLogger.json" Then
         REM retry using backward-compatible datalogger URL
         _dataLoggerURL = "/dataLogger.json"
-        Return getData(runIdx, timeIdx, jsondata)
+        Return Me.getData(runIdx, timeIdx, jsondata)
       End If
-      getData = YAPI_SUCCESS
+
+      If httpcode <> 200 Then
+        jsondata = Nothing
+        Return YAPI.IO_ERROR
+      End If
+      Try
+        jsondata = YJSONContent.ParseJson(buffer, http_headerlen, buffer.Length)
+      Catch E As Exception
+        errmsg = "unexpected JSON structure: " + E.Message
+        _throw(YAPI_IO_ERROR, errmsg)
+        jsondata = Nothing
+        Return YAPI_IO_ERROR
+      End Try
+      Return YAPI_SUCCESS
     End Function
 
 
@@ -983,47 +948,44 @@ Module yocto_datalogger
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
+ 
     Public Function get_dataStreams(ByVal v As List(Of YDataStream)) As Integer
-
-      Dim j As TJsonParser = Nothing
-      Dim i, res As Integer
-      Dim root, el As TJSONRECORD
-      Dim ds As List(Of YDataStream)
+      Dim raw_json As YJSONContent = Nothing
+      Dim root As YJSONArray
+      Dim i As Integer 
+      Dim res As Integer
 
       v.Clear()
-      res = getData(0, 0, j)
-      If (res <> YAPI_SUCCESS) Then
+      res = getData(0, 0, raw_json)
+      If res <> YAPI_SUCCESS Then
         Return res
       End If
-      root = j.GetRootNode()
-      If (root.itemcount = 0) Then
-        Return YAPI_SUCCESS
-      End If
+      root = DirectCast(raw_json, YJSONArray)
 
-      If root.items.ElementAt(0).recordtype = TJSONRECORDTYPE.JSON_ARRAY Then
-        For i = 0 To root.itemcount - 1
-          el = root.items(i)
-          v.Add(New YOldDataStream(Me, CInt(el.items(0).ivalue), CInt(el.items(1).ivalue), el.items(2).ivalue, CInt(el.items(3).ivalue)))
-        Next i
+
+      If root.Length = 0 Then
+        Return YAPI.SUCCESS
+      End If
+      If root.[get](0).getJSONType() = YJSONContent.YJSONType.ARRAY Then
+        REM old datalogger format: [runIdx, timerel, utc, interval]
+        For i = 0 To root.Length - 1
+          Dim el As YJSONArray = root.getYJSONArray(i)
+          v.Add(New YOldDataStream(Me, el.getInt(0), el.getInt(1), CUInt(el.getLong(2)), el.getInt(1)))
+        Next
       Else
-        Dim json_buffer As String = j.convertToString(root, False)
+        REM new datalogger format: {"id":"...","unit":"...","streams":["...",...]}
+        Dim json_buffer As String = root.toJSON()
         Dim sets As List(Of YDataSet) = parse_dataSets(YAPI.DefaultEncoding.GetBytes(json_buffer))
-        For sj As Integer = 0 To sets.Count - 1 Step 1
-          ds = sets.ElementAt(sj).get_privateDataStreams()
-          For si As Integer = 0 To ds.Count - 1 Step 1
-            v.Add(ds.ElementAt(si))
-          Next si
-        Next sj
+        For sj As Integer = 0 To sets.Count - 1
+          Dim ds As List(Of YDataStream) = sets(sj).get_privateDataStreams()
+          For si As Integer = 0 To ds.Count - 1
+            v.Add(ds(si))
+          Next
+        Next
       End If
-      j = Nothing
-      get_dataStreams = YAPI_SUCCESS
+      Return YAPI_SUCCESS
     End Function
-
-
-    Public Sub throw_friend(ByVal errType As System.Int32, ByVal errMsg As String)
-      _throw(errType, errMsg)
-    End Sub
-
+    
   End Class
   
   REM --- (generated code: DataLogger functions)

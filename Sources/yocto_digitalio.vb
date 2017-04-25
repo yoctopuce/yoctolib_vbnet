@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_digitalio.vb 26949 2017-03-28 15:36:15Z mvuilleu $
+'* $Id: yocto_digitalio.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '*
@@ -127,40 +127,32 @@ Module yocto_digitalio
 
     REM --- (YDigitalIO private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "portState") Then
-        _portState = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("portState") Then
+        _portState = CInt(json_val.getLong("portState"))
       End If
-      If (member.name = "portDirection") Then
-        _portDirection = CInt(member.ivalue)
-        Return 1
+      If json_val.has("portDirection") Then
+        _portDirection = CInt(json_val.getLong("portDirection"))
       End If
-      If (member.name = "portOpenDrain") Then
-        _portOpenDrain = CInt(member.ivalue)
-        Return 1
+      If json_val.has("portOpenDrain") Then
+        _portOpenDrain = CInt(json_val.getLong("portOpenDrain"))
       End If
-      If (member.name = "portPolarity") Then
-        _portPolarity = CInt(member.ivalue)
-        Return 1
+      If json_val.has("portPolarity") Then
+        _portPolarity = CInt(json_val.getLong("portPolarity"))
       End If
-      If (member.name = "portDiags") Then
-        _portDiags = CInt(member.ivalue)
-        Return 1
+      If json_val.has("portDiags") Then
+        _portDiags = CInt(json_val.getLong("portDiags"))
       End If
-      If (member.name = "portSize") Then
-        _portSize = CInt(member.ivalue)
-        Return 1
+      If json_val.has("portSize") Then
+        _portSize = CInt(json_val.getLong("portSize"))
       End If
-      If (member.name = "outputVoltage") Then
-        _outputVoltage = CInt(member.ivalue)
-        Return 1
+      If json_val.has("outputVoltage") Then
+        _outputVoltage = CInt(json_val.getLong("outputVoltage"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YDigitalIO private methods declaration)

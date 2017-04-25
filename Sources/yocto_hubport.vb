@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_hubport.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_hubport.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindHubPort(), the high-level API for HubPort functions
 '*
@@ -114,20 +114,17 @@ Module yocto_hubport
 
     REM --- (YHubPort private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "enabled") Then
-        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("enabled") Then
+        If (json_val.getInt("enabled") > 0) Then _enabled = 1 Else _enabled = 0
       End If
-      If (member.name = "portState") Then
-        _portState = CInt(member.ivalue)
-        Return 1
+      If json_val.has("portState") Then
+        _portState = CInt(json_val.getLong("portState"))
       End If
-      If (member.name = "baudRate") Then
-        _baudRate = CInt(member.ivalue)
-        Return 1
+      If json_val.has("baudRate") Then
+        _baudRate = CInt(json_val.getLong("baudRate"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YHubPort private methods declaration)

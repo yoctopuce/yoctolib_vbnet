@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_messagebox.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -1343,32 +1343,26 @@ Module yocto_messagebox
 
     REM --- (generated code: YMessageBox private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "slotsInUse") Then
-        _slotsInUse = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("slotsInUse") Then
+        _slotsInUse = CInt(json_val.getLong("slotsInUse"))
       End If
-      If (member.name = "slotsCount") Then
-        _slotsCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("slotsCount") Then
+        _slotsCount = CInt(json_val.getLong("slotsCount"))
       End If
-      If (member.name = "slotsBitmap") Then
-        _slotsBitmap = member.svalue
-        Return 1
+      If json_val.has("slotsBitmap") Then
+        _slotsBitmap = json_val.getString("slotsBitmap")
       End If
-      If (member.name = "pduSent") Then
-        _pduSent = CInt(member.ivalue)
-        Return 1
+      If json_val.has("pduSent") Then
+        _pduSent = CInt(json_val.getLong("pduSent"))
       End If
-      If (member.name = "pduReceived") Then
-        _pduReceived = CInt(member.ivalue)
-        Return 1
+      If json_val.has("pduReceived") Then
+        _pduReceived = CInt(json_val.getLong("pduReceived"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YMessageBox private methods declaration)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_files.vb 27240 2017-04-24 12:26:37Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -92,15 +92,11 @@ Module yocto_files
     REM --- (end of generated code: YFileRecord public methods declaration)
 
    Public Sub New(ByVal data As String)
-      Dim p As TJsonParser
-      Dim node As Nullable(Of TJSONRECORD)
-      p = New TJsonParser(data, False)
-      node = p.GetChildNode(Nothing, "name")
-      Me._name = node.Value.svalue
-      node = p.GetChildNode(Nothing, "size")
-      Me._size = CInt(node.Value.ivalue)
-      node = p.GetChildNode(Nothing, "crc")
-      Me._crc = CInt(node.Value.ivalue)
+      Dim obj As YJSONObject  = New YJSONObject(data)
+      obj.parse()
+      Me._name = obj.getString("name")
+      Me._size = CInt(obj.getInt("size"))
+      Me._crc = CInt(obj.getInt("crc"))
     End Sub  
     
   End Class
@@ -151,16 +147,14 @@ Module yocto_files
     
     REM --- (generated code: YFiles private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "filesCount") Then
-        _filesCount = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("filesCount") Then
+        _filesCount = CInt(json_val.getLong("filesCount"))
       End If
-      If (member.name = "freeSpace") Then
-        _freeSpace = CInt(member.ivalue)
-        Return 1
+      If json_val.has("freeSpace") Then
+        _freeSpace = CInt(json_val.getLong("freeSpace"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YFiles private methods declaration)

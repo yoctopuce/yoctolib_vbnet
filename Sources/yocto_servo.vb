@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_servo.vb 27118 2017-04-06 22:38:36Z seb $
+'* $Id: yocto_servo.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindServo(), the high-level API for Servo functions
 '*
@@ -131,49 +131,38 @@ End Class
 
     REM --- (YServo private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "position") Then
-        _position = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("position") Then
+        _position = CInt(json_val.getLong("position"))
       End If
-      If (member.name = "enabled") Then
-        If (member.ivalue > 0) Then _enabled = 1 Else _enabled = 0
-        Return 1
+      If json_val.has("enabled") Then
+        If (json_val.getInt("enabled") > 0) Then _enabled = 1 Else _enabled = 0
       End If
-      If (member.name = "range") Then
-        _range = CInt(member.ivalue)
-        Return 1
+      If json_val.has("range") Then
+        _range = CInt(json_val.getLong("range"))
       End If
-      If (member.name = "neutral") Then
-        _neutral = CInt(member.ivalue)
-        Return 1
+      If json_val.has("neutral") Then
+        _neutral = CInt(json_val.getLong("neutral"))
       End If
-      If (member.name = "move") Then
-        If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-          Dim submemb As TJSONRECORD
-          Dim l As Integer
-          For l = 0 To member.membercount - 1
-            submemb = member.members(l)
-            If (submemb.name = "moving") Then
-              _move.moving = CInt(submemb.ivalue)
-            ElseIf (submemb.name = "target") Then
-              _move.target = CInt(submemb.ivalue)
-            ElseIf (submemb.name = "ms") Then
-              _move.ms = CInt(submemb.ivalue)
-            End If
-          Next l
+      If json_val.has("move") Then
+        Dim subjson As YJSONObject = json_val.getYJSONObject("move")
+        If (subjson.has("moving")) Then
+            _move.moving = subjson.getInt("moving")
         End If
-        Return 1
+        If (subjson.has("target")) Then
+            _move.target = subjson.getInt("target")
+        End If
+        If (subjson.has("ms")) Then
+            _move.ms = subjson.getInt("ms")
+        End If
       End If
-      If (member.name = "positionAtPowerOn") Then
-        _positionAtPowerOn = CInt(member.ivalue)
-        Return 1
+      If json_val.has("positionAtPowerOn") Then
+        _positionAtPowerOn = CInt(json_val.getLong("positionAtPowerOn"))
       End If
-      If (member.name = "enabledAtPowerOn") Then
-        If (member.ivalue > 0) Then _enabledAtPowerOn = 1 Else _enabledAtPowerOn = 0
-        Return 1
+      If json_val.has("enabledAtPowerOn") Then
+        If (json_val.getInt("enabledAtPowerOn") > 0) Then _enabledAtPowerOn = 1 Else _enabledAtPowerOn = 0
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YServo private methods declaration)

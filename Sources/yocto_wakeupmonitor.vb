@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupmonitor.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_wakeupmonitor.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '*
@@ -128,32 +128,26 @@ Module yocto_wakeupmonitor
 
     REM --- (YWakeUpMonitor private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "powerDuration") Then
-        _powerDuration = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("powerDuration") Then
+        _powerDuration = CInt(json_val.getLong("powerDuration"))
       End If
-      If (member.name = "sleepCountdown") Then
-        _sleepCountdown = CInt(member.ivalue)
-        Return 1
+      If json_val.has("sleepCountdown") Then
+        _sleepCountdown = CInt(json_val.getLong("sleepCountdown"))
       End If
-      If (member.name = "nextWakeUp") Then
-        _nextWakeUp = member.ivalue
-        Return 1
+      If json_val.has("nextWakeUp") Then
+        _nextWakeUp = json_val.getLong("nextWakeUp")
       End If
-      If (member.name = "wakeUpReason") Then
-        _wakeUpReason = CInt(member.ivalue)
-        Return 1
+      If json_val.has("wakeUpReason") Then
+        _wakeUpReason = CInt(json_val.getLong("wakeUpReason"))
       End If
-      If (member.name = "wakeUpState") Then
-        _wakeUpState = CInt(member.ivalue)
-        Return 1
+      If json_val.has("wakeUpState") Then
+        _wakeUpState = CInt(json_val.getLong("wakeUpState"))
       End If
-      If (member.name = "rtcTime") Then
-        _rtcTime = member.ivalue
-        Return 1
+      If json_val.has("rtcTime") Then
+        _rtcTime = json_val.getLong("rtcTime")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YWakeUpMonitor private methods declaration)

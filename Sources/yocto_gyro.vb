@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gyro.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_gyro.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindGyro(), the high-level API for Gyro functions
 '*
@@ -89,8 +89,8 @@ Module yocto_gyro
 
   REM --- (generated code: YQt private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      Return MyBase._parseAttr(member)
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YQt private methods declaration)
@@ -476,24 +476,20 @@ Module yocto_gyro
 
     REM --- (generated code: YGyro private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "bandwidth") Then
-        _bandwidth = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("bandwidth") Then
+        _bandwidth = CInt(json_val.getLong("bandwidth"))
       End If
-      If (member.name = "xValue") Then
-        _xValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("xValue") Then
+        _xValue = Math.Round(json_val.getDouble("xValue") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "yValue") Then
-        _yValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("yValue") Then
+        _yValue = Math.Round(json_val.getDouble("yValue") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "zValue") Then
-        _zValue = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("zValue") Then
+        _zValue = Math.Round(json_val.getDouble("zValue") * 1000.0 / 65536.0) / 1000.0
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YGyro private methods declaration)

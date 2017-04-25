@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_latitude.vb 26826 2017-03-17 11:20:57Z mvuilleu $
+'* $Id: yocto_latitude.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindLatitude(), the high-level API for Latitude functions
 '*
@@ -91,8 +91,8 @@ Module yocto_latitude
 
     REM --- (YLatitude private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      Return MyBase._parseAttr(member)
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YLatitude private methods declaration)

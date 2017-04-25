@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_currentloopoutput.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_currentloopoutput.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindCurrentLoopOutput(), the high-level API for CurrentLoopOutput functions
 '*
@@ -108,24 +108,20 @@ Module yocto_currentloopoutput
 
     REM --- (YCurrentLoopOutput private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "current") Then
-        _current = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("current") Then
+        _current = Math.Round(json_val.getDouble("current") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "currentTransition") Then
-        _currentTransition = member.svalue
-        Return 1
+      If json_val.has("currentTransition") Then
+        _currentTransition = json_val.getString("currentTransition")
       End If
-      If (member.name = "currentAtStartUp") Then
-        _currentAtStartUp = Math.Round(member.ivalue * 1000.0 / 65536.0) / 1000.0
-        Return 1
+      If json_val.has("currentAtStartUp") Then
+        _currentAtStartUp = Math.Round(json_val.getDouble("currentAtStartUp") * 1000.0 / 65536.0) / 1000.0
       End If
-      If (member.name = "loopPower") Then
-        _loopPower = CInt(member.ivalue)
-        Return 1
+      If json_val.has("loopPower") Then
+        _loopPower = CInt(json_val.getLong("loopPower"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YCurrentLoopOutput private methods declaration)

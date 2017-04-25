@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_daisychain.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_daisychain.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindDaisyChain(), the high-level API for DaisyChain functions
 '*
@@ -109,20 +109,17 @@ Module yocto_daisychain
 
     REM --- (YDaisyChain private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "daisyState") Then
-        _daisyState = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("daisyState") Then
+        _daisyState = CInt(json_val.getLong("daisyState"))
       End If
-      If (member.name = "childCount") Then
-        _childCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("childCount") Then
+        _childCount = CInt(json_val.getLong("childCount"))
       End If
-      If (member.name = "requiredChildCount") Then
-        _requiredChildCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("requiredChildCount") Then
+        _requiredChildCount = CInt(json_val.getLong("requiredChildCount"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YDaisyChain private methods declaration)

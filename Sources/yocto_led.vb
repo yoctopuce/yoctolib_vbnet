@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_led.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_led.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindLed(), the high-level API for Led functions
 '*
@@ -115,20 +115,17 @@ Module yocto_led
 
     REM --- (YLed private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "power") Then
-        If (member.ivalue > 0) Then _power = 1 Else _power = 0
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("power") Then
+        If (json_val.getInt("power") > 0) Then _power = 1 Else _power = 0
       End If
-      If (member.name = "luminosity") Then
-        _luminosity = CInt(member.ivalue)
-        Return 1
+      If json_val.has("luminosity") Then
+        _luminosity = CInt(json_val.getLong("luminosity"))
       End If
-      If (member.name = "blinking") Then
-        _blinking = CInt(member.ivalue)
-        Return 1
+      If json_val.has("blinking") Then
+        _blinking = CInt(json_val.getLong("blinking"))
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YLed private methods declaration)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_wireless.vb 27240 2017-04-24 12:26:37Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -108,17 +108,12 @@ Module yocto_wireless
   
 
     Public Sub New(ByVal data As String)
-      Dim p As TJsonParser
-      Dim node As Nullable(Of TJSONRECORD)
-      p = New TJsonParser(data, False)
-      node = p.GetChildNode(Nothing, "ssid")
-      Me._ssid = node.Value.svalue
-      node = p.GetChildNode(Nothing, "sec")
-      Me._sec = node.Value.svalue
-      node = p.GetChildNode(Nothing, "channel")
-      Me._channel = CInt(node.Value.ivalue)
-      node = p.GetChildNode(Nothing, "rssi")
-      Me._rssi = CInt(node.Value.ivalue)
+      Dim obj As YJSONObject  = New YJSONObject(data)
+      obj.parse()
+      Me._ssid = obj.getString("ssid")
+      Me._sec =obj.getString("sec")
+      Me._channel = CInt(obj.getInt("channel"))
+      Me._rssi = CInt(obj.getInt("rssi"))     
     End Sub
 
   End Class
@@ -182,32 +177,26 @@ Module yocto_wireless
 
       REM --- (generated code: YWireless private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "linkQuality") Then
-        _linkQuality = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("linkQuality") Then
+        _linkQuality = CInt(json_val.getLong("linkQuality"))
       End If
-      If (member.name = "ssid") Then
-        _ssid = member.svalue
-        Return 1
+      If json_val.has("ssid") Then
+        _ssid = json_val.getString("ssid")
       End If
-      If (member.name = "channel") Then
-        _channel = CInt(member.ivalue)
-        Return 1
+      If json_val.has("channel") Then
+        _channel = CInt(json_val.getLong("channel"))
       End If
-      If (member.name = "security") Then
-        _security = CInt(member.ivalue)
-        Return 1
+      If json_val.has("security") Then
+        _security = CInt(json_val.getLong("security"))
       End If
-      If (member.name = "message") Then
-        _message = member.svalue
-        Return 1
+      If json_val.has("message") Then
+        _message = json_val.getString("message")
       End If
-      If (member.name = "wlanConfig") Then
-        _wlanConfig = member.svalue
-        Return 1
+      If json_val.has("wlanConfig") Then
+        _wlanConfig = json_val.getString("wlanConfig")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of generated code: YWireless private methods declaration)

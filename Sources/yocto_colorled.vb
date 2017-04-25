@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorled.vb 27118 2017-04-06 22:38:36Z seb $
+'* $Id: yocto_colorled.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindColorLed(), the high-level API for ColorLed functions
 '*
@@ -132,70 +132,53 @@ End Class
 
     REM --- (YColorLed private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "rgbColor") Then
-        _rgbColor = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("rgbColor") Then
+        _rgbColor = CInt(json_val.getLong("rgbColor"))
       End If
-      If (member.name = "hslColor") Then
-        _hslColor = CInt(member.ivalue)
-        Return 1
+      If json_val.has("hslColor") Then
+        _hslColor = CInt(json_val.getLong("hslColor"))
       End If
-      If (member.name = "rgbMove") Then
-        If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-          Dim submemb As TJSONRECORD
-          Dim l As Integer
-          For l = 0 To member.membercount - 1
-            submemb = member.members(l)
-            If (submemb.name = "moving") Then
-              _rgbMove.moving = CInt(submemb.ivalue)
-            ElseIf (submemb.name = "target") Then
-              _rgbMove.target = CInt(submemb.ivalue)
-            ElseIf (submemb.name = "ms") Then
-              _rgbMove.ms = CInt(submemb.ivalue)
-            End If
-          Next l
+      If json_val.has("rgbMove") Then
+        Dim subjson As YJSONObject = json_val.getYJSONObject("rgbMove")
+        If (subjson.has("moving")) Then
+            _rgbMove.moving = subjson.getInt("moving")
         End If
-        Return 1
-      End If
-      If (member.name = "hslMove") Then
-        If (member.recordtype = TJSONRECORDTYPE.JSON_STRUCT) Then
-          Dim submemb As TJSONRECORD
-          Dim l As Integer
-          For l = 0 To member.membercount - 1
-            submemb = member.members(l)
-            If (submemb.name = "moving") Then
-              _hslMove.moving = CInt(submemb.ivalue)
-            ElseIf (submemb.name = "target") Then
-              _hslMove.target = CInt(submemb.ivalue)
-            ElseIf (submemb.name = "ms") Then
-              _hslMove.ms = CInt(submemb.ivalue)
-            End If
-          Next l
+        If (subjson.has("target")) Then
+            _rgbMove.target = subjson.getInt("target")
         End If
-        Return 1
+        If (subjson.has("ms")) Then
+            _rgbMove.ms = subjson.getInt("ms")
+        End If
       End If
-      If (member.name = "rgbColorAtPowerOn") Then
-        _rgbColorAtPowerOn = CInt(member.ivalue)
-        Return 1
+      If json_val.has("hslMove") Then
+        Dim subjson As YJSONObject = json_val.getYJSONObject("hslMove")
+        If (subjson.has("moving")) Then
+            _hslMove.moving = subjson.getInt("moving")
+        End If
+        If (subjson.has("target")) Then
+            _hslMove.target = subjson.getInt("target")
+        End If
+        If (subjson.has("ms")) Then
+            _hslMove.ms = subjson.getInt("ms")
+        End If
       End If
-      If (member.name = "blinkSeqSize") Then
-        _blinkSeqSize = CInt(member.ivalue)
-        Return 1
+      If json_val.has("rgbColorAtPowerOn") Then
+        _rgbColorAtPowerOn = CInt(json_val.getLong("rgbColorAtPowerOn"))
       End If
-      If (member.name = "blinkSeqMaxSize") Then
-        _blinkSeqMaxSize = CInt(member.ivalue)
-        Return 1
+      If json_val.has("blinkSeqSize") Then
+        _blinkSeqSize = CInt(json_val.getLong("blinkSeqSize"))
       End If
-      If (member.name = "blinkSeqSignature") Then
-        _blinkSeqSignature = CInt(member.ivalue)
-        Return 1
+      If json_val.has("blinkSeqMaxSize") Then
+        _blinkSeqMaxSize = CInt(json_val.getLong("blinkSeqMaxSize"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("blinkSeqSignature") Then
+        _blinkSeqSignature = CInt(json_val.getLong("blinkSeqSignature"))
       End If
-      Return MyBase._parseAttr(member)
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
+      End If
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YColorLed private methods declaration)

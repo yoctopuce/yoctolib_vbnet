@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_anbutton.vb 26677 2017-02-28 13:46:34Z seb $
+'* $Id: yocto_anbutton.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindAnButton(), the high-level API for AnButton functions
 '*
@@ -142,52 +142,41 @@ Module yocto_anbutton
 
     REM --- (YAnButton private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "calibratedValue") Then
-        _calibratedValue = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("calibratedValue") Then
+        _calibratedValue = CInt(json_val.getLong("calibratedValue"))
       End If
-      If (member.name = "rawValue") Then
-        _rawValue = CInt(member.ivalue)
-        Return 1
+      If json_val.has("rawValue") Then
+        _rawValue = CInt(json_val.getLong("rawValue"))
       End If
-      If (member.name = "analogCalibration") Then
-        If (member.ivalue > 0) Then _analogCalibration = 1 Else _analogCalibration = 0
-        Return 1
+      If json_val.has("analogCalibration") Then
+        If (json_val.getInt("analogCalibration") > 0) Then _analogCalibration = 1 Else _analogCalibration = 0
       End If
-      If (member.name = "calibrationMax") Then
-        _calibrationMax = CInt(member.ivalue)
-        Return 1
+      If json_val.has("calibrationMax") Then
+        _calibrationMax = CInt(json_val.getLong("calibrationMax"))
       End If
-      If (member.name = "calibrationMin") Then
-        _calibrationMin = CInt(member.ivalue)
-        Return 1
+      If json_val.has("calibrationMin") Then
+        _calibrationMin = CInt(json_val.getLong("calibrationMin"))
       End If
-      If (member.name = "sensitivity") Then
-        _sensitivity = CInt(member.ivalue)
-        Return 1
+      If json_val.has("sensitivity") Then
+        _sensitivity = CInt(json_val.getLong("sensitivity"))
       End If
-      If (member.name = "isPressed") Then
-        If (member.ivalue > 0) Then _isPressed = 1 Else _isPressed = 0
-        Return 1
+      If json_val.has("isPressed") Then
+        If (json_val.getInt("isPressed") > 0) Then _isPressed = 1 Else _isPressed = 0
       End If
-      If (member.name = "lastTimePressed") Then
-        _lastTimePressed = member.ivalue
-        Return 1
+      If json_val.has("lastTimePressed") Then
+        _lastTimePressed = json_val.getLong("lastTimePressed")
       End If
-      If (member.name = "lastTimeReleased") Then
-        _lastTimeReleased = member.ivalue
-        Return 1
+      If json_val.has("lastTimeReleased") Then
+        _lastTimeReleased = json_val.getLong("lastTimeReleased")
       End If
-      If (member.name = "pulseCounter") Then
-        _pulseCounter = member.ivalue
-        Return 1
+      If json_val.has("pulseCounter") Then
+        _pulseCounter = json_val.getLong("pulseCounter")
       End If
-      If (member.name = "pulseTimer") Then
-        _pulseTimer = member.ivalue
-        Return 1
+      If json_val.has("pulseTimer") Then
+        _pulseTimer = json_val.getLong("pulseTimer")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YAnButton private methods declaration)

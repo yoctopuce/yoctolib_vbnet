@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 27104 2017-04-06 22:14:54Z seb $
+'* $Id: yocto_colorledcluster.vb 27237 2017-04-21 16:36:03Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -113,28 +113,23 @@ Module yocto_colorledcluster
 
     REM --- (YColorLedCluster private methods declaration)
 
-    Protected Overrides Function _parseAttr(ByRef member As TJSONRECORD) As Integer
-      If (member.name = "activeLedCount") Then
-        _activeLedCount = CInt(member.ivalue)
-        Return 1
+    Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("activeLedCount") Then
+        _activeLedCount = CInt(json_val.getLong("activeLedCount"))
       End If
-      If (member.name = "maxLedCount") Then
-        _maxLedCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("maxLedCount") Then
+        _maxLedCount = CInt(json_val.getLong("maxLedCount"))
       End If
-      If (member.name = "blinkSeqMaxCount") Then
-        _blinkSeqMaxCount = CInt(member.ivalue)
-        Return 1
+      If json_val.has("blinkSeqMaxCount") Then
+        _blinkSeqMaxCount = CInt(json_val.getLong("blinkSeqMaxCount"))
       End If
-      If (member.name = "blinkSeqMaxSize") Then
-        _blinkSeqMaxSize = CInt(member.ivalue)
-        Return 1
+      If json_val.has("blinkSeqMaxSize") Then
+        _blinkSeqMaxSize = CInt(json_val.getLong("blinkSeqMaxSize"))
       End If
-      If (member.name = "command") Then
-        _command = member.svalue
-        Return 1
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
       End If
-      Return MyBase._parseAttr(member)
+      Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YColorLedCluster private methods declaration)
