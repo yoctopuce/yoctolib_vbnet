@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 27243 2017-04-24 15:05:41Z seb $
+'* $Id: yocto_datalogger.vb 27282 2017-04-25 15:44:42Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -776,7 +776,7 @@ Module yocto_datalogger
       Dim dslist As List(Of String) = New List(Of String)()
       Dim dataset As YDataSet
       Dim res As List(Of YDataSet) = New List(Of YDataSet)()
-      
+
       dslist = Me._json_get_array(json)
       res.Clear()
       For i_i = 0 To dslist.Count - 1

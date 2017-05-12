@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gyro.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_gyro.vb 27282 2017-04-25 15:44:42Z seb $
 '*
 '* Implements yFindGyro(), the high-level API for Gyro functions
 '*
@@ -809,7 +809,7 @@ Module yocto_gyro
       Dim sqz As Double = 0
       Dim norm As Double = 0
       Dim delta As Double = 0
-      
+
       If (Me._loadQuaternion() <> YAPI.SUCCESS) Then
         Return YAPI.DEVICE_NOT_FOUND
       End If

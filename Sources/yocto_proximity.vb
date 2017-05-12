@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: pic24config.php 26780 2017-03-16 14:02:09Z mvuilleu $
+'* $Id: yocto_proximity.vb 27256 2017-04-25 11:36:07Z seb $
 '*
 '* Implements yFindProximity(), the high-level API for Proximity functions
 '*

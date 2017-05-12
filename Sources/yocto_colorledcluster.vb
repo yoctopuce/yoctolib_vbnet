@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_colorledcluster.vb 27282 2017-04-25 15:44:42Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -963,7 +963,7 @@ Module yocto_colorledcluster
         buff( 3*idx+2) = Convert.ToByte(((rgb) And (255)) And &HFF)
         idx = idx + 1
       End While
-      
+
       res = Me._upload("rgb:0:" + Convert.ToString(ledIndex), buff)
       Return res
     End Function
@@ -1006,7 +1006,7 @@ Module yocto_colorledcluster
         buff( 3*idx+2) = Convert.ToByte(((rgb) And (255)) And &HFF)
         idx = idx + 1
       End While
-      
+
       res = Me._upload("rgb:" + Convert.ToString(delay), buff)
       Return res
     End Function
@@ -1073,7 +1073,7 @@ Module yocto_colorledcluster
         buff( 3*idx+2) = Convert.ToByte(((hsl) And (255)) And &HFF)
         idx = idx + 1
       End While
-      
+
       res = Me._upload("hsl:0:" + Convert.ToString(ledIndex), buff)
       Return res
     End Function
@@ -1116,7 +1116,7 @@ Module yocto_colorledcluster
         buff( 3*idx+2) = Convert.ToByte(((hsl) And (255)) And &HFF)
         idx = idx + 1
       End While
-      
+
       res = Me._upload("hsl:" + Convert.ToString(delay), buff)
       Return res
     End Function
@@ -1175,10 +1175,10 @@ Module yocto_colorledcluster
       Dim r As Integer = 0
       Dim g As Integer = 0
       Dim b As Integer = 0
-      
+
       buff = Me._download("rgb.bin?typ=0&pos=" + Convert.ToString(3*ledIndex) + "&len=" + Convert.ToString(3*count))
       res.Clear()
-      
+
       idx = 0
       While (idx < count)
         r = buff(3*idx)
@@ -1187,7 +1187,7 @@ Module yocto_colorledcluster
         res.Add(r*65536+g*256+b)
         idx = idx + 1
       End While
-      
+
       Return res
     End Function
 
@@ -1219,10 +1219,10 @@ Module yocto_colorledcluster
       Dim r As Integer = 0
       Dim g As Integer = 0
       Dim b As Integer = 0
-      
+
       buff = Me._download("rgb.bin?typ=4&pos=" + Convert.ToString(3*ledIndex) + "&len=" + Convert.ToString(3*count))
       res.Clear()
-      
+
       idx = 0
       While (idx < count)
         r = buff(3*idx)
@@ -1231,7 +1231,7 @@ Module yocto_colorledcluster
         res.Add(r*65536+g*256+b)
         idx = idx + 1
       End While
-      
+
       Return res
     End Function
 
@@ -1262,17 +1262,17 @@ Module yocto_colorledcluster
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim seq As Integer = 0
-      
+
       buff = Me._download("rgb.bin?typ=1&pos=" + Convert.ToString(ledIndex) + "&len=" + Convert.ToString(count))
       res.Clear()
-      
+
       idx = 0
       While (idx < count)
         seq = buff(idx)
         res.Add(seq)
         idx = idx + 1
       End While
-      
+
       Return res
     End Function
 
@@ -1305,10 +1305,10 @@ Module yocto_colorledcluster
       Dim hl As Integer = 0
       Dim lh As Integer = 0
       Dim ll As Integer = 0
-      
+
       buff = Me._download("rgb.bin?typ=2&pos=" + Convert.ToString(4*seqIndex) + "&len=" + Convert.ToString(4*count))
       res.Clear()
-      
+
       idx = 0
       While (idx < count)
         hh = buff(4*idx)
@@ -1318,7 +1318,7 @@ Module yocto_colorledcluster
         res.Add(((hh) << (24))+((hl) << (16))+((lh) << (8))+ll)
         idx = idx + 1
       End While
-      
+
       Return res
     End Function
 
@@ -1347,10 +1347,10 @@ Module yocto_colorledcluster
       Dim idx As Integer = 0
       Dim lh As Integer = 0
       Dim ll As Integer = 0
-      
+
       buff = Me._download("rgb.bin?typ=6&pos=" + Convert.ToString(seqIndex) + "&len=" + Convert.ToString(count))
       res.Clear()
-      
+
       idx = 0
       While (idx < count)
         lh = buff(2*idx)
@@ -1358,7 +1358,7 @@ Module yocto_colorledcluster
         res.Add(((lh) << (8))+ll)
         idx = idx + 1
       End While
-      
+
       Return res
     End Function
 
@@ -1386,17 +1386,17 @@ Module yocto_colorledcluster
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim started As Integer = 0
-      
+
       buff = Me._download("rgb.bin?typ=5&pos=" + Convert.ToString(seqIndex) + "&len=" + Convert.ToString(count))
       res.Clear()
-      
+
       idx = 0
       While (idx < count)
         started = buff(idx)
         res.Add(started)
         idx = idx + 1
       End While
-      
+
       Return res
     End Function
 
@@ -1424,17 +1424,17 @@ Module yocto_colorledcluster
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim started As Integer = 0
-      
+
       buff = Me._download("rgb.bin?typ=3&pos=" + Convert.ToString(seqIndex) + "&len=" + Convert.ToString(count))
       res.Clear()
-      
+
       idx = 0
       While (idx < count)
         started = buff(idx)
         res.Add(started)
         idx = idx + 1
       End While
-      
+
       Return res
     End Function
 

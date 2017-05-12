@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_spiport.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_spiport.vb 27282 2017-04-25 15:44:42Z seb $
 '*
 '* Implements yFindSpiPort(), the high-level API for SpiPort functions
 '*
@@ -913,7 +913,7 @@ Module yocto_spiport
       Me._rxptr = 0
       Me._rxbuffptr = 0
       ReDim Me._rxbuff(0-1)
-      
+
       Return Me.sendCommand("Z")
     End Function
 
@@ -1030,7 +1030,7 @@ Module yocto_spiport
         buff( idx) = Convert.ToByte(hexb And &HFF)
         idx = idx + 1
       End While
-      
+
       res = Me._upload("txdata", buff)
       Return res
     End Function
@@ -1069,7 +1069,7 @@ Module yocto_spiport
         buff( idx) = Convert.ToByte(hexb And &HFF)
         idx = idx + 1
       End While
-      
+
       res = Me._upload("txdata", buff)
       Return res
     End Function
@@ -1140,7 +1140,7 @@ Module yocto_spiport
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
       Dim res As Integer = 0
-      
+
       REM // first check if we have the requested character in the look-ahead buffer
       bufflen = (Me._rxbuff).Length
       If ((Me._rxptr >= Me._rxbuffptr) AndAlso (Me._rxptr < Me._rxbuffptr+bufflen)) Then
@@ -1148,7 +1148,7 @@ Module yocto_spiport
         Me._rxptr = Me._rxptr + 1
         Return res
       End If
-      
+
       REM // try to preload more than one byte to speed-up byte-per-byte access
       currpos = Me._rxptr
       reqlen = 1024
@@ -1175,8 +1175,8 @@ Module yocto_spiport
       End If
       REM // still mixed, need to process character by character
       Me._rxptr = currpos
-      
-      
+
+
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=1")
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1221,7 +1221,7 @@ Module yocto_spiport
       If (nChars > 65535) Then
         nChars = 65535
       End If
-      
+
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1264,7 +1264,7 @@ Module yocto_spiport
       If (nChars > 65535) Then
         nChars = 65535
       End If
-      
+
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1313,7 +1313,7 @@ Module yocto_spiport
       If (nChars > 65535) Then
         nChars = 65535
       End If
-      
+
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1331,7 +1331,7 @@ Module yocto_spiport
         res.Add(b)
         idx = idx + 1
       End While
-      
+
       Return res
     End Function
 
@@ -1363,7 +1363,7 @@ Module yocto_spiport
       If (nBytes > 65535) Then
         nBytes = 65535
       End If
-      
+
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nBytes))
       bufflen = (buff).Length - 1
       endpos = 0
@@ -1413,7 +1413,7 @@ Module yocto_spiport
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
-      
+
       url = "rxmsg.json?pos=" + Convert.ToString(Me._rxptr) + "&len=1&maxw=1"
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
@@ -1470,7 +1470,7 @@ Module yocto_spiport
       Dim msglen As Integer = 0
       Dim res As List(Of String) = New List(Of String)()
       Dim idx As Integer = 0
-      
+
       url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&pat=" + pattern
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
@@ -1482,12 +1482,12 @@ Module yocto_spiport
       msglen = msglen - 1
       Me._rxptr = YAPI._atoi(msgarr(msglen))
       idx = 0
-      
+
       While (idx < msglen)
         res.Add(Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(idx))))
         idx = idx + 1
       End While
-      
+
       Return res
     End Function
 
@@ -1541,7 +1541,7 @@ Module yocto_spiport
       Dim buff As Byte()
       Dim bufflen As Integer = 0
       Dim res As Integer = 0
-      
+
       buff = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
       bufflen = (buff).Length - 1
       While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
@@ -1578,7 +1578,7 @@ Module yocto_spiport
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
-      
+
       url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + query
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)

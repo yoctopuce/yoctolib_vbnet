@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_messagebox.vb 27422 2017-05-11 10:01:51Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -163,7 +163,6 @@ Module yocto_messagebox
       Dim isolatin As Byte()
       Dim isosize As Integer = 0
       Dim i As Integer = 0
-      
       If (Me._alphab = 0) Then
         REM // using GSM standard 7-bit alphabet
         Return Me._mbox.gsm2str(Me._udata)
@@ -179,7 +178,6 @@ Module yocto_messagebox
         End While
         Return YAPI.DefaultEncoding.GetString(isolatin)
       End If
-      
       REM // default: convert 8 bit to string as-is
       Return YAPI.DefaultEncoding.GetString(Me._udata)
     End Function
@@ -189,7 +187,6 @@ Module yocto_messagebox
       Dim unisize As Integer = 0
       Dim unival As Integer = 0
       Dim i As Integer = 0
-      
       If (Me._alphab = 0) Then
         REM // using GSM standard 7-bit alphabet
         Return Me._mbox.gsm2unicode(Me._udata)
@@ -214,6 +211,7 @@ Module yocto_messagebox
           i = i + 1
         End While
       End If
+
       Return res
     End Function
 
@@ -346,7 +344,6 @@ Module yocto_messagebox
       Dim udatalen As Integer = 0
       Dim i As Integer = 0
       Dim uni As Integer = 0
-      
       If (Me._alphab = 2) Then
         Return YAPI.SUCCESS
       End If
@@ -365,7 +362,6 @@ Module yocto_messagebox
       Me._alphab = 2
       ReDim Me._udata(0-1)
       Me.addUnicodeData(ucs2)
-      
       Return YAPI.SUCCESS
     End Function
 
@@ -375,11 +371,9 @@ Module yocto_messagebox
       Dim newdata As Byte()
       Dim newdatalen As Integer = 0
       Dim i As Integer = 0
-      
       If ((val).Length = 0) Then
         Return YAPI.SUCCESS
       End If
-      
       If (Me._alphab = 0) Then
         REM // Try to append using GSM 7-bit alphabet
         newdata = Me._mbox.str2gsm(val)
@@ -424,7 +418,6 @@ Module yocto_messagebox
           i = i + 1
         End While
       End If
-      
       Return Me.set_userData(udata)
     End Function
 
@@ -436,7 +429,6 @@ Module yocto_messagebox
       Dim udata As Byte()
       Dim udatalen As Integer = 0
       Dim surrogate As Integer = 0
-      
       If (Me._alphab <> 2) Then
         Me.convertToUnicode()
       End If
@@ -475,7 +467,6 @@ Module yocto_messagebox
         udatalen = udatalen + 2
         i = i + 1
       End While
-      
       Return Me.set_userData(udata)
     End Function
 
@@ -499,7 +490,6 @@ Module yocto_messagebox
       If (Me._npdu = 0) Then
         Return YAPI.INVALID_ARGUMENT
       End If
-      
       sorted.Clear()
       partno = 0
       While (partno < Me._npdu)
@@ -517,7 +507,7 @@ Module yocto_messagebox
           partno = partno + 1
         End If
       End While
-      
+
       Me._parts = sorted
       Me._npdu = sorted.Count
       REM // inherit header fields from first part
@@ -1060,7 +1050,6 @@ Module yocto_messagebox
       Dim iei As Integer = 0
       Dim ielen As Integer = 0
       Dim sig As String
-      
       Me._aggSig = ""
       Me._aggIdx = 0
       Me._aggCnt = 0
@@ -1106,10 +1095,8 @@ Module yocto_messagebox
       Dim carry As Integer = 0
       Dim nbits As Integer = 0
       Dim thisb As Integer = 0
-      
       Me._pdu = pdu
       Me._npdu = 1
-      
       REM // parse meta-data
       Me._smsc = Me.decodeAddress(pdu, 1, 2*(pdu(0)-1))
       rpos = 1+pdu(0)
@@ -1148,7 +1135,6 @@ Module yocto_messagebox
       Me._mclass = ((dcs) And (16+3))
       Me._stamp = Me.decodeTimeStamp(pdu, rpos, tslen)
       rpos = rpos + tslen
-      
       REM // parse user data (including udh)
       nbits = 0
       carry = 0
@@ -1211,7 +1197,6 @@ Module yocto_messagebox
         End While
       End If
       Me.parseUserDataHeader()
-      
       Return YAPI.SUCCESS
     End Function
 
@@ -1219,7 +1204,7 @@ Module yocto_messagebox
       Dim i As Integer = 0
       Dim retcode As Integer = 0
       Dim pdu As YSms
-      
+
       If (Me._npdu = 0) Then
         Me.generatePdu()
       End If
@@ -1240,7 +1225,7 @@ Module yocto_messagebox
       Dim i As Integer = 0
       Dim retcode As Integer = 0
       Dim pdu As YSms
-      
+
       If (Me._slot > 0) Then
         Return Me._mbox.clearSIMSlot(Me._slot)
       End If
@@ -1664,8 +1649,7 @@ Module yocto_messagebox
       Dim arrPdu As List(Of String) = New List(Of String)()
       Dim hexPdu As String
       Dim sms As YSms
-      
-      
+
       binPdu = Me._download("sms.json?pos=" + Convert.ToString(slot) + "&len=1")
       arrPdu = Me._json_get_array(binPdu)
       hexPdu = Me._decode_json_string(arrPdu(0))
@@ -1678,7 +1662,6 @@ Module yocto_messagebox
     Public Overridable Function initGsm2Unicode() As Integer
       Dim i As Integer = 0
       Dim uni As Integer = 0
-      
       Me._gsm2unicode.Clear()
       REM // 00-07
       Me._gsm2unicode.Add(64)
@@ -1737,7 +1720,7 @@ Module yocto_messagebox
       Me._gsm2unicode.Add(241)
       Me._gsm2unicode.Add(252)
       Me._gsm2unicode.Add(224)
-      
+
       REM // Invert table as well wherever possible
       ReDim Me._iso2gsm(256-1)
       i = 0
@@ -1757,7 +1740,6 @@ Module yocto_messagebox
       End While
       REM // Done
       Me._gsm2unicodeReady = True
-      
       Return YAPI.SUCCESS
     End Function
 
@@ -1767,7 +1749,6 @@ Module yocto_messagebox
       Dim reslen As Integer = 0
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim uni As Integer = 0
-      
       If (Not (Me._gsm2unicodeReady)) Then
         Me.initGsm2Unicode()
       End If
@@ -1842,7 +1823,7 @@ Module yocto_messagebox
         End If
         i = i + 1
       End While
-      
+
       Return res
     End Function
 
@@ -1853,7 +1834,6 @@ Module yocto_messagebox
       Dim resbin As Byte()
       Dim resstr As String
       Dim uni As Integer = 0
-      
       If (Not (Me._gsm2unicodeReady)) Then
         Me.initGsm2Unicode()
       End If
@@ -1946,7 +1926,6 @@ Module yocto_messagebox
       Dim extra As Integer = 0
       Dim res As Byte()
       Dim wpos As Integer = 0
-      
       If (Not (Me._gsm2unicodeReady)) Then
         Me.initGsm2Unicode()
       End If
@@ -2032,8 +2011,7 @@ Module yocto_messagebox
       Dim newAgg As List(Of YSms) = New List(Of YSms)()
       Dim signatures As List(Of String) = New List(Of String)()
       Dim sms As YSms
-      
-      
+
       bitmapStr = Me.get_slotsBitmap()
       If (bitmapStr = Me._prevBitmapStr) Then
         Return YAPI.SUCCESS
@@ -2109,7 +2087,7 @@ Module yocto_messagebox
         End If
         slot = slot + 1
       End While
-      
+
       Me._pdus = newArr
       REM // append complete concatenated messages
       i = 0
@@ -2137,9 +2115,8 @@ Module yocto_messagebox
         End If
         i = i + 1
       End While
-      
+
       Me._messages = newMsg
-      
       Return YAPI.SUCCESS
     End Function
 
@@ -2163,7 +2140,7 @@ Module yocto_messagebox
     '''/
     Public Overridable Function clearPduCounters() As Integer
       Dim retcode As Integer = 0
-      
+
       retcode = Me.set_pduReceived(0)
       If (retcode <> YAPI.SUCCESS) Then
         Return retcode
@@ -2199,7 +2176,7 @@ Module yocto_messagebox
     '''/
     Public Overridable Function sendTextMessage(recipient As String, message As String) As Integer
       Dim sms As YSms
-      
+
       sms = New YSms(Me)
       sms.set_recipient(recipient)
       sms.addText(message)
@@ -2234,7 +2211,7 @@ Module yocto_messagebox
     '''/
     Public Overridable Function sendFlashMessage(recipient As String, message As String) As Integer
       Dim sms As YSms
-      
+
       sms = New YSms(Me)
       sms.set_recipient(recipient)
       sms.set_msgClass(0)
@@ -2283,7 +2260,6 @@ Module yocto_messagebox
     '''/
     Public Overridable Function get_messages() As List(Of YSms)
       Me.checkNewMessages()
-      
       Return Me._messages
     End Function
 

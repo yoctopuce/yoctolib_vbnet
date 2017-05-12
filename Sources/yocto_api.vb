@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 27242 2017-04-24 13:45:28Z seb $
+'* $Id: yocto_api.vb 27282 2017-04-25 15:44:42Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -795,7 +795,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "27243"
+  Public Const YOCTO_API_BUILD_NO As String = "27439"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2738,7 +2738,7 @@ Module yocto_api
         Me._nRows = 0
         Return YAPI.SUCCESS
       End If
-      
+
       udat = YAPI._decodeWords(Me._parent._json_get_string(sdata))
       Me._values.Clear()
       idx = 0
@@ -2775,7 +2775,7 @@ Module yocto_api
           End While
         End If
       End If
-      
+
       Me._nRows = Me._values.Count
       Return YAPI.SUCCESS
     End Function
@@ -3544,7 +3544,7 @@ Module yocto_api
       Dim minCol As Integer = 0
       Dim avgCol As Integer = 0
       Dim maxCol As Integer = 0
-      
+
       If (progress <> Me._progress) Then
         Return Me._progress
       End If
@@ -3580,7 +3580,7 @@ Module yocto_api
       Else
         maxCol = 0
       End If
-      
+
       For i_i = 0 To dataRows.Count - 1
         If ((tim >= Me._startTime) AndAlso ((Me._endTime = 0) OrElse (tim <= Me._endTime))) Then
           Me._measures.Add(New YMeasure(tim - itv, tim, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
@@ -3588,7 +3588,7 @@ Module yocto_api
         tim = tim + itv
         tim = Math.Round(tim * 1000) / 1000.0
       Next i_i
-      
+
       Return Me.get_progress()
     End Function
 
@@ -3861,7 +3861,7 @@ Module yocto_api
       Dim minCol As Integer = 0
       Dim avgCol As Integer = 0
       Dim maxCol As Integer = 0
-      
+
       startUtc = CType(Math.Round(measure.get_startTimeUTC()), Long)
       stream = Nothing
       For i_i = 0 To Me._streams.Count - 1
@@ -3893,14 +3893,14 @@ Module yocto_api
       Else
         maxCol = 0
       End If
-      
+
       For i_i = 0 To dataRows.Count - 1
         If ((tim >= Me._startTime) AndAlso ((Me._endTime = 0) OrElse (tim <= Me._endTime))) Then
           measures.Add(New YMeasure(tim - itv, tim, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
         End If
         tim = tim + itv
       Next i_i
-      
+
       Return measures
     End Function
 
@@ -5991,15 +5991,16 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Retrieves the type of the <i>n</i>th function on the module.
+    '''   Retrieves the base type of the <i>n</i>th function on the module.
     ''' <para>
+    '''   For instance, the base type of all measuring functions is "Sensor".
     ''' </para>
     ''' </summary>
     ''' <param name="functionIndex">
     '''   the index of the function for which the information is desired, starting at 0 for the first function.
     ''' </param>
     ''' <returns>
-    '''   a the type of the function
+    '''   a string corresponding to the base type of the function
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns an empty string.
@@ -6033,7 +6034,7 @@ Module yocto_api
     '''   the index of the function for which the information is desired, starting at 0 for the first function.
     ''' </param>
     ''' <returns>
-    '''   a the type of the function
+    '''   a string corresponding to the type of the function
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns an empty string.
@@ -6808,7 +6809,7 @@ Module yocto_api
     Public Overridable Function updateFirmwareEx(path As String, force As Boolean) As YFirmwareUpdate
       Dim serial As String
       Dim settings As Byte()
-      
+
       serial = Me.get_serialNumber()
       settings = Me.get_allSettings()
       If ((settings).Length = 0) Then
@@ -6873,7 +6874,7 @@ Module yocto_api
       Dim ext_settings As String
       Dim filelist As List(Of String) = New List(Of String)()
       Dim templist As List(Of String) = New List(Of String)()
-      
+
       settings = Me._download("api.json")
       If ((settings).Length = 0) Then
         Return settings
@@ -6928,7 +6929,7 @@ Module yocto_api
       Dim ofs As Integer = 0
       Dim size As Integer = 0
       url = "api/" + funcId + ".json?command=Z"
-      
+
       Me._download(url)
       REM // add records in growing resistance value
       values = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(jsonExtra))
@@ -7046,7 +7047,7 @@ Module yocto_api
       Dim count As Integer = 0
       Dim i As Integer = 0
       Dim fid As String
-      
+
       count  = Me.functionCount()
       i = 0
       While (i < count)
@@ -7079,10 +7080,10 @@ Module yocto_api
       Dim i As Integer = 0
       Dim ftype As String
       Dim res As List(Of String) = New List(Of String)()
-      
+
       count = Me.functionCount()
       i = 0
-      
+
       While (i < count)
         ftype = Me.functionType(i)
         If (ftype = funType) Then
@@ -7095,7 +7096,7 @@ Module yocto_api
         End If
         i = i + 1
       End While
-      
+
       Return res
     End Function
 
@@ -7415,9 +7416,9 @@ Module yocto_api
       newval = ""
       old_json_flat = Me._flattenJsonStruct(settings)
       old_dslist = Me._json_get_array(old_json_flat)
-      
-      
-      
+
+
+
       For i_i = 0 To old_dslist.Count - 1
         each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(old_dslist(i_i)))
         REM // split json path and attr
@@ -7434,16 +7435,16 @@ Module yocto_api
         old_jpath_len.Add((jpath).Length)
         old_val_arr.Add(value)
       Next i_i
-      
-      
-      
-      
+
+
+
+
       actualSettings = Me._download("api.json")
       actualSettings = Me._flattenJsonStruct(actualSettings)
       new_dslist = Me._json_get_array(actualSettings)
-      
-      
-      
+
+
+
       For i_i = 0 To new_dslist.Count - 1
         REM // remove quotes
         each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(new_dslist(i_i)))
@@ -7461,10 +7462,10 @@ Module yocto_api
         new_jpath_len.Add((jpath).Length)
         new_val_arr.Add(value)
       Next i_i
-      
-      
-      
-      
+
+
+
+
       i = 0
       While (i < new_jpath.Count)
         njpath = new_jpath(i)
@@ -7653,7 +7654,7 @@ Module yocto_api
         End If
         i = i + 1
       End While
-      
+
       For i_i = 0 To restoreLast.Count - 1
         Me._download(restoreLast(i_i))
       Next i_i
@@ -7716,7 +7717,7 @@ Module yocto_api
     '''/
     Public Overridable Function get_lastLogs() As String
       Dim content As Byte()
-      
+
       content = Me._download("logs.txt")
       Return YAPI.DefaultEncoding.GetString(content)
     End Function
@@ -7766,7 +7767,7 @@ Module yocto_api
       Dim subdevice_list As String
       Dim subdevices As List(Of String) = New List(Of String)()
       Dim serial As String
-      
+
       serial = Me.get_serialNumber()
       fullsize = 0
       yapi_res = _yapiGetSubdevices(New StringBuilder(serial), smallbuff, 1024, fullsize, errmsg)
@@ -7811,7 +7812,7 @@ Module yocto_api
       Dim pathsize As Integer
       Dim yapi_res As Integer = 0
       Dim serial As String
-      
+
       serial = Me.get_serialNumber()
       REM // retrieve device object
       pathsize = 0
@@ -7840,7 +7841,7 @@ Module yocto_api
       Dim pathsize As Integer
       Dim yapi_res As Integer = 0
       Dim serial As String
-      
+
       serial = Me.get_serialNumber()
       REM // retrieve device object
       pathsize = 0
@@ -8791,7 +8792,7 @@ Module yocto_api
     '''/
     Public Overridable Function startDataLogger() As Integer
       Dim res As Byte()
-      
+
       res = Me._download("api/dataLogger/recording?recording=1")
       If Not((res).Length>0) Then
         me._throw( YAPI.IO_ERROR,  "unable to start datalogger")
@@ -8812,7 +8813,7 @@ Module yocto_api
     '''/
     Public Overridable Function stopDataLogger() As Integer
       Dim res As Byte()
-      
+
       res = Me._download("api/dataLogger/recording?recording=0")
       If Not((res).Length>0) Then
         me._throw( YAPI.IO_ERROR,  "unable to stop datalogger")
@@ -8862,7 +8863,7 @@ Module yocto_api
     Public Overridable Function get_recordedData(startTime As Long, endTime As Long) As YDataSet
       Dim funcid As String
       Dim funit As String
-      
+
       funcid = Me.get_functionId()
       funit = Me.get_unit()
       Return New YDataSet(Me, funcid, funit, startTime, endTime)
@@ -8942,7 +8943,7 @@ Module yocto_api
     Public Overridable Function calibrateFromPoints(rawValues As List(Of Double), refValues As List(Of Double)) As Integer
       Dim rest_val As String
       Dim res As Integer = 0
-      
+
       rest_val = Me._encodeCalibrationPoints(rawValues, refValues)
       res = Me._setAttr("calibrationParam", rest_val)
       Return res

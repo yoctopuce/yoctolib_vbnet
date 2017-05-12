@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_cellular.vb 27282 2017-04-25 15:44:42Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -1164,7 +1164,7 @@ Module yocto_cellular
     '''/
     Public Overridable Function clearDataCounters() As Integer
       Dim retcode As Integer = 0
-      
+
       retcode = Me.set_dataReceived(0)
       If (retcode <> YAPI.SUCCESS) Then
         Return retcode
@@ -1270,7 +1270,7 @@ Module yocto_cellular
       Dim idx As Integer = 0
       Dim slen As Integer = 0
       Dim res As List(Of String) = New List(Of String)()
-      
+
       cops = Me._AT("+COPS=?")
       slen = (cops).Length
       res.Clear()
@@ -1289,7 +1289,7 @@ Module yocto_cellular
         End If
         idx = cops.IndexOf("(")
       End While
-      
+
       Return res
     End Function
 
@@ -1324,7 +1324,7 @@ Module yocto_cellular
       Dim tad As Integer = 0
       Dim oper As String
       Dim res As List(Of YCellRecord) = New List(Of YCellRecord)()
-      
+
       moni = Me._AT("+CCED=0;#MONI=7;#MONI")
       mccs = (moni).Substring(7, 3)
       If ((mccs).Substring(0, 1) = "0") Then

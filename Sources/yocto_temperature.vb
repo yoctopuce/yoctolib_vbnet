@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_temperature.vb 27282 2017-04-25 15:44:42Z seb $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -500,8 +500,8 @@ Module yocto_temperature
       resValues.Add(res25)
       tempValues.Add(100.0)
       resValues.Add(res100)
-      
-      
+
+
       Return Me.set_thermistorResponseTable(tempValues, resValues)
     End Function
 
@@ -551,7 +551,7 @@ Module yocto_temperature
         me._throw( YAPI.INVALID_ARGUMENT,  "table sizes mismatch")
         return YAPI.INVALID_ARGUMENT
       end if
-      
+
       res = Me.set_command("Z")
       If Not(res=YAPI.SUCCESS) Then
         me._throw( YAPI.IO_ERROR,  "unable to reset thermistor parameters")
@@ -628,7 +628,7 @@ Module yocto_temperature
       Dim currRes As Double = 0
       tempValues.Clear()
       resValues.Clear()
-      
+
       id = Me.get_functionId()
       id = (id).Substring( 11, (id).Length - 11)
       bin_json = Me._download("extra.json?page=" + id)
@@ -667,8 +667,8 @@ Module yocto_temperature
           prev = curr
         End If
       End While
-      
-      
+
+
       Return YAPI.SUCCESS
     End Function
 

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_refframe.vb 27282 2017-04-25 15:44:42Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -506,7 +506,7 @@ end enum
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
       Dim caltyp As Integer = 0
       Dim res As Integer = 0
-      
+
       calibParam = Me.get_calibrationParam()
       iCalib = YAPI._decodeFloats(calibParam)
       caltyp = (iCalib(0) \ 1000)
@@ -542,7 +542,7 @@ end enum
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
       Dim caltyp As Integer = 0
       Dim res As Integer = 0
-      
+
       calibParam = Me.get_calibrationParam()
       iCalib = YAPI._decodeFloats(calibParam)
       caltyp = (iCalib(0) \ 1000)
@@ -888,7 +888,7 @@ end enum
           Return YAPI.SUCCESS
         End If
       End If
-      
+
       calibParam = Me._download("api/refFrame/calibrationParam.txt")
       iCalib = YAPI._decodeFloats(YAPI.DefaultEncoding.GetString(calibParam))
       cal3 = (iCalib(1) \ 1000)
@@ -1100,7 +1100,7 @@ end enum
       If (Me._calibStage = 0) Then
         Return YAPI.SUCCESS
       End If
-      
+
       Me._calibStage = 0
       Return Me.set_calibrationParam(Me._calibSavedParams)
     End Function

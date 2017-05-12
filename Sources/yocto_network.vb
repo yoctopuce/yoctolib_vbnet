@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_network.vb 27422 2017-05-11 10:01:51Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -1638,6 +1638,27 @@ Module yocto_network
 
     '''*
     ''' <summary>
+    '''   Changes the configuration of the network interface to enable the use of an
+    '''   IP address received from a DHCP server.
+    ''' <para>
+    '''   Until an address is received from a DHCP
+    '''   server, the module uses an IP of the network 169.254.0.0/16 (APIPA).
+    '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function useDHCPauto() As Integer
+      Return Me.set_ipConfig("DHCP:")
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Changes the configuration of the network interface to use a static IP address.
     ''' <para>
     '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
@@ -1683,7 +1704,7 @@ Module yocto_network
     '''/
     Public Overridable Function ping(host As String) As String
       Dim content As Byte()
-      
+
       content = Me._download("ping.txt?host=" + host)
       Return YAPI.DefaultEncoding.GetString(content)
     End Function

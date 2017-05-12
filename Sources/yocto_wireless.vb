@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 27240 2017-04-24 12:26:37Z seb $
+'* $Id: yocto_wireless.vb 27437 2017-05-12 13:13:55Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -62,6 +62,11 @@ Module yocto_wireless
   Public Const Y_SECURITY_INVALID As Integer = -1
   Public Const Y_MESSAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_WLANCONFIG_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_WLANSTATE_DOWN As Integer = 0
+  Public Const Y_WLANSTATE_SCANNING As Integer = 1
+  Public Const Y_WLANSTATE_CONNECTED As Integer = 2
+  Public Const Y_WLANSTATE_REJECTED As Integer = 3
+  Public Const Y_WLANSTATE_INVALID As Integer = -1
   Public Delegate Sub YWirelessValueCallback(ByVal func As YWireless, ByVal value As String)
   Public Delegate Sub YWirelessTimedReportCallback(ByVal func As YWireless, ByVal measure As YMeasure)
   REM --- (end of generated code: YWireless globals)
@@ -148,6 +153,11 @@ Module yocto_wireless
     Public Const SECURITY_INVALID As Integer = -1
     Public Const MESSAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const WLANCONFIG_INVALID As String = YAPI.INVALID_STRING
+    Public Const WLANSTATE_DOWN As Integer = 0
+    Public Const WLANSTATE_SCANNING As Integer = 1
+    Public Const WLANSTATE_CONNECTED As Integer = 2
+    Public Const WLANSTATE_REJECTED As Integer = 3
+    Public Const WLANSTATE_INVALID As Integer = -1
     REM --- (end of generated code: YWireless definitions)
 
 
@@ -158,6 +168,7 @@ Module yocto_wireless
     Protected _security As Integer
     Protected _message As String
     Protected _wlanConfig As String
+    Protected _wlanState As Integer
     Protected _valueCallbackWireless As YWirelessValueCallback
     REM --- (end of generated code: YWireless attributes declaration)
 
@@ -171,6 +182,7 @@ Module yocto_wireless
       _security = SECURITY_INVALID
       _message = MESSAGE_INVALID
       _wlanConfig = WLANCONFIG_INVALID
+      _wlanState = WLANSTATE_INVALID
       _valueCallbackWireless = Nothing
       REM --- (end of generated code: YWireless attributes initialization)
     End Sub
@@ -195,6 +207,9 @@ Module yocto_wireless
       End If
       If json_val.has("wlanConfig") Then
         _wlanConfig = json_val.getString("wlanConfig")
+      End If
+      If json_val.has("wlanState") Then
+        _wlanState = CInt(json_val.getLong("wlanState"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -353,6 +368,46 @@ Module yocto_wireless
     End Function
     '''*
     ''' <summary>
+    '''   Returns the current state of the wireless interface.
+    ''' <para>
+    '''   The state <c>Y_WLANSTATE_DOWN</c> means that the network interface is
+    '''   not connected to a network. The state <c>Y_WLANSTATE_SCANNING</c> means that the network interface
+    '''   is scanning available
+    '''   frequencies. During this stage, the device is not reachable, and the network settings are not yet
+    '''   applied. The state
+    '''   <c>Y_WLANSTATE_CONNECTED</c> means that the network settings have been successfully applied ant
+    '''   that the device is reachable
+    '''   from the wireless network. If the device is configured to use ad-hoc or Soft AP mode, it means that
+    '''   the wireless network
+    '''   is up and that other devices can join the network. The state <c>Y_WLANSTATE_REJECTED</c> means that
+    '''   the network interface has
+    '''   not been able to join the requested network. The description of the error can be obtain with the
+    '''   <c>get_message()</c> method.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_WLANSTATE_DOWN</c>, <c>Y_WLANSTATE_SCANNING</c>, <c>Y_WLANSTATE_CONNECTED</c>
+    '''   and <c>Y_WLANSTATE_REJECTED</c> corresponding to the current state of the wireless interface
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_WLANSTATE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_wlanState() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return WLANSTATE_INVALID
+        End If
+      End If
+      res = Me._wlanState
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Retrieves a wireless lan interface for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
@@ -446,6 +501,28 @@ Module yocto_wireless
         MyBase._invokeValueCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Triggers a scan of the wireless frequency and builds the list of available networks.
+    ''' <para>
+    '''   The scan forces a disconnection from the current network. At then end of the process, the
+    '''   the network interface attempts to reconnect to the previous network. During the scan, the <c>wlanState</c>
+    '''   switches to <c>Y_WLANSTATE_DOWN</c>, then to <c>Y_WLANSTATE_SCANNING</c>. When the scan is completed,
+    '''   <c>get_wlanState()</c> returns either <c>Y_WLANSTATE_DOWN</c> or <c>Y_WLANSTATE_SCANNING</c>. At this
+    '''   point, the list of detected network can be retrieved with the <c>get_detectedWlans()</c> method.
+    ''' </para>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function startWlanScan() As Integer
+      Dim config As String
+      config = Me.get_wlanConfig()
+      REM // a full scan is triggered when a config is applied
+      Return Me.set_wlanConfig(config)
     End Function
 
     '''*
@@ -546,8 +623,8 @@ Module yocto_wireless
     '''   Returns a list of YWlanRecord objects that describe detected Wireless networks.
     ''' <para>
     '''   This list is not updated when the module is already connected to an acces point (infrastructure mode).
-    '''   To force an update of this list, <c>adhocNetwork()</c> must be called to disconnect
-    '''   the module from the current network. The returned list must be unallocated by the caller.
+    '''   To force an update of this list, <c>startWlanScan()</c> must be called.
+    '''   Note that an languages without garbage collections, the returned list must be freed by the caller.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -565,7 +642,7 @@ Module yocto_wireless
       Dim json As Byte()
       Dim wlanlist As List(Of String) = New List(Of String)()
       Dim res As List(Of YWlanRecord) = New List(Of YWlanRecord)()
-      
+
       json = Me._download("wlan.json?by=name")
       wlanlist = Me._json_get_array(json)
       res.Clear()

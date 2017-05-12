@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupschedule.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_wakeupschedule.vb 27282 2017-04-25 15:44:42Z seb $
 '*
 '* Implements yFindWakeUpSchedule(), the high-level API for WakeUpSchedule functions
 '*
@@ -588,7 +588,7 @@ Module yocto_wakeupschedule
     '''/
     Public Overridable Function get_minutes() As Long
       Dim res As Long = 0
-      
+
       res = Me.get_minutesB()
       res = ((res) << (30))
       res = res + Me.get_minutesA()
