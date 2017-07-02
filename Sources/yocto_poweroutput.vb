@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_poweroutput.vb 27237 2017-04-21 16:36:03Z seb $
+'* $Id: yocto_poweroutput.vb 27926 2017-06-27 13:25:52Z seb $
 '*
 '* Implements yFindPowerOutput(), the high-level API for PowerOutput functions
 '*
@@ -108,8 +108,7 @@ Module yocto_poweroutput
     REM --- (YPowerOutput public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the voltage on the power ouput featured by
-    '''   the module.
+    '''   Returns the voltage on the power output featured by the module.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -117,8 +116,7 @@ Module yocto_poweroutput
     ''' </summary>
     ''' <returns>
     '''   a value among <c>Y_VOLTAGE_OFF</c>, <c>Y_VOLTAGE_OUT3V3</c> and <c>Y_VOLTAGE_OUT5V</c>
-    '''   corresponding to the voltage on the power ouput featured by
-    '''   the module
+    '''   corresponding to the voltage on the power output featured by the module
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_VOLTAGE_INVALID</c>.
@@ -199,6 +197,13 @@ Module yocto_poweroutput
     '''   a dual power  ouput control by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
+    ''' </para>
+    ''' <para>
+    '''   If a call to this object's is_online() method returns FALSE although
+    '''   you are certain that the matching device is plugged, make sure that you did
+    '''   call registerHub() at application initialization time.
+    ''' </para>
+    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="func">
@@ -367,6 +372,13 @@ Module yocto_poweroutput
   '''   a dual power  ouput control by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
+  ''' </para>
+  ''' <para>
+  '''   If a call to this object's is_online() method returns FALSE although
+  '''   you are certain that the matching device is plugged, make sure that you did
+  '''   call registerHub() at application initialization time.
+  ''' </para>
+  ''' <para>
   ''' </para>
   ''' </summary>
   ''' <param name="func">

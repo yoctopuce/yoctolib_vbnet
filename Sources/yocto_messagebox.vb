@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 27422 2017-05-11 10:01:51Z seb $
+'* $Id: yocto_messagebox.vb 27699 2017-06-01 12:26:47Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -1571,6 +1571,13 @@ Module yocto_messagebox
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
+    ''' <para>
+    '''   If a call to this object's is_online() method returns FALSE although
+    '''   you are certain that the matching device is plugged, make sure that you did
+    '''   call registerHub() at application initialization time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the MessageBox interface
@@ -2367,6 +2374,13 @@ Module yocto_messagebox
   '''   a MessageBox interface by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
+  ''' </para>
+  ''' <para>
+  '''   If a call to this object's is_online() method returns FALSE although
+  '''   you are certain that the matching device is plugged, make sure that you did
+  '''   call registerHub() at application initialization time.
+  ''' </para>
+  ''' <para>
   ''' </para>
   ''' </summary>
   ''' <param name="func">

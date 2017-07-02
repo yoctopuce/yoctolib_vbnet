@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 27422 2017-05-11 10:01:51Z seb $
+'* $Id: yocto_network.vb 27726 2017-06-02 13:18:52Z mvuilleu $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -88,6 +88,7 @@ Module yocto_network
   Public Const Y_CALLBACKENCODING_AZURE As Integer = 7
   Public Const Y_CALLBACKENCODING_INFLUXDB As Integer = 8
   Public Const Y_CALLBACKENCODING_MQTT As Integer = 9
+  Public Const Y_CALLBACKENCODING_YOCTO_API_JZON As Integer = 10
   Public Const Y_CALLBACKENCODING_INVALID As Integer = -1
   Public Const Y_CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
@@ -151,6 +152,7 @@ Module yocto_network
     Public Const CALLBACKENCODING_AZURE As Integer = 7
     Public Const CALLBACKENCODING_INFLUXDB As Integer = 8
     Public Const CALLBACKENCODING_MQTT As Integer = 9
+    Public Const CALLBACKENCODING_YOCTO_API_JZON As Integer = 10
     Public Const CALLBACKENCODING_INVALID As Integer = -1
     Public Const CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
@@ -1127,8 +1129,9 @@ Module yocto_network
     '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c>,
     '''   <c>Y_CALLBACKENCODING_YOCTO_API</c>, <c>Y_CALLBACKENCODING_JSON_NUM</c>,
     '''   <c>Y_CALLBACKENCODING_EMONCMS</c>, <c>Y_CALLBACKENCODING_AZURE</c>,
-    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c> and <c>Y_CALLBACKENCODING_MQTT</c> corresponding to the encoding
-    '''   standard to use for representing notification values
+    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c>, <c>Y_CALLBACKENCODING_MQTT</c> and
+    '''   <c>Y_CALLBACKENCODING_YOCTO_API_JZON</c> corresponding to the encoding standard to use for
+    '''   representing notification values
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_CALLBACKENCODING_INVALID</c>.
@@ -1159,8 +1162,9 @@ Module yocto_network
     '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c>,
     '''   <c>Y_CALLBACKENCODING_YOCTO_API</c>, <c>Y_CALLBACKENCODING_JSON_NUM</c>,
     '''   <c>Y_CALLBACKENCODING_EMONCMS</c>, <c>Y_CALLBACKENCODING_AZURE</c>,
-    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c> and <c>Y_CALLBACKENCODING_MQTT</c> corresponding to the encoding
-    '''   standard to use for representing notification values
+    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c>, <c>Y_CALLBACKENCODING_MQTT</c> and
+    '''   <c>Y_CALLBACKENCODING_YOCTO_API_JZON</c> corresponding to the encoding standard to use for
+    '''   representing notification values
     ''' </param>
     ''' <para>
     ''' </para>
@@ -1542,6 +1546,13 @@ Module yocto_network
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
+    ''' <para>
+    '''   If a call to this object's is_online() method returns FALSE although
+    '''   you are certain that the matching device is plugged, make sure that you did
+    '''   call registerHub() at application initialization time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the network interface
@@ -1834,6 +1845,13 @@ Module yocto_network
   '''   a network interface by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
+  ''' </para>
+  ''' <para>
+  '''   If a call to this object's is_online() method returns FALSE although
+  '''   you are certain that the matching device is plugged, make sure that you did
+  '''   call registerHub() at application initialization time.
+  ''' </para>
+  ''' <para>
   ''' </para>
   ''' </summary>
   ''' <param name="func">

@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 27282 2017-04-25 15:44:42Z seb $
+'* $Id: yocto_datalogger.vb 27699 2017-06-01 12:26:47Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -665,6 +665,13 @@ Module yocto_datalogger
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
+    ''' <para>
+    '''   If a call to this object's is_online() method returns FALSE although
+    '''   you are certain that the matching device is plugged, make sure that you did
+    '''   call registerHub() at application initialization time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the data logger
@@ -1023,6 +1030,13 @@ Module yocto_datalogger
   '''   a data logger by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
+  ''' </para>
+  ''' <para>
+  '''   If a call to this object's is_online() method returns FALSE although
+  '''   you are certain that the matching device is plugged, make sure that you did
+  '''   call registerHub() at application initialization time.
+  ''' </para>
+  ''' <para>
   ''' </para>
   ''' </summary>
   ''' <param name="func">

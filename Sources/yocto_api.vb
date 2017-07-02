@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 27282 2017-04-25 15:44:42Z seb $
+'* $Id: yocto_api.vb 27699 2017-06-01 12:26:47Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -795,7 +795,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "27439"
+  Public Const YOCTO_API_BUILD_NO As String = "27961"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -4870,6 +4870,13 @@ Module yocto_api
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
+    ''' <para>
+    '''   If a call to this object's is_online() method returns FALSE although
+    '''   you are certain that the matching device is plugged, make sure that you did
+    '''   call registerHub() at application initialization time.
+    ''' </para>
+    ''' <para>
+    ''' </para>
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the function
@@ -5684,6 +5691,13 @@ Module yocto_api
   '''   a function by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
+  ''' </para>
+  ''' <para>
+  '''   If a call to this object's is_online() method returns FALSE although
+  '''   you are certain that the matching device is plugged, make sure that you did
+  '''   call registerHub() at application initialization time.
+  ''' </para>
+  ''' <para>
   ''' </para>
   ''' </summary>
   ''' <param name="func">
@@ -6559,8 +6573,10 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the value previously stored in this attribute.
+    '''   Stores a 32 bit value in the device RAM.
     ''' <para>
+    '''   This attribute is at programmer disposal,
+    '''   should he need to store a state variable.
     '''   On startup and after a device reboot, the value is always reset to zero.
     ''' </para>
     ''' <para>
@@ -6596,6 +6612,13 @@ Module yocto_api
     '''   a module by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
+    ''' </para>
+    ''' <para>
+    '''   If a call to this object's is_online() method returns FALSE although
+    '''   you are certain that the device is plugged, make sure that you did
+    '''   call registerHub() at application initialization time.
+    ''' </para>
+    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="func">
@@ -7938,6 +7961,13 @@ Module yocto_api
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
+  ''' <para>
+  '''   If a call to this object's is_online() method returns FALSE although
+  '''   you are certain that the device is plugged, make sure that you did
+  '''   call registerHub() at application initialization time.
+  ''' </para>
+  ''' <para>
+  ''' </para>
   ''' </summary>
   ''' <param name="func">
   '''   a string containing either the serial number or
@@ -8547,6 +8577,13 @@ Module yocto_api
     '''   a sensor by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
+    ''' </para>
+    ''' <para>
+    '''   If a call to this object's is_online() method returns FALSE although
+    '''   you are certain that the matching device is plugged, make sure that you did
+    '''   call registerHub() at application initialization time.
+    ''' </para>
+    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="func">
@@ -9348,6 +9385,13 @@ Module yocto_api
   '''   a sensor by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
+  ''' </para>
+  ''' <para>
+  '''   If a call to this object's is_online() method returns FALSE although
+  '''   you are certain that the matching device is plugged, make sure that you did
+  '''   call registerHub() at application initialization time.
+  ''' </para>
+  ''' <para>
   ''' </para>
   ''' </summary>
   ''' <param name="func">

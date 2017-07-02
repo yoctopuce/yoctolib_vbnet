@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 27282 2017-04-25 15:44:42Z seb $
+'* $Id: yocto_serialport.vb 27948 2017-06-30 14:46:55Z mvuilleu $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -549,6 +549,8 @@ Module yocto_serialport
     '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
     '''   "Modbus-ASCII" for MODBUS messages in ASCII mode,
     '''   "Modbus-RTU" for MODBUS messages in RTU mode,
+    '''   "Wiegand-ASCII" for Wiegand messages in ASCII mode,
+    '''   "Wiegand-26","Wiegand-34", etc for Wiegand messages in byte mode,
     '''   "Char" for a continuous ASCII stream or
     '''   "Byte" for a continuous binary stream.
     ''' </para>
@@ -582,6 +584,8 @@ Module yocto_serialport
     '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
     '''   "Modbus-ASCII" for MODBUS messages in ASCII mode,
     '''   "Modbus-RTU" for MODBUS messages in RTU mode,
+    '''   "Wiegand-ASCII" for Wiegand messages in ASCII mode,
+    '''   "Wiegand-26","Wiegand-34", etc for Wiegand messages in byte mode,
     '''   "Char" for a continuous ASCII stream or
     '''   "Byte" for a continuous binary stream.
     '''   The suffix "/[wait]ms" can be added to reduce the transmit rate so that there
@@ -706,6 +710,13 @@ Module yocto_serialport
     '''   a serial port by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
+    ''' </para>
+    ''' <para>
+    '''   If a call to this object's is_online() method returns FALSE although
+    '''   you are certain that the matching device is plugged, make sure that you did
+    '''   call registerHub() at application initialization time.
+    ''' </para>
+    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="func">
@@ -2367,6 +2378,13 @@ Module yocto_serialport
   '''   a serial port by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
+  ''' </para>
+  ''' <para>
+  '''   If a call to this object's is_online() method returns FALSE although
+  '''   you are certain that the matching device is plugged, make sure that you did
+  '''   call registerHub() at application initialization time.
+  ''' </para>
+  ''' <para>
   ''' </para>
   ''' </summary>
   ''' <param name="func">
