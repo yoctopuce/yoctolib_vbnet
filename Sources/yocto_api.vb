@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_api.vb 28024 2017-07-10 08:50:02Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -795,7 +795,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "27961"
+  Public Const YOCTO_API_BUILD_NO As String = "28028"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1758,7 +1758,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Force a hub discovery, if a callback as been registered with <c>yRegisterDeviceRemovalCallback</c> it
+    '''   Force a hub discovery, if a callback as been registered with <c>yRegisterHubDiscoveryCallback</c> it
     '''   will be called for each net work hub that will respond to the discovery.
     ''' <para>
     ''' </para>
@@ -1944,8 +1944,8 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="hubDiscoveryCallback">
-    '''   a procedure taking two string parameter, or Nothing
-    '''   to unregister a previously registered  callback.
+    '''   a procedure taking two string parameter, the serial
+    '''   number and the hub URL. Use <c>Nothing</c> to unregister a previously registered  callback.
     ''' </param>
     '''/
     Public Shared Sub RegisterHubDiscoveryCallback(ByVal hubDiscoveryCallback As YHubDiscoveryCallback)
@@ -3757,6 +3757,12 @@ Module yocto_api
       Dim stream As YDataStream
       If (Me._progress < 0) Then
         url = "logger.json?id=" + Me._functionId
+        If (Me._startTime <> 0) Then
+          url = "" + url + "&from=" + Convert.ToString(Me._startTime)
+        End If
+        If (Me._endTime <> 0) Then
+          url = "" + url + "&to=" + Convert.ToString(Me._endTime)
+        End If
       Else
         If (Me._progress >= Me._streams.Count) Then
           Return 100
@@ -9670,8 +9676,8 @@ Module yocto_api
   ''' </para>
   ''' </summary>
   ''' <param name="hubDiscoveryCallback">
-  '''   a procedure taking two string parameter, or Nothing
-  '''   to unregister a previously registered  callback.
+  '''   a procedure taking two string parameter, the serial
+  '''   number and the hub URL. Use <c>Nothing</c> to unregister a previously registered  callback.
   ''' </param>
   '''/
   Public Sub yRegisterHubDiscoveryCallback(ByVal hubDiscoveryCallback As YHubDiscoveryCallback)
@@ -10107,7 +10113,7 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   Force a hub discovery, if a callback as been registered with <c>yRegisterDeviceRemovalCallback</c> it
+  '''   Force a hub discovery, if a callback as been registered with <c>yRegisterHubDiscoveryCallback</c> it
   '''   will be called for each net work hub that will respond to the discovery.
   ''' <para>
   ''' </para>

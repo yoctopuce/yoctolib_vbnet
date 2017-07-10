@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 27726 2017-06-02 13:18:52Z mvuilleu $
+'* $Id: yocto_network.vb 28015 2017-07-07 16:27:06Z mvuilleu $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -1739,6 +1739,32 @@ Module yocto_network
     '''/
     Public Overridable Function triggerCallback() As Integer
       Return Me.set_callbackMethod(Me.get_callbackMethod())
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Setup periodic HTTP callbacks (simplifed function).
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="interval">
+    '''   a string representing the callback periodicity, expressed in
+    '''   seconds, minutes or hours, eg. "60s", "5m", "1h", "48h".
+    ''' </param>
+    ''' <param name="offset">
+    '''   an integer representing the time offset relative to the period
+    '''   when the callback should occur. For instance, if the periodicity is
+    '''   24h, an offset of 7 will make the callback occur each day at 7AM.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function set_periodicCallbackSchedule(interval As String, offset As Integer) As Integer
+      Return Me.set_callbackSchedule("every " + interval + "+" + Convert.ToString(offset))
     End Function
 
 
