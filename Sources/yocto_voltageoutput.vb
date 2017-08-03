@@ -368,7 +368,7 @@ Module yocto_voltageoutput
       If (V_target > 10.0) Then
         V_target = 10.0
       End If
-      newval = "" + Convert.ToString( CType(Math.Round(V_target*1000), Integer)) + ":" + Convert.ToString(ms_duration)
+      newval = "" + Convert.ToString( CType(Math.Round(V_target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
 
       Return Me.set_voltageTransition(newval)
     End Function
