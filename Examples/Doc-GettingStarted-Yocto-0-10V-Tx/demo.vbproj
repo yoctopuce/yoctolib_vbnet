@@ -75,11 +75,8 @@
       <Link>yocto\yocto_api.vb</Link>
     </Compile>
     
-<Compile Include="..\..\Sources\yocto_lightsensor.vb">
-<Link>yocto_api\yocto_lightsensor.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_proximity.vb">
-<Link>yocto_api\yocto_proximity.vb</Link>
+<Compile Include="..\..\Sources\yocto_voltageoutput.vb">
+<Link>yocto_api\yocto_voltageoutput.vb</Link>
 </Compile>
 
     <Compile Include="main.vb" />

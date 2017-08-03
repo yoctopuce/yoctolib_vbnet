@@ -78,9 +78,6 @@
 <Compile Include="..\..\Sources\yocto_carbondioxide.vb">
 <Link>yocto_api\yocto_carbondioxide.vb</Link>
 </Compile>
-<Compile Include="..\..\Sources\yocto_datalogger.vb">
-<Link>yocto_api\yocto_datalogger.vb</Link>
-</Compile>
 
     <Compile Include="main.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />

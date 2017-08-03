@@ -75,9 +75,6 @@
       <Link>yocto\yocto_api.vb</Link>
     </Compile>
     
-<Compile Include="..\..\Sources\yocto_datalogger.vb">
-<Link>yocto_api\yocto_datalogger.vb</Link>
-</Compile>
 <Compile Include="..\..\Sources\yocto_voc.vb">
 <Link>yocto_api\yocto_voc.vb</Link>
 </Compile>

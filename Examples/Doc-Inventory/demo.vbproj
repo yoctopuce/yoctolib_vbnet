@@ -93,9 +93,6 @@
 <Compile Include="..\..\Sources\yocto_bluetoothlink.vb">
 <Link>yocto_api\yocto_bluetoothlink.vb</Link>
 </Compile>
-<Compile Include="..\..\Sources\yocto_bridgecontrol.vb">
-<Link>yocto_api\yocto_bridgecontrol.vb</Link>
-</Compile>
 <Compile Include="..\..\Sources\yocto_buzzer.vb">
 <Link>yocto_api\yocto_buzzer.vb</Link>
 </Compile>
@@ -122,9 +119,6 @@
 </Compile>
 <Compile Include="..\..\Sources\yocto_daisychain.vb">
 <Link>yocto_api\yocto_daisychain.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_datalogger.vb">
-<Link>yocto_api\yocto_datalogger.vb</Link>
 </Compile>
 <Compile Include="..\..\Sources\yocto_digitalio.vb">
 <Link>yocto_api\yocto_digitalio.vb</Link>
@@ -249,6 +243,9 @@
 <Compile Include="..\..\Sources\yocto_voltage.vb">
 <Link>yocto_api\yocto_voltage.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_voltageoutput.vb">
+<Link>yocto_api\yocto_voltageoutput.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_wakeupmonitor.vb">
 <Link>yocto_api\yocto_wakeupmonitor.vb</Link>
 </Compile>
@@ -257,6 +254,9 @@
 </Compile>
 <Compile Include="..\..\Sources\yocto_watchdog.vb">
 <Link>yocto_api\yocto_watchdog.vb</Link>
+</Compile>
+<Compile Include="..\..\Sources\yocto_weighscale.vb">
+<Link>yocto_api\yocto_weighscale.vb</Link>
 </Compile>
 <Compile Include="..\..\Sources\yocto_wireless.vb">
 <Link>yocto_api\yocto_wireless.vb</Link>

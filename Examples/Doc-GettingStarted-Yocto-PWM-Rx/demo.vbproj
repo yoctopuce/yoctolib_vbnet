@@ -75,9 +75,6 @@
       <Link>yocto\yocto_api.vb</Link>
     </Compile>
     
-<Compile Include="..\..\Sources\yocto_datalogger.vb">
-<Link>yocto_api\yocto_datalogger.vb</Link>
-</Compile>
 <Compile Include="..\..\Sources\yocto_pwminput.vb">
 <Link>yocto_api\yocto_pwminput.vb</Link>
 </Compile>

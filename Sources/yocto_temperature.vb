@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_temperature.vb 28142 2017-07-25 20:24:23Z mvuilleu $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -65,6 +65,7 @@ Module yocto_temperature
   Public Const Y_SENSORTYPE_RES_OHM As Integer = 11
   Public Const Y_SENSORTYPE_RES_NTC As Integer = 12
   Public Const Y_SENSORTYPE_RES_LINEAR As Integer = 13
+  Public Const Y_SENSORTYPE_RES_INTERNAL As Integer = 14
   Public Const Y_SENSORTYPE_INVALID As Integer = -1
   Public Const Y_SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
@@ -106,6 +107,7 @@ Module yocto_temperature
     Public Const SENSORTYPE_RES_OHM As Integer = 11
     Public Const SENSORTYPE_RES_NTC As Integer = 12
     Public Const SENSORTYPE_RES_LINEAR As Integer = 13
+    Public Const SENSORTYPE_RES_INTERNAL As Integer = 14
     Public Const SENSORTYPE_INVALID As Integer = -1
     Public Const SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
@@ -203,7 +205,8 @@ Module yocto_temperature
     '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
     '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
     '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
-    '''   <c>Y_SENSORTYPE_RES_NTC</c> and <c>Y_SENSORTYPE_RES_LINEAR</c> corresponding to the temperature sensor type
+    '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c> and <c>Y_SENSORTYPE_RES_INTERNAL</c>
+    '''   corresponding to the temperature sensor type
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_SENSORTYPE_INVALID</c>.
@@ -239,7 +242,7 @@ Module yocto_temperature
     '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
     '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
     '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
-    '''   <c>Y_SENSORTYPE_RES_NTC</c> and <c>Y_SENSORTYPE_RES_LINEAR</c>
+    '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c> and <c>Y_SENSORTYPE_RES_INTERNAL</c>
     ''' </param>
     ''' <para>
     ''' </para>

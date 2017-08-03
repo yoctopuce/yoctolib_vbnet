@@ -81,9 +81,6 @@
 <Compile Include="..\..\Sources\yocto_compass.vb">
 <Link>yocto_api\yocto_compass.vb</Link>
 </Compile>
-<Compile Include="..\..\Sources\yocto_datalogger.vb">
-<Link>yocto_api\yocto_datalogger.vb</Link>
-</Compile>
 <Compile Include="..\..\Sources\yocto_gyro.vb">
 <Link>yocto_api\yocto_gyro.vb</Link>
 </Compile>

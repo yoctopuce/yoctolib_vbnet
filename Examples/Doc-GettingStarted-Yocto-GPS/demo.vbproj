@@ -78,9 +78,6 @@
 <Compile Include="..\..\Sources\yocto_altitude.vb">
 <Link>yocto_api\yocto_altitude.vb</Link>
 </Compile>
-<Compile Include="..\..\Sources\yocto_datalogger.vb">
-<Link>yocto_api\yocto_datalogger.vb</Link>
-</Compile>
 <Compile Include="..\..\Sources\yocto_gps.vb">
 <Link>yocto_api\yocto_gps.vb</Link>
 </Compile>
