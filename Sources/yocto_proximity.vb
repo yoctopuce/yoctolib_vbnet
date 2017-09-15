@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_proximity.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_proximity.vb 28559 2017-09-15 15:01:38Z seb $
 '*
 '* Implements yFindProximity(), the high-level API for Proximity functions
 '*
@@ -425,7 +425,7 @@ Module yocto_proximity
 
     '''*
     ''' <summary>
-    '''   Modifies the  parameter  type (sensor value, presence or pulse count) returned by the get_currentValue function and callbacks.
+    '''   Changes the  parameter  type (sensor value, presence or pulse count) returned by the get_currentValue function and callbacks.
     ''' <para>
     '''   The edge count value is limited to the 6 lowest digits. For values greater than one million, use
     '''   get_pulseCounter().
@@ -435,7 +435,8 @@ Module yocto_proximity
     ''' </summary>
     ''' <param name="newval">
     '''   a value among <c>Y_PROXIMITYREPORTMODE_NUMERIC</c>, <c>Y_PROXIMITYREPORTMODE_PRESENCE</c> and
-    '''   <c>Y_PROXIMITYREPORTMODE_PULSECOUNT</c>
+    '''   <c>Y_PROXIMITYREPORTMODE_PULSECOUNT</c> corresponding to the  parameter  type (sensor value,
+    '''   presence or pulse count) returned by the get_currentValue function and callbacks
     ''' </param>
     ''' <para>
     ''' </para>

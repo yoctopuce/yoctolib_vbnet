@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_lightsensor.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_lightsensor.vb 28559 2017-09-15 15:01:38Z seb $
 '*
 '* Implements yFindLightSensor(), the high-level API for LightSensor functions
 '*
@@ -186,7 +186,7 @@ Module yocto_lightsensor
 
     '''*
     ''' <summary>
-    '''   Modifies the light sensor type used in the device.
+    '''   Changes the light sensor type used in the device.
     ''' <para>
     '''   The measure can either
     '''   approximate the response of the human eye, focus on a specific light
@@ -200,6 +200,7 @@ Module yocto_lightsensor
     ''' <param name="newval">
     '''   a value among <c>Y_MEASURETYPE_HUMAN_EYE</c>, <c>Y_MEASURETYPE_WIDE_SPECTRUM</c>,
     '''   <c>Y_MEASURETYPE_INFRARED</c>, <c>Y_MEASURETYPE_HIGH_RATE</c> and <c>Y_MEASURETYPE_HIGH_ENERGY</c>
+    '''   corresponding to the light sensor type used in the device
     ''' </param>
     ''' <para>
     ''' </para>

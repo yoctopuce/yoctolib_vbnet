@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_colorledcluster.vb 28443 2017-09-01 14:45:46Z mvuilleu $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -620,6 +620,55 @@ Module yocto_colorledcluster
     '''/
     Public Overridable Function addMirrorToBlinkSeq(seqIndex As Integer) As Integer
       Return Me.sendCommand("AC" + Convert.ToString(seqIndex) + ",0,0")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Adds to a sequence a jump to another sequence.
+    ''' <para>
+    '''   When a pixel will reach this jump,
+    '''   it will be automatically relinked to the new sequence, and will run it starting
+    '''   from the beginning.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="seqIndex">
+    '''   sequence index.
+    ''' </param>
+    ''' <param name="linkSeqIndex">
+    '''   index of the sequence to chain.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function addJumpToBlinkSeq(seqIndex As Integer, linkSeqIndex As Integer) As Integer
+      Return Me.sendCommand("AC" + Convert.ToString(seqIndex) + ",100," + Convert.ToString(linkSeqIndex) + ",1000")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Adds a to a sequence a hard stop code.
+    ''' <para>
+    '''   When a pixel will reach this stop code,
+    '''   instead of restarting the sequence in a loop it will automatically be unlinked
+    '''   from the sequence.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="seqIndex">
+    '''   sequence index.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function addUnlinkToBlinkSeq(seqIndex As Integer) As Integer
+      Return Me.sendCommand("AC" + Convert.ToString(seqIndex) + ",100,-1,1000")
     End Function
 
     '''*

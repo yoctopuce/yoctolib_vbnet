@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 28142 2017-07-25 20:24:23Z mvuilleu $
+'* $Id: yocto_temperature.vb 28559 2017-09-15 15:01:38Z seb $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -226,7 +226,7 @@ Module yocto_temperature
 
     '''*
     ''' <summary>
-    '''   Modifies the temperature sensor type.
+    '''   Changes the temperature sensor type.
     ''' <para>
     '''   This function is used
     '''   to define the type of thermocouple (K,E...) used with the device.
@@ -243,6 +243,7 @@ Module yocto_temperature
     '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
     '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
     '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c> and <c>Y_SENSORTYPE_RES_INTERNAL</c>
+    '''   corresponding to the temperature sensor type
     ''' </param>
     ''' <para>
     ''' </para>

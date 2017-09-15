@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_refframe.vb 28457 2017-09-06 08:34:21Z mvuilleu $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -70,6 +70,12 @@ end enum
   Public Const Y_MOUNTPOS_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BEARING_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_FUSIONMODE_NDOF As Integer = 0
+  Public Const Y_FUSIONMODE_NDOF_FMC_OFF As Integer = 1
+  Public Const Y_FUSIONMODE_M4G As Integer = 2
+  Public Const Y_FUSIONMODE_COMPASS As Integer = 3
+  Public Const Y_FUSIONMODE_IMU As Integer = 4
+  Public Const Y_FUSIONMODE_INVALID As Integer = -1
   Public Delegate Sub YRefFrameValueCallback(ByVal func As YRefFrame, ByVal value As String)
   Public Delegate Sub YRefFrameTimedReportCallback(ByVal func As YRefFrame, ByVal measure As YMeasure)
   REM --- (end of YRefFrame globals)
@@ -96,12 +102,19 @@ end enum
     Public Const MOUNTPOS_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BEARING_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
+    Public Const FUSIONMODE_NDOF As Integer = 0
+    Public Const FUSIONMODE_NDOF_FMC_OFF As Integer = 1
+    Public Const FUSIONMODE_M4G As Integer = 2
+    Public Const FUSIONMODE_COMPASS As Integer = 3
+    Public Const FUSIONMODE_IMU As Integer = 4
+    Public Const FUSIONMODE_INVALID As Integer = -1
     REM --- (end of YRefFrame definitions)
 
     REM --- (YRefFrame attributes declaration)
     Protected _mountPos As Integer
     Protected _bearing As Double
     Protected _calibrationParam As String
+    Protected _fusionMode As Integer
     Protected _valueCallbackRefFrame As YRefFrameValueCallback
     Protected _calibV2 As Boolean
     Protected _calibStage As Integer
@@ -133,6 +146,7 @@ end enum
       _mountPos = MOUNTPOS_INVALID
       _bearing = BEARING_INVALID
       _calibrationParam = CALIBRATIONPARAM_INVALID
+      _fusionMode = FUSIONMODE_INVALID
       _valueCallbackRefFrame = Nothing
       _calibStage = 0
       _calibStageProgress = 0
@@ -165,6 +179,9 @@ end enum
       End If
       If json_val.has("calibrationParam") Then
         _calibrationParam = json_val.getString("calibrationParam")
+      End If
+      If json_val.has("fusionMode") Then
+        _fusionMode = CInt(json_val.getLong("fusionMode"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -277,6 +294,23 @@ end enum
       Dim rest_val As String
       rest_val = newval
       Return _setAttr("calibrationParam", rest_val)
+    End Function
+    Public Function get_fusionMode() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return FUSIONMODE_INVALID
+        End If
+      End If
+      res = Me._fusionMode
+      Return res
+    End Function
+
+
+    Public Function set_fusionMode(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("fusionMode", rest_val)
     End Function
     '''*
     ''' <summary>

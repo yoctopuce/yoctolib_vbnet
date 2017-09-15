@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 28159 2017-07-27 09:37:52Z seb $
+'* $Id: yocto_api.vb 28559 2017-09-15 15:01:38Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -61,6 +61,7 @@ Imports System.Runtime.InteropServices
 Imports System.Buffer
 Imports System.Text
 Imports System.Math
+Imports System.Threading
 
 Module yocto_api
   Public MustInherit Class YJSONContent
@@ -795,7 +796,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "28296"
+  Public Const YOCTO_API_BUILD_NO As String = "28564"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2085,6 +2086,11 @@ Module yocto_api
   Public Const Y_CURRENTRAWVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_LOGFREQUENCY_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_REPORTFREQUENCY_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_ADVMODE_IMMEDIATE As Integer = 0
+  Public Const Y_ADVMODE_PERIOD_AVG As Integer = 1
+  Public Const Y_ADVMODE_PERIOD_MIN As Integer = 2
+  Public Const Y_ADVMODE_PERIOD_MAX As Integer = 3
+  Public Const Y_ADVMODE_INVALID As Integer = -1
   Public Const Y_CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_SENSORSTATE_INVALID As Integer = YAPI.INVALID_INT
@@ -2245,7 +2251,7 @@ Module yocto_api
       Dim settings As String
       Dim prod_prefix As String
       Dim force As Integer = 0
-      If (Me._progress_c < 100) Then
+      If (Me._progress_c < 100 AndAlso Me._progress_c <> YAPI.VERSION_MISMATCH) Then
         serial = Me._serial
         firmwarepath = Me._firmwarepath
         settings = YAPI.DefaultEncoding.GetString(Me._settings)
@@ -2255,6 +2261,11 @@ Module yocto_api
           force = 0
         End If
         res = _yapiUpdateFirmwareEx(New StringBuilder(serial), New StringBuilder(firmwarepath), New StringBuilder(settings), force, newupdate, errmsg)
+        If (res = YAPI.VERSION_MISMATCH AndAlso ((Me._settings).Length <> 0)) Then
+          Me._progress_c = res
+          Me._progress_msg = errmsg.ToString()
+          Return Me._progress
+        End If
         If (res < 0) Then
           Me._progress = res
           Me._progress_msg = errmsg.ToString()
@@ -2284,8 +2295,13 @@ Module yocto_api
             m.set_allSettingsAndFiles(Me._settings)
             m.saveToFlash()
             ReDim Me._settings(0-1)
-            Me._progress = 100
-            Me._progress_msg = "success"
+            If (Me._progress_c = YAPI.VERSION_MISMATCH) Then
+              Me._progress = YAPI.IO_ERROR
+              Me._progress_msg = "Unable to update firmware"
+            Else
+              Me._progress =  100
+              Me._progress_msg = "success"
+            End If
           End If
         Else
           Me._progress =  100
@@ -4031,9 +4047,14 @@ Module yocto_api
       Dim replysize As Integer = 0
       Dim fullrequest As Byte() = Nothing
       Dim res As YRETCODE
-
-      SyncLock _lock
-
+      Dim enter As Boolean
+      Do 
+        enter = Monitor.TryEnter(_lock)
+        If Not enter Then
+          Thread.Sleep(50)
+        End If
+      Loop Until enter
+      Try
         res = HTTPRequestPrepare(request_org, fullrequest, errmsg)
         If YISERR(res) Then
           Return res
@@ -4056,7 +4077,9 @@ Module yocto_api
           Marshal.Copy(preply, reply, 0, replysize)
         End If
         res = _yapiHTTPRequestSyncDone(iohdl, buffer)
-      End SyncLock
+      Finally
+        Monitor.Exit(_lock)
+      End Try
       errmsg = buffer.ToString()
       Return res
     End Function
@@ -8042,6 +8065,11 @@ Module yocto_api
     Public Const CURRENTRAWVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const LOGFREQUENCY_INVALID As String = YAPI.INVALID_STRING
     Public Const REPORTFREQUENCY_INVALID As String = YAPI.INVALID_STRING
+    Public Const ADVMODE_IMMEDIATE As Integer = 0
+    Public Const ADVMODE_PERIOD_AVG As Integer = 1
+    Public Const ADVMODE_PERIOD_MIN As Integer = 2
+    Public Const ADVMODE_PERIOD_MAX As Integer = 3
+    Public Const ADVMODE_INVALID As Integer = -1
     Public Const CALIBRATIONPARAM_INVALID As String = YAPI.INVALID_STRING
     Public Const RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const SENSORSTATE_INVALID As Integer = YAPI.INVALID_INT
@@ -8055,6 +8083,7 @@ Module yocto_api
     Protected _currentRawValue As Double
     Protected _logFrequency As String
     Protected _reportFrequency As String
+    Protected _advMode As Integer
     Protected _calibrationParam As String
     Protected _resolution As Double
     Protected _sensorState As Integer
@@ -8085,6 +8114,7 @@ Module yocto_api
       _currentRawValue = CURRENTRAWVALUE_INVALID
       _logFrequency = LOGFREQUENCY_INVALID
       _reportFrequency = REPORTFREQUENCY_INVALID
+      _advMode = ADVMODE_INVALID
       _calibrationParam = CALIBRATIONPARAM_INVALID
       _resolution = RESOLUTION_INVALID
       _sensorState = SENSORSTATE_INVALID
@@ -8126,6 +8156,9 @@ Module yocto_api
       End If
       If json_val.has("reportFrequency") Then
         _reportFrequency = json_val.getString("reportFrequency")
+      End If
+      If json_val.has("advMode") Then
+        _advMode = CInt(json_val.getLong("advMode"))
       End If
       If json_val.has("calibrationParam") Then
         _calibrationParam = json_val.getString("calibrationParam")
@@ -8448,6 +8481,62 @@ Module yocto_api
       Dim rest_val As String
       rest_val = newval
       Return _setAttr("reportFrequency", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the measuring mode used for the advertised value pushed to the parent hub.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_ADVMODE_IMMEDIATE</c>, <c>Y_ADVMODE_PERIOD_AVG</c>, <c>Y_ADVMODE_PERIOD_MIN</c>
+    '''   and <c>Y_ADVMODE_PERIOD_MAX</c> corresponding to the measuring mode used for the advertised value
+    '''   pushed to the parent hub
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_ADVMODE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_advMode() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return ADVMODE_INVALID
+        End If
+      End If
+      res = Me._advMode
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the measuring mode used for the advertised value pushed to the parent hub.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>Y_ADVMODE_IMMEDIATE</c>, <c>Y_ADVMODE_PERIOD_AVG</c>, <c>Y_ADVMODE_PERIOD_MIN</c>
+    '''   and <c>Y_ADVMODE_PERIOD_MAX</c> corresponding to the measuring mode used for the advertised value
+    '''   pushed to the parent hub
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_advMode(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("advMode", rest_val)
     End Function
     Public Function get_calibrationParam() As String
       Dim res As String

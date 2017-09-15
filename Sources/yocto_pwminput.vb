@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwminput.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_pwminput.vb 28559 2017-09-15 15:01:38Z seb $
 '*
 '* Implements yFindPwmInput(), the high-level API for PwmInput functions
 '*
@@ -62,6 +62,7 @@ Module yocto_pwminput
   Public Const Y_PWMREPORTMODE_PWM_PULSEDURATION As Integer = 2
   Public Const Y_PWMREPORTMODE_PWM_EDGECOUNT As Integer = 3
   Public Const Y_PWMREPORTMODE_INVALID As Integer = -1
+  Public Const Y_DEBOUNCEPERIOD_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YPwmInputValueCallback(ByVal func As YPwmInput, ByVal value As String)
   Public Delegate Sub YPwmInputTimedReportCallback(ByVal func As YPwmInput, ByVal measure As YMeasure)
   REM --- (end of YPwmInput globals)
@@ -96,6 +97,7 @@ Module yocto_pwminput
     Public Const PWMREPORTMODE_PWM_PULSEDURATION As Integer = 2
     Public Const PWMREPORTMODE_PWM_EDGECOUNT As Integer = 3
     Public Const PWMREPORTMODE_INVALID As Integer = -1
+    Public Const DEBOUNCEPERIOD_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YPwmInput definitions)
 
     REM --- (YPwmInput attributes declaration)
@@ -106,6 +108,7 @@ Module yocto_pwminput
     Protected _pulseCounter As Long
     Protected _pulseTimer As Long
     Protected _pwmReportMode As Integer
+    Protected _debouncePeriod As Integer
     Protected _valueCallbackPwmInput As YPwmInputValueCallback
     Protected _timedReportCallbackPwmInput As YPwmInputTimedReportCallback
     REM --- (end of YPwmInput attributes declaration)
@@ -121,6 +124,7 @@ Module yocto_pwminput
       _pulseCounter = PULSECOUNTER_INVALID
       _pulseTimer = PULSETIMER_INVALID
       _pwmReportMode = PWMREPORTMODE_INVALID
+      _debouncePeriod = DEBOUNCEPERIOD_INVALID
       _valueCallbackPwmInput = Nothing
       _timedReportCallbackPwmInput = Nothing
       REM --- (end of YPwmInput attributes initialization)
@@ -149,6 +153,9 @@ Module yocto_pwminput
       End If
       If json_val.has("pwmReportMode") Then
         _pwmReportMode = CInt(json_val.getLong("pwmReportMode"))
+      End If
+      If json_val.has("debouncePeriod") Then
+        _debouncePeriod = CInt(json_val.getLong("debouncePeriod"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -354,7 +361,7 @@ Module yocto_pwminput
 
     '''*
     ''' <summary>
-    '''   Modifies the  parameter  type (frequency/duty cycle, pulse width, or edge count) returned by the get_currentValue function and callbacks.
+    '''   Changes the  parameter  type (frequency/duty cycle, pulse width, or edge count) returned by the get_currentValue function and callbacks.
     ''' <para>
     '''   The edge count value is limited to the 6 lowest digits. For values greater than one million, use
     '''   get_pulseCounter().
@@ -364,7 +371,9 @@ Module yocto_pwminput
     ''' </summary>
     ''' <param name="newval">
     '''   a value among <c>Y_PWMREPORTMODE_PWM_DUTYCYCLE</c>, <c>Y_PWMREPORTMODE_PWM_FREQUENCY</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c> and <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c>
+    '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c> and <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c> corresponding to
+    '''   the  parameter  type (frequency/duty cycle, pulse width, or edge count) returned by the
+    '''   get_currentValue function and callbacks
     ''' </param>
     ''' <para>
     ''' </para>
@@ -379,6 +388,60 @@ Module yocto_pwminput
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("pwmReportMode", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the shortest expected pulse duration, in ms.
+    ''' <para>
+    '''   Any shorter pulse will be automatically ignored (debounce).
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the shortest expected pulse duration, in ms
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_DEBOUNCEPERIOD_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_debouncePeriod() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return DEBOUNCEPERIOD_INVALID
+        End If
+      End If
+      res = Me._debouncePeriod
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the shortest expected pulse duration, in ms.
+    ''' <para>
+    '''   Any shorter pulse will be automatically ignored (debounce).
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the shortest expected pulse duration, in ms
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_debouncePeriod(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("debouncePeriod", rest_val)
     End Function
     '''*
     ''' <summary>
