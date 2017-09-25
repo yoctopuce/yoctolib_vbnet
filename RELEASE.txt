@@ -1,3 +1,1 @@
-- Add support for jumps and stops in ColorLedCluster sequences
-- Improve error reporting during firmware update
-- Improve responsiveness of the library when used by lots of concurrent threads.
+- test

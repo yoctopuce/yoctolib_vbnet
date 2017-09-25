@@ -186,6 +186,9 @@
 <Compile Include="..\..\Sources\yocto_poweroutput.vb">
 <Link>yocto_api\yocto_poweroutput.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_powersupply.vb">
+<Link>yocto_api\yocto_powersupply.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_pressure.vb">
 <Link>yocto_api\yocto_pressure.vb</Link>
 </Compile>
