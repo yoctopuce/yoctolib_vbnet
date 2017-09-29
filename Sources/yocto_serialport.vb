@@ -1,10 +1,10 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 27948 2017-06-30 14:46:55Z mvuilleu $
+'* $Id: yocto_serialport.vb 28669 2017-09-27 08:26:03Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
@@ -23,7 +23,7 @@
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 '*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
@@ -44,6 +44,11 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 
 Module yocto_serialport
+
+  REM --- (generated code: YSnoopingRecord globals)
+
+  REM --- (end of generated code: YSnoopingRecord globals)
+
 
     REM --- (YSerialPort return codes)
     REM --- (end of YSerialPort return codes)
@@ -73,6 +78,62 @@ Module yocto_serialport
   Public Delegate Sub YSerialPortValueCallback(ByVal func As YSerialPort, ByVal value As String)
   Public Delegate Sub YSerialPortTimedReportCallback(ByVal func As YSerialPort, ByVal measure As YMeasure)
   REM --- (end of YSerialPort globals)
+
+
+
+  REM --- (generated code: YSnoopingRecord class start)
+
+  Public Class YSnoopingRecord
+    REM --- (end of generated code: YSnoopingRecord class start)
+    REM --- (generated code: YSnoopingRecord definitions)
+    REM --- (end of generated code: YSnoopingRecord definitions)
+    REM --- (generated code: YSnoopingRecord attributes declaration)
+    Protected _tim As Integer
+    Protected _dir As Integer
+    Protected _msg As String
+    REM --- (end of generated code: YSnoopingRecord attributes declaration)
+
+    REM --- (generated code: YSnoopingRecord private methods declaration)
+
+    REM --- (end of generated code: YSnoopingRecord private methods declaration)
+
+    REM --- (generated code: YSnoopingRecord public methods declaration)
+    Public Overridable Function get_time() As Integer
+      Return Me._tim
+    End Function
+
+    Public Overridable Function get_direction() As Integer
+      Return Me._dir
+    End Function
+
+    Public Overridable Function get_message() As String
+      Return Me._msg
+    End Function
+
+
+
+    REM --- (end of generated code: YSnoopingRecord public methods declaration)
+
+
+
+    Public Sub New(ByVal data As String)
+      Dim m as string
+      Dim json As YJSONObject  = New YJSONObject(data)
+      json.parse()
+      Me._tim = CInt(json.getInt("t"))
+      m = json.getString("m")
+      IF m.Chars(0)="<" Then
+        Me._dir =1
+      Else
+        Me._dir=0      
+      End If
+      Me._msg = m.Substring(1)
+    End Sub
+
+  End Class
+
+
+
 
   REM --- (YSerialPort class start)
 
@@ -1376,6 +1437,58 @@ Module yocto_serialport
 
       While (idx < msglen)
         res.Add(Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(idx))))
+        idx = idx + 1
+      End While
+
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves messages (both direction) in the serial port buffer, starting at current position.
+    ''' <para>
+    '''   This function will only compare and return printable characters in the message strings.
+    '''   Binary protocols are handled as hexadecimal strings.
+    ''' </para>
+    ''' <para>
+    '''   If no message is found, the search waits for one up to the specified maximum timeout
+    '''   (in milliseconds).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a message if none is found
+    '''   in the receive buffer.
+    ''' </param>
+    ''' <returns>
+    '''   an array of YSnoopingRecord objects containing the messages found, if any.
+    '''   Binary messages are converted to hexadecimal representation.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YSnoopingRecord)
+      Dim url As String
+      Dim msgbin As Byte()
+      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msglen As Integer = 0
+      Dim res As List(Of YSnoopingRecord) = New List(Of YSnoopingRecord)()
+      Dim idx As Integer = 0
+
+      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0"
+      msgbin = Me._download(url)
+      msgarr = Me._json_get_array(msgbin)
+      msglen = msgarr.Count
+      If (msglen = 0) Then
+        Return res
+      End If
+      REM // last element of array is the new position
+      msglen = msglen - 1
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      idx = 0
+
+      While (idx < msglen)
+        res.Add(New YSnoopingRecord(msgarr(idx)))
         idx = idx + 1
       End While
 

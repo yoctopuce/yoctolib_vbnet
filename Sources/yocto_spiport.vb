@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_spiport.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_spiport.vb 28661 2017-09-26 16:46:49Z seb $
 '*
 '* Implements yFindSpiPort(), the high-level API for SpiPort functions
 '*
@@ -1147,7 +1147,6 @@ Module yocto_spiport
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
       Dim res As Integer = 0
-
       REM // first check if we have the requested character in the look-ahead buffer
       bufflen = (Me._rxbuff).Length
       If ((Me._rxptr >= Me._rxbuffptr) AndAlso (Me._rxptr < Me._rxbuffptr+bufflen)) Then
@@ -1155,7 +1154,6 @@ Module yocto_spiport
         Me._rxptr = Me._rxptr + 1
         Return res
       End If
-
       REM // try to preload more than one byte to speed-up byte-per-byte access
       currpos = Me._rxptr
       reqlen = 1024
@@ -1182,7 +1180,6 @@ Module yocto_spiport
       End If
       REM // still mixed, need to process character by character
       Me._rxptr = currpos
-
 
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=1")
       bufflen = (buff).Length - 1

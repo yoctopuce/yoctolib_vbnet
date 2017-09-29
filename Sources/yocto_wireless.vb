@@ -1,35 +1,35 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_wireless.vb 28669 2017-09-27 08:26:03Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
 '*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
 '*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing 
-'*  with Yoctopuce products. 
+'*  file into your software for the sole purpose of interfacing
+'*  with Yoctopuce products.
 '*
-'*  You may reproduce and distribute copies of this file in 
+'*  You may reproduce and distribute copies of this file in
 '*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain 
+'*  code is to interface with Yoctopuce products. You must retain
 '*  this notice in the distributed source file.
 '*
 '*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and 
+'*  for additional information regarding your rights and
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
+'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, 
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR 
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT 
+'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
+'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
 '*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
 '*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
 '*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
@@ -78,12 +78,12 @@ Module yocto_wireless
     REM --- (end of generated code: YWlanRecord class start)
     REM --- (generated code: YWlanRecord definitions)
     REM --- (end of generated code: YWlanRecord definitions)
-    REM --- (generated code: YWlanRecord attributes)
+    REM --- (generated code: YWlanRecord attributes declaration)
     Protected _ssid As String
     Protected _channel As Integer
     Protected _sec As String
     Protected _rssi As Integer
-    REM --- (end of generated code: YWlanRecord attributes)
+    REM --- (end of generated code: YWlanRecord attributes declaration)
 
     REM --- (generated code: YWlanRecord private methods declaration)
 
@@ -110,7 +110,7 @@ Module yocto_wireless
 
     REM --- (end of generated code: YWlanRecord public methods declaration)
 
-  
+
 
     Public Sub New(ByVal data As String)
       Dim obj As YJSONObject  = New YJSONObject(data)
@@ -118,16 +118,16 @@ Module yocto_wireless
       Me._ssid = obj.getString("ssid")
       Me._sec =obj.getString("sec")
       Me._channel = CInt(obj.getInt("channel"))
-      Me._rssi = CInt(obj.getInt("rssi"))     
+      Me._rssi = CInt(obj.getInt("rssi"))
     End Sub
 
   End Class
-  
 
 
 
 
-  
+
+
   REM --- (generated code: YWireless class start)
 
   '''*
