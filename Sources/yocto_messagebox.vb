@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_messagebox.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -831,7 +831,7 @@ Module yocto_messagebox
       Dim wpos As Integer = 0
       Dim carry As Integer = 0
       Dim nbits As Integer = 0
-      Dim thisb As Integer = 0
+      Dim thi_b As Integer = 0
       REM // nbits = number of bits in carry
       udsize = Me.udataSize()
       udhsize = (Me._udh).Length
@@ -873,11 +873,11 @@ Module yocto_messagebox
             carry = Me._udata(i)
             nbits = 7
           Else
-            thisb = Me._udata(i)
-            res( wpos) = Convert.ToByte(((carry) Or ((((((thisb) << (nbits)))) And (255)))) And &HFF)
+            thi_b = Me._udata(i)
+            res( wpos) = Convert.ToByte(((carry) Or ((((((thi_b) << (nbits)))) And (255)))) And &HFF)
             wpos = wpos + 1
             nbits = nbits - 1
-            carry = ((thisb) >> ((7 - nbits)))
+            carry = ((thi_b) >> ((7 - nbits)))
           End If
           i = i + 1
         End While
@@ -1094,7 +1094,7 @@ Module yocto_messagebox
       Dim i As Integer = 0
       Dim carry As Integer = 0
       Dim nbits As Integer = 0
-      Dim thisb As Integer = 0
+      Dim thi_b As Integer = 0
       Me._pdu = pdu
       Me._npdu = 1
       REM // parse meta-data
@@ -1155,9 +1155,9 @@ Module yocto_messagebox
           udhlen = ((8 + 8*udhsize + 6) \ 7)
           nbits = 7*udhlen - 8 - 8*udhsize
           If (nbits > 0) Then
-            thisb = pdu(rpos)
+            thi_b = pdu(rpos)
             rpos = rpos + 1
-            carry = ((thisb) >> (nbits))
+            carry = ((thi_b) >> (nbits))
             nbits = 8 - nbits
           End If
         Else
@@ -1179,10 +1179,10 @@ Module yocto_messagebox
             carry = 0
             nbits = 0
           Else
-            thisb = pdu(rpos)
+            thi_b = pdu(rpos)
             rpos = rpos + 1
-            Me._udata( i) = Convert.ToByte(((carry) Or ((((((thisb) << (nbits)))) And (127)))) And &HFF)
-            carry = ((thisb) >> ((7 - nbits)))
+            Me._udata( i) = Convert.ToByte(((carry) Or ((((((thi_b) << (nbits)))) And (127)))) And &HFF)
+            carry = ((thi_b) >> ((7 - nbits)))
             nbits = nbits + 1
           End If
           i = i + 1
@@ -1245,10 +1245,10 @@ Module yocto_messagebox
 
   End Class
 
-  REM --- (generated code: Sms functions)
+  REM --- (generated code: YSms functions)
 
 
-  REM --- (end of generated code: Sms functions)
+  REM --- (end of generated code: YSms functions)
 
 
 
@@ -2339,7 +2339,7 @@ Module yocto_messagebox
 
   End Class
 
-  REM --- (generated code: MessageBox functions)
+  REM --- (generated code: YMessageBox functions)
 
   '''*
   ''' <summary>
@@ -2413,6 +2413,6 @@ Module yocto_messagebox
   End Function
 
 
-  REM --- (end of generated code: MessageBox functions)
+  REM --- (end of generated code: YMessageBox functions)
 
 End Module

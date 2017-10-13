@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 28669 2017-09-27 08:26:03Z seb $
+'* $Id: yocto_serialport.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -50,11 +50,11 @@ Module yocto_serialport
   REM --- (end of generated code: YSnoopingRecord globals)
 
 
-    REM --- (YSerialPort return codes)
-    REM --- (end of YSerialPort return codes)
-    REM --- (YSerialPort dlldef)
-    REM --- (end of YSerialPort dlldef)
-  REM --- (YSerialPort globals)
+    REM --- (generated code: YSerialPort return codes)
+    REM --- (end of generated code: YSerialPort return codes)
+    REM --- (generated code: YSerialPort dlldef)
+    REM --- (end of generated code: YSerialPort dlldef)
+  REM --- (generated code: YSerialPort globals)
 
   Public Const Y_RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -77,7 +77,7 @@ Module yocto_serialport
   Public Const Y_SERIALMODE_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YSerialPortValueCallback(ByVal func As YSerialPort, ByVal value As String)
   Public Delegate Sub YSerialPortTimedReportCallback(ByVal func As YSerialPort, ByVal measure As YMeasure)
-  REM --- (end of YSerialPort globals)
+  REM --- (end of generated code: YSerialPort globals)
 
 
 
@@ -125,7 +125,7 @@ Module yocto_serialport
       IF m.Chars(0)="<" Then
         Me._dir =1
       Else
-        Me._dir=0      
+        Me._dir=0
       End If
       Me._msg = m.Substring(1)
     End Sub
@@ -135,7 +135,7 @@ Module yocto_serialport
 
 
 
-  REM --- (YSerialPort class start)
+  REM --- (generated code: YSerialPort class start)
 
   '''*
   ''' <summary>
@@ -150,9 +150,9 @@ Module yocto_serialport
   '''/
   Public Class YSerialPort
     Inherits YFunction
-    REM --- (end of YSerialPort class start)
+    REM --- (end of generated code: YSerialPort class start)
 
-    REM --- (YSerialPort definitions)
+    REM --- (generated code: YSerialPort definitions)
     Public Const RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -172,9 +172,9 @@ Module yocto_serialport
     Public Const VOLTAGELEVEL_INVALID As Integer = -1
     Public Const PROTOCOL_INVALID As String = YAPI.INVALID_STRING
     Public Const SERIALMODE_INVALID As String = YAPI.INVALID_STRING
-    REM --- (end of YSerialPort definitions)
+    REM --- (end of generated code: YSerialPort definitions)
 
-    REM --- (YSerialPort attributes declaration)
+    REM --- (generated code: YSerialPort attributes declaration)
     Protected _rxCount As Integer
     Protected _txCount As Integer
     Protected _errCount As Integer
@@ -191,12 +191,12 @@ Module yocto_serialport
     Protected _rxptr As Integer
     Protected _rxbuff As Byte()
     Protected _rxbuffptr As Integer
-    REM --- (end of YSerialPort attributes declaration)
+    REM --- (end of generated code: YSerialPort attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
       _classname = "SerialPort"
-      REM --- (YSerialPort attributes initialization)
+      REM --- (generated code: YSerialPort attributes initialization)
       _rxCount = RXCOUNT_INVALID
       _txCount = TXCOUNT_INVALID
       _errCount = ERRCOUNT_INVALID
@@ -212,10 +212,10 @@ Module yocto_serialport
       _valueCallbackSerialPort = Nothing
       _rxptr = 0
       _rxbuffptr = 0
-      REM --- (end of YSerialPort attributes initialization)
+      REM --- (end of generated code: YSerialPort attributes initialization)
     End Sub
 
-    REM --- (YSerialPort private methods declaration)
+    REM --- (generated code: YSerialPort private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("rxCount") Then
@@ -257,9 +257,9 @@ Module yocto_serialport
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YSerialPort private methods declaration)
+    REM --- (end of generated code: YSerialPort private methods declaration)
 
-    REM --- (YSerialPort public methods declaration)
+    REM --- (generated code: YSerialPort public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the total number of bytes received since last reset.
@@ -1092,7 +1092,6 @@ Module yocto_serialport
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
       Dim res As Integer = 0
-
       REM // first check if we have the requested character in the look-ahead buffer
       bufflen = (Me._rxbuff).Length
       If ((Me._rxptr >= Me._rxbuffptr) AndAlso (Me._rxptr < Me._rxbuffptr+bufflen)) Then
@@ -1100,7 +1099,6 @@ Module yocto_serialport
         Me._rxptr = Me._rxptr + 1
         Return res
       End If
-
       REM // try to preload more than one byte to speed-up byte-per-byte access
       currpos = Me._rxptr
       reqlen = 1024
@@ -1127,7 +1125,6 @@ Module yocto_serialport
       End If
       REM // still mixed, need to process character by character
       Me._rxptr = currpos
-
 
       buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=1")
       bufflen = (buff).Length - 1
@@ -1445,58 +1442,6 @@ Module yocto_serialport
 
     '''*
     ''' <summary>
-    '''   Retrieves messages (both direction) in the serial port buffer, starting at current position.
-    ''' <para>
-    '''   This function will only compare and return printable characters in the message strings.
-    '''   Binary protocols are handled as hexadecimal strings.
-    ''' </para>
-    ''' <para>
-    '''   If no message is found, the search waits for one up to the specified maximum timeout
-    '''   (in milliseconds).
-    ''' </para>
-    ''' </summary>
-    ''' <param name="maxWait">
-    '''   the maximum number of milliseconds to wait for a message if none is found
-    '''   in the receive buffer.
-    ''' </param>
-    ''' <returns>
-    '''   an array of YSnoopingRecord objects containing the messages found, if any.
-    '''   Binary messages are converted to hexadecimal representation.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty array.
-    ''' </para>
-    '''/
-    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YSnoopingRecord)
-      Dim url As String
-      Dim msgbin As Byte()
-      Dim msgarr As List(Of String) = New List(Of String)()
-      Dim msglen As Integer = 0
-      Dim res As List(Of YSnoopingRecord) = New List(Of YSnoopingRecord)()
-      Dim idx As Integer = 0
-
-      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0"
-      msgbin = Me._download(url)
-      msgarr = Me._json_get_array(msgbin)
-      msglen = msgarr.Count
-      If (msglen = 0) Then
-        Return res
-      End If
-      REM // last element of array is the new position
-      msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
-      idx = 0
-
-      While (idx < msglen)
-        res.Add(New YSnoopingRecord(msgarr(idx)))
-        idx = idx + 1
-      End While
-
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
     '''   Changes the current internal stream position to the specified value.
     ''' <para>
     '''   This function
@@ -1701,6 +1646,58 @@ Module yocto_serialport
         return YAPI.IO_ERROR
       end if
       res = buff(0) - 48
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves messages (both direction) in the serial port buffer, starting at current position.
+    ''' <para>
+    '''   This function will only compare and return printable characters in the message strings.
+    '''   Binary protocols are handled as hexadecimal strings.
+    ''' </para>
+    ''' <para>
+    '''   If no message is found, the search waits for one up to the specified maximum timeout
+    '''   (in milliseconds).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a message if none is found
+    '''   in the receive buffer.
+    ''' </param>
+    ''' <returns>
+    '''   an array of YSnoopingRecord objects containing the messages found, if any.
+    '''   Binary messages are converted to hexadecimal representation.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YSnoopingRecord)
+      Dim url As String
+      Dim msgbin As Byte()
+      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msglen As Integer = 0
+      Dim res As List(Of YSnoopingRecord) = New List(Of YSnoopingRecord)()
+      Dim idx As Integer = 0
+
+      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0"
+      msgbin = Me._download(url)
+      msgarr = Me._json_get_array(msgbin)
+      msglen = msgarr.Count
+      If (msglen = 0) Then
+        Return res
+      End If
+      REM // last element of array is the new position
+      msglen = msglen - 1
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      idx = 0
+
+      While (idx < msglen)
+        res.Add(New YSnoopingRecord(msgarr(idx)))
+        idx = idx + 1
+      End While
+
       Return res
     End Function
 
@@ -2452,11 +2449,11 @@ Module yocto_serialport
       Return YSerialPort.FindSerialPort(serial + "." + funcId)
     End Function
 
-    REM --- (end of YSerialPort public methods declaration)
+    REM --- (end of generated code: YSerialPort public methods declaration)
 
   End Class
 
-  REM --- (SerialPort functions)
+  REM --- (generated code: YSerialPort functions)
 
   '''*
   ''' <summary>
@@ -2530,6 +2527,6 @@ Module yocto_serialport
   End Function
 
 
-  REM --- (end of SerialPort functions)
+  REM --- (end of generated code: YSerialPort functions)
 
 End Module

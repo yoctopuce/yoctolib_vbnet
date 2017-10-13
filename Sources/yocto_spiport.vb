@@ -1,10 +1,10 @@
 '*********************************************************************
 '*
-'* $Id: yocto_spiport.vb 28661 2017-09-26 16:46:49Z seb $
+'* $Id: yocto_spiport.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindSpiPort(), the high-level API for SpiPort functions
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
@@ -23,7 +23,7 @@
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 '*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
@@ -1741,7 +1741,7 @@ Module yocto_spiport
 
   End Class
 
-  REM --- (SpiPort functions)
+  REM --- (YSpiPort functions)
 
   '''*
   ''' <summary>
@@ -1815,6 +1815,6 @@ Module yocto_spiport
   End Function
 
 
-  REM --- (end of SpiPort functions)
+  REM --- (end of YSpiPort functions)
 
 End Module

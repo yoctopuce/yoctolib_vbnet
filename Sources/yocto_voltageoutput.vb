@@ -1,10 +1,10 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voltageoutput.vb 28491 2017-09-12 13:25:28Z seb $
+'* $Id: yocto_voltageoutput.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindVoltageOutput(), the high-level API for VoltageOutput functions
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
@@ -23,7 +23,7 @@
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 '*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
@@ -442,7 +442,7 @@ Module yocto_voltageoutput
 
   End Class
 
-  REM --- (VoltageOutput functions)
+  REM --- (YVoltageOutput functions)
 
   '''*
   ''' <summary>
@@ -516,6 +516,6 @@ Module yocto_voltageoutput
   End Function
 
 
-  REM --- (end of VoltageOutput functions)
+  REM --- (end of YVoltageOutput functions)
 
 End Module

@@ -1,10 +1,10 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 28443 2017-09-01 14:45:46Z mvuilleu $
+'* $Id: yocto_colorledcluster.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
@@ -23,7 +23,7 @@
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 '*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
@@ -798,6 +798,7 @@ Module yocto_colorledcluster
     '''   Starts a sequence execution: every LED linked to that sequence starts to
     '''   run it in a loop.
     ''' <para>
+    '''   Note that a sequence with a zero duration can't be started.
     ''' </para>
     ''' </summary>
     ''' <param name="seqIndex">
@@ -863,6 +864,7 @@ Module yocto_colorledcluster
     '''   Configures a sequence to make it start automatically at device
     '''   startup.
     ''' <para>
+    '''   Note that a sequence with a zero duration can't be started.
     '''   Don't forget to call <c>saveBlinkSeq()</c> to make sure the
     '''   modification is saved in the device flash memory.
     ''' </para>
@@ -1563,7 +1565,7 @@ Module yocto_colorledcluster
 
   End Class
 
-  REM --- (ColorLedCluster functions)
+  REM --- (YColorLedCluster functions)
 
   '''*
   ''' <summary>
@@ -1637,6 +1639,6 @@ Module yocto_colorledcluster
   End Function
 
 
-  REM --- (end of ColorLedCluster functions)
+  REM --- (end of YColorLedCluster functions)
 
 End Module

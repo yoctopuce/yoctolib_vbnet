@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 28559 2017-09-15 15:01:38Z seb $
+'* $Id: yocto_api.vb 28799 2017-10-11 16:07:10Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -796,7 +796,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "28707"
+  Public Const YOCTO_API_BUILD_NO As String = "28878"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2251,7 +2251,7 @@ Module yocto_api
       Dim settings As String
       Dim prod_prefix As String
       Dim force As Integer = 0
-      If (Me._progress_c < 100 AndAlso Me._progress_c <> YAPI.VERSION_MISMATCH) Then
+      If ((Me._progress_c < 100) AndAlso (Me._progress_c <> YAPI.VERSION_MISMATCH)) Then
         serial = Me._serial
         firmwarepath = Me._firmwarepath
         settings = YAPI.DefaultEncoding.GetString(Me._settings)
@@ -2261,7 +2261,7 @@ Module yocto_api
           force = 0
         End If
         res = _yapiUpdateFirmwareEx(New StringBuilder(serial), New StringBuilder(firmwarepath), New StringBuilder(settings), force, newupdate, errmsg)
-        If (res = YAPI.VERSION_MISMATCH AndAlso ((Me._settings).Length <> 0)) Then
+        If ((res = YAPI.VERSION_MISMATCH) AndAlso ((Me._settings).Length <> 0)) Then
           Me._progress_c = res
           Me._progress_msg = errmsg.ToString()
           Return Me._progress
@@ -2504,10 +2504,10 @@ Module yocto_api
 
   End Class
 
-  REM --- (generated code: FirmwareUpdate functions)
+  REM --- (generated code: YFirmwareUpdate functions)
 
 
-  REM --- (end of generated code: FirmwareUpdate functions)
+  REM --- (end of generated code: YFirmwareUpdate functions)
 
 
 
@@ -3196,10 +3196,10 @@ Module yocto_api
 
   End Class
 
-  REM --- (generated code: DataStream functions)
+  REM --- (generated code: YDataStream functions)
 
 
-  REM --- (end of generated code: DataStream functions)
+  REM --- (end of generated code: YDataStream functions)
 
 
 
@@ -3361,10 +3361,10 @@ Module yocto_api
 
   End Class
 
-  REM --- (generated code: Measure functions)
+  REM --- (generated code: YMeasure functions)
 
 
-  REM --- (end of generated code: Measure functions)
+  REM --- (end of generated code: YMeasure functions)
 
 
   REM --- (generated code: YDataSet class start)
@@ -3972,10 +3972,10 @@ Module yocto_api
 
   End Class
 
-  REM --- (generated code: DataSet functions)
+  REM --- (generated code: YDataSet functions)
 
 
-  REM --- (end of generated code: DataSet functions)
+  REM --- (end of generated code: YDataSet functions)
 
 
 
@@ -4048,7 +4048,7 @@ Module yocto_api
       Dim fullrequest As Byte() = Nothing
       Dim res As YRETCODE
       Dim enter As Boolean
-      Do 
+      Do
         enter = Monitor.TryEnter(_lock)
         If Not enter Then
           Thread.Sleep(50)
@@ -5685,7 +5685,7 @@ Module yocto_api
 
   End Class
 
-  REM --- (generated code: Function functions)
+  REM --- (generated code: YFunction functions)
 
   '''*
   ''' <summary>
@@ -5753,7 +5753,7 @@ Module yocto_api
   End Function
 
 
-  REM --- (end of generated code: Function functions)
+  REM --- (end of generated code: YFunction functions)
 
 
 
@@ -7974,7 +7974,7 @@ Module yocto_api
   End Class
 
 
-  REM --- (generated code: Module functions)
+  REM --- (generated code: YModule functions)
 
   '''*
   ''' <summary>
@@ -8030,7 +8030,7 @@ Module yocto_api
   End Function
 
 
-  REM --- (end of generated code: Module functions)
+  REM --- (end of generated code: YModule functions)
 
 
 
@@ -9476,7 +9476,7 @@ Module yocto_api
 
   End Class
 
-  REM --- (generated code: Sensor functions)
+  REM --- (generated code: YSensor functions)
 
   '''*
   ''' <summary>
@@ -9550,7 +9550,7 @@ Module yocto_api
   End Function
 
 
-  REM --- (end of generated code: Sensor functions)
+  REM --- (end of generated code: YSensor functions)
 
   REM --- (generated code: YDataLogger globals)
 
@@ -10495,7 +10495,7 @@ Module yocto_api
 
   End Class
 
-  REM --- (generated code: DataLogger functions)
+  REM --- (generated code: YDataLogger functions)
 
   '''*
   ''' <summary>
@@ -10569,7 +10569,7 @@ Module yocto_api
   End Function
 
 
-  REM --- (end of generated code: DataLogger functions)
+  REM --- (end of generated code: YDataLogger functions)
 
 
 
@@ -11671,16 +11671,16 @@ Module yocto_api
 
   Private Sub vbmodule_initialization()
     YDevice_devCache = New List(Of YDevice)
-    REM --- (generated code: Function initialization)
-    REM --- (end of generated code: Function initialization)
-    REM --- (generated code: Module initialization)
-    REM --- (end of generated code: Module initialization)
-    REM --- (generated code: DataStream initialization)
-    REM --- (end of generated code: DataStream initialization)
-    REM --- (generated code: Measure initialization)
-    REM --- (end of generated code: Measure initialization)
-    REM --- (generated code: DataSet initialization)
-    REM --- (end of generated code: DataSet initialization)
+    REM --- (generated code: YFunction initialization)
+    REM --- (end of generated code: YFunction initialization)
+    REM --- (generated code: YModule initialization)
+    REM --- (end of generated code: YModule initialization)
+    REM --- (generated code: YDataStream initialization)
+    REM --- (end of generated code: YDataStream initialization)
+    REM --- (generated code: YMeasure initialization)
+    REM --- (end of generated code: YMeasure initialization)
+    REM --- (generated code: YDataSet initialization)
+    REM --- (end of generated code: YDataSet initialization)
     _PlugEvents = New List(Of PlugEvent)
     _DataEvents = New List(Of DataEvent)
   End Sub
@@ -11688,16 +11688,16 @@ Module yocto_api
   Private Sub vbmodule_cleanup()
     YDevice_devCache.Clear()
     YDevice_devCache = Nothing
-    REM --- (generated code: Function cleanup)
-    REM --- (end of generated code: Function cleanup)
-    REM --- (generated code: Module cleanup)
-    REM --- (end of generated code: Module cleanup)
-    REM --- (generated code: DataStream cleanup)
-    REM --- (end of generated code: DataStream cleanup)
-    REM --- (generated code: Measure cleanup)
-    REM --- (end of generated code: Measure cleanup)
-    REM --- (generated code: DataSet cleanup)
-    REM --- (end of generated code: DataSet cleanup)
+    REM --- (generated code: YFunction cleanup)
+    REM --- (end of generated code: YFunction cleanup)
+    REM --- (generated code: YModule cleanup)
+    REM --- (end of generated code: YModule cleanup)
+    REM --- (generated code: YDataStream cleanup)
+    REM --- (end of generated code: YDataStream cleanup)
+    REM --- (generated code: YMeasure cleanup)
+    REM --- (end of generated code: YMeasure cleanup)
+    REM --- (generated code: YDataSet cleanup)
+    REM --- (end of generated code: YDataSet cleanup)
     _PlugEvents.Clear()
     _PlugEvents = Nothing
     _DataEvents.Clear()

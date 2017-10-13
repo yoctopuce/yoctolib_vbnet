@@ -1,10 +1,10 @@
 '*********************************************************************
 '*
-'* $Id: yocto_lightsensor.vb 28559 2017-09-15 15:01:38Z seb $
+'* $Id: yocto_lightsensor.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindLightSensor(), the high-level API for LightSensor functions
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
@@ -23,7 +23,7 @@
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 '*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
@@ -428,7 +428,7 @@ Module yocto_lightsensor
 
   End Class
 
-  REM --- (LightSensor functions)
+  REM --- (YLightSensor functions)
 
   '''*
   ''' <summary>
@@ -502,6 +502,6 @@ Module yocto_lightsensor
   End Function
 
 
-  REM --- (end of LightSensor functions)
+  REM --- (end of YLightSensor functions)
 
 End Module

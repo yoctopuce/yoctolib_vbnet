@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 28669 2017-09-27 08:26:03Z seb $
+'* $Id: yocto_wireless.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -728,7 +728,7 @@ Module yocto_wireless
 
   End Class
 
-  REM --- (generated code: Wireless functions)
+  REM --- (generated code: YWireless functions)
 
   '''*
   ''' <summary>
@@ -802,6 +802,6 @@ Module yocto_wireless
   End Function
 
 
-  REM --- (end of generated code: Wireless functions)
+  REM --- (end of generated code: YWireless functions)
 
 End Module

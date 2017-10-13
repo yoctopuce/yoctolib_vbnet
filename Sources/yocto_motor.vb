@@ -1,10 +1,10 @@
 '*********************************************************************
 '*
-'* $Id: yocto_motor.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_motor.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindMotor(), the high-level API for Motor functions
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
@@ -23,7 +23,7 @@
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 '*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
@@ -897,7 +897,7 @@ Module yocto_motor
 
   End Class
 
-  REM --- (Motor functions)
+  REM --- (YMotor functions)
 
   '''*
   ''' <summary>
@@ -971,6 +971,6 @@ Module yocto_motor
   End Function
 
 
-  REM --- (end of Motor functions)
+  REM --- (end of YMotor functions)
 
 End Module

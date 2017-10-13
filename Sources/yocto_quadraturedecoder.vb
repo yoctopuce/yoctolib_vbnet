@@ -1,10 +1,10 @@
 '*********************************************************************
 '*
-'* $Id: yocto_quadraturedecoder.vb 28159 2017-07-27 09:37:52Z seb $
+'* $Id: yocto_quadraturedecoder.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
@@ -23,7 +23,7 @@
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 '*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
@@ -434,7 +434,7 @@ Module yocto_quadraturedecoder
 
   End Class
 
-  REM --- (QuadratureDecoder functions)
+  REM --- (YQuadratureDecoder functions)
 
   '''*
   ''' <summary>
@@ -508,6 +508,6 @@ Module yocto_quadraturedecoder
   End Function
 
 
-  REM --- (end of QuadratureDecoder functions)
+  REM --- (end of YQuadratureDecoder functions)
 
 End Module

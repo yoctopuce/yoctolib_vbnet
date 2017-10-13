@@ -1,10 +1,10 @@
 '*********************************************************************
 '*
-'* $Id: yocto_humidity.vb 27699 2017-06-01 12:26:47Z seb $
+'* $Id: yocto_humidity.vb 28740 2017-10-03 08:09:13Z seb $
 '*
 '* Implements yFindHumidity(), the high-level API for Humidity functions
 '*
-'* - - - - - - - - - License information: - - - - - - - - - 
+'* - - - - - - - - - License information: - - - - - - - - -
 '*
 '*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
 '*
@@ -23,7 +23,7 @@
 '*  obligations.
 '*
 '*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING 
+'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
 '*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
 '*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
 '*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
@@ -409,7 +409,7 @@ Module yocto_humidity
 
   End Class
 
-  REM --- (Humidity functions)
+  REM --- (YHumidity functions)
 
   '''*
   ''' <summary>
@@ -483,6 +483,6 @@ Module yocto_humidity
   End Function
 
 
-  REM --- (end of Humidity functions)
+  REM --- (end of YHumidity functions)
 
 End Module
