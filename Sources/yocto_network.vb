@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_network.vb 29079 2017-11-03 17:20:42Z seb $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -715,6 +715,10 @@ Module yocto_network
     '''/
     Public Function set_userPassword(ByVal newval As String) As Integer
       Dim rest_val As String
+      If newval.Length > YAPI.HASH_BUF_SIZE Then
+        _throw(YAPI.INVALID_ARGUMENT, "Password too long :" + newval)
+        Return YAPI.INVALID_ARGUMENT
+      End If
       rest_val = newval
       Return _setAttr("userPassword", rest_val)
     End Function
@@ -774,6 +778,10 @@ Module yocto_network
     '''/
     Public Function set_adminPassword(ByVal newval As String) As Integer
       Dim rest_val As String
+      If newval.Length > YAPI.HASH_BUF_SIZE Then
+        _throw(YAPI.INVALID_ARGUMENT, "Password too long :" + newval)
+        Return YAPI.INVALID_ARGUMENT
+      End If
       rest_val = newval
       Return _setAttr("adminPassword", rest_val)
     End Function

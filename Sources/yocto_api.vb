@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 28799 2017-10-11 16:07:10Z seb $
+'* $Id: yocto_api.vb 29240 2017-11-23 13:29:57Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -796,7 +796,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "28878"
+  Public Const YOCTO_API_BUILD_NO As String = "29281"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -863,7 +863,7 @@ Module yocto_api
     Public Const DETECT_NET As Integer = 2
     Public Const RESEND_MISSING_PKT As Integer = 4
     Public Const DETECT_ALL As Integer = DETECT_USB Or DETECT_NET
-
+    Public Const HASH_BUF_SIZE As Integer = 28
     REM --- (generated code: YFunction return codes)
     REM Yoctopuce error codes, also used by default as function return value
     Public Const SUCCESS As Integer = 0         REM everything worked all right
@@ -4563,6 +4563,7 @@ Module yocto_api
           Exit Function
         End If
       End If
+      dev.clearCache(False)
       If (_cacheExpiration <> 0) Then
         _cacheExpiration = YAPI.GetTickCount()
       End If
@@ -7710,6 +7711,7 @@ Module yocto_api
       For i_i = 0 To restoreLast.Count - 1
         Me._download(restoreLast(i_i))
       Next i_i
+      Me.clearCache()
       Return YAPI.SUCCESS
     End Function
 

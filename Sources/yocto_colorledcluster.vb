@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_colorledcluster.vb 29186 2017-11-16 10:04:13Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -1035,6 +1035,9 @@ Module yocto_colorledcluster
     '''   the next color code represents the target value of the next LED, etc.
     ''' </para>
     ''' </summary>
+    ''' <param name="ledIndex">
+    '''   index of the first LED which should be updated
+    ''' </param>
     ''' <param name="rgbList">
     '''   a list of target 24bit RGB codes, in the form 0xRRGGBB
     ''' </param>
@@ -1048,7 +1051,7 @@ Module yocto_colorledcluster
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function rgbArray_move(rgbList As List(Of Integer), delay As Integer) As Integer
+    Public Overridable Function rgbArrayOfs_move(ledIndex As Integer, rgbList As List(Of Integer), delay As Integer) As Integer
       Dim listlen As Integer = 0
       Dim buff As Byte()
       Dim idx As Integer = 0
@@ -1065,7 +1068,36 @@ Module yocto_colorledcluster
         idx = idx + 1
       End While
 
-      res = Me._upload("rgb:" + Convert.ToString(delay), buff)
+      res = Me._upload("rgb:" + Convert.ToString(delay) + ":" + Convert.ToString(ledIndex), buff)
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sets up a smooth RGB color transition to the specified pixel-by-pixel list of RGB
+    '''   color codes.
+    ''' <para>
+    '''   The first color code represents the target RGB value of the first LED,
+    '''   the next color code represents the target value of the next LED, etc.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="rgbList">
+    '''   a list of target 24bit RGB codes, in the form 0xRRGGBB
+    ''' </param>
+    ''' <param name="delay">
+    '''   transition duration in ms
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function rgbArray_move(rgbList As List(Of Integer), delay As Integer) As Integer
+      Dim res As Integer = 0
+
+      res = Me.rgbArrayOfs_move(0,rgbList,delay)
       Return res
     End Function
 
@@ -1159,6 +1191,38 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function hslArray_move(hslList As List(Of Integer), delay As Integer) As Integer
+      Dim res As Integer = 0
+
+      res = Me.hslArrayOfs_move(0,hslList, delay)
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sets up a smooth HSL color transition to the specified pixel-by-pixel list of HSL
+    '''   color codes.
+    ''' <para>
+    '''   The first color code represents the target HSL value of the first LED,
+    '''   the second color code represents the target value of the second LED, etc.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="ledIndex">
+    '''   index of the first LED which should be updated
+    ''' </param>
+    ''' <param name="hslList">
+    '''   a list of target 24bit HSL codes, in the form 0xHHSSLL
+    ''' </param>
+    ''' <param name="delay">
+    '''   transition duration in ms
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function hslArrayOfs_move(ledIndex As Integer, hslList As List(Of Integer), delay As Integer) As Integer
       Dim listlen As Integer = 0
       Dim buff As Byte()
       Dim idx As Integer = 0
@@ -1175,7 +1239,7 @@ Module yocto_colorledcluster
         idx = idx + 1
       End While
 
-      res = Me._upload("hsl:" + Convert.ToString(delay), buff)
+      res = Me._upload("hsl:" + Convert.ToString(delay) + ":" + Convert.ToString(ledIndex), buff)
       Return res
     End Function
 
