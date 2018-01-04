@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_multiaxiscontroller.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_multiaxiscontroller.vb 29507 2017-12-28 14:14:56Z mvuilleu $
 '*
 '* Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '*
@@ -327,7 +327,25 @@ Module yocto_multiaxiscontroller
     End Function
 
     Public Overridable Function sendCommand(command As String) As Integer
-      Return Me.set_command(command)
+      Dim url As String
+      Dim retBin As Byte()
+      Dim res As Integer = 0
+      url = "cmd.txt?X=" + command
+      REM //may throw an exception
+      retBin = Me._download(url)
+      res = retBin(0)
+      If (res = 49) Then
+        If Not(res = 48) Then
+          me._throw( YAPI.DEVICE_BUSY,  "Motor command pipeline is full, try again later")
+          return YAPI.DEVICE_BUSY
+        end if
+      Else
+        If Not(res = 48) Then
+          me._throw( YAPI.IO_ERROR,  "Motor command failed permanently")
+          return YAPI.IO_ERROR
+        end if
+      End If
+      Return YAPI.SUCCESS
     End Function
 
     '''*

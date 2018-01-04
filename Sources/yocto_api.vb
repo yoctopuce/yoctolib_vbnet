@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 29240 2017-11-23 13:29:57Z seb $
+'* $Id: yocto_api.vb 29542 2018-01-04 08:52:29Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -796,7 +796,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "29281"
+  Public Const YOCTO_API_BUILD_NO As String = "29543"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1347,13 +1347,29 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       Dim i As Integer
+      Dim dll_ver as yu16
 
       If (apiInitialized) Then
         InitAPI = YAPI_SUCCESS
         Exit Function
       End If
+      Try
+        dll_ver = yapiGetAPIVersion(version, apidate)
+      Catch ex As System.DllNotFoundException
+        errmsg = "Unable to load yapi.dll (" + ex.Message + ")"
+        InitAPI = YAPI_FILE_NOT_FOUND
+        Exit Function
+      Catch ex As System.BadImageFormatException
+        If IntPtr.Size = 4 Then
+          errmsg = "Invalid yapi.dll (Using 64 bits yapi.dll with 32 bit application)"
+        Else
+          errmsg = "Invalid yapi.dll (Using 32 bits yapi.dll with 64 bit application)"
+        End If
+        InitAPI = YAPI_VERSION_MISMATCH
+        Exit Function
+      End Try
 
-      If (YOCTO_API_VERSION_BCD <> yapiGetAPIVersion(version, apidate)) Then
+      If (YOCTO_API_VERSION_BCD <> dll_ver) Then
         errmsg = "yapi.dll does does not match the version of the Libary"
         errmsg += "(Libary=" + YOCTO_API_VERSION_STR + "." + YOCTO_API_BUILD_NO + " yapi.dll=" + version.ToString + ")"
         InitAPI = YAPI_VERSION_MISMATCH
@@ -1487,7 +1503,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Fault-tolerant alternative to RegisterHub().
+    '''   Fault-tolerant alternative to <c>RegisterHub()</c>.
     ''' <para>
     '''   This function has the same
     '''   purpose and same arguments as <c>RegisterHub()</c>, but does not trigger
@@ -8240,6 +8256,8 @@ Module yocto_api
     ''' <summary>
     '''   Changes the recorded minimal value observed.
     ''' <para>
+    '''   Can be used to reset the value returned
+    '''   by get_lowestValue().
     ''' </para>
     ''' <para>
     ''' </para>
@@ -8265,6 +8283,7 @@ Module yocto_api
     ''' <summary>
     '''   Returns the minimal value observed for the measure since the device was started.
     ''' <para>
+    '''   Can be reset to an arbitrary value thanks to set_lowestValue().
     ''' </para>
     ''' <para>
     ''' </para>
@@ -8293,6 +8312,8 @@ Module yocto_api
     ''' <summary>
     '''   Changes the recorded maximal value observed.
     ''' <para>
+    '''   Can be used to reset the value returned
+    '''   by get_lowestValue().
     ''' </para>
     ''' <para>
     ''' </para>
@@ -8318,6 +8339,7 @@ Module yocto_api
     ''' <summary>
     '''   Returns the maximal value observed for the measure since the device was started.
     ''' <para>
+    '''   Can be reset to an arbitrary value thanks to set_highestValue().
     ''' </para>
     ''' <para>
     ''' </para>
@@ -11087,7 +11109,7 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   Fault-tolerant alternative to RegisterHub().
+  '''   Fault-tolerant alternative to <c>RegisterHub()</c>.
   ''' <para>
   '''   This function has the same
   '''   purpose and same arguments as <c>RegisterHub()</c>, but does not trigger

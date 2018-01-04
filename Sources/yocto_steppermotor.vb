@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_steppermotor.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_steppermotor.vb 29507 2017-12-28 14:14:56Z mvuilleu $
 '*
 '* Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '*
@@ -937,7 +937,28 @@ Module yocto_steppermotor
     End Function
 
     Public Overridable Function sendCommand(command As String) As Integer
-      Return Me.set_command(command)
+      Dim id As String
+      Dim url As String
+      Dim retBin As Byte()
+      Dim res As Integer = 0
+      id = Me.get_functionId()
+      id = (id).Substring( 12, 1)
+      url = "cmd.txt?" +  id + "=" + command
+      REM //may throw an exception
+      retBin = Me._download(url)
+      res = retBin(0)
+      If (res = 49) Then
+        If Not(res = 48) Then
+          me._throw( YAPI.DEVICE_BUSY,  "Motor command pipeline is full, try again later")
+          return YAPI.DEVICE_BUSY
+        end if
+      Else
+        If Not(res = 48) Then
+          me._throw( YAPI.IO_ERROR,  "Motor command failed permanently")
+          return YAPI.IO_ERROR
+        end if
+      End If
+      Return YAPI.SUCCESS
     End Function
 
     '''*
@@ -1038,6 +1059,30 @@ Module yocto_steppermotor
 
     '''*
     ''' <summary>
+    '''   Starts the motor to reach a given relative position, keeping the speed under the
+    '''   specified limit.
+    ''' <para>
+    '''   The time needed to reach the requested position will depend on
+    '''   the acceleration parameters configured for the motor.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="relPos">
+    '''   relative position, measured in steps from the current position.
+    ''' </param>
+    ''' <param name="maxSpeed">
+    '''   limit speed, in steps per second.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function moveRelSlow(relPos As Double, maxSpeed As Double) As Integer
+      Return Me.sendCommand("m" + Convert.ToString(CType(Math.Round(16*relPos), Integer)) + "@" + Convert.ToString(CType(Math.Round(1000*maxSpeed), Integer)))
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Keep the motor in the same state for the specified amount of time, before processing next command.
     ''' <para>
     ''' </para>
@@ -1084,6 +1129,33 @@ Module yocto_steppermotor
     '''/
     Public Overridable Function alertStepOut() As Integer
       Return Me.sendCommand(".")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Move one single step in the selected direction without regards to end switches.
+    ''' <para>
+    '''   The move occures even if the system is still in alert mode (end switch depressed). Caution.
+    '''   use this function with great care as it may cause mechanical damages !
+    ''' </para>
+    ''' </summary>
+    ''' <param name="dir">
+    '''   Value +1 ou -1, according to the desired direction of the move
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function alertStepDir(dir As Integer) As Integer
+      If Not(dir <> 0) Then
+        me._throw( YAPI.INVALID_ARGUMENT,  "direction must be +1 or -1")
+        return YAPI.INVALID_ARGUMENT
+      end if
+      If (dir > 0) Then
+        Return Me.sendCommand(".+")
+      End If
+      Return Me.sendCommand(".-")
     End Function
 
     '''*

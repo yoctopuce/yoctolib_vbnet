@@ -1,8 +1,8 @@
 '*********************************************************************
 '*
-'* $Id: yocto_weighscale.vb 29472 2017-12-20 11:34:07Z mvuilleu $
+'* $Id: yocto_multicellweighscale.vb 29478 2017-12-21 08:10:05Z seb $
 '*
-'* Implements yFindWeighScale(), the high-level API for WeighScale functions
+'* Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '*
 '* - - - - - - - - - License information: - - - - - - - - -
 '*
@@ -43,14 +43,15 @@ Imports YFUN_DESCR = System.Int32
 Imports System.Runtime.InteropServices
 Imports System.Text
 
-Module yocto_weighscale
+Module yocto_multicellweighscale
 
-    REM --- (YWeighScale return codes)
-    REM --- (end of YWeighScale return codes)
-    REM --- (YWeighScale dlldef)
-    REM --- (end of YWeighScale dlldef)
-  REM --- (YWeighScale globals)
+    REM --- (YMultiCellWeighScale return codes)
+    REM --- (end of YMultiCellWeighScale return codes)
+    REM --- (YMultiCellWeighScale dlldef)
+    REM --- (end of YMultiCellWeighScale dlldef)
+  REM --- (YMultiCellWeighScale globals)
 
+  Public Const Y_CELLCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_EXCITATION_OFF As Integer = 0
   Public Const Y_EXCITATION_DC As Integer = 1
   Public Const Y_EXCITATION_AC As Integer = 2
@@ -61,29 +62,30 @@ Module yocto_weighscale
   Public Const Y_COMPENSATION_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_ZEROTRACKING_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
-  Public Delegate Sub YWeighScaleValueCallback(ByVal func As YWeighScale, ByVal value As String)
-  Public Delegate Sub YWeighScaleTimedReportCallback(ByVal func As YWeighScale, ByVal measure As YMeasure)
-  REM --- (end of YWeighScale globals)
+  Public Delegate Sub YMultiCellWeighScaleValueCallback(ByVal func As YMultiCellWeighScale, ByVal value As String)
+  Public Delegate Sub YMultiCellWeighScaleTimedReportCallback(ByVal func As YMultiCellWeighScale, ByVal measure As YMeasure)
+  REM --- (end of YMultiCellWeighScale globals)
 
-  REM --- (YWeighScale class start)
+  REM --- (YMultiCellWeighScale class start)
 
   '''*
   ''' <summary>
-  '''   The YWeighScale class provides a weight measurement from a ratiometric load cell
+  '''   The YMultiCellWeighScale class provides a weight measurement from a set of ratiometric load cells
   '''   sensor.
   ''' <para>
   '''   It can be used to control the bridge excitation parameters, in order to avoid
   '''   measure shifts caused by temperature variation in the electronics, and can also
   '''   automatically apply an additional correction factor based on temperature to
-  '''   compensate for offsets in the load cell itself.
+  '''   compensate for offsets in the load cells themselves.
   ''' </para>
   ''' </summary>
   '''/
-  Public Class YWeighScale
+  Public Class YMultiCellWeighScale
     Inherits YSensor
-    REM --- (end of YWeighScale class start)
+    REM --- (end of YMultiCellWeighScale class start)
 
-    REM --- (YWeighScale definitions)
+    REM --- (YMultiCellWeighScale definitions)
+    Public Const CELLCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const EXCITATION_OFF As Integer = 0
     Public Const EXCITATION_DC As Integer = 1
     Public Const EXCITATION_AC As Integer = 2
@@ -94,9 +96,10 @@ Module yocto_weighscale
     Public Const COMPENSATION_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const ZEROTRACKING_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
-    REM --- (end of YWeighScale definitions)
+    REM --- (end of YMultiCellWeighScale definitions)
 
-    REM --- (YWeighScale attributes declaration)
+    REM --- (YMultiCellWeighScale attributes declaration)
+    Protected _cellCount As Integer
     Protected _excitation As Integer
     Protected _compTempAdaptRatio As Double
     Protected _compTempAvg As Double
@@ -104,14 +107,15 @@ Module yocto_weighscale
     Protected _compensation As Double
     Protected _zeroTracking As Double
     Protected _command As String
-    Protected _valueCallbackWeighScale As YWeighScaleValueCallback
-    Protected _timedReportCallbackWeighScale As YWeighScaleTimedReportCallback
-    REM --- (end of YWeighScale attributes declaration)
+    Protected _valueCallbackMultiCellWeighScale As YMultiCellWeighScaleValueCallback
+    Protected _timedReportCallbackMultiCellWeighScale As YMultiCellWeighScaleTimedReportCallback
+    REM --- (end of YMultiCellWeighScale attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
-      _classname = "WeighScale"
-      REM --- (YWeighScale attributes initialization)
+      _classname = "MultiCellWeighScale"
+      REM --- (YMultiCellWeighScale attributes initialization)
+      _cellCount = CELLCOUNT_INVALID
       _excitation = EXCITATION_INVALID
       _compTempAdaptRatio = COMPTEMPADAPTRATIO_INVALID
       _compTempAvg = COMPTEMPAVG_INVALID
@@ -119,14 +123,17 @@ Module yocto_weighscale
       _compensation = COMPENSATION_INVALID
       _zeroTracking = ZEROTRACKING_INVALID
       _command = COMMAND_INVALID
-      _valueCallbackWeighScale = Nothing
-      _timedReportCallbackWeighScale = Nothing
-      REM --- (end of YWeighScale attributes initialization)
+      _valueCallbackMultiCellWeighScale = Nothing
+      _timedReportCallbackMultiCellWeighScale = Nothing
+      REM --- (end of YMultiCellWeighScale attributes initialization)
     End Sub
 
-    REM --- (YWeighScale private methods declaration)
+    REM --- (YMultiCellWeighScale private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("cellCount") Then
+        _cellCount = CInt(json_val.getLong("cellCount"))
+      End If
       If json_val.has("excitation") Then
         _excitation = CInt(json_val.getLong("excitation"))
       End If
@@ -151,9 +158,61 @@ Module yocto_weighscale
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YWeighScale private methods declaration)
+    REM --- (end of YMultiCellWeighScale private methods declaration)
 
-    REM --- (YWeighScale public methods declaration)
+    REM --- (YMultiCellWeighScale public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the number of load cells in use.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the number of load cells in use
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CELLCOUNT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_cellCount() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return CELLCOUNT_INVALID
+        End If
+      End If
+      res = Me._cellCount
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the number of load cells in use.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the number of load cells in use
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_cellCount(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("cellCount", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Returns the current load cell bridge excitation method.
@@ -418,7 +477,7 @@ Module yocto_weighscale
     End Function
     '''*
     ''' <summary>
-    '''   Retrieves a weighing scale sensor for a given identifier.
+    '''   Retrieves a multi-cell weighing scale sensor for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -442,11 +501,11 @@ Module yocto_weighscale
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the weighing scale sensor is online at the time
+    '''   This function does not require that the multi-cell weighing scale sensor is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YWeighScale.isOnline()</c> to test if the weighing scale sensor is
+    '''   Use the method <c>YMultiCellWeighScale.isOnline()</c> to test if the multi-cell weighing scale sensor is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a weighing scale sensor by logical name, no error is notified: the first instance
+    '''   a multi-cell weighing scale sensor by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -459,18 +518,18 @@ Module yocto_weighscale
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the weighing scale sensor
+    '''   a string that uniquely characterizes the multi-cell weighing scale sensor
     ''' </param>
     ''' <returns>
-    '''   a <c>YWeighScale</c> object allowing you to drive the weighing scale sensor.
+    '''   a <c>YMultiCellWeighScale</c> object allowing you to drive the multi-cell weighing scale sensor.
     ''' </returns>
     '''/
-    Public Shared Function FindWeighScale(func As String) As YWeighScale
-      Dim obj As YWeighScale
-      obj = CType(YFunction._FindFromCache("WeighScale", func), YWeighScale)
+    Public Shared Function FindMultiCellWeighScale(func As String) As YMultiCellWeighScale
+      Dim obj As YMultiCellWeighScale
+      obj = CType(YFunction._FindFromCache("MultiCellWeighScale", func), YMultiCellWeighScale)
       If ((obj Is Nothing)) Then
-        obj = New YWeighScale(func)
-        YFunction._AddToCache("WeighScale", func, obj)
+        obj = New YMultiCellWeighScale(func)
+        YFunction._AddToCache("MultiCellWeighScale", func, obj)
       End If
       Return obj
     End Function
@@ -493,14 +552,14 @@ Module yocto_weighscale
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerValueCallback(callback As YWeighScaleValueCallback) As Integer
+    Public Overloads Function registerValueCallback(callback As YMultiCellWeighScaleValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
         YFunction._UpdateValueCallbackList(Me, True)
       Else
         YFunction._UpdateValueCallbackList(Me, False)
       End If
-      Me._valueCallbackWeighScale = callback
+      Me._valueCallbackMultiCellWeighScale = callback
       REM // Immediately invoke value callback with current value
       If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
@@ -512,8 +571,8 @@ Module yocto_weighscale
     End Function
 
     Public Overrides Function _invokeValueCallback(value As String) As Integer
-      If (Not (Me._valueCallbackWeighScale Is Nothing)) Then
-        Me._valueCallbackWeighScale(Me, value)
+      If (Not (Me._valueCallbackMultiCellWeighScale Is Nothing)) Then
+        Me._valueCallbackMultiCellWeighScale(Me, value)
       Else
         MyBase._invokeValueCallback(value)
       End If
@@ -538,7 +597,7 @@ Module yocto_weighscale
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerTimedReportCallback(callback As YWeighScaleTimedReportCallback) As Integer
+    Public Overloads Function registerTimedReportCallback(callback As YMultiCellWeighScaleTimedReportCallback) As Integer
       Dim sensor As YSensor
       sensor = Me
       If (Not (callback Is Nothing)) Then
@@ -546,13 +605,13 @@ Module yocto_weighscale
       Else
         YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
-      Me._timedReportCallbackWeighScale = callback
+      Me._timedReportCallbackMultiCellWeighScale = callback
       Return 0
     End Function
 
     Public Overrides Function _invokeTimedReportCallback(value As YMeasure) As Integer
-      If (Not (Me._timedReportCallbackWeighScale Is Nothing)) Then
-        Me._timedReportCallbackWeighScale(Me, value)
+      If (Not (Me._timedReportCallbackMultiCellWeighScale Is Nothing)) Then
+        Me._timedReportCallbackMultiCellWeighScale(Me, value)
       Else
         MyBase._invokeTimedReportCallback(value)
       End If
@@ -561,7 +620,7 @@ Module yocto_weighscale
 
     '''*
     ''' <summary>
-    '''   Adapts the load cell signal bias (stored in the corresponding genericSensor)
+    '''   Adapts the load cells signal bias (stored in the corresponding genericSensor)
     '''   so that the current signal corresponds to a zero weight.
     ''' <para>
     ''' </para>
@@ -581,7 +640,7 @@ Module yocto_weighscale
 
     '''*
     ''' <summary>
-    '''   Configures the load cell span parameters (stored in the corresponding genericSensor)
+    '''   Configures the load cells span parameters (stored in the corresponding genericSensors)
     '''   so that the current signal corresponds to the specified reference weight.
     ''' <para>
     ''' </para>
@@ -605,343 +664,20 @@ Module yocto_weighscale
       Return Me.set_command("S" + Convert.ToString( CType(Math.Round(1000*currWeight), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*maxWeight), Integer)))
     End Function
 
-    Public Overridable Function setCompensationTable(tableIndex As Integer, tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Dim siz As Integer = 0
-      Dim res As Integer = 0
-      Dim idx As Integer = 0
-      Dim found As Integer = 0
-      Dim prev As Double = 0
-      Dim curr As Double = 0
-      Dim currComp As Double = 0
-      Dim idxTemp As Double = 0
-      siz = tempValues.Count
-      If Not(siz <> 1) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "thermal compensation table must have at least two points")
-        return YAPI.INVALID_ARGUMENT
-      end if
-      If Not(siz = compValues.Count) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "table sizes mismatch")
-        return YAPI.INVALID_ARGUMENT
-      end if
-
-      res = Me.set_command("" + Convert.ToString(tableIndex) + "Z")
-      If Not(res=YAPI.SUCCESS) Then
-        me._throw( YAPI.IO_ERROR,  "unable to reset thermal compensation table")
-        return YAPI.IO_ERROR
-      end if
-      REM // add records in growing temperature value
-      found = 1
-      prev = -999999.0
-      While (found > 0)
-        found = 0
-        curr = 99999999.0
-        currComp = -999999.0
-        idx = 0
-        While (idx < siz)
-          idxTemp = tempValues(idx)
-          If ((idxTemp > prev) AndAlso (idxTemp < curr)) Then
-            curr = idxTemp
-            currComp = compValues(idx)
-            found = 1
-          End If
-          idx = idx + 1
-        End While
-        If (found > 0) Then
-          res = Me.set_command("" + Convert.ToString( tableIndex) + "m" + Convert.ToString( CType(Math.Round(1000*curr), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*currComp), Integer)))
-          If Not(res=YAPI.SUCCESS) Then
-            me._throw( YAPI.IO_ERROR,  "unable to set thermal compensation table")
-            return YAPI.IO_ERROR
-          end if
-          prev = curr
-        End If
-      End While
-      Return YAPI.SUCCESS
-    End Function
-
-    Public Overridable Function loadCompensationTable(tableIndex As Integer, tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Dim id As String
-      Dim bin_json As Byte()
-      Dim paramlist As List(Of String) = New List(Of String)()
-      Dim siz As Integer = 0
-      Dim idx As Integer = 0
-      Dim temp As Double = 0
-      Dim comp As Double = 0
-
-      id = Me.get_functionId()
-      id = (id).Substring( 10, (id).Length - 10)
-      bin_json = Me._download("extra.json?page=" + Convert.ToString((4*YAPI._atoi(id))+tableIndex))
-      paramlist = Me._json_get_array(bin_json)
-      REM // convert all values to float and append records
-      siz = ((paramlist.Count) >> (1))
-      tempValues.Clear()
-      compValues.Clear()
-      idx = 0
-      While (idx < siz)
-        temp = Double.Parse(paramlist(2*idx))/1000.0
-        comp = Double.Parse(paramlist(2*idx+1))/1000.0
-        tempValues.Add(temp)
-        compValues.Add(comp)
-        idx = idx + 1
-      End While
-
-
-      Return YAPI.SUCCESS
-    End Function
 
     '''*
     ''' <summary>
-    '''   Records a weight offset thermal compensation table, in order to automatically correct the
-    '''   measured weight based on the averaged compensation temperature.
-    ''' <para>
-    '''   The weight correction will be applied by linear interpolation between specified points.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="tempValues">
-    '''   array of floating point numbers, corresponding to all averaged
-    '''   temperatures for which an offset correction is specified.
-    ''' </param>
-    ''' <param name="compValues">
-    '''   array of floating point numbers, corresponding to the offset correction
-    '''   to apply for each of the temperature included in the first
-    '''   argument, index by index.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function set_offsetAvgCompensationTable(tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Return Me.setCompensationTable(0, tempValues, compValues)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Retrieves the weight offset thermal compensation table previously configured using the
-    '''   <c>set_offsetAvgCompensationTable</c> function.
-    ''' <para>
-    '''   The weight correction is applied by linear interpolation between specified points.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="tempValues">
-    '''   array of floating point numbers, that is filled by the function
-    '''   with all averaged temperatures for which an offset correction is specified.
-    ''' </param>
-    ''' <param name="compValues">
-    '''   array of floating point numbers, that is filled by the function
-    '''   with the offset correction applied for each of the temperature
-    '''   included in the first argument, index by index.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function loadOffsetAvgCompensationTable(tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Return Me.loadCompensationTable(0, tempValues, compValues)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Records a weight offset thermal compensation table, in order to automatically correct the
-    '''   measured weight based on the variation of temperature.
-    ''' <para>
-    '''   The weight correction will be applied by linear interpolation between specified points.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="tempValues">
-    '''   array of floating point numbers, corresponding to temperature
-    '''   variations for which an offset correction is specified.
-    ''' </param>
-    ''' <param name="compValues">
-    '''   array of floating point numbers, corresponding to the offset correction
-    '''   to apply for each of the temperature variation included in the first
-    '''   argument, index by index.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function set_offsetChgCompensationTable(tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Return Me.setCompensationTable(1, tempValues, compValues)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Retrieves the weight offset thermal compensation table previously configured using the
-    '''   <c>set_offsetChgCompensationTable</c> function.
-    ''' <para>
-    '''   The weight correction is applied by linear interpolation between specified points.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="tempValues">
-    '''   array of floating point numbers, that is filled by the function
-    '''   with all temperature variations for which an offset correction is specified.
-    ''' </param>
-    ''' <param name="compValues">
-    '''   array of floating point numbers, that is filled by the function
-    '''   with the offset correction applied for each of the temperature
-    '''   variation included in the first argument, index by index.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function loadOffsetChgCompensationTable(tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Return Me.loadCompensationTable(1, tempValues, compValues)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Records a weight span thermal compensation table, in order to automatically correct the
-    '''   measured weight based on the compensation temperature.
-    ''' <para>
-    '''   The weight correction will be applied by linear interpolation between specified points.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="tempValues">
-    '''   array of floating point numbers, corresponding to all averaged
-    '''   temperatures for which a span correction is specified.
-    ''' </param>
-    ''' <param name="compValues">
-    '''   array of floating point numbers, corresponding to the span correction
-    '''   (in percents) to apply for each of the temperature included in the first
-    '''   argument, index by index.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function set_spanAvgCompensationTable(tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Return Me.setCompensationTable(2, tempValues, compValues)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Retrieves the weight span thermal compensation table previously configured using the
-    '''   <c>set_spanAvgCompensationTable</c> function.
-    ''' <para>
-    '''   The weight correction is applied by linear interpolation between specified points.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="tempValues">
-    '''   array of floating point numbers, that is filled by the function
-    '''   with all averaged temperatures for which an span correction is specified.
-    ''' </param>
-    ''' <param name="compValues">
-    '''   array of floating point numbers, that is filled by the function
-    '''   with the span correction applied for each of the temperature
-    '''   included in the first argument, index by index.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function loadSpanAvgCompensationTable(tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Return Me.loadCompensationTable(2, tempValues, compValues)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Records a weight span thermal compensation table, in order to automatically correct the
-    '''   measured weight based on the variation of temperature.
-    ''' <para>
-    '''   The weight correction will be applied by linear interpolation between specified points.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="tempValues">
-    '''   array of floating point numbers, corresponding to all variations of
-    '''   temperatures for which a span correction is specified.
-    ''' </param>
-    ''' <param name="compValues">
-    '''   array of floating point numbers, corresponding to the span correction
-    '''   (in percents) to apply for each of the temperature variation included
-    '''   in the first argument, index by index.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function set_spanChgCompensationTable(tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Return Me.setCompensationTable(3, tempValues, compValues)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Retrieves the weight span thermal compensation table previously configured using the
-    '''   <c>set_spanChgCompensationTable</c> function.
-    ''' <para>
-    '''   The weight correction is applied by linear interpolation between specified points.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="tempValues">
-    '''   array of floating point numbers, that is filled by the function
-    '''   with all variation of temperature for which an span correction is specified.
-    ''' </param>
-    ''' <param name="compValues">
-    '''   array of floating point numbers, that is filled by the function
-    '''   with the span correction applied for each of variation of temperature
-    '''   included in the first argument, index by index.
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function loadSpanChgCompensationTable(tempValues As List(Of Double), compValues As List(Of Double)) As Integer
-      Return Me.loadCompensationTable(3, tempValues, compValues)
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of weighing scale sensors started using <c>yFirstWeighScale()</c>.
+    '''   Continues the enumeration of multi-cell weighing scale sensors started using <c>yFirstMultiCellWeighScale()</c>.
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YWeighScale</c> object, corresponding to
-    '''   a weighing scale sensor currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more weighing scale sensors to enumerate.
+    '''   a pointer to a <c>YMultiCellWeighScale</c> object, corresponding to
+    '''   a multi-cell weighing scale sensor currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more multi-cell weighing scale sensors to enumerate.
     ''' </returns>
     '''/
-    Public Function nextWeighScale() As YWeighScale
+    Public Function nextMultiCellWeighScale() As YMultiCellWeighScale
       Dim hwid As String = ""
       If (YISERR(_nextFunction(hwid))) Then
         Return Nothing
@@ -949,24 +685,24 @@ Module yocto_weighscale
       If (hwid = "") Then
         Return Nothing
       End If
-      Return YWeighScale.FindWeighScale(hwid)
+      Return YMultiCellWeighScale.FindMultiCellWeighScale(hwid)
     End Function
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of weighing scale sensors currently accessible.
+    '''   Starts the enumeration of multi-cell weighing scale sensors currently accessible.
     ''' <para>
-    '''   Use the method <c>YWeighScale.nextWeighScale()</c> to iterate on
-    '''   next weighing scale sensors.
+    '''   Use the method <c>YMultiCellWeighScale.nextMultiCellWeighScale()</c> to iterate on
+    '''   next multi-cell weighing scale sensors.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YWeighScale</c> object, corresponding to
-    '''   the first weighing scale sensor currently online, or a <c>Nothing</c> pointer
+    '''   a pointer to a <c>YMultiCellWeighScale</c> object, corresponding to
+    '''   the first multi-cell weighing scale sensor currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
-    Public Shared Function FirstWeighScale() As YWeighScale
+    Public Shared Function FirstMultiCellWeighScale() As YMultiCellWeighScale
       Dim v_fundescr(1) As YFUN_DESCR
       Dim dev As YDEV_DESCR
       Dim neededsize, err As Integer
@@ -975,7 +711,7 @@ Module yocto_weighscale
       Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
       Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
 
-      err = yapiGetFunctionsByClass("WeighScale", 0, p, size, neededsize, errmsg)
+      err = yapiGetFunctionsByClass("MultiCellWeighScale", 0, p, size, neededsize, errmsg)
       Marshal.Copy(p, v_fundescr, 0, 1)
       Marshal.FreeHGlobal(p)
 
@@ -990,18 +726,18 @@ Module yocto_weighscale
       If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
         Return Nothing
       End If
-      Return YWeighScale.FindWeighScale(serial + "." + funcId)
+      Return YMultiCellWeighScale.FindMultiCellWeighScale(serial + "." + funcId)
     End Function
 
-    REM --- (end of YWeighScale public methods declaration)
+    REM --- (end of YMultiCellWeighScale public methods declaration)
 
   End Class
 
-  REM --- (YWeighScale functions)
+  REM --- (YMultiCellWeighScale functions)
 
   '''*
   ''' <summary>
-  '''   Retrieves a weighing scale sensor for a given identifier.
+  '''   Retrieves a multi-cell weighing scale sensor for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -1025,11 +761,11 @@ Module yocto_weighscale
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the weighing scale sensor is online at the time
+  '''   This function does not require that the multi-cell weighing scale sensor is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YWeighScale.isOnline()</c> to test if the weighing scale sensor is
+  '''   Use the method <c>YMultiCellWeighScale.isOnline()</c> to test if the multi-cell weighing scale sensor is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a weighing scale sensor by logical name, no error is notified: the first instance
+  '''   a multi-cell weighing scale sensor by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -1042,35 +778,35 @@ Module yocto_weighscale
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the weighing scale sensor
+  '''   a string that uniquely characterizes the multi-cell weighing scale sensor
   ''' </param>
   ''' <returns>
-  '''   a <c>YWeighScale</c> object allowing you to drive the weighing scale sensor.
+  '''   a <c>YMultiCellWeighScale</c> object allowing you to drive the multi-cell weighing scale sensor.
   ''' </returns>
   '''/
-  Public Function yFindWeighScale(ByVal func As String) As YWeighScale
-    Return YWeighScale.FindWeighScale(func)
+  Public Function yFindMultiCellWeighScale(ByVal func As String) As YMultiCellWeighScale
+    Return YMultiCellWeighScale.FindMultiCellWeighScale(func)
   End Function
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of weighing scale sensors currently accessible.
+  '''   Starts the enumeration of multi-cell weighing scale sensors currently accessible.
   ''' <para>
-  '''   Use the method <c>YWeighScale.nextWeighScale()</c> to iterate on
-  '''   next weighing scale sensors.
+  '''   Use the method <c>YMultiCellWeighScale.nextMultiCellWeighScale()</c> to iterate on
+  '''   next multi-cell weighing scale sensors.
   ''' </para>
   ''' </summary>
   ''' <returns>
-  '''   a pointer to a <c>YWeighScale</c> object, corresponding to
-  '''   the first weighing scale sensor currently online, or a <c>Nothing</c> pointer
+  '''   a pointer to a <c>YMultiCellWeighScale</c> object, corresponding to
+  '''   the first multi-cell weighing scale sensor currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
-  Public Function yFirstWeighScale() As YWeighScale
-    Return YWeighScale.FirstWeighScale()
+  Public Function yFirstMultiCellWeighScale() As YMultiCellWeighScale
+    Return YMultiCellWeighScale.FirstMultiCellWeighScale()
   End Function
 
 
-  REM --- (end of YWeighScale functions)
+  REM --- (end of YMultiCellWeighScale functions)
 
 End Module
