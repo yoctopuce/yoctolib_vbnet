@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_multicellweighscale.vb 29478 2017-12-21 08:10:05Z seb $
+'* $Id: yocto_multicellweighscale.vb 29661 2018-01-18 13:32:13Z mvuilleu $
 '*
 '* Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '*
@@ -161,6 +161,34 @@ Module yocto_multicellweighscale
     REM --- (end of YMultiCellWeighScale private methods declaration)
 
     REM --- (YMultiCellWeighScale public methods declaration)
+
+    '''*
+    ''' <summary>
+    '''   Changes the measuring unit for the weight.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the measuring unit for the weight
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_unit(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("unit", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Returns the number of load cells in use.
