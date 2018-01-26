@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_proximity.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_proximity.vb 29767 2018-01-26 08:53:27Z seb $
 '*
 '* Implements yFindProximity(), the high-level API for Proximity functions
 '*
@@ -53,6 +53,9 @@ Module yocto_proximity
 
   Public Const Y_SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_DETECTIONTHRESHOLD_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_DETECTIONHYSTERESIS_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_PRESENCEMINTIME_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_REMOVALMINTIME_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ISPRESENT_FALSE As Integer = 0
   Public Const Y_ISPRESENT_TRUE As Integer = 1
   Public Const Y_ISPRESENT_INVALID As Integer = -1
@@ -89,6 +92,9 @@ Module yocto_proximity
     REM --- (YProximity definitions)
     Public Const SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const DETECTIONTHRESHOLD_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const DETECTIONHYSTERESIS_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const PRESENCEMINTIME_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const REMOVALMINTIME_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ISPRESENT_FALSE As Integer = 0
     Public Const ISPRESENT_TRUE As Integer = 1
     Public Const ISPRESENT_INVALID As Integer = -1
@@ -105,6 +111,9 @@ Module yocto_proximity
     REM --- (YProximity attributes declaration)
     Protected _signalValue As Double
     Protected _detectionThreshold As Integer
+    Protected _detectionHysteresis As Integer
+    Protected _presenceMinTime As Integer
+    Protected _removalMinTime As Integer
     Protected _isPresent As Integer
     Protected _lastTimeApproached As Long
     Protected _lastTimeRemoved As Long
@@ -121,6 +130,9 @@ Module yocto_proximity
       REM --- (YProximity attributes initialization)
       _signalValue = SIGNALVALUE_INVALID
       _detectionThreshold = DETECTIONTHRESHOLD_INVALID
+      _detectionHysteresis = DETECTIONHYSTERESIS_INVALID
+      _presenceMinTime = PRESENCEMINTIME_INVALID
+      _removalMinTime = REMOVALMINTIME_INVALID
       _isPresent = ISPRESENT_INVALID
       _lastTimeApproached = LASTTIMEAPPROACHED_INVALID
       _lastTimeRemoved = LASTTIMEREMOVED_INVALID
@@ -140,6 +152,15 @@ Module yocto_proximity
       End If
       If json_val.has("detectionThreshold") Then
         _detectionThreshold = CInt(json_val.getLong("detectionThreshold"))
+      End If
+      If json_val.has("detectionHysteresis") Then
+        _detectionHysteresis = CInt(json_val.getLong("detectionHysteresis"))
+      End If
+      If json_val.has("presenceMinTime") Then
+        _presenceMinTime = CInt(json_val.getLong("presenceMinTime"))
+      End If
+      If json_val.has("removalMinTime") Then
+        _removalMinTime = CInt(json_val.getLong("removalMinTime"))
       End If
       If json_val.has("isPresent") Then
         If (json_val.getInt("isPresent") > 0) Then _isPresent = 1 Else _isPresent = 0
@@ -248,6 +269,176 @@ Module yocto_proximity
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("detectionThreshold", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the hysteresis used to determine the logical state of the proximity sensor, when considered
+    '''   as a binary input (on/off).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the hysteresis used to determine the logical state of the proximity
+    '''   sensor, when considered
+    '''   as a binary input (on/off)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_DETECTIONHYSTERESIS_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_detectionHysteresis() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return DETECTIONHYSTERESIS_INVALID
+        End If
+      End If
+      res = Me._detectionHysteresis
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the hysteresis used to determine the logical state of the proximity sensor, when considered
+    '''   as a binary input (on/off).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the hysteresis used to determine the logical state of the proximity
+    '''   sensor, when considered
+    '''   as a binary input (on/off)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_detectionHysteresis(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("detectionHysteresis", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the minimal detection duration before signaling a presence event.
+    ''' <para>
+    '''   Any shorter detection is
+    '''   considered as noise or bounce (false positive) and filtered out.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the minimal detection duration before signaling a presence event
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_PRESENCEMINTIME_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_presenceMinTime() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return PRESENCEMINTIME_INVALID
+        End If
+      End If
+      res = Me._presenceMinTime
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the minimal detection duration before signaling a presence event.
+    ''' <para>
+    '''   Any shorter detection is
+    '''   considered as noise or bounce (false positive) and filtered out.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the minimal detection duration before signaling a presence event
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_presenceMinTime(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("presenceMinTime", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the minimal detection duration before signaling a removal event.
+    ''' <para>
+    '''   Any shorter detection is
+    '''   considered as noise or bounce (false positive) and filtered out.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the minimal detection duration before signaling a removal event
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_REMOVALMINTIME_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_removalMinTime() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return REMOVALMINTIME_INVALID
+        End If
+      End If
+      res = Me._removalMinTime
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the minimal detection duration before signaling a removal event.
+    ''' <para>
+    '''   Any shorter detection is
+    '''   considered as noise or bounce (false positive) and filtered out.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the minimal detection duration before signaling a removal event
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_removalMinTime(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("removalMinTime", rest_val)
     End Function
     '''*
     ''' <summary>
