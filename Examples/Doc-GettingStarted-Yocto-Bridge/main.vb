@@ -34,7 +34,7 @@ Module Module1
       End If
       Console.WriteLine("using:" + sensor.get_module().get_serialNumber())
     Else
-      sensor = yFindWeighScale(target + ".WeighScale")
+      sensor = yFindWeighScale(target + ".weighScale1")
     End If
 
     If sensor.isOnline() Then
