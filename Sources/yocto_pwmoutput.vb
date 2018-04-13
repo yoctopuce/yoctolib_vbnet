@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmoutput.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_pwmoutput.vb 30595 2018-04-12 21:36:11Z mvuilleu $
 '*
 '* Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '*
@@ -655,8 +655,7 @@ Module yocto_pwmoutput
     ''' <summary>
     '''   Performs a smooth transistion of the pulse duration toward a given value.
     ''' <para>
-    '''   Any period,
-    '''   frequency, duty cycle or pulse width change will cancel any ongoing transition process.
+    '''   Any period, frequency, duty cycle or pulse width change will cancel any ongoing transition process.
     ''' </para>
     ''' </summary>
     ''' <param name="ms_target">
@@ -684,13 +683,14 @@ Module yocto_pwmoutput
 
     '''*
     ''' <summary>
-    '''   Performs a smooth change of the pulse duration toward a given value.
+    '''   Performs a smooth change of the duty cycle toward a given value.
     ''' <para>
+    '''   Any period, frequency, duty cycle or pulse width change will cancel any ongoing transition process.
     ''' </para>
     ''' </summary>
     ''' <param name="target">
     '''   new duty cycle at the end of the transition
-    '''   (floating-point number, between 0 and 1)
+    '''   (percentage, floating-point number between 0 and 100)
     ''' </param>
     ''' <param name="ms_duration">
     '''   total duration of the transition, in milliseconds
@@ -711,6 +711,128 @@ Module yocto_pwmoutput
         target = 100.0
       End If
       newval = "" + Convert.ToString( CType(Math.Round(target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
+      Return Me.set_pwmTransition(newval)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Performs a smooth frequency change toward a given value.
+    ''' <para>
+    '''   Any period, frequency, duty cycle or pulse width change will cancel any ongoing transition process.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="target">
+    '''   new freuency at the end of the transition (floating-point number)
+    ''' </param>
+    ''' <param name="ms_duration">
+    '''   total duration of the transition, in milliseconds
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function frequencyMove(target As Double, ms_duration As Integer) As Integer
+      Dim newval As String
+      If (target < 0.001) Then
+        target = 0.001
+      End If
+      newval = "" + YAPI._floatToStr( target) + "Hz:" + Convert.ToString(ms_duration)
+      Return Me.set_pwmTransition(newval)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Trigger a given number of pulses of specified duration, at current frequency.
+    ''' <para>
+    '''   At the end of the pulse train, revert to the original state of the PWM generator.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="ms_target">
+    '''   desired pulse duration
+    '''   (floating-point number, representing the pulse duration in milliseconds)
+    ''' </param>
+    ''' <param name="n_pulses">
+    '''   desired pulse count
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function triggerPulsesByDuration(ms_target As Double, n_pulses As Integer) As Integer
+      Dim newval As String
+      If (ms_target < 0.0) Then
+        ms_target = 0.0
+      End If
+      newval = "" + Convert.ToString( CType(Math.Round(ms_target*65536), Integer)) + "ms*" + Convert.ToString(n_pulses)
+      Return Me.set_pwmTransition(newval)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Trigger a given number of pulses of specified duration, at current frequency.
+    ''' <para>
+    '''   At the end of the pulse train, revert to the original state of the PWM generator.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="target">
+    '''   desired duty cycle for the generated pulses
+    '''   (percentage, floating-point number between 0 and 100)
+    ''' </param>
+    ''' <param name="n_pulses">
+    '''   desired pulse count
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function triggerPulsesByDutyCycle(target As Double, n_pulses As Integer) As Integer
+      Dim newval As String
+      If (target < 0.0) Then
+        target = 0.0
+      End If
+      If (target > 100.0) Then
+        target = 100.0
+      End If
+      newval = "" + Convert.ToString( CType(Math.Round(target*65536), Integer)) + "*" + Convert.ToString(n_pulses)
+      Return Me.set_pwmTransition(newval)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Trigger a given number of pulses at the specified frequency, using current duty cycle.
+    ''' <para>
+    '''   At the end of the pulse train, revert to the original state of the PWM generator.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="target">
+    '''   desired frequency for the generated pulses (floating-point number)
+    '''   (percentage, floating-point number between 0 and 100)
+    ''' </param>
+    ''' <param name="n_pulses">
+    '''   desired pulse count
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function triggerPulsesByFrequency(target As Double, n_pulses As Integer) As Integer
+      Dim newval As String
+      If (target < 0.001) Then
+        target = 0.001
+      End If
+      newval = "" + YAPI._floatToStr( target) + "Hz*" + Convert.ToString(n_pulses)
       Return Me.set_pwmTransition(newval)
     End Function
 

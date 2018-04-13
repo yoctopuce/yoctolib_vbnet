@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_multiaxiscontroller.vb 29507 2017-12-28 14:14:56Z mvuilleu $
+'* $Id: yocto_multiaxiscontroller.vb 30483 2018-03-29 07:43:07Z mvuilleu $
 '*
 '* Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '*
@@ -360,7 +360,7 @@ Module yocto_multiaxiscontroller
     ''' </returns>
     '''/
     Public Overridable Function reset() As Integer
-      Return Me.sendCommand("Z")
+      Return Me.set_command("Z")
     End Function
 
     '''*
@@ -483,7 +483,7 @@ Module yocto_multiaxiscontroller
     ''' </returns>
     '''/
     Public Overridable Function emergencyStop() As Integer
-      Return Me.sendCommand("!")
+      Return Me.set_command("!")
     End Function
 
     '''*
@@ -498,7 +498,7 @@ Module yocto_multiaxiscontroller
     ''' </returns>
     '''/
     Public Overridable Function abortAndBrake() As Integer
-      Return Me.sendCommand("B")
+      Return Me.set_command("B")
     End Function
 
     '''*
@@ -513,7 +513,7 @@ Module yocto_multiaxiscontroller
     ''' </returns>
     '''/
     Public Overridable Function abortAndHiZ() As Integer
-      Return Me.sendCommand("z")
+      Return Me.set_command("z")
     End Function
 
 

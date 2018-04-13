@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_steppermotor.vb 29507 2017-12-28 14:14:56Z mvuilleu $
+'* $Id: yocto_steppermotor.vb 30483 2018-03-29 07:43:07Z mvuilleu $
 '*
 '* Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '*
@@ -973,7 +973,7 @@ Module yocto_steppermotor
     ''' </returns>
     '''/
     Public Overridable Function reset() As Integer
-      Return Me.sendCommand("Z")
+      Return Me.set_command("Z")
     End Function
 
     '''*
@@ -1111,7 +1111,7 @@ Module yocto_steppermotor
     ''' </returns>
     '''/
     Public Overridable Function emergencyStop() As Integer
-      Return Me.sendCommand("!")
+      Return Me.set_command("!")
     End Function
 
     '''*
@@ -1128,7 +1128,7 @@ Module yocto_steppermotor
     ''' </returns>
     '''/
     Public Overridable Function alertStepOut() As Integer
-      Return Me.sendCommand(".")
+      Return Me.set_command(".")
     End Function
 
     '''*
@@ -1153,9 +1153,9 @@ Module yocto_steppermotor
         return YAPI.INVALID_ARGUMENT
       end if
       If (dir > 0) Then
-        Return Me.sendCommand(".+")
+        Return Me.set_command(".+")
       End If
-      Return Me.sendCommand(".-")
+      Return Me.set_command(".-")
     End Function
 
     '''*
@@ -1170,7 +1170,7 @@ Module yocto_steppermotor
     ''' </returns>
     '''/
     Public Overridable Function abortAndBrake() As Integer
-      Return Me.sendCommand("B")
+      Return Me.set_command("B")
     End Function
 
     '''*
@@ -1185,7 +1185,7 @@ Module yocto_steppermotor
     ''' </returns>
     '''/
     Public Overridable Function abortAndHiZ() As Integer
-      Return Me.sendCommand("z")
+      Return Me.set_command("z")
     End Function
 
 

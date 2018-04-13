@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwminput.vb 28807 2017-10-12 09:46:33Z seb $
+'* $Id: yocto_pwminput.vb 29968 2018-02-19 15:12:34Z seb $
 '*
 '* Implements yFindPwmInput(), the high-level API for PwmInput functions
 '*
@@ -65,6 +65,8 @@ Module yocto_pwminput
   Public Const Y_PWMREPORTMODE_PWM_CPS As Integer = 5
   Public Const Y_PWMREPORTMODE_PWM_CPM As Integer = 6
   Public Const Y_PWMREPORTMODE_PWM_STATE As Integer = 7
+  Public Const Y_PWMREPORTMODE_PWM_FREQ_CPS As Integer = 8
+  Public Const Y_PWMREPORTMODE_PWM_FREQ_CPM As Integer = 9
   Public Const Y_PWMREPORTMODE_INVALID As Integer = -1
   Public Const Y_DEBOUNCEPERIOD_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YPwmInputValueCallback(ByVal func As YPwmInput, ByVal value As String)
@@ -104,6 +106,8 @@ Module yocto_pwminput
     Public Const PWMREPORTMODE_PWM_CPS As Integer = 5
     Public Const PWMREPORTMODE_PWM_CPM As Integer = 6
     Public Const PWMREPORTMODE_PWM_STATE As Integer = 7
+    Public Const PWMREPORTMODE_PWM_FREQ_CPS As Integer = 8
+    Public Const PWMREPORTMODE_PWM_FREQ_CPM As Integer = 9
     Public Const PWMREPORTMODE_INVALID As Integer = -1
     Public Const DEBOUNCEPERIOD_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YPwmInput definitions)
@@ -349,8 +353,10 @@ Module yocto_pwminput
     '''   a value among <c>Y_PWMREPORTMODE_PWM_DUTYCYCLE</c>, <c>Y_PWMREPORTMODE_PWM_FREQUENCY</c>,
     '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c>, <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c>,
     '''   <c>Y_PWMREPORTMODE_PWM_PULSECOUNT</c>, <c>Y_PWMREPORTMODE_PWM_CPS</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_CPM</c> and <c>Y_PWMREPORTMODE_PWM_STATE</c> corresponding to the parameter
-    '''   (frequency/duty cycle, pulse width, edges count) returned by the get_currentValue function and callbacks
+    '''   <c>Y_PWMREPORTMODE_PWM_CPM</c>, <c>Y_PWMREPORTMODE_PWM_STATE</c>,
+    '''   <c>Y_PWMREPORTMODE_PWM_FREQ_CPS</c> and <c>Y_PWMREPORTMODE_PWM_FREQ_CPM</c> corresponding to the
+    '''   parameter (frequency/duty cycle, pulse width, edges count) returned by the get_currentValue
+    '''   function and callbacks
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_PWMREPORTMODE_INVALID</c>.
@@ -382,8 +388,10 @@ Module yocto_pwminput
     '''   a value among <c>Y_PWMREPORTMODE_PWM_DUTYCYCLE</c>, <c>Y_PWMREPORTMODE_PWM_FREQUENCY</c>,
     '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c>, <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c>,
     '''   <c>Y_PWMREPORTMODE_PWM_PULSECOUNT</c>, <c>Y_PWMREPORTMODE_PWM_CPS</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_CPM</c> and <c>Y_PWMREPORTMODE_PWM_STATE</c> corresponding to the  parameter
-    '''    type (frequency/duty cycle, pulse width, or edge count) returned by the get_currentValue function and callbacks
+    '''   <c>Y_PWMREPORTMODE_PWM_CPM</c>, <c>Y_PWMREPORTMODE_PWM_STATE</c>,
+    '''   <c>Y_PWMREPORTMODE_PWM_FREQ_CPS</c> and <c>Y_PWMREPORTMODE_PWM_FREQ_CPM</c> corresponding to the 
+    '''   parameter  type (frequency/duty cycle, pulse width, or edge count) returned by the get_currentValue
+    '''   function and callbacks
     ''' </param>
     ''' <para>
     ''' </para>

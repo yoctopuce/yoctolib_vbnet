@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_network.vb 29079 2017-11-03 17:20:42Z seb $
+'* $Id: yocto_network.vb 30462 2018-03-26 09:19:24Z mvuilleu $
 '*
 '* Implements yFindNetwork(), the high-level API for Network functions
 '*
@@ -89,6 +89,7 @@ Module yocto_network
   Public Const Y_CALLBACKENCODING_INFLUXDB As Integer = 8
   Public Const Y_CALLBACKENCODING_MQTT As Integer = 9
   Public Const Y_CALLBACKENCODING_YOCTO_API_JZON As Integer = 10
+  Public Const Y_CALLBACKENCODING_PRTG As Integer = 11
   Public Const Y_CALLBACKENCODING_INVALID As Integer = -1
   Public Const Y_CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
@@ -153,6 +154,7 @@ Module yocto_network
     Public Const CALLBACKENCODING_INFLUXDB As Integer = 8
     Public Const CALLBACKENCODING_MQTT As Integer = 9
     Public Const CALLBACKENCODING_YOCTO_API_JZON As Integer = 10
+    Public Const CALLBACKENCODING_PRTG As Integer = 11
     Public Const CALLBACKENCODING_INVALID As Integer = -1
     Public Const CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
@@ -1137,9 +1139,9 @@ Module yocto_network
     '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c>,
     '''   <c>Y_CALLBACKENCODING_YOCTO_API</c>, <c>Y_CALLBACKENCODING_JSON_NUM</c>,
     '''   <c>Y_CALLBACKENCODING_EMONCMS</c>, <c>Y_CALLBACKENCODING_AZURE</c>,
-    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c>, <c>Y_CALLBACKENCODING_MQTT</c> and
-    '''   <c>Y_CALLBACKENCODING_YOCTO_API_JZON</c> corresponding to the encoding standard to use for
-    '''   representing notification values
+    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c>, <c>Y_CALLBACKENCODING_MQTT</c>,
+    '''   <c>Y_CALLBACKENCODING_YOCTO_API_JZON</c> and <c>Y_CALLBACKENCODING_PRTG</c> corresponding to the
+    '''   encoding standard to use for representing notification values
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_CALLBACKENCODING_INVALID</c>.
@@ -1170,9 +1172,9 @@ Module yocto_network
     '''   <c>Y_CALLBACKENCODING_JSON_ARRAY</c>, <c>Y_CALLBACKENCODING_CSV</c>,
     '''   <c>Y_CALLBACKENCODING_YOCTO_API</c>, <c>Y_CALLBACKENCODING_JSON_NUM</c>,
     '''   <c>Y_CALLBACKENCODING_EMONCMS</c>, <c>Y_CALLBACKENCODING_AZURE</c>,
-    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c>, <c>Y_CALLBACKENCODING_MQTT</c> and
-    '''   <c>Y_CALLBACKENCODING_YOCTO_API_JZON</c> corresponding to the encoding standard to use for
-    '''   representing notification values
+    '''   <c>Y_CALLBACKENCODING_INFLUXDB</c>, <c>Y_CALLBACKENCODING_MQTT</c>,
+    '''   <c>Y_CALLBACKENCODING_YOCTO_API_JZON</c> and <c>Y_CALLBACKENCODING_PRTG</c> corresponding to the
+    '''   encoding standard to use for representing notification values
     ''' </param>
     ''' <para>
     ''' </para>

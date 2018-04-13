@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 29186 2017-11-16 10:04:13Z seb $
+'* $Id: yocto_colorledcluster.vb 30500 2018-04-04 07:53:46Z mvuilleu $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -52,6 +52,9 @@ Module yocto_colorledcluster
   REM --- (YColorLedCluster globals)
 
   Public Const Y_ACTIVELEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_LEDTYPE_RGB As Integer = 0
+  Public Const Y_LEDTYPE_RGBW As Integer = 1
+  Public Const Y_LEDTYPE_INVALID As Integer = -1
   Public Const Y_MAXLEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BLINKSEQMAXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BLINKSEQMAXSIZE_INVALID As Integer = YAPI.INVALID_UINT
@@ -83,6 +86,9 @@ Module yocto_colorledcluster
 
     REM --- (YColorLedCluster definitions)
     Public Const ACTIVELEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const LEDTYPE_RGB As Integer = 0
+    Public Const LEDTYPE_RGBW As Integer = 1
+    Public Const LEDTYPE_INVALID As Integer = -1
     Public Const MAXLEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BLINKSEQMAXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BLINKSEQMAXSIZE_INVALID As Integer = YAPI.INVALID_UINT
@@ -91,6 +97,7 @@ Module yocto_colorledcluster
 
     REM --- (YColorLedCluster attributes declaration)
     Protected _activeLedCount As Integer
+    Protected _ledType As Integer
     Protected _maxLedCount As Integer
     Protected _blinkSeqMaxCount As Integer
     Protected _blinkSeqMaxSize As Integer
@@ -103,6 +110,7 @@ Module yocto_colorledcluster
       _classname = "ColorLedCluster"
       REM --- (YColorLedCluster attributes initialization)
       _activeLedCount = ACTIVELEDCOUNT_INVALID
+      _ledType = LEDTYPE_INVALID
       _maxLedCount = MAXLEDCOUNT_INVALID
       _blinkSeqMaxCount = BLINKSEQMAXCOUNT_INVALID
       _blinkSeqMaxSize = BLINKSEQMAXSIZE_INVALID
@@ -116,6 +124,9 @@ Module yocto_colorledcluster
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("activeLedCount") Then
         _activeLedCount = CInt(json_val.getLong("activeLedCount"))
+      End If
+      If json_val.has("ledType") Then
+        _ledType = CInt(json_val.getLong("ledType"))
       End If
       If json_val.has("maxLedCount") Then
         _maxLedCount = CInt(json_val.getLong("maxLedCount"))
@@ -186,6 +197,60 @@ Module yocto_colorledcluster
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("activeLedCount", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the RGB LED type currently handled by the device.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_LEDTYPE_RGB</c> or <c>Y_LEDTYPE_RGBW</c>, according to the RGB LED type currently
+    '''   handled by the device
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_LEDTYPE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_ledType() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return LEDTYPE_INVALID
+        End If
+      End If
+      res = Me._ledType
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the RGB LED type currently handled by the device.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_LEDTYPE_RGB</c> or <c>Y_LEDTYPE_RGBW</c>, according to the RGB LED type currently
+    '''   handled by the device
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_ledType(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("ledType", rest_val)
     End Function
     '''*
     ''' <summary>
