@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmoutput.vb 30595 2018-04-12 21:36:11Z mvuilleu $
+'* $Id: yocto_pwmoutput.vb 30679 2018-04-24 09:34:17Z mvuilleu $
 '*
 '* Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '*
@@ -834,6 +834,14 @@ Module yocto_pwmoutput
       End If
       newval = "" + YAPI._floatToStr( target) + "Hz*" + Convert.ToString(n_pulses)
       Return Me.set_pwmTransition(newval)
+    End Function
+
+    Public Overridable Function markForRepeat() As Integer
+      Return Me.set_pwmTransition(":")
+    End Function
+
+    Public Overridable Function repeatFromMark() As Integer
+      Return Me.set_pwmTransition("R")
     End Function
 
 

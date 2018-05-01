@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_spiport.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_spiport.vb 30685 2018-04-24 13:46:18Z seb $
 '*
 '* Implements yFindSpiPort(), the high-level API for SpiPort functions
 '*
@@ -941,7 +941,7 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function writeByte(code As Integer) As Integer
-      Return Me.sendCommand("$" + YAPI._intToHex(code,02))
+      Return Me.sendCommand("$" + (code).ToString("X02"))
     End Function
 
     '''*
@@ -1381,11 +1381,11 @@ Module yocto_spiport
       res = ""
       ofs = 0
       While (ofs + 3 < bufflen)
-        res = "" +  res + "" + YAPI._intToHex( buff(ofs),02) + "" + YAPI._intToHex( buff(ofs + 1),02) + "" + YAPI._intToHex( buff(ofs + 2),02) + "" + YAPI._intToHex(buff(ofs + 3),02)
+        res = "" +  res + "" + ( buff(ofs)).ToString("X02") + "" + ( buff(ofs + 1)).ToString("X02") + "" + ( buff(ofs + 2)).ToString("X02") + "" + (buff(ofs + 3)).ToString("X02")
         ofs = ofs + 4
       End While
       While (ofs < bufflen)
-        res = "" +  res + "" + YAPI._intToHex(buff(ofs),02)
+        res = "" +  res + "" + (buff(ofs)).ToString("X02")
         ofs = ofs + 1
       End While
       Return res

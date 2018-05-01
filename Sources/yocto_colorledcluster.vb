@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 30500 2018-04-04 07:53:46Z mvuilleu $
+'* $Id: yocto_colorledcluster.vb 30659 2018-04-19 13:03:27Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -479,7 +479,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function set_rgbColor(ledIndex As Integer, count As Integer, rgbValue As Integer) As Integer
-      Return Me.sendCommand("SR" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(rgbValue,1))
+      Return Me.sendCommand("SR" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + (rgbValue).ToString("x"))
     End Function
 
     '''*
@@ -508,7 +508,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function set_rgbColorAtPowerOn(ledIndex As Integer, count As Integer, rgbValue As Integer) As Integer
-      Return Me.sendCommand("SC" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(rgbValue,1))
+      Return Me.sendCommand("SC" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + (rgbValue).ToString("x"))
     End Function
 
     '''*
@@ -535,7 +535,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function set_hslColor(ledIndex As Integer, count As Integer, hslValue As Integer) As Integer
-      Return Me.sendCommand("SH" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(hslValue,1))
+      Return Me.sendCommand("SH" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + (hslValue).ToString("x"))
     End Function
 
     '''*
@@ -566,7 +566,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function rgb_move(ledIndex As Integer, count As Integer, rgbValue As Integer, delay As Integer) As Integer
-      Return Me.sendCommand("MR" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(rgbValue,1) + "," + Convert.ToString(delay))
+      Return Me.sendCommand("MR" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + (rgbValue).ToString("x") + "," + Convert.ToString(delay))
     End Function
 
     '''*
@@ -601,7 +601,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function hsl_move(ledIndex As Integer, count As Integer, hslValue As Integer, delay As Integer) As Integer
-      Return Me.sendCommand("MH" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + YAPI._intToHex(hslValue,1) + "," + Convert.ToString(delay))
+      Return Me.sendCommand("MH" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + (hslValue).ToString("x") + "," + Convert.ToString(delay))
     End Function
 
     '''*
@@ -630,7 +630,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function addRgbMoveToBlinkSeq(seqIndex As Integer, rgbValue As Integer, delay As Integer) As Integer
-      Return Me.sendCommand("AR" + Convert.ToString(seqIndex) + "," + YAPI._intToHex(rgbValue,1) + "," + Convert.ToString(delay))
+      Return Me.sendCommand("AR" + Convert.ToString(seqIndex) + "," + (rgbValue).ToString("x") + "," + Convert.ToString(delay))
     End Function
 
     '''*
@@ -659,7 +659,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function addHslMoveToBlinkSeq(seqIndex As Integer, hslValue As Integer, delay As Integer) As Integer
-      Return Me.sendCommand("AH" + Convert.ToString(seqIndex) + "," + YAPI._intToHex(hslValue,1) + "," + Convert.ToString(delay))
+      Return Me.sendCommand("AH" + Convert.ToString(seqIndex) + "," + (hslValue).ToString("x") + "," + Convert.ToString(delay))
     End Function
 
     '''*

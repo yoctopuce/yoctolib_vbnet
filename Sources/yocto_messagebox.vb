@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_messagebox.vb 30659 2018-04-19 13:03:27Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -642,7 +642,7 @@ Module yocto_messagebox
         i = 0
         While (i < siz)
           byt = addr(ofs+i+1)
-          res = "" +  res + "" + YAPI._intToHex( ((byt) And (15)),1) + "" + YAPI._intToHex(((byt) >> (4)),1)
+          res = "" +  res + "" + ( ((byt) And (15))).ToString("x") + "" + (((byt) >> (4))).ToString("x")
           i = i + 1
         End While
         REM // remove padding digit if needed
@@ -768,7 +768,7 @@ Module yocto_messagebox
       i = 0
       While ((i < siz) AndAlso (i < 6))
         byt = exp(ofs+i)
-        res = "" +  res + "" + YAPI._intToHex( ((byt) And (15)),1) + "" + YAPI._intToHex(((byt) >> (4)),1)
+        res = "" +  res + "" + ( ((byt) And (15))).ToString("x") + "" + (((byt) >> (4))).ToString("x")
         If (i < 3) Then
           If (i < 2) Then
             res = "" + res + "-"
@@ -1062,16 +1062,16 @@ Module yocto_messagebox
         If (i + ielen <= udhlen) Then
           If ((iei = 0) AndAlso (ielen = 3)) Then
             REM // concatenated SMS, 8-bit ref
-            sig = "" +  Me._orig + "-" +  Me._dest + "-" + YAPI._intToHex(
-            Me._mref,02) + "-" + YAPI._intToHex(Me._udh(i),02)
+            sig = "" +  Me._orig + "-" +  Me._dest + "-" + (
+            Me._mref).ToString("x02") + "-" + (Me._udh(i)).ToString("x02")
             Me._aggSig = sig
             Me._aggCnt = Me._udh(i+1)
             Me._aggIdx = Me._udh(i+2)
           End If
           If ((iei = 8) AndAlso (ielen = 4)) Then
             REM // concatenated SMS, 16-bit ref
-            sig = "" +  Me._orig + "-" +  Me._dest + "-" + YAPI._intToHex(
-            Me._mref,02) + "-" + YAPI._intToHex( Me._udh(i),02) + "" + YAPI._intToHex(Me._udh(i+1),02)
+            sig = "" +  Me._orig + "-" +  Me._dest + "-" + (
+            Me._mref).ToString("x02") + "-" + ( Me._udh(i)).ToString("x02") + "" + (Me._udh(i+1)).ToString("x02")
             Me._aggSig = sig
             Me._aggCnt = Me._udh(i+2)
             Me._aggIdx = Me._udh(i+3)

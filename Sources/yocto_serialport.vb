@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_serialport.vb 30685 2018-04-24 13:46:18Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -886,7 +886,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function writeByte(code As Integer) As Integer
-      Return Me.sendCommand("$" + YAPI._intToHex(code,02))
+      Return Me.sendCommand("$" + (code).ToString("X02"))
     End Function
 
     '''*
@@ -1326,11 +1326,11 @@ Module yocto_serialport
       res = ""
       ofs = 0
       While (ofs + 3 < bufflen)
-        res = "" +  res + "" + YAPI._intToHex( buff(ofs),02) + "" + YAPI._intToHex( buff(ofs + 1),02) + "" + YAPI._intToHex( buff(ofs + 2),02) + "" + YAPI._intToHex(buff(ofs + 3),02)
+        res = "" +  res + "" + ( buff(ofs)).ToString("X02") + "" + ( buff(ofs + 1)).ToString("X02") + "" + ( buff(ofs + 2)).ToString("X02") + "" + (buff(ofs + 3)).ToString("X02")
         ofs = ofs + 4
       End While
       While (ofs < bufflen)
-        res = "" +  res + "" + YAPI._intToHex(buff(ofs),02)
+        res = "" +  res + "" + (buff(ofs)).ToString("X02")
         ofs = ofs + 1
       End While
       Return res
@@ -1760,11 +1760,11 @@ Module yocto_serialport
       Dim hexb As Integer = 0
       funCode = pduBytes(0)
       nib = ((funCode) >> (4))
-      pat = "" + YAPI._intToHex( slaveNo,02) + "[" + YAPI._intToHex( nib,1) + "" + YAPI._intToHex( (nib+8),1) + "]" + YAPI._intToHex(((funCode) And (15)),1) + ".*"
-      cmd = "" + YAPI._intToHex( slaveNo,02) + "" + YAPI._intToHex(funCode,02)
+      pat = "" + ( slaveNo).ToString("X02") + "[" + ( nib).ToString("X") + "" + ( (nib+8)).ToString("X") + "]" + (((funCode) And (15))).ToString("X") + ".*"
+      cmd = "" + ( slaveNo).ToString("X02") + "" + (funCode).ToString("X02")
       i = 1
       While (i < pduBytes.Count)
-        cmd = "" +  cmd + "" + YAPI._intToHex(((pduBytes(i)) And (&Hff)),02)
+        cmd = "" +  cmd + "" + (((pduBytes(i)) And (&Hff))).ToString("X02")
         i = i + 1
       End While
 

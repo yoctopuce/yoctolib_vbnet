@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_display.vb 30659 2018-04-19 13:03:27Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -184,7 +184,7 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function selectColorPen(color As Integer) As Integer
-      Return Me.command_push("c" + YAPI._intToHex(color,06))
+      Return Me.command_push("c" + (color).ToString("x06"))
     End Function
 
     '''*
