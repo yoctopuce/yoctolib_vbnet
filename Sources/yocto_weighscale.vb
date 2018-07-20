@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_weighscale.vb 29804 2018-01-30 18:05:21Z mvuilleu $
+'* $Id: yocto_weighscale.vb 31016 2018-06-04 08:45:40Z mvuilleu $
 '*
 '* Implements yFindWeighScale(), the high-level API for WeighScale functions
 '*
@@ -55,7 +55,8 @@ Module yocto_weighscale
   Public Const Y_EXCITATION_DC As Integer = 1
   Public Const Y_EXCITATION_AC As Integer = 2
   Public Const Y_EXCITATION_INVALID As Integer = -1
-  Public Const Y_COMPTEMPADAPTRATIO_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_TEMPAVGADAPTRATIO_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_TEMPCHGADAPTRATIO_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_COMPTEMPAVG_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_COMPTEMPCHG_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_COMPENSATION_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -88,7 +89,8 @@ Module yocto_weighscale
     Public Const EXCITATION_DC As Integer = 1
     Public Const EXCITATION_AC As Integer = 2
     Public Const EXCITATION_INVALID As Integer = -1
-    Public Const COMPTEMPADAPTRATIO_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const TEMPAVGADAPTRATIO_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const TEMPCHGADAPTRATIO_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const COMPTEMPAVG_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const COMPTEMPCHG_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const COMPENSATION_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -98,7 +100,8 @@ Module yocto_weighscale
 
     REM --- (YWeighScale attributes declaration)
     Protected _excitation As Integer
-    Protected _compTempAdaptRatio As Double
+    Protected _tempAvgAdaptRatio As Double
+    Protected _tempChgAdaptRatio As Double
     Protected _compTempAvg As Double
     Protected _compTempChg As Double
     Protected _compensation As Double
@@ -113,7 +116,8 @@ Module yocto_weighscale
       _classname = "WeighScale"
       REM --- (YWeighScale attributes initialization)
       _excitation = EXCITATION_INVALID
-      _compTempAdaptRatio = COMPTEMPADAPTRATIO_INVALID
+      _tempAvgAdaptRatio = TEMPAVGADAPTRATIO_INVALID
+      _tempChgAdaptRatio = TEMPCHGADAPTRATIO_INVALID
       _compTempAvg = COMPTEMPAVG_INVALID
       _compTempChg = COMPTEMPCHG_INVALID
       _compensation = COMPENSATION_INVALID
@@ -130,8 +134,11 @@ Module yocto_weighscale
       If json_val.has("excitation") Then
         _excitation = CInt(json_val.getLong("excitation"))
       End If
-      If json_val.has("compTempAdaptRatio") Then
-        _compTempAdaptRatio = Math.Round(json_val.getDouble("compTempAdaptRatio") * 1000.0 / 65536.0) / 1000.0
+      If json_val.has("tempAvgAdaptRatio") Then
+        _tempAvgAdaptRatio = Math.Round(json_val.getDouble("tempAvgAdaptRatio") * 1000.0 / 65536.0) / 1000.0
+      End If
+      If json_val.has("tempChgAdaptRatio") Then
+        _tempChgAdaptRatio = Math.Round(json_val.getDouble("tempChgAdaptRatio") * 1000.0 / 65536.0) / 1000.0
       End If
       If json_val.has("compTempAvg") Then
         _compTempAvg = Math.Round(json_val.getDouble("compTempAvg") * 1000.0 / 65536.0) / 1000.0
@@ -239,17 +246,18 @@ Module yocto_weighscale
 
     '''*
     ''' <summary>
-    '''   Changes the averaged temperature update rate, in percents.
+    '''   Changes the averaged temperature update rate, in per mille.
     ''' <para>
+    '''   The purpose of this adaptation ratio is to model the thermal inertia of the load cell.
     '''   The averaged temperature is updated every 10 seconds, by applying this adaptation rate
     '''   to the difference between the measures ambiant temperature and the current compensation
-    '''   temperature. The standard rate is 0.04 percents, and the maximal rate is 65 percents.
+    '''   temperature. The standard rate is 0.2 per mille, and the maximal rate is 65 per mille.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a floating point number corresponding to the averaged temperature update rate, in percents
+    '''   a floating point number corresponding to the averaged temperature update rate, in per mille
     ''' </param>
     ''' <para>
     ''' </para>
@@ -260,37 +268,96 @@ Module yocto_weighscale
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_compTempAdaptRatio(ByVal newval As Double) As Integer
+    Public Function set_tempAvgAdaptRatio(ByVal newval As Double) As Integer
       Dim rest_val As String
       rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
-      Return _setAttr("compTempAdaptRatio", rest_val)
+      Return _setAttr("tempAvgAdaptRatio", rest_val)
     End Function
     '''*
     ''' <summary>
-    '''   Returns the averaged temperature update rate, in percents.
+    '''   Returns the averaged temperature update rate, in per mille.
     ''' <para>
+    '''   The purpose of this adaptation ratio is to model the thermal inertia of the load cell.
     '''   The averaged temperature is updated every 10 seconds, by applying this adaptation rate
     '''   to the difference between the measures ambiant temperature and the current compensation
-    '''   temperature. The standard rate is 0.04 percents, and the maximal rate is 65 percents.
+    '''   temperature. The standard rate is 0.2 per mille, and the maximal rate is 65 per mille.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the averaged temperature update rate, in percents
+    '''   a floating point number corresponding to the averaged temperature update rate, in per mille
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COMPTEMPADAPTRATIO_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_TEMPAVGADAPTRATIO_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_compTempAdaptRatio() As Double
+    Public Function get_tempAvgAdaptRatio() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
-          Return COMPTEMPADAPTRATIO_INVALID
+          Return TEMPAVGADAPTRATIO_INVALID
         End If
       End If
-      res = Me._compTempAdaptRatio
+      res = Me._tempAvgAdaptRatio
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the temperature change update rate, in per mille.
+    ''' <para>
+    '''   The temperature change is updated every 10 seconds, by applying this adaptation rate
+    '''   to the difference between the measures ambiant temperature and the current temperature used for
+    '''   change compensation. The standard rate is 0.6 per mille, and the maximal rate is 65 pour mille.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the temperature change update rate, in per mille
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_tempChgAdaptRatio(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("tempChgAdaptRatio", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the temperature change update rate, in per mille.
+    ''' <para>
+    '''   The temperature change is updated every 10 seconds, by applying this adaptation rate
+    '''   to the difference between the measures ambiant temperature and the current temperature used for
+    '''   change compensation. The standard rate is 0.6 per mille, and the maximal rate is 65 pour mille.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the temperature change update rate, in per mille
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_TEMPCHGADAPTRATIO_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_tempChgAdaptRatio() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+          Return TEMPCHGADAPTRATIO_INVALID
+        End If
+      End If
+      res = Me._tempChgAdaptRatio
       Return res
     End Function
 

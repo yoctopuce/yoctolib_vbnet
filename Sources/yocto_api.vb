@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 29542 2018-01-04 08:52:29Z seb $
+'* $Id: yocto_api.vb 31238 2018-07-17 11:08:47Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -796,7 +796,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "30760"
+  Public Const YOCTO_API_BUILD_NO As String = "31315"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1389,6 +1389,7 @@ Module yocto_api
       _yapiRegisterDeviceArrivalCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceArrivalDelegate))
       _yapiRegisterDeviceRemovalCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceRemovalDelegate))
       _yapiRegisterDeviceChangeCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceChangeDelegate))
+      _yapiRegisterDeviceConfigChangeCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceConfigChangeDelegate))
       _yapiRegisterFunctionUpdateCallback(Marshal.GetFunctionPointerForDelegate(native_yFunctionUpdateDelegate))
       _yapiRegisterTimedReportCallback(Marshal.GetFunctionPointerForDelegate(native_yTimedReportDelegate))
       _yapiRegisterLogFunction(Marshal.GetFunctionPointerForDelegate(native_yLogFunctionDelegate))
@@ -2089,6 +2090,7 @@ Module yocto_api
   Public Const Y_REBOOTCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_USERVAR_INVALID As Integer = YAPI.INVALID_INT
   Public Delegate Sub YModuleLogCallback(ByVal modul As YModule, ByVal logline As String)
+  Public Delegate Sub YModuleConfigChangeCallback(ByVal modul As YModule)
   Public Delegate Sub YModuleValueCallback(ByVal func As YModule, ByVal value As String)
   Public Delegate Sub YModuleTimedReportCallback(ByVal func As YModule, ByVal measure As YMeasure)
   REM --- (end of generated code: YModule globals)
@@ -5824,6 +5826,7 @@ Module yocto_api
     Protected _userVar As Integer
     Protected _valueCallbackModule As YModuleValueCallback
     Protected _logCallback As YModuleLogCallback
+    Protected _confChangeCallback As YModuleConfigChangeCallback
     REM --- (end of generated code: YModule attributes declaration)
 
     Public Sub New(ByVal func As String)
@@ -5844,6 +5847,7 @@ Module yocto_api
       _userVar = USERVAR_INVALID
       _valueCallbackModule = Nothing
       _logCallback = Nothing
+      _confChangeCallback = Nothing
       REM --- (end of generated code: YModule attributes initialization)
     End Sub
 
@@ -6806,6 +6810,43 @@ Module yocto_api
     '''/
     Public Overridable Function triggerFirmwareUpdate(secBeforeReboot As Integer) As Integer
       Return Me.set_rebootCountdown(-secBeforeReboot)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Register a callback function, to be called when a persistent settings in
+    '''   a device configuration has been changed (e.g.
+    ''' <para>
+    '''   change of unit, etc).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   a procedure taking a YModule parameter, or <c>Nothing</c>
+    '''   to unregister a previously registered  callback.
+    ''' </param>
+    '''/
+    Public Overridable Function registerConfigChangeCallback(callback As YModuleConfigChangeCallback) As Integer
+      Me._confChangeCallback = callback
+      Return 0
+    End Function
+
+    Public Overridable Function _invokeConfigChangeCallback() As Integer
+      If (Not (Me._confChangeCallback Is Nothing)) Then
+        Me._confChangeCallback(Me)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Triggers a configuration change callback, to check if they are supported or not.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function triggerConfigChangeCallback() As Integer
+      Me._setAttr("persistentSettings","2")
+      Return 0
     End Function
 
     '''*
@@ -10701,12 +10742,14 @@ Module yocto_api
 
   Private Class DataEvent
     Private _fun As YFunction
+    Private _mod As YModule
     Private _value As String
     Private _report As List(Of Integer)
     Private _timestamp As Double
 
     Public Sub New(ByVal fun As YFunction, ByVal value As String)
       _fun = fun
+      _mod = Nothing
       _value = value
       _report = Nothing
       _timestamp = 0
@@ -10714,21 +10757,33 @@ Module yocto_api
 
     Public Sub New(ByVal fun As YFunction, ByVal timestamp As Double, ByVal report As List(Of Integer))
       _fun = fun
+      _mod = Nothing
       _value = Nothing
       _timestamp = timestamp
       _report = report
     End Sub
 
-    Public Sub invoke()
-      If (_value Is Nothing) Then
-        Dim sensor As YSensor = CType(_fun, YSensor)
-        Dim measure As YMeasure = sensor._decodeTimedReport(_timestamp, _report)
-        sensor._invokeTimedReportCallback(measure)
-      Else
-        REM new value
-        _fun._invokeValueCallback(_value)
-      End If
+    Public Sub New(ByVal modul As YModule)
+      _fun = Nothing
+      _mod = modul
+      _value = Nothing
+      _report = Nothing
+      _timestamp = 0
+    End Sub
 
+    Public Sub invoke()
+      If (_fun IsNot Nothing) Then
+        If (_value Is Nothing) Then
+          Dim sensor As YSensor = CType(_fun, YSensor)
+          Dim measure As YMeasure = sensor._decodeTimedReport(_timestamp, _report)
+          sensor._invokeTimedReportCallback(measure)
+        Else
+          REM new value
+          _fun._invokeValueCallback(_value)
+        End If
+      ElseIf (_mod IsNot Nothing) Then
+        _mod._invokeConfigChangeCallback()
+      End If
 
     End Sub
   End Class
@@ -10866,6 +10921,18 @@ Module yocto_api
     YAPI.RegisterDeviceChangeCallback(callback)
   End Sub
 
+  Public Sub native_yDeviceConfigChangeCallback(ByVal d As YDEV_DESCR)
+    Dim ev As DataEvent
+    Dim modul As YModule
+    Dim infos As yDeviceSt = emptyDeviceSt()
+    Dim errmsg As String = ""
+
+    If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then Exit Sub
+    modul = YModule.FindModule(infos.serial + ".module")
+    ev = New DataEvent(modul)
+    _DataEvents.Add(ev)
+  End Sub
+
   Private Sub queuesCleanUp()
     _PlugEvents.Clear()
     _PlugEvents = Nothing
@@ -10978,6 +11045,9 @@ Module yocto_api
 
   Public native_yDeviceChangeDelegate As _yapiDeviceUpdateFunc = AddressOf native_yDeviceChangeCallback
   Dim native_yDeviceChangeAnchor As GCHandle = GCHandle.Alloc(native_yDeviceChangeDelegate)
+
+  Public native_yDeviceConfigChangeDelegate As _yapiDeviceUpdateFunc = AddressOf native_yDeviceConfigChangeCallback
+  Dim native_yDeviceConfigChangeAnchor As GCHandle = GCHandle.Alloc(native_yDeviceConfigChangeDelegate)
 
   Public native_HubDiscoveryDelegate As _yapiHubDiscoveryCallback = AddressOf native_HubDiscoveryCallback
   Dim native_HubDiscoveryAnchor As GCHandle = GCHandle.Alloc(native_HubDiscoveryDelegate)
@@ -11497,6 +11567,10 @@ Module yocto_api
 
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceChangeCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceChangeCallback(ByVal fct As IntPtr)
+  End Sub
+
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceConfigChangeCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Sub _yapiRegisterDeviceConfigChangeCallback(ByVal fct As IntPtr)
   End Sub
 
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterFunctionUpdateCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>

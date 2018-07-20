@@ -12,6 +12,10 @@
     Console.WriteLine(fct.get_hardwareId() + ": " + measure.get_averageValue().ToString() + " " + fct.get_unit() + " (timed report)")
   End Sub
 
+  Sub configChangeCallBack(ByVal modul As YModule)
+    Console.WriteLine(modul.get_serialNumber() + ": configuration changed")
+  End Sub
+
   Sub deviceArrival(ByVal m As YModule)
     Dim serial, hardwareId As String
     Dim fctcount, i As Integer
@@ -20,6 +24,7 @@
 
     serial = m.get_serialNumber()
     Console.WriteLine("Device Arrival : " + serial)
+    m.registerConfigChangeCallback(AddressOf configChangeCallBack)
 
     REM // First solution: look for a specific type of function (eg. anButton)
     fctcount = m.functionCount()
