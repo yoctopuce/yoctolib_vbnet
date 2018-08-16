@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_altitude.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_altitude.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindAltitude(), the high-level API for Altitude functions
 '*
@@ -49,6 +49,8 @@ Module yocto_altitude
     REM --- (end of YAltitude return codes)
     REM --- (YAltitude dlldef)
     REM --- (end of YAltitude dlldef)
+   REM --- (YAltitude yapiwrapper)
+   REM --- (end of YAltitude yapiwrapper)
   REM --- (YAltitude globals)
 
   Public Const Y_QNH_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -191,7 +193,7 @@ Module yocto_altitude
     Public Function get_qnh() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return QNH_INVALID
         End If
       End If
@@ -220,7 +222,7 @@ Module yocto_altitude
     Public Function get_technology() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return TECHNOLOGY_INVALID
         End If
       End If

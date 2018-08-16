@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmoutput.vb 31296 2018-07-19 12:34:36Z mvuilleu $
+'* $Id: yocto_pwmoutput.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '*
@@ -49,6 +49,8 @@ Module yocto_pwmoutput
     REM --- (end of YPwmOutput return codes)
     REM --- (YPwmOutput dlldef)
     REM --- (end of YPwmOutput dlldef)
+   REM --- (YPwmOutput yapiwrapper)
+   REM --- (end of YPwmOutput yapiwrapper)
   REM --- (YPwmOutput globals)
 
   Public Const Y_ENABLED_FALSE As Integer = 0
@@ -174,7 +176,7 @@ Module yocto_pwmoutput
     Public Function get_enabled() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ENABLED_INVALID
         End If
       End If
@@ -254,7 +256,7 @@ Module yocto_pwmoutput
     Public Function get_frequency() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return FREQUENCY_INVALID
         End If
       End If
@@ -306,7 +308,7 @@ Module yocto_pwmoutput
     Public Function get_period() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PERIOD_INVALID
         End If
       End If
@@ -358,7 +360,7 @@ Module yocto_pwmoutput
     Public Function get_dutyCycle() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DUTYCYCLE_INVALID
         End If
       End If
@@ -411,7 +413,7 @@ Module yocto_pwmoutput
     Public Function get_pulseDuration() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PULSEDURATION_INVALID
         End If
       End If
@@ -422,7 +424,7 @@ Module yocto_pwmoutput
     Public Function get_pwmTransition() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PWMTRANSITION_INVALID
         End If
       End If
@@ -455,7 +457,7 @@ Module yocto_pwmoutput
     Public Function get_enabledAtPowerOn() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ENABLEDATPOWERON_INVALID
         End If
       End If
@@ -539,7 +541,7 @@ Module yocto_pwmoutput
     Public Function get_dutyCycleAtPowerOn() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DUTYCYCLEATPOWERON_INVALID
         End If
       End If

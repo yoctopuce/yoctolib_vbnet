@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_realtimeclock.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_realtimeclock.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '*
@@ -49,6 +49,8 @@ Module yocto_realtimeclock
     REM --- (end of YRealTimeClock return codes)
     REM --- (YRealTimeClock dlldef)
     REM --- (end of YRealTimeClock dlldef)
+   REM --- (YRealTimeClock yapiwrapper)
+   REM --- (end of YRealTimeClock yapiwrapper)
   REM --- (YRealTimeClock globals)
 
   Public Const Y_UNIXTIME_INVALID As Long = YAPI.INVALID_LONG
@@ -146,7 +148,7 @@ Module yocto_realtimeclock
     Public Function get_unixTime() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return UNIXTIME_INVALID
         End If
       End If
@@ -199,7 +201,7 @@ Module yocto_realtimeclock
     Public Function get_dateTime() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DATETIME_INVALID
         End If
       End If
@@ -225,7 +227,7 @@ Module yocto_realtimeclock
     Public Function get_utcOffset() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return UTCOFFSET_INVALID
         End If
       End If
@@ -279,7 +281,7 @@ Module yocto_realtimeclock
     Public Function get_timeSet() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return TIMESET_INVALID
         End If
       End If

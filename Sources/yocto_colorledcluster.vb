@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 30659 2018-04-19 13:03:27Z seb $
+'* $Id: yocto_colorledcluster.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -49,6 +49,8 @@ Module yocto_colorledcluster
     REM --- (end of YColorLedCluster return codes)
     REM --- (YColorLedCluster dlldef)
     REM --- (end of YColorLedCluster dlldef)
+   REM --- (YColorLedCluster yapiwrapper)
+   REM --- (end of YColorLedCluster yapiwrapper)
   REM --- (YColorLedCluster globals)
 
   Public Const Y_ACTIVELEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -164,7 +166,7 @@ Module yocto_colorledcluster
     Public Function get_activeLedCount() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ACTIVELEDCOUNT_INVALID
         End If
       End If
@@ -217,7 +219,7 @@ Module yocto_colorledcluster
     Public Function get_ledType() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return LEDTYPE_INVALID
         End If
       End If
@@ -270,7 +272,7 @@ Module yocto_colorledcluster
     Public Function get_maxLedCount() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MAXLEDCOUNT_INVALID
         End If
       End If
@@ -296,7 +298,7 @@ Module yocto_colorledcluster
     Public Function get_blinkSeqMaxCount() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BLINKSEQMAXCOUNT_INVALID
         End If
       End If
@@ -322,7 +324,7 @@ Module yocto_colorledcluster
     Public Function get_blinkSeqMaxSize() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BLINKSEQMAXSIZE_INVALID
         End If
       End If
@@ -333,7 +335,7 @@ Module yocto_colorledcluster
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

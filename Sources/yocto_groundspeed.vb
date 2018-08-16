@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_groundspeed.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_groundspeed.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindGroundSpeed(), the high-level API for GroundSpeed functions
 '*
@@ -49,6 +49,8 @@ Module yocto_groundspeed
     REM --- (end of YGroundSpeed return codes)
     REM --- (YGroundSpeed dlldef)
     REM --- (end of YGroundSpeed dlldef)
+   REM --- (YGroundSpeed yapiwrapper)
+   REM --- (end of YGroundSpeed yapiwrapper)
   REM --- (YGroundSpeed globals)
 
   Public Delegate Sub YGroundSpeedValueCallback(ByVal func As YGroundSpeed, ByVal value As String)

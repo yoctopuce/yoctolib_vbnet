@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voc.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_voc.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindVoc(), the high-level API for Voc functions
 '*
@@ -49,6 +49,8 @@ Module yocto_voc
     REM --- (end of YVoc return codes)
     REM --- (YVoc dlldef)
     REM --- (end of YVoc dlldef)
+   REM --- (YVoc yapiwrapper)
+   REM --- (end of YVoc yapiwrapper)
   REM --- (YVoc globals)
 
   Public Delegate Sub YVocValueCallback(ByVal func As YVoc, ByVal value As String)

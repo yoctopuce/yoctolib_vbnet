@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_powersupply.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_powersupply.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindPowerSupply(), the high-level API for PowerSupply functions
 '*
@@ -49,6 +49,8 @@ Module yocto_powersupply
     REM --- (end of YPowerSupply return codes)
     REM --- (YPowerSupply dlldef)
     REM --- (end of YPowerSupply dlldef)
+   REM --- (YPowerSupply yapiwrapper)
+   REM --- (end of YPowerSupply yapiwrapper)
   REM --- (YPowerSupply globals)
 
   Public Const Y_VOLTAGESETPOINT_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -236,7 +238,7 @@ Module yocto_powersupply
     Public Function get_voltageSetPoint() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLTAGESETPOINT_INVALID
         End If
       End If
@@ -288,7 +290,7 @@ Module yocto_powersupply
     Public Function get_currentLimit() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CURRENTLIMIT_INVALID
         End If
       End If
@@ -314,7 +316,7 @@ Module yocto_powersupply
     Public Function get_powerOutput() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return POWEROUTPUT_INVALID
         End If
       End If
@@ -366,7 +368,7 @@ Module yocto_powersupply
     Public Function get_voltageSense() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLTAGESENSE_INVALID
         End If
       End If
@@ -418,7 +420,7 @@ Module yocto_powersupply
     Public Function get_measuredVoltage() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MEASUREDVOLTAGE_INVALID
         End If
       End If
@@ -444,7 +446,7 @@ Module yocto_powersupply
     Public Function get_measuredCurrent() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MEASUREDCURRENT_INVALID
         End If
       End If
@@ -470,7 +472,7 @@ Module yocto_powersupply
     Public Function get_inputVoltage() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return INPUTVOLTAGE_INVALID
         End If
       End If
@@ -496,7 +498,7 @@ Module yocto_powersupply
     Public Function get_vInt() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VINT_INVALID
         End If
       End If
@@ -522,7 +524,7 @@ Module yocto_powersupply
     Public Function get_ldoTemperature() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return LDOTEMPERATURE_INVALID
         End If
       End If
@@ -533,7 +535,7 @@ Module yocto_powersupply
     Public Function get_voltageTransition() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLTAGETRANSITION_INVALID
         End If
       End If
@@ -593,7 +595,7 @@ Module yocto_powersupply
     Public Function get_voltageAtStartUp() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLTAGEATSTARTUP_INVALID
         End If
       End If
@@ -647,7 +649,7 @@ Module yocto_powersupply
     Public Function get_currentAtStartUp() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CURRENTATSTARTUP_INVALID
         End If
       End If
@@ -658,7 +660,7 @@ Module yocto_powersupply
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

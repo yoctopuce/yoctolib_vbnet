@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_watchdog.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_watchdog.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindWatchdog(), the high-level API for Watchdog functions
 '*
@@ -49,6 +49,8 @@ Module yocto_watchdog
     REM --- (end of YWatchdog return codes)
     REM --- (YWatchdog dlldef)
     REM --- (end of YWatchdog dlldef)
+   REM --- (YWatchdog yapiwrapper)
+   REM --- (end of YWatchdog yapiwrapper)
   REM --- (YWatchdog globals)
 
 Public Class YWatchdogDelayedPulse
@@ -230,7 +232,7 @@ End Class
     Public Function get_state() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return STATE_INVALID
         End If
       End If
@@ -285,7 +287,7 @@ End Class
     Public Function get_stateAtPowerOn() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return STATEATPOWERON_INVALID
         End If
       End If
@@ -341,7 +343,7 @@ End Class
     Public Function get_maxTimeOnStateA() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MAXTIMEONSTATEA_INVALID
         End If
       End If
@@ -395,7 +397,7 @@ End Class
     Public Function get_maxTimeOnStateB() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MAXTIMEONSTATEB_INVALID
         End If
       End If
@@ -449,7 +451,7 @@ End Class
     Public Function get_output() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return OUTPUT_INVALID
         End If
       End If
@@ -506,7 +508,7 @@ End Class
     Public Function get_pulseTimer() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PULSETIMER_INVALID
         End If
       End If
@@ -550,7 +552,7 @@ End Class
     Public Function get_delayedPulseTimer() As YWatchdogDelayedPulse
       Dim res As YWatchdogDelayedPulse
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DELAYEDPULSETIMER_INVALID
         End If
       End If
@@ -613,7 +615,7 @@ End Class
     Public Function get_countdown() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COUNTDOWN_INVALID
         End If
       End If
@@ -640,7 +642,7 @@ End Class
     Public Function get_autoStart() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return AUTOSTART_INVALID
         End If
       End If
@@ -695,7 +697,7 @@ End Class
     Public Function get_running() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return RUNNING_INVALID
         End If
       End If
@@ -772,7 +774,7 @@ End Class
     Public Function get_triggerDelay() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return TRIGGERDELAY_INVALID
         End If
       End If
@@ -824,7 +826,7 @@ End Class
     Public Function get_triggerDuration() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return TRIGGERDURATION_INVALID
         End If
       End If

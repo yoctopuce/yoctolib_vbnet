@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_temperature.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_temperature.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindTemperature(), the high-level API for Temperature functions
 '*
@@ -49,6 +49,8 @@ Module yocto_temperature
     REM --- (end of YTemperature return codes)
     REM --- (YTemperature dlldef)
     REM --- (end of YTemperature dlldef)
+   REM --- (YTemperature yapiwrapper)
+   REM --- (end of YTemperature yapiwrapper)
   REM --- (YTemperature globals)
 
   Public Const Y_SENSORTYPE_DIGITAL As Integer = 0
@@ -215,7 +217,7 @@ Module yocto_temperature
     Public Function get_sensorType() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return SENSORTYPE_INVALID
         End If
       End If
@@ -277,7 +279,7 @@ Module yocto_temperature
     Public Function get_signalValue() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return SIGNALVALUE_INVALID
         End If
       End If
@@ -303,7 +305,7 @@ Module yocto_temperature
     Public Function get_signalUnit() As String
       Dim res As String
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return SIGNALUNIT_INVALID
         End If
       End If
@@ -314,7 +316,7 @@ Module yocto_temperature
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

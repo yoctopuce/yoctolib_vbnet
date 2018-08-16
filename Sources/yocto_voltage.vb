@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voltage.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_voltage.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindVoltage(), the high-level API for Voltage functions
 '*
@@ -49,6 +49,8 @@ Module yocto_voltage
     REM --- (end of YVoltage return codes)
     REM --- (YVoltage dlldef)
     REM --- (end of YVoltage dlldef)
+   REM --- (YVoltage yapiwrapper)
+   REM --- (end of YVoltage yapiwrapper)
   REM --- (YVoltage globals)
 
   Public Const Y_ENABLED_FALSE As Integer = 0
@@ -111,7 +113,7 @@ Module yocto_voltage
     Public Function get_enabled() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ENABLED_INVALID
         End If
       End If

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupmonitor.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_wakeupmonitor.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '*
@@ -49,6 +49,8 @@ Module yocto_wakeupmonitor
     REM --- (end of YWakeUpMonitor return codes)
     REM --- (YWakeUpMonitor dlldef)
     REM --- (end of YWakeUpMonitor dlldef)
+   REM --- (YWakeUpMonitor yapiwrapper)
+   REM --- (end of YWakeUpMonitor yapiwrapper)
   REM --- (YWakeUpMonitor globals)
 
   Public Const Y_POWERDURATION_INVALID As Integer = YAPI.INVALID_INT
@@ -171,7 +173,7 @@ Module yocto_wakeupmonitor
     Public Function get_powerDuration() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return POWERDURATION_INVALID
         End If
       End If
@@ -223,7 +225,7 @@ Module yocto_wakeupmonitor
     Public Function get_sleepCountdown() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return SLEEPCOUNTDOWN_INVALID
         End If
       End If
@@ -275,7 +277,7 @@ Module yocto_wakeupmonitor
     Public Function get_nextWakeUp() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return NEXTWAKEUP_INVALID
         End If
       End If
@@ -329,7 +331,7 @@ Module yocto_wakeupmonitor
     Public Function get_wakeUpReason() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return WAKEUPREASON_INVALID
         End If
       End If
@@ -356,7 +358,7 @@ Module yocto_wakeupmonitor
     Public Function get_wakeUpState() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return WAKEUPSTATE_INVALID
         End If
       End If
@@ -373,7 +375,7 @@ Module yocto_wakeupmonitor
     Public Function get_rtcTime() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return RTCTIME_INVALID
         End If
       End If

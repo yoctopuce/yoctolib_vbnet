@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_segmenteddisplay.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_segmenteddisplay.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindSegmentedDisplay(), the high-level API for SegmentedDisplay functions
 '*
@@ -49,6 +49,8 @@ Module yocto_segmenteddisplay
     REM --- (end of YSegmentedDisplay return codes)
     REM --- (YSegmentedDisplay dlldef)
     REM --- (end of YSegmentedDisplay dlldef)
+   REM --- (YSegmentedDisplay yapiwrapper)
+   REM --- (end of YSegmentedDisplay yapiwrapper)
   REM --- (YSegmentedDisplay globals)
 
   Public Const Y_DISPLAYEDTEXT_INVALID As String = YAPI.INVALID_STRING
@@ -132,7 +134,7 @@ Module yocto_segmenteddisplay
     Public Function get_displayedText() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DISPLAYEDTEXT_INVALID
         End If
       End If
@@ -169,7 +171,7 @@ Module yocto_segmenteddisplay
     Public Function get_displayMode() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DISPLAYMODE_INVALID
         End If
       End If

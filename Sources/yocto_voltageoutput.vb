@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_voltageoutput.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_voltageoutput.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindVoltageOutput(), the high-level API for VoltageOutput functions
 '*
@@ -49,6 +49,8 @@ Module yocto_voltageoutput
     REM --- (end of YVoltageOutput return codes)
     REM --- (YVoltageOutput dlldef)
     REM --- (end of YVoltageOutput dlldef)
+   REM --- (YVoltageOutput yapiwrapper)
+   REM --- (end of YVoltageOutput yapiwrapper)
   REM --- (YVoltageOutput globals)
 
   Public Const Y_CURRENTVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -158,7 +160,7 @@ Module yocto_voltageoutput
     Public Function get_currentVoltage() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CURRENTVOLTAGE_INVALID
         End If
       End If
@@ -169,7 +171,7 @@ Module yocto_voltageoutput
     Public Function get_voltageTransition() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLTAGETRANSITION_INVALID
         End If
       End If
@@ -229,7 +231,7 @@ Module yocto_voltageoutput
     Public Function get_voltageAtStartUp() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLTAGEATSTARTUP_INVALID
         End If
       End If

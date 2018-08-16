@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_accelerometer.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_accelerometer.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindAccelerometer(), the high-level API for Accelerometer functions
 '*
@@ -49,6 +49,8 @@ Module yocto_accelerometer
     REM --- (end of YAccelerometer return codes)
     REM --- (YAccelerometer dlldef)
     REM --- (end of YAccelerometer dlldef)
+   REM --- (YAccelerometer yapiwrapper)
+   REM --- (end of YAccelerometer yapiwrapper)
   REM --- (YAccelerometer globals)
 
   Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
@@ -160,7 +162,7 @@ Module yocto_accelerometer
     Public Function get_bandwidth() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BANDWIDTH_INVALID
         End If
       End If
@@ -214,7 +216,7 @@ Module yocto_accelerometer
     Public Function get_xValue() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return XVALUE_INVALID
         End If
       End If
@@ -240,7 +242,7 @@ Module yocto_accelerometer
     Public Function get_yValue() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return YVALUE_INVALID
         End If
       End If
@@ -266,7 +268,7 @@ Module yocto_accelerometer
     Public Function get_zValue() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ZVALUE_INVALID
         End If
       End If
@@ -277,7 +279,7 @@ Module yocto_accelerometer
     Public Function get_gravityCancellation() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return GRAVITYCANCELLATION_INVALID
         End If
       End If

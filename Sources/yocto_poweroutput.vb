@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_poweroutput.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_poweroutput.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindPowerOutput(), the high-level API for PowerOutput functions
 '*
@@ -49,6 +49,8 @@ Module yocto_poweroutput
     REM --- (end of YPowerOutput return codes)
     REM --- (YPowerOutput dlldef)
     REM --- (end of YPowerOutput dlldef)
+   REM --- (YPowerOutput yapiwrapper)
+   REM --- (end of YPowerOutput yapiwrapper)
   REM --- (YPowerOutput globals)
 
   Public Const Y_VOLTAGE_OFF As Integer = 0
@@ -125,7 +127,7 @@ Module yocto_poweroutput
     Public Function get_voltage() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLTAGE_INVALID
         End If
       End If

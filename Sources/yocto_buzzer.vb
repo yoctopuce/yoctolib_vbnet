@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_buzzer.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_buzzer.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindBuzzer(), the high-level API for Buzzer functions
 '*
@@ -49,6 +49,8 @@ Module yocto_buzzer
     REM --- (end of YBuzzer return codes)
     REM --- (YBuzzer dlldef)
     REM --- (end of YBuzzer dlldef)
+   REM --- (YBuzzer yapiwrapper)
+   REM --- (end of YBuzzer yapiwrapper)
   REM --- (YBuzzer globals)
 
   Public Const Y_FREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -181,7 +183,7 @@ Module yocto_buzzer
     Public Function get_frequency() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return FREQUENCY_INVALID
         End If
       End If
@@ -207,7 +209,7 @@ Module yocto_buzzer
     Public Function get_volume() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLUME_INVALID
         End If
       End If
@@ -259,7 +261,7 @@ Module yocto_buzzer
     Public Function get_playSeqSize() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PLAYSEQSIZE_INVALID
         End If
       End If
@@ -285,7 +287,7 @@ Module yocto_buzzer
     Public Function get_playSeqMaxSize() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PLAYSEQMAXSIZE_INVALID
         End If
       End If
@@ -315,7 +317,7 @@ Module yocto_buzzer
     Public Function get_playSeqSignature() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PLAYSEQSIGNATURE_INVALID
         End If
       End If
@@ -326,7 +328,7 @@ Module yocto_buzzer
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

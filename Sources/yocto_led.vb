@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_led.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_led.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindLed(), the high-level API for Led functions
 '*
@@ -49,6 +49,8 @@ Module yocto_led
     REM --- (end of YLed return codes)
     REM --- (YLed dlldef)
     REM --- (end of YLed dlldef)
+   REM --- (YLed yapiwrapper)
+   REM --- (end of YLed yapiwrapper)
   REM --- (YLed globals)
 
   Public Const Y_POWER_OFF As Integer = 0
@@ -149,7 +151,7 @@ Module yocto_led
     Public Function get_power() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return POWER_INVALID
         End If
       End If
@@ -201,7 +203,7 @@ Module yocto_led
     Public Function get_luminosity() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return LUMINOSITY_INVALID
         End If
       End If
@@ -255,7 +257,7 @@ Module yocto_led
     Public Function get_blinking() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BLINKING_INVALID
         End If
       End If

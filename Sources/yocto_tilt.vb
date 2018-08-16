@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_tilt.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_tilt.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindTilt(), the high-level API for Tilt functions
 '*
@@ -49,6 +49,8 @@ Module yocto_tilt
     REM --- (end of YTilt return codes)
     REM --- (YTilt dlldef)
     REM --- (end of YTilt dlldef)
+   REM --- (YTilt yapiwrapper)
+   REM --- (end of YTilt yapiwrapper)
   REM --- (YTilt globals)
 
   Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
@@ -141,7 +143,7 @@ Module yocto_tilt
     Public Function get_bandwidth() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BANDWIDTH_INVALID
         End If
       End If
@@ -180,7 +182,7 @@ Module yocto_tilt
     Public Function get_axis() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return AXIS_INVALID
         End If
       End If

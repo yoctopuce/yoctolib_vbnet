@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_currentloopoutput.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_currentloopoutput.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindCurrentLoopOutput(), the high-level API for CurrentLoopOutput functions
 '*
@@ -49,6 +49,8 @@ Module yocto_currentloopoutput
     REM --- (end of YCurrentLoopOutput return codes)
     REM --- (YCurrentLoopOutput dlldef)
     REM --- (end of YCurrentLoopOutput dlldef)
+   REM --- (YCurrentLoopOutput yapiwrapper)
+   REM --- (end of YCurrentLoopOutput yapiwrapper)
   REM --- (YCurrentLoopOutput globals)
 
   Public Const Y_CURRENT_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -174,7 +176,7 @@ Module yocto_currentloopoutput
     Public Function get_current() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CURRENT_INVALID
         End If
       End If
@@ -185,7 +187,7 @@ Module yocto_currentloopoutput
     Public Function get_currentTransition() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CURRENTTRANSITION_INVALID
         End If
       End If
@@ -245,7 +247,7 @@ Module yocto_currentloopoutput
     Public Function get_currentAtStartUp() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CURRENTATSTARTUP_INVALID
         End If
       End If
@@ -275,7 +277,7 @@ Module yocto_currentloopoutput
     Public Function get_loopPower() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return LOOPPOWER_INVALID
         End If
       End If

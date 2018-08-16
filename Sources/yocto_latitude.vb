@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_latitude.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_latitude.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindLatitude(), the high-level API for Latitude functions
 '*
@@ -49,6 +49,8 @@ Module yocto_latitude
     REM --- (end of YLatitude return codes)
     REM --- (YLatitude dlldef)
     REM --- (end of YLatitude dlldef)
+   REM --- (YLatitude yapiwrapper)
+   REM --- (end of YLatitude yapiwrapper)
   REM --- (YLatitude globals)
 
   Public Delegate Sub YLatitudeValueCallback(ByVal func As YLatitude, ByVal value As String)

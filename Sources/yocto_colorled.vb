@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorled.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_colorled.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindColorLed(), the high-level API for ColorLed functions
 '*
@@ -49,6 +49,8 @@ Module yocto_colorled
     REM --- (end of YColorLed return codes)
     REM --- (YColorLed dlldef)
     REM --- (end of YColorLed dlldef)
+   REM --- (YColorLed yapiwrapper)
+   REM --- (end of YColorLed yapiwrapper)
   REM --- (YColorLed globals)
 
 Public Class YColorLedMove
@@ -202,7 +204,7 @@ End Class
     Public Function get_rgbColor() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return RGBCOLOR_INVALID
         End If
       End If
@@ -255,7 +257,7 @@ End Class
     Public Function get_hslColor() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return HSLCOLOR_INVALID
         End If
       End If
@@ -293,7 +295,7 @@ End Class
     Public Function get_rgbMove() As YColorLedMove
       Dim res As YColorLedMove
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return RGBMOVE_INVALID
         End If
       End If
@@ -339,7 +341,7 @@ End Class
     Public Function get_hslMove() As YColorLedMove
       Dim res As YColorLedMove
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return HSLMOVE_INVALID
         End If
       End If
@@ -400,7 +402,7 @@ End Class
     Public Function get_rgbColorAtPowerOn() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return RGBCOLORATPOWERON_INVALID
         End If
       End If
@@ -452,7 +454,7 @@ End Class
     Public Function get_blinkSeqSize() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BLINKSEQSIZE_INVALID
         End If
       End If
@@ -478,7 +480,7 @@ End Class
     Public Function get_blinkSeqMaxSize() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration = 0) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BLINKSEQMAXSIZE_INVALID
         End If
       End If
@@ -508,7 +510,7 @@ End Class
     Public Function get_blinkSeqSignature() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BLINKSEQSIGNATURE_INVALID
         End If
       End If
@@ -519,7 +521,7 @@ End Class
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

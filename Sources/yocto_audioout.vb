@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_audioout.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_audioout.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindAudioOut(), the high-level API for AudioOut functions
 '*
@@ -49,6 +49,8 @@ Module yocto_audioout
     REM --- (end of YAudioOut return codes)
     REM --- (YAudioOut dlldef)
     REM --- (end of YAudioOut dlldef)
+   REM --- (YAudioOut yapiwrapper)
+   REM --- (end of YAudioOut yapiwrapper)
   REM --- (YAudioOut globals)
 
   Public Const Y_VOLUME_INVALID As Integer = YAPI.INVALID_UINT
@@ -149,7 +151,7 @@ Module yocto_audioout
     Public Function get_volume() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLUME_INVALID
         End If
       End If
@@ -201,7 +203,7 @@ Module yocto_audioout
     Public Function get_mute() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MUTE_INVALID
         End If
       End If
@@ -259,7 +261,7 @@ Module yocto_audioout
     Public Function get_volumeRange() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return VOLUMERANGE_INVALID
         End If
       End If
@@ -285,7 +287,7 @@ Module yocto_audioout
     Public Function get_signal() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return SIGNAL_INVALID
         End If
       End If
@@ -311,7 +313,7 @@ Module yocto_audioout
     Public Function get_noSignalFor() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return NOSIGNALFOR_INVALID
         End If
       End If

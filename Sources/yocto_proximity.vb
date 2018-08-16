@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_proximity.vb 29767 2018-01-26 08:53:27Z seb $
+'* $Id: yocto_proximity.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindProximity(), the high-level API for Proximity functions
 '*
@@ -49,6 +49,8 @@ Module yocto_proximity
     REM --- (end of YProximity return codes)
     REM --- (YProximity dlldef)
     REM --- (end of YProximity dlldef)
+   REM --- (YProximity yapiwrapper)
+   REM --- (end of YProximity yapiwrapper)
   REM --- (YProximity globals)
 
   Public Const Y_SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -204,7 +206,7 @@ Module yocto_proximity
     Public Function get_signalValue() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return SIGNALVALUE_INVALID
         End If
       End If
@@ -233,7 +235,7 @@ Module yocto_proximity
     Public Function get_detectionThreshold() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DETECTIONTHRESHOLD_INVALID
         End If
       End If
@@ -291,7 +293,7 @@ Module yocto_proximity
     Public Function get_detectionHysteresis() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DETECTIONHYSTERESIS_INVALID
         End If
       End If
@@ -348,7 +350,7 @@ Module yocto_proximity
     Public Function get_presenceMinTime() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PRESENCEMINTIME_INVALID
         End If
       End If
@@ -404,7 +406,7 @@ Module yocto_proximity
     Public Function get_removalMinTime() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return REMOVALMINTIME_INVALID
         End If
       End If
@@ -460,7 +462,7 @@ Module yocto_proximity
     Public Function get_isPresent() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ISPRESENT_INVALID
         End If
       End If
@@ -488,7 +490,7 @@ Module yocto_proximity
     Public Function get_lastTimeApproached() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return LASTTIMEAPPROACHED_INVALID
         End If
       End If
@@ -516,7 +518,7 @@ Module yocto_proximity
     Public Function get_lastTimeRemoved() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return LASTTIMEREMOVED_INVALID
         End If
       End If
@@ -545,7 +547,7 @@ Module yocto_proximity
     Public Function get_pulseCounter() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PULSECOUNTER_INVALID
         End If
       End If
@@ -577,7 +579,7 @@ Module yocto_proximity
     Public Function get_pulseTimer() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PULSETIMER_INVALID
         End If
       End If
@@ -605,7 +607,7 @@ Module yocto_proximity
     Public Function get_proximityReportMode() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PROXIMITYREPORTMODE_INVALID
         End If
       End If

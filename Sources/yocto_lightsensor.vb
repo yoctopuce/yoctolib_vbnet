@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_lightsensor.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_lightsensor.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindLightSensor(), the high-level API for LightSensor functions
 '*
@@ -49,6 +49,8 @@ Module yocto_lightsensor
     REM --- (end of YLightSensor return codes)
     REM --- (YLightSensor dlldef)
     REM --- (end of YLightSensor dlldef)
+   REM --- (YLightSensor yapiwrapper)
+   REM --- (end of YLightSensor yapiwrapper)
   REM --- (YLightSensor globals)
 
   Public Const Y_MEASURETYPE_HUMAN_EYE As Integer = 0
@@ -175,7 +177,7 @@ Module yocto_lightsensor
     Public Function get_measureType() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MEASURETYPE_INVALID
         End If
       End If

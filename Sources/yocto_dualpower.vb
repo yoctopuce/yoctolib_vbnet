@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_dualpower.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_dualpower.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindDualPower(), the high-level API for DualPower functions
 '*
@@ -49,6 +49,8 @@ Module yocto_dualpower
     REM --- (end of YDualPower return codes)
     REM --- (YDualPower dlldef)
     REM --- (end of YDualPower dlldef)
+   REM --- (YDualPower yapiwrapper)
+   REM --- (end of YDualPower yapiwrapper)
   REM --- (YDualPower globals)
 
   Public Const Y_POWERSTATE_OFF As Integer = 0
@@ -151,7 +153,7 @@ Module yocto_dualpower
     Public Function get_powerState() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return POWERSTATE_INVALID
         End If
       End If
@@ -179,7 +181,7 @@ Module yocto_dualpower
     Public Function get_powerControl() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return POWERCONTROL_INVALID
         End If
       End If
@@ -233,7 +235,7 @@ Module yocto_dualpower
     Public Function get_extVoltage() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return EXTVOLTAGE_INVALID
         End If
       End If

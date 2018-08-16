@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_daisychain.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_daisychain.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindDaisyChain(), the high-level API for DaisyChain functions
 '*
@@ -49,6 +49,8 @@ Module yocto_daisychain
     REM --- (end of YDaisyChain return codes)
     REM --- (YDaisyChain dlldef)
     REM --- (end of YDaisyChain dlldef)
+   REM --- (YDaisyChain yapiwrapper)
+   REM --- (end of YDaisyChain yapiwrapper)
   REM --- (YDaisyChain globals)
 
   Public Const Y_DAISYSTATE_READY As Integer = 0
@@ -145,7 +147,7 @@ Module yocto_daisychain
     Public Function get_daisyState() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DAISYSTATE_INVALID
         End If
       End If
@@ -171,7 +173,7 @@ Module yocto_daisychain
     Public Function get_childCount() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CHILDCOUNT_INVALID
         End If
       End If
@@ -197,7 +199,7 @@ Module yocto_daisychain
     Public Function get_requiredChildCount() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return REQUIREDCHILDCOUNT_INVALID
         End If
       End If

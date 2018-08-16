@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_motor.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_motor.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindMotor(), the high-level API for Motor functions
 '*
@@ -49,6 +49,8 @@ Module yocto_motor
     REM --- (end of YMotor return codes)
     REM --- (YMotor dlldef)
     REM --- (end of YMotor dlldef)
+   REM --- (YMotor yapiwrapper)
+   REM --- (end of YMotor yapiwrapper)
   REM --- (YMotor globals)
 
   Public Const Y_MOTORSTATUS_IDLE As Integer = 0
@@ -209,7 +211,7 @@ Module yocto_motor
     Public Function get_motorStatus() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MOTORSTATUS_INVALID
         End If
       End If
@@ -272,7 +274,7 @@ Module yocto_motor
     Public Function get_drivingForce() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DRIVINGFORCE_INVALID
         End If
       End If
@@ -327,7 +329,7 @@ Module yocto_motor
     Public Function get_brakingForce() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BRAKINGFORCE_INVALID
         End If
       End If
@@ -391,7 +393,7 @@ Module yocto_motor
     Public Function get_cutOffVoltage() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CUTOFFVOLTAGE_INVALID
         End If
       End If
@@ -420,7 +422,7 @@ Module yocto_motor
     Public Function get_overCurrentLimit() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return OVERCURRENTLIMIT_INVALID
         End If
       End If
@@ -507,7 +509,7 @@ Module yocto_motor
     Public Function get_frequency() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return FREQUENCY_INVALID
         End If
       End If
@@ -535,7 +537,7 @@ Module yocto_motor
     Public Function get_starterTime() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return STARTERTIME_INVALID
         End If
       End If
@@ -594,7 +596,7 @@ Module yocto_motor
     Public Function get_failSafeTimeout() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return FAILSAFETIMEOUT_INVALID
         End If
       End If
@@ -636,7 +638,7 @@ Module yocto_motor
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_compass.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_compass.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindCompass(), the high-level API for Compass functions
 '*
@@ -49,6 +49,8 @@ Module yocto_compass
     REM --- (end of YCompass return codes)
     REM --- (YCompass dlldef)
     REM --- (end of YCompass dlldef)
+   REM --- (YCompass yapiwrapper)
+   REM --- (end of YCompass yapiwrapper)
   REM --- (YCompass globals)
 
   Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
@@ -148,7 +150,7 @@ Module yocto_compass
     Public Function get_bandwidth() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BANDWIDTH_INVALID
         End If
       End If
@@ -187,7 +189,7 @@ Module yocto_compass
     Public Function get_axis() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return AXIS_INVALID
         End If
       End If
@@ -213,7 +215,7 @@ Module yocto_compass
     Public Function get_magneticHeading() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MAGNETICHEADING_INVALID
         End If
       End If

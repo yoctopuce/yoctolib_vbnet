@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_quadraturedecoder.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_quadraturedecoder.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '*
@@ -49,6 +49,8 @@ Module yocto_quadraturedecoder
     REM --- (end of YQuadratureDecoder return codes)
     REM --- (YQuadratureDecoder dlldef)
     REM --- (end of YQuadratureDecoder dlldef)
+   REM --- (YQuadratureDecoder yapiwrapper)
+   REM --- (end of YQuadratureDecoder yapiwrapper)
   REM --- (YQuadratureDecoder globals)
 
   Public Const Y_SPEED_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -160,7 +162,7 @@ Module yocto_quadraturedecoder
     Public Function get_speed() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return SPEED_INVALID
         End If
       End If
@@ -187,7 +189,7 @@ Module yocto_quadraturedecoder
     Public Function get_decoding() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DECODING_INVALID
         End If
       End If

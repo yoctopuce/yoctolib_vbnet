@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_pwmpowersource.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_pwmpowersource.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindPwmPowerSource(), the high-level API for PwmPowerSource functions
 '*
@@ -49,6 +49,8 @@ Module yocto_pwmpowersource
     REM --- (end of YPwmPowerSource return codes)
     REM --- (YPwmPowerSource dlldef)
     REM --- (end of YPwmPowerSource dlldef)
+   REM --- (YPwmPowerSource yapiwrapper)
+   REM --- (end of YPwmPowerSource yapiwrapper)
   REM --- (YPwmPowerSource globals)
 
   Public Const Y_POWERMODE_USB_5V As Integer = 0
@@ -127,7 +129,7 @@ Module yocto_pwmpowersource
     Public Function get_powerMode() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return POWERMODE_INVALID
         End If
       End If

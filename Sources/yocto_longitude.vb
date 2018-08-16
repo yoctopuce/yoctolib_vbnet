@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_longitude.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_longitude.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindLongitude(), the high-level API for Longitude functions
 '*
@@ -49,6 +49,8 @@ Module yocto_longitude
     REM --- (end of YLongitude return codes)
     REM --- (YLongitude dlldef)
     REM --- (end of YLongitude dlldef)
+   REM --- (YLongitude yapiwrapper)
+   REM --- (end of YLongitude yapiwrapper)
   REM --- (YLongitude globals)
 
   Public Delegate Sub YLongitudeValueCallback(ByVal func As YLongitude, ByVal value As String)

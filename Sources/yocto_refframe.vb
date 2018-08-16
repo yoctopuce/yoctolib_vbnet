@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_refframe.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_refframe.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindRefFrame(), the high-level API for RefFrame functions
 '*
@@ -49,6 +49,8 @@ Module yocto_refframe
     REM --- (end of YRefFrame return codes)
     REM --- (YRefFrame dlldef)
     REM --- (end of YRefFrame dlldef)
+   REM --- (YRefFrame yapiwrapper)
+   REM --- (end of YRefFrame yapiwrapper)
   REM --- (YRefFrame globals)
 
  Public Enum  Y_MOUNTPOSITION
@@ -192,7 +194,7 @@ end enum
     Public Function get_mountPos() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MOUNTPOS_INVALID
         End If
       End If
@@ -270,7 +272,7 @@ end enum
     Public Function get_bearing() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BEARING_INVALID
         End If
       End If
@@ -281,7 +283,7 @@ end enum
     Public Function get_calibrationParam() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CALIBRATIONPARAM_INVALID
         End If
       End If
@@ -298,7 +300,7 @@ end enum
     Public Function get_fusionMode() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return FUSIONMODE_INVALID
         End If
       End If

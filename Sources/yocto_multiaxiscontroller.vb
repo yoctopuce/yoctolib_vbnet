@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_multiaxiscontroller.vb 30483 2018-03-29 07:43:07Z mvuilleu $
+'* $Id: yocto_multiaxiscontroller.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '*
@@ -49,6 +49,8 @@ Module yocto_multiaxiscontroller
     REM --- (end of YMultiAxisController return codes)
     REM --- (YMultiAxisController dlldef)
     REM --- (end of YMultiAxisController dlldef)
+   REM --- (YMultiAxisController yapiwrapper)
+   REM --- (end of YMultiAxisController yapiwrapper)
   REM --- (YMultiAxisController globals)
 
   Public Const Y_NAXIS_INVALID As Integer = YAPI.INVALID_UINT
@@ -143,7 +145,7 @@ Module yocto_multiaxiscontroller
     Public Function get_nAxis() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return NAXIS_INVALID
         End If
       End If
@@ -197,7 +199,7 @@ Module yocto_multiaxiscontroller
     Public Function get_globalState() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return GLOBALSTATE_INVALID
         End If
       End If
@@ -208,7 +210,7 @@ Module yocto_multiaxiscontroller
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

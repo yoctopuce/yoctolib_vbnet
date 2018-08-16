@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_multicellweighscale.vb 31016 2018-06-04 08:45:40Z mvuilleu $
+'* $Id: yocto_multicellweighscale.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '*
@@ -49,6 +49,8 @@ Module yocto_multicellweighscale
     REM --- (end of YMultiCellWeighScale return codes)
     REM --- (YMultiCellWeighScale dlldef)
     REM --- (end of YMultiCellWeighScale dlldef)
+   REM --- (YMultiCellWeighScale yapiwrapper)
+   REM --- (end of YMultiCellWeighScale yapiwrapper)
   REM --- (YMultiCellWeighScale globals)
 
   Public Const Y_CELLCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -214,7 +216,7 @@ Module yocto_multicellweighscale
     Public Function get_cellCount() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CELLCOUNT_INVALID
         End If
       End If
@@ -267,7 +269,7 @@ Module yocto_multicellweighscale
     Public Function get_excitation() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return EXCITATION_INVALID
         End If
       End If
@@ -354,7 +356,7 @@ Module yocto_multicellweighscale
     Public Function get_tempAvgAdaptRatio() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return TEMPAVGADAPTRATIO_INVALID
         End If
       End If
@@ -412,7 +414,7 @@ Module yocto_multicellweighscale
     Public Function get_tempChgAdaptRatio() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return TEMPCHGADAPTRATIO_INVALID
         End If
       End If
@@ -438,7 +440,7 @@ Module yocto_multicellweighscale
     Public Function get_compTempAvg() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMPTEMPAVG_INVALID
         End If
       End If
@@ -464,7 +466,7 @@ Module yocto_multicellweighscale
     Public Function get_compTempChg() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMPTEMPCHG_INVALID
         End If
       End If
@@ -490,7 +492,7 @@ Module yocto_multicellweighscale
     Public Function get_compensation() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMPENSATION_INVALID
         End If
       End If
@@ -548,7 +550,7 @@ Module yocto_multicellweighscale
     Public Function get_zeroTracking() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ZEROTRACKING_INVALID
         End If
       End If
@@ -559,7 +561,7 @@ Module yocto_multicellweighscale
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

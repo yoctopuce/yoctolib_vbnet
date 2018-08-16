@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_steppermotor.vb 30483 2018-03-29 07:43:07Z mvuilleu $
+'* $Id: yocto_steppermotor.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '*
@@ -49,6 +49,8 @@ Module yocto_steppermotor
     REM --- (end of YStepperMotor return codes)
     REM --- (YStepperMotor dlldef)
     REM --- (end of YStepperMotor dlldef)
+   REM --- (YStepperMotor yapiwrapper)
+   REM --- (end of YStepperMotor yapiwrapper)
   REM --- (YStepperMotor globals)
 
   Public Const Y_MOTORSTATE_ABSENT As Integer = 0
@@ -239,7 +241,7 @@ Module yocto_steppermotor
     Public Function get_motorState() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MOTORSTATE_INVALID
         End If
       End If
@@ -265,7 +267,7 @@ Module yocto_steppermotor
     Public Function get_diags() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DIAGS_INVALID
         End If
       End If
@@ -323,7 +325,7 @@ Module yocto_steppermotor
     Public Function get_stepPos() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return STEPPOS_INVALID
         End If
       End If
@@ -350,7 +352,7 @@ Module yocto_steppermotor
     Public Function get_speed() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return SPEED_INVALID
         End If
       End If
@@ -404,7 +406,7 @@ Module yocto_steppermotor
     Public Function get_pullinSpeed() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PULLINSPEED_INVALID
         End If
       End If
@@ -456,7 +458,7 @@ Module yocto_steppermotor
     Public Function get_maxAccel() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MAXACCEL_INVALID
         End If
       End If
@@ -508,7 +510,7 @@ Module yocto_steppermotor
     Public Function get_maxSpeed() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MAXSPEED_INVALID
         End If
       End If
@@ -536,7 +538,7 @@ Module yocto_steppermotor
     Public Function get_stepping() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return STEPPING_INVALID
         End If
       End If
@@ -590,7 +592,7 @@ Module yocto_steppermotor
     Public Function get_overcurrent() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return OVERCURRENT_INVALID
         End If
       End If
@@ -642,7 +644,7 @@ Module yocto_steppermotor
     Public Function get_tCurrStop() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return TCURRSTOP_INVALID
         End If
       End If
@@ -694,7 +696,7 @@ Module yocto_steppermotor
     Public Function get_tCurrRun() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return TCURRRUN_INVALID
         End If
       End If
@@ -731,7 +733,7 @@ Module yocto_steppermotor
     Public Function get_alertMode() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ALERTMODE_INVALID
         End If
       End If
@@ -748,7 +750,7 @@ Module yocto_steppermotor
     Public Function get_auxMode() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return AUXMODE_INVALID
         End If
       End If
@@ -780,7 +782,7 @@ Module yocto_steppermotor
     Public Function get_auxSignal() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return AUXSIGNAL_INVALID
         End If
       End If
@@ -818,7 +820,7 @@ Module yocto_steppermotor
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

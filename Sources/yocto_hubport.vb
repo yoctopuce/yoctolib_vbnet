@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_hubport.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_hubport.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindHubPort(), the high-level API for HubPort functions
 '*
@@ -49,6 +49,8 @@ Module yocto_hubport
     REM --- (end of YHubPort return codes)
     REM --- (YHubPort dlldef)
     REM --- (end of YHubPort dlldef)
+   REM --- (YHubPort yapiwrapper)
+   REM --- (end of YHubPort yapiwrapper)
   REM --- (YHubPort globals)
 
   Public Const Y_ENABLED_FALSE As Integer = 0
@@ -149,7 +151,7 @@ Module yocto_hubport
     Public Function get_enabled() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ENABLED_INVALID
         End If
       End If
@@ -204,7 +206,7 @@ Module yocto_hubport
     Public Function get_portState() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PORTSTATE_INVALID
         End If
       End If
@@ -232,7 +234,7 @@ Module yocto_hubport
     Public Function get_baudRate() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return BAUDRATE_INVALID
         End If
       End If

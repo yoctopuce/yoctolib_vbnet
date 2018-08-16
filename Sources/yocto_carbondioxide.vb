@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_carbondioxide.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_carbondioxide.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '*
@@ -49,6 +49,8 @@ Module yocto_carbondioxide
     REM --- (end of YCarbonDioxide return codes)
     REM --- (YCarbonDioxide dlldef)
     REM --- (end of YCarbonDioxide dlldef)
+   REM --- (YCarbonDioxide yapiwrapper)
+   REM --- (end of YCarbonDioxide yapiwrapper)
   REM --- (YCarbonDioxide globals)
 
   Public Const Y_ABCPERIOD_INVALID As Integer = YAPI.INVALID_INT
@@ -132,7 +134,7 @@ Module yocto_carbondioxide
     Public Function get_abcPeriod() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ABCPERIOD_INVALID
         End If
       End If
@@ -174,7 +176,7 @@ Module yocto_carbondioxide
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_current.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_current.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindCurrent(), the high-level API for Current functions
 '*
@@ -49,6 +49,8 @@ Module yocto_current
     REM --- (end of YCurrent return codes)
     REM --- (YCurrent dlldef)
     REM --- (end of YCurrent dlldef)
+   REM --- (YCurrent yapiwrapper)
+   REM --- (end of YCurrent yapiwrapper)
   REM --- (YCurrent globals)
 
   Public Const Y_ENABLED_FALSE As Integer = 0
@@ -111,7 +113,7 @@ Module yocto_current
     Public Function get_enabled() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ENABLED_INVALID
         End If
       End If

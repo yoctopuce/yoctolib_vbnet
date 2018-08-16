@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_digitalio.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_digitalio.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '*
@@ -49,6 +49,8 @@ Module yocto_digitalio
     REM --- (end of YDigitalIO return codes)
     REM --- (YDigitalIO dlldef)
     REM --- (end of YDigitalIO dlldef)
+   REM --- (YDigitalIO yapiwrapper)
+   REM --- (end of YDigitalIO yapiwrapper)
   REM --- (YDigitalIO globals)
 
   Public Const Y_PORTSTATE_INVALID As Integer = YAPI.INVALID_UINT
@@ -176,7 +178,7 @@ Module yocto_digitalio
     Public Function get_portState() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PORTSTATE_INVALID
         End If
       End If
@@ -231,7 +233,7 @@ Module yocto_digitalio
     Public Function get_portDirection() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PORTDIRECTION_INVALID
         End If
       End If
@@ -287,7 +289,7 @@ Module yocto_digitalio
     Public Function get_portOpenDrain() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PORTOPENDRAIN_INVALID
         End If
       End If
@@ -344,7 +346,7 @@ Module yocto_digitalio
     Public Function get_portPolarity() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PORTPOLARITY_INVALID
         End If
       End If
@@ -403,7 +405,7 @@ Module yocto_digitalio
     Public Function get_portDiags() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PORTDIAGS_INVALID
         End If
       End If
@@ -429,7 +431,7 @@ Module yocto_digitalio
     Public Function get_portSize() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PORTSIZE_INVALID
         End If
       End If
@@ -456,7 +458,7 @@ Module yocto_digitalio
     Public Function get_outputVoltage() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return OUTPUTVOLTAGE_INVALID
         End If
       End If
@@ -495,7 +497,7 @@ Module yocto_digitalio
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

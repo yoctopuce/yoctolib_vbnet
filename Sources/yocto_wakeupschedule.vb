@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wakeupschedule.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_wakeupschedule.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindWakeUpSchedule(), the high-level API for WakeUpSchedule functions
 '*
@@ -49,6 +49,8 @@ Module yocto_wakeupschedule
     REM --- (end of YWakeUpSchedule return codes)
     REM --- (YWakeUpSchedule dlldef)
     REM --- (end of YWakeUpSchedule dlldef)
+   REM --- (YWakeUpSchedule yapiwrapper)
+   REM --- (end of YWakeUpSchedule yapiwrapper)
   REM --- (YWakeUpSchedule globals)
 
   Public Const Y_MINUTESA_INVALID As Integer = YAPI.INVALID_UINT
@@ -162,7 +164,7 @@ Module yocto_wakeupschedule
     Public Function get_minutesA() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MINUTESA_INVALID
         End If
       End If
@@ -214,7 +216,7 @@ Module yocto_wakeupschedule
     Public Function get_minutesB() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MINUTESB_INVALID
         End If
       End If
@@ -266,7 +268,7 @@ Module yocto_wakeupschedule
     Public Function get_hours() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return HOURS_INVALID
         End If
       End If
@@ -318,7 +320,7 @@ Module yocto_wakeupschedule
     Public Function get_weekDays() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return WEEKDAYS_INVALID
         End If
       End If
@@ -370,7 +372,7 @@ Module yocto_wakeupschedule
     Public Function get_monthDays() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MONTHDAYS_INVALID
         End If
       End If
@@ -422,7 +424,7 @@ Module yocto_wakeupschedule
     Public Function get_months() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return MONTHS_INVALID
         End If
       End If
@@ -474,7 +476,7 @@ Module yocto_wakeupschedule
     Public Function get_nextOccurence() As Long
       Dim res As Long = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return NEXTOCCURENCE_INVALID
         End If
       End If

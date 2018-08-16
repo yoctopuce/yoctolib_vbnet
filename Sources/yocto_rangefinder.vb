@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_rangefinder.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_rangefinder.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindRangeFinder(), the high-level API for RangeFinder functions
 '*
@@ -49,6 +49,8 @@ Module yocto_rangefinder
     REM --- (end of YRangeFinder return codes)
     REM --- (YRangeFinder dlldef)
     REM --- (end of YRangeFinder dlldef)
+   REM --- (YRangeFinder yapiwrapper)
+   REM --- (end of YRangeFinder yapiwrapper)
   REM --- (YRangeFinder globals)
 
   Public Const Y_RANGEFINDERMODE_DEFAULT As Integer = 0
@@ -188,7 +190,7 @@ Module yocto_rangefinder
     Public Function get_rangeFinderMode() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return RANGEFINDERMODE_INVALID
         End If
       End If
@@ -229,7 +231,7 @@ Module yocto_rangefinder
     Public Function get_hardwareCalibration() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return HARDWARECALIBRATION_INVALID
         End If
       End If
@@ -261,7 +263,7 @@ Module yocto_rangefinder
     Public Function get_currentTemperature() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return CURRENTTEMPERATURE_INVALID
         End If
       End If
@@ -272,7 +274,7 @@ Module yocto_rangefinder
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return COMMAND_INVALID
         End If
       End If

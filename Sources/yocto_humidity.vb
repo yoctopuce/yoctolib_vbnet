@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_humidity.vb 28740 2017-10-03 08:09:13Z seb $
+'* $Id: yocto_humidity.vb 31448 2018-08-08 09:13:11Z seb $
 '*
 '* Implements yFindHumidity(), the high-level API for Humidity functions
 '*
@@ -49,6 +49,8 @@ Module yocto_humidity
     REM --- (end of YHumidity return codes)
     REM --- (YHumidity dlldef)
     REM --- (end of YHumidity dlldef)
+   REM --- (YHumidity yapiwrapper)
+   REM --- (end of YHumidity yapiwrapper)
   REM --- (YHumidity globals)
 
   Public Const Y_RELHUM_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -163,7 +165,7 @@ Module yocto_humidity
     Public Function get_relHum() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return RELHUM_INVALID
         End If
       End If
@@ -189,7 +191,7 @@ Module yocto_humidity
     Public Function get_absHum() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI.DefaultCacheValidity) <> YAPI.SUCCESS) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return ABSHUM_INVALID
         End If
       End If
