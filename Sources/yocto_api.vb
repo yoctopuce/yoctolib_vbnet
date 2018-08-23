@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 31493 2018-08-10 08:43:29Z seb $
+'* $Id: yocto_api.vb 31770 2018-08-20 09:54:36Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -796,7 +796,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "31701"
+  Public Const YOCTO_API_BUILD_NO As String = "31874"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -856,12 +856,12 @@ Module yocto_api
 
 
     REM --- (generated code: YAPIContext attributes declaration)
-    Protected _cacheValidity As Long
+    Protected _defaultCacheValidity As Long
     REM --- (end of generated code: YAPIContext attributes declaration)
 
     Public Sub New()
       REM --- (generated code: YAPIContext attributes initialization)
-      _cacheValidity = 5
+      _defaultCacheValidity = 5
       REM --- (end of generated code: YAPIContext attributes initialization)
     End Sub
 
@@ -881,9 +881,12 @@ Module yocto_api
     '''   nor the operation of arrival/removal callbacks.
     '''   Note: This function must be called after <c>yInitAPI</c>.
     ''' </para>
+    ''' <para>
+    ''' </para>
     ''' </summary>
     ''' <param name="deviceListValidity">
     '''   number of seconds between each enumeration.
+    ''' @noreturn
     ''' </param>
     '''/
     Public Overridable Sub SetDeviceListValidity(deviceListValidity As Integer)
@@ -923,11 +926,12 @@ Module yocto_api
     ''' </summary>
     ''' <param name="cacheValidityMs">
     '''   an integer corresponding to the validity attributed to the
-    '''   loaded function parameters, in milliseconds
+    '''   loaded function parameters, in milliseconds.
+    ''' @noreturn
     ''' </param>
     '''/
     Public Overridable Sub SetCacheValidity(cacheValidityMs As Long)
-      Me._cacheValidity = cacheValidityMs
+      Me._defaultCacheValidity = cacheValidityMs
     End Sub
 
     '''*
@@ -947,7 +951,7 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Overridable Function GetCacheValidity() As Long
-      Return Me._cacheValidity
+      Return Me._defaultCacheValidity
     End Function
 
 
@@ -1417,9 +1421,12 @@ Module yocto_api
     '''   nor the operation of arrival/removal callbacks.
     '''   Note: This function must be called after <c>yInitAPI</c>.
     ''' </para>
+    ''' <para>
+    ''' </para>
     ''' </summary>
     ''' <param name="deviceListValidity">
     '''   number of seconds between each enumeration.
+    ''' @noreturn
     ''' </param>
     '''/
     Public Shared Sub SetDeviceListValidity(deviceListValidity As Integer)
@@ -1455,7 +1462,8 @@ Module yocto_api
     ''' </summary>
     ''' <param name="cacheValidityMs">
     '''   an integer corresponding to the validity attributed to the
-    '''   loaded function parameters, in milliseconds
+    '''   loaded function parameters, in milliseconds.
+    ''' @noreturn
     ''' </param>
     '''/
     Public Shared Sub SetCacheValidity(cacheValidityMs As Long)
