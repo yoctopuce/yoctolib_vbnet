@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_colorledcluster.vb 31448 2018-08-08 09:13:11Z seb $
+'* $Id: yocto_colorledcluster.vb 31894 2018-08-24 21:29:05Z seb $
 '*
 '* Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '*
@@ -510,6 +510,37 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function set_rgbColorAtPowerOn(ledIndex As Integer, count As Integer, rgbValue As Integer) As Integer
+      Return Me.sendCommand("SC" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + (rgbValue).ToString("x"))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the  color at device startup of consecutve LEDs in the cluster, using a HSL color.
+    ''' <para>
+    '''   Encoding is done as follows: 0xHHSSLL.
+    '''   Don't forget to call <c>saveLedsConfigAtPowerOn()</c> to make sure the modification is saved in the
+    '''   device flash memory.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="ledIndex">
+    '''   index of the first affected LED.
+    ''' </param>
+    ''' <param name="count">
+    '''   affected LED count.
+    ''' </param>
+    ''' <param name="hslValue">
+    '''   new color.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function set_hslColorAtPowerOn(ledIndex As Integer, count As Integer, hslValue As Integer) As Integer
+      Dim rgbValue As Integer = 0
+      rgbValue = Me.hsl2rgb(hslValue)
       Return Me.sendCommand("SC" + Convert.ToString(ledIndex) + "," + Convert.ToString(count) + "," + (rgbValue).ToString("x"))
     End Function
 
@@ -1624,6 +1655,76 @@ Module yocto_colorledcluster
         idx = idx + 1
       End While
 
+      Return res
+    End Function
+
+    Public Overridable Function hsl2rgbInt(temp1 As Integer, temp2 As Integer, temp3 As Integer) As Integer
+      If (temp3 >= 170) Then
+        Return ((temp1 + 127) \ 255)
+      End If
+      If (temp3 > 42) Then
+        If (temp3 <= 127) Then
+          Return ((temp2 + 127) \ 255)
+        End If
+        temp3 = 170 - temp3
+      End If
+      Return ((temp1*255 + (temp2-temp1) * (6 * temp3) + 32512) \ 65025)
+    End Function
+
+    Public Overridable Function hsl2rgb(hslValue As Integer) As Integer
+      Dim R As Integer = 0
+      Dim G As Integer = 0
+      Dim B As Integer = 0
+      Dim H As Integer = 0
+      Dim S As Integer = 0
+      Dim L As Integer = 0
+      Dim temp1 As Integer = 0
+      Dim temp2 As Integer = 0
+      Dim temp3 As Integer = 0
+      Dim res As Integer = 0
+      L = ((hslValue) And (&Hff))
+      S = ((((hslValue) >> (8))) And (&Hff))
+      H = ((((hslValue) >> (16))) And (&Hff))
+      If (S=0) Then
+        res = ((L) << (16))+((L) << (8))+L
+        Return res
+      End If
+      If (L<=127) Then
+        temp2 = L * (255 + S)
+      Else
+        temp2 = (L+S) * 255 - L*S
+      End If
+      temp1 = 510 * L - temp2
+      REM // R
+      temp3 = (H + 85)
+      If (temp3 > 255) Then
+        temp3 = temp3-255
+      End If
+      R = Me.hsl2rgbInt(temp1, temp2, temp3)
+      REM // G
+      temp3 = H
+      If (temp3 > 255) Then
+        temp3 = temp3-255
+      End If
+      G = Me.hsl2rgbInt(temp1, temp2, temp3)
+      REM // B
+      If (H >= 85) Then
+        temp3 = H - 85
+      Else
+        temp3 = H + 170
+      End If
+      B = Me.hsl2rgbInt(temp1, temp2, temp3)
+      REM // just in case
+      If (R>255) Then
+        R=255
+      End If
+      If (G>255) Then
+        G=255
+      End If
+      If (B>255) Then
+        B=255
+      End If
+      res = ((R) << (16))+((G) << (8))+B
       Return res
     End Function
 
