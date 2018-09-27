@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 31770 2018-08-20 09:54:36Z seb $
+'* $Id: yocto_api.vb 32376 2018-09-27 07:57:07Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -372,7 +372,7 @@ Module yocto_api
     End Function
 
     Public Overrides Function toJSON() As String
-      Dim res As New StringBuilder(_stringValue.Length * 2)
+      Dim res As New StringBuilder(_stringValue.Length*2)
       res.Append(""""c)
       For Each c As Char In _stringValue
         Select Case c
@@ -727,7 +727,6 @@ Module yocto_api
     End Function
 
 
-
     Public Sub parseWithRef(reference As YJSONObject)
       If reference IsNot Nothing Then
         Try
@@ -767,7 +766,6 @@ Module yocto_api
     Private Function getKeyFromIdx(i As Integer) As String
       Return _keys(i)
     End Function
-
   End Class
 
 
@@ -779,24 +777,9 @@ Module yocto_api
   '=======================================================
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "31897"
+  Public Const YOCTO_API_BUILD_NO As String = "32391"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -835,11 +818,9 @@ Module yocto_api
   Public Const Y_RUNNING_INVALID As Integer = -1
 
 
-
-
-    REM --- (generated code: YAPIContext return codes)
+  REM --- (generated code: YAPIContext return codes)
     REM --- (end of generated code: YAPIContext return codes)
-    REM --- (generated code: YAPIContext dlldef)
+  REM --- (generated code: YAPIContext dlldef)
     REM --- (end of generated code: YAPIContext dlldef)
   REM --- (generated code: YAPIContext globals)
 
@@ -852,8 +833,6 @@ Module yocto_api
 
     REM --- (generated code: YAPIContext definitions)
     REM --- (end of generated code: YAPIContext definitions)
-
-
 
     REM --- (generated code: YAPIContext attributes declaration)
     Protected _defaultCacheValidity As Long
@@ -957,15 +936,12 @@ Module yocto_api
 
 
     REM --- (end of generated code: YAPIContext public methods declaration)
-
   End Class
 
   REM --- (generated code: YAPIContext functions)
 
 
   REM --- (end of generated code: YAPIContext functions)
-
-
 
 
   Public Class YAPI
@@ -1071,7 +1047,6 @@ Module yocto_api
     End Sub
 
 
-
     Public Shared Function _getCalibrationHandler(ByVal calType As Integer) As yCalibrationHandler
 
       Dim key As String
@@ -1084,7 +1059,6 @@ Module yocto_api
 
       _getCalibrationHandler = Nothing
     End Function
-
 
 
     Public Shared Function _checkFirmware(ByVal serial As String, ByVal rev As String, ByVal path As String) As String
@@ -1118,7 +1092,7 @@ Module yocto_api
         val = -val
       End If
       Dim exp As Integer = val >> 11
-      res = (mantis) * decexp(exp)
+      res = (mantis)*decexp(exp)
       If negate Then
         Return -res
       Else
@@ -1159,7 +1133,6 @@ Module yocto_api
         Return res
       End If
     End Function
-
 
 
     Public Shared Function _decodeWords(ByVal sdat As String) As List(Of Integer)
@@ -1602,6 +1575,7 @@ Module yocto_api
       _yapiRegisterDeviceRemovalCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceRemovalDelegate))
       _yapiRegisterDeviceChangeCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceChangeDelegate))
       _yapiRegisterDeviceConfigChangeCallback(Marshal.GetFunctionPointerForDelegate(native_yDeviceConfigChangeDelegate))
+      _yapiRegisterBeaconCallback(Marshal.GetFunctionPointerForDelegate(native_yBeaconChangeDelegate))
       _yapiRegisterFunctionUpdateCallback(Marshal.GetFunctionPointerForDelegate(native_yFunctionUpdateDelegate))
       _yapiRegisterTimedReportCallback(Marshal.GetFunctionPointerForDelegate(native_yTimedReportDelegate))
       _yapiRegisterLogFunction(Marshal.GetFunctionPointerForDelegate(native_yLogFunctionDelegate))
@@ -2074,7 +2048,6 @@ Module yocto_api
     '''/
     Public Shared Sub RegisterLogFunction(ByVal logfun As yLogFunc)
       ylog = logfun
-
     End Sub
 
     '''*
@@ -2192,12 +2165,7 @@ Module yocto_api
         _yapiRegisterDeviceChangeCallback(Nothing)
       End If
     End Sub
-
-
   End Class
-
-
-
 
 
   <StructLayout(LayoutKind.Sequential, Pack:=1, CharSet:=CharSet.Ansi)>
@@ -2212,8 +2180,11 @@ Module yocto_api
     <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=YOCTO_LOGICAL_LEN)> Public logicalname As String
     <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=YOCTO_FIRMWARE_LEN)> Public firmware As String
     Dim beacon As yu8
+    Dim pad As yu8
   End Structure
+
   Public Const YIOHDL_SIZE As Integer = 8
+
   <StructLayout(LayoutKind.Sequential, Pack:=1, CharSet:=CharSet.Ansi)>
   Public Structure YIOHDL
     <MarshalAs(UnmanagedType.U1, SizeConst:=YIOHDL_SIZE)> Public raw As yu8
@@ -2230,7 +2201,6 @@ Module yocto_api
     PROP_LOGICALNAME
     PROP_URL
   End Enum
-
 
 
   Enum yFACE_STATUS
@@ -2254,7 +2224,6 @@ Module yocto_api
     Dim progress As yFlashCallback
     Dim context As IntPtr
   End Structure
-
 
 
   REM --- (generated code: YFunction globals)
@@ -2303,6 +2272,7 @@ Module yocto_api
   Public Const Y_USERVAR_INVALID As Integer = YAPI.INVALID_INT
   Public Delegate Sub YModuleLogCallback(ByVal modul As YModule, ByVal logline As String)
   Public Delegate Sub YModuleConfigChangeCallback(ByVal modul As YModule)
+  Public Delegate Sub YModuleBeaconCallback(ByVal modul As YModule, ByVal beacon As Integer)
   Public Delegate Sub YModuleValueCallback(ByVal func As YModule, ByVal value As String)
   Public Delegate Sub YModuleTimedReportCallback(ByVal func As YModule, ByVal measure As YMeasure)
   REM --- (end of generated code: YModule globals)
@@ -2347,6 +2317,7 @@ Module yocto_api
   Public Class YAPI_Exception
     Inherits ApplicationException
     Public errorType As YRETCODE
+
     Public Sub New(ByVal errType As YRETCODE, ByVal errMsg As String)
       MyBase.New(errMsg)
       errorType = errorType
@@ -2354,7 +2325,6 @@ Module yocto_api
   End Class
 
   Dim YDevice_devCache As List(Of YDevice)
-
 
 
   <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
@@ -2374,6 +2344,9 @@ Module yocto_api
 
   <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Public Delegate Sub _yapiDeviceUpdateFunc(ByVal dev As YDEV_DESCR)
+
+  <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
+  Public Delegate Sub _yapiBeaconUpdateFunc(ByVal dev As YDEV_DESCR, ByVal beacon As Integer)
 
   <UnmanagedFunctionPointer(CallingConvention.Cdecl)>
   Public Delegate Sub _yapiFunctionUpdateFunc(ByVal dev As YFUN_DESCR, ByVal value As IntPtr)
@@ -2410,7 +2383,6 @@ Module yocto_api
     context.response = result
     context.errmsg = errmsg
   End Sub
-
 
 
   REM --- (generated code: YFirmwareUpdate class start)
@@ -2529,12 +2501,12 @@ Module yocto_api
               Me._progress = YAPI.IO_ERROR
               Me._progress_msg = "Unable to update firmware"
             Else
-              Me._progress =  100
+              Me._progress = 100
               Me._progress_msg = "success"
             End If
           End If
         Else
-          Me._progress =  100
+          Me._progress = 100
           Me._progress_msg = "success"
         End If
       End If
@@ -2716,7 +2688,7 @@ Module yocto_api
       Dim leng As Integer = 0
       err = YAPI.DefaultEncoding.GetString(Me._settings)
       leng = (err).Length
-      If (( leng >= 6) AndAlso ("error:" = (err).Substring(0, 6))) Then
+      If ((leng >= 6) AndAlso ("error:" = (err).Substring(0, 6))) Then
         Me._progress = -1
         Me._progress_msg = (err).Substring( 6, leng - 6)
       Else
@@ -2730,17 +2702,12 @@ Module yocto_api
 
 
     REM --- (end of generated code: YFirmwareUpdate public methods declaration)
-
-
   End Class
 
   REM --- (generated code: YFirmwareUpdate functions)
 
 
   REM --- (end of generated code: YFirmwareUpdate functions)
-
-
-
 
 
   REM --- (generated code: YDataStream class start)
@@ -2819,7 +2786,6 @@ Module yocto_api
       _calref = New List(Of Double)()
       _values = New List(Of List(Of Double))()
       REM --- (end of generated code: YDataStream attributes initialization)
-
     End Sub
 
     Public Sub New(parent As YFunction, dataset As YDataSet, encoded As List(Of Integer))
@@ -3422,16 +3388,12 @@ Module yocto_api
 
 
     REM --- (end of generated code: YDataStream public methods declaration)
-
-
   End Class
 
   REM --- (generated code: YDataStream functions)
 
 
   REM --- (end of generated code: YDataStream functions)
-
-
 
 
   REM --- (generated code: YMeasure class start)
@@ -3478,7 +3440,6 @@ Module yocto_api
       _maxVal = maxVal
       _start_datetime = epoch.AddSeconds(_start)
       _end_datetime = epoch.AddSeconds(_end)
-
     End Sub
 
     REM --- (generated code: YMeasure private methods declaration)
@@ -3588,7 +3549,6 @@ Module yocto_api
     Function get_endTimeUTC_asDateTime() As DateTime
       Return _end_datetime
     End Function
-
   End Class
 
   REM --- (generated code: YMeasure functions)
@@ -3644,7 +3604,6 @@ Module yocto_api
     REM --- (end of generated code: YDataSet attributes declaration)
 
 
-
     Sub New(parent As YFunction, functionId As String, unit As String, startTime As Long, endTime As Long)
       REM --- (generated code: YDataSet attributes initialization)
       _startTime = 0
@@ -3661,7 +3620,7 @@ Module yocto_api
       _startTime = startTime
       _endTime = endTime
       _summary = New YMeasure(0, 0, 0, 0, 0)
-      _progress = -1
+      _progress = - 1
     End Sub
 
 
@@ -3702,7 +3661,7 @@ Module yocto_api
       Dim startTime As Long = &H7fffffff
       Dim endTime As Long = 0
       Dim summaryMinVal As Double = [Double].MaxValue
-      Dim summaryMaxVal As Double = -[Double].MaxValue
+      Dim summaryMaxVal As Double = - [Double].MaxValue
       Dim summaryTotalTime As Double = 0
       Dim summaryTotalAvg As Double = 0
 
@@ -3710,7 +3669,7 @@ Module yocto_api
       Me._unit = p.getString("unit")
       If p.has("calib") Then
         Me._calib = YAPI._decodeFloats(p.getString("calib"))
-        Me._calib(0) = Me._calib(0) \ 1000
+        Me._calib(0) = Me._calib(0)\1000
       Else
         Me._calib = YAPI._decodeWords(p.getString("cal"))
       End If
@@ -3720,7 +3679,7 @@ Module yocto_api
       Me._measures = New List(Of YMeasure)()
       For i As Integer = 0 To arr.Length - 1
         stream = _parent._findDataStream(Me, arr.getString(i))
-        streamStartTime = stream.get_startTimeUTC() - CLng(stream.get_dataSamplesIntervalMs() / 1000)
+        streamStartTime = stream.get_startTimeUTC() - CLng(stream.get_dataSamplesIntervalMs()/1000)
         streamEndTime = stream.get_startTimeUTC() + stream.get_duration()
         If _startTime > 0 AndAlso streamEndTime <= _startTime Then
           REM this stream is too early, drop it
@@ -3741,7 +3700,7 @@ Module yocto_api
             If summaryMaxVal < stream.get_maxValue() Then
               summaryMaxVal = stream.get_maxValue()
             End If
-            summaryTotalAvg += stream.get_averageValue() * stream.get_duration()
+            summaryTotalAvg += stream.get_averageValue()*stream.get_duration()
             summaryTotalTime += stream.get_duration()
             Dim rec As New YMeasure(stream.get_startTimeUTC(),
                                     streamEndTime,
@@ -3763,7 +3722,7 @@ Module yocto_api
         _summary = New YMeasure(_startTime,
                                 _endTime,
                                 summaryMinVal,
-                                summaryTotalAvg / summaryTotalTime,
+                                summaryTotalAvg/summaryTotalTime,
                                 summaryMaxVal)
       End If
       _progress = 0
@@ -4203,15 +4162,12 @@ Module yocto_api
 
 
     REM --- (end of generated code: YDataSet public methods declaration)
-
   End Class
 
   REM --- (generated code: YDataSet functions)
 
 
   REM --- (end of generated code: YDataSet functions)
-
-
 
 
   Public Class YDevice
@@ -4257,7 +4213,6 @@ Module yocto_api
           Exit For
         End If
       Next
-
     End Sub
 
     Friend Shared Function getDevice(devdescr As YDEV_DESCR) As YDevice
@@ -4494,8 +4449,6 @@ Module yocto_api
     Friend Function HTTPRequestAsync(request As String, ByRef errmsg As String) As YRETCODE
       Return Me.HTTPRequestAsync(YAPI.DefaultEncoding.GetBytes(request), errmsg)
     End Function
-
-
   End Class
 
 
@@ -5536,9 +5489,11 @@ Module yocto_api
     Public Function get_errorType() As YRETCODE
       Return _lastErrorType
     End Function
+
     Public Function errorType() As YRETCODE
       Return _lastErrorType
     End Function
+
     Public Function errType() As YRETCODE
       Return _lastErrorType
     End Function
@@ -5561,9 +5516,11 @@ Module yocto_api
     Public Function get_errorMessage() As String
       Return _lastErrorMsg
     End Function
+
     Public Function errorMessage() As String
       Return _lastErrorMsg
     End Function
+
     Public Function errMessage() As String
       Return _lastErrorMsg
     End Function
@@ -5916,8 +5873,6 @@ Module yocto_api
     Public Sub set_userData(ByVal data As Object)
       _userData = data
     End Sub
-
-
   End Class
 
   REM --- (generated code: YFunction functions)
@@ -5991,7 +5946,6 @@ Module yocto_api
   REM --- (end of generated code: YFunction functions)
 
 
-
   REM --- (generated code: YModule class start)
 
   '''*
@@ -6043,7 +5997,9 @@ Module yocto_api
     Protected _valueCallbackModule As YModuleValueCallback
     Protected _logCallback As YModuleLogCallback
     Protected _confChangeCallback As YModuleConfigChangeCallback
+    Protected _beaconCallback As YModuleBeaconCallback
     REM --- (end of generated code: YModule attributes declaration)
+    public shared _moduleCallbackList as Dictionary(of YModule, Integer) = new Dictionary(Of YModule,Integer)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
@@ -6066,6 +6022,24 @@ Module yocto_api
       _confChangeCallback = Nothing
       REM --- (end of generated code: YModule attributes initialization)
     End Sub
+
+
+    shared sub _updateModuleCallbackList(ByVal modul as YModule, ByVal ad As Boolean)
+
+      if (ad) then
+        modul.isOnline()
+        if (not _moduleCallbackList.ContainsKey(modul)) then
+          _moduleCallbackList(modul) = 1
+        else
+          _moduleCallbackList(modul) += 1
+        End If
+      else
+        if (_moduleCallbackList.ContainsKey(modul) and _moduleCallbackList(modul) > 1) then
+          _moduleCallbackList(modul) -= 1
+        End If
+      End If
+    end sub
+
 
     REM --- (generated code: YModule private methods declaration)
 
@@ -6141,7 +6115,6 @@ Module yocto_api
         get_friendlyName = snum
       End If
     End Function
-
 
 
     Public Function get_logicalName_internal() As String
@@ -6231,7 +6204,6 @@ Module yocto_api
       End If
 
       functionCount = functions.Count
-
     End Function
 
 
@@ -7042,6 +7014,11 @@ Module yocto_api
     ''' </param>
     '''/
     Public Overridable Function registerConfigChangeCallback(callback As YModuleConfigChangeCallback) As Integer
+      If (Not (callback Is Nothing)) Then
+        YModule._updateModuleCallbackList(Me, True)
+      Else
+        YModule._updateModuleCallbackList(Me, False)
+      End If
       Me._confChangeCallback = callback
       Return 0
     End Function
@@ -7055,13 +7032,44 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Register a callback function, to be called when the localization beacon of the module
+    '''   has been changed.
+    ''' <para>
+    '''   The callback function should take two arguments: the YModule object of
+    '''   which the beacon has changed, and an integer describing the new beacon state.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   The callback function to call, or <c>Nothing</c> to unregister a
+    '''   previously registered callback.
+    ''' </param>
+    '''/
+    Public Overridable Function registerBeaconCallback(callback As YModuleBeaconCallback) As Integer
+      If (Not (callback Is Nothing)) Then
+        YModule._updateModuleCallbackList(Me, True)
+      Else
+        YModule._updateModuleCallbackList(Me, False)
+      End If
+      Me._beaconCallback = callback
+      Return 0
+    End Function
+
+    Public Overridable Function _invokeBeaconCallback(beaconState As Integer) As Integer
+      If (Not (Me._beaconCallback Is Nothing)) Then
+        Me._beaconCallback(Me, beaconState)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Triggers a configuration change callback, to check if they are supported or not.
     ''' <para>
     ''' </para>
     ''' </summary>
     '''/
     Public Overridable Function triggerConfigChangeCallback() As Integer
-      Me._setAttr("persistentSettings","2")
+      Me._setAttr("persistentSettings", "2")
       Return 0
     End Function
 
@@ -7105,7 +7113,7 @@ Module yocto_api
       End If
       REM //may throw an exception
       serial = Me.get_serialNumber()
-      tmp_res = YFirmwareUpdate.CheckFirmware(serial,path, release)
+      tmp_res = YFirmwareUpdate.CheckFirmware(serial, path, release)
       If (tmp_res.IndexOf("error:") = 0) Then
         Me._throw(YAPI.INVALID_ARGUMENT, tmp_res)
       End If
@@ -7374,10 +7382,10 @@ Module yocto_api
       Dim i As Integer = 0
       Dim fid As String
 
-      count  = Me.functionCount()
+      count = Me.functionCount()
       i = 0
       While (i < count)
-        fid  = Me.functionId(i)
+        fid = Me.functionId(i)
         If (fid = funcId) Then
           Return True
         End If
@@ -8245,7 +8253,6 @@ Module yocto_api
     End Function
 
     REM --- (end of generated code: YModule public methods declaration)
-
   End Class
 
 
@@ -8306,8 +8313,6 @@ Module yocto_api
 
 
   REM --- (end of generated code: YModule functions)
-
-
 
 
   REM --- (generated code: YSensor class start)
@@ -9217,7 +9222,7 @@ Module yocto_api
         Return Nothing
       End If
       hwid = serial + ".dataLogger"
-      logger  = YDataLogger.FindDataLogger(hwid)
+      logger = YDataLogger.FindDataLogger(hwid)
       Return logger
     End Function
 
@@ -9754,7 +9759,6 @@ Module yocto_api
     End Function
 
     REM --- (end of generated code: YSensor public methods declaration)
-
   End Class
 
   REM --- (generated code: YSensor functions)
@@ -9902,6 +9906,7 @@ Module yocto_api
     Public Overloads Function get_startTime() As Integer
       get_startTime = CInt(_timeStamp)
     End Function
+
     '''*
     ''' <summary>
     '''   Returns the number of seconds elapsed between  two consecutive
@@ -10059,9 +10064,6 @@ Module yocto_api
       End If
       Return YAPI.SUCCESS
     End Function
-
-
-
   End Class
 
  REM --- (generated code: YDataLogger class start)
@@ -10108,6 +10110,7 @@ Module yocto_api
     Protected _valueCallbackDataLogger As YDataLoggerValueCallback
     REM --- (end of generated code: YDataLogger attributes declaration)
     Protected _dataLoggerURL As String
+
     Public Sub New(ByVal func As String)
       MyBase.new(func)
       _className = "DataLogger"
@@ -10773,7 +10776,6 @@ Module yocto_api
       End If
       Return YAPI_SUCCESS
     End Function
-
   End Class
 
   REM --- (generated code: YDataLogger functions)
@@ -10853,10 +10855,6 @@ Module yocto_api
   REM --- (end of generated code: YDataLogger functions)
 
 
-
-
-
-
   '''*
   ''' <summary>
   '''   Disables the use of exceptions to report runtime errors.
@@ -10907,7 +10905,6 @@ Module yocto_api
   Public Sub yRegisterLogFunction(ByVal logfun As yLogFunc)
     YAPI.RegisterLogFunction(logfun)
   End Sub
-
 
 
   Private Class PlugEvent
@@ -10962,6 +10959,7 @@ Module yocto_api
     Private _value As String
     Private _report As List(Of Integer)
     Private _timestamp As Double
+    Private _beacon As Integer
 
     Public Sub New(ByVal fun As YFunction, ByVal value As String)
       _fun = fun
@@ -10969,6 +10967,7 @@ Module yocto_api
       _value = value
       _report = Nothing
       _timestamp = 0
+      _beacon = - 1
     End Sub
 
     Public Sub New(ByVal fun As YFunction, ByVal timestamp As Double, ByVal report As List(Of Integer))
@@ -10977,6 +10976,7 @@ Module yocto_api
       _value = Nothing
       _timestamp = timestamp
       _report = report
+      _beacon = - 1
     End Sub
 
     Public Sub New(ByVal modul As YModule)
@@ -10985,6 +10985,16 @@ Module yocto_api
       _value = Nothing
       _report = Nothing
       _timestamp = 0
+      _beacon = - 1
+    End Sub
+
+    Public Sub New(ByVal modul As YModule, ByVal beacon As Integer)
+      _fun = Nothing
+      _mod = modul
+      _value = Nothing
+      _report = Nothing
+      _timestamp = 0
+      _beacon = beacon
     End Sub
 
     Public Sub invoke()
@@ -10998,9 +11008,12 @@ Module yocto_api
           _fun._invokeValueCallback(_value)
         End If
       ElseIf (_mod IsNot Nothing) Then
-        _mod._invokeConfigChangeCallback()
+        if (_beacon < 0) Then
+          _mod._invokeConfigChangeCallback()
+        Else
+          _mod._invokeBeaconCallback(_beacon)
+        End If
       End If
-
     End Sub
   End Class
 
@@ -11145,9 +11158,28 @@ Module yocto_api
 
     If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then Exit Sub
     modul = YModule.FindModule(infos.serial + ".module")
-    ev = New DataEvent(modul)
-    _DataEvents.Add(ev)
+    if (YModule._moduleCallbackList.ContainsKey(modul) AndAlso YModule._moduleCallbackList(modul) > 0) then
+      ev = New DataEvent(modul)
+      _DataEvents.Add(ev)
+    end if
   End Sub
+
+
+  public sub native_yBeaconChangeCallback(byval d As YDEV_DESCR, ByVal beacon As Integer)
+
+    dim ev as DataEvent
+    Dim modul As YModule
+    Dim infos As yDeviceSt = emptyDeviceSt()
+    Dim errmsg As String = ""
+
+    If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then Exit Sub
+    modul = YModule.FindModule(infos.serial + ".module")
+    if (YModule._moduleCallbackList.ContainsKey(modul) AndAlso YModule._moduleCallbackList(modul) > 0) then
+      ev = new DataEvent(modul, beacon)
+      _DataEvents.Add(ev)
+    end if
+  End sub
+
 
   Private Sub queuesCleanUp()
     _PlugEvents.Clear()
@@ -11194,7 +11226,6 @@ Module yocto_api
       End If
     Next i
   End Sub
-
 
 
   Private Function yapiLockDeviceCallBack(ByRef errmsg As String) As Integer
@@ -11264,6 +11295,9 @@ Module yocto_api
 
   Public native_yDeviceConfigChangeDelegate As _yapiDeviceUpdateFunc = AddressOf native_yDeviceConfigChangeCallback
   Dim native_yDeviceConfigChangeAnchor As GCHandle = GCHandle.Alloc(native_yDeviceConfigChangeDelegate)
+
+  Public native_yBeaconChangeDelegate As _yapiBeaconUpdateFunc = AddressOf native_yBeaconChangeCallback
+  Dim native_yBeaconChangeAnchor As GCHandle = GCHandle.Alloc(native_yBeaconChangeDelegate)
 
   Public native_HubDiscoveryDelegate As _yapiHubDiscoveryCallback = AddressOf native_HubDiscoveryCallback
   Dim native_HubDiscoveryAnchor As GCHandle = GCHandle.Alloc(native_HubDiscoveryDelegate)
@@ -11423,6 +11457,7 @@ Module yocto_api
   Public Function yPreregisterHub(ByVal url As String, ByRef errmsg As String) As Integer
     Return YAPI.PreregisterHub(url, errmsg)
   End Function
+
   '''*
   ''' <summary>
   '''   Setup the Yoctopuce library to no more use modules connected on a previously
@@ -11579,7 +11614,6 @@ Module yocto_api
   Public Function yTriggerHubDiscovery(ByRef errmsg As String) As Integer
     Return YAPI.TriggerHubDiscovery(errmsg)
   End Function
-
 
 
   '''*
@@ -11956,10 +11990,10 @@ Module yocto_api
   Private Function _yapiUpdateFirmwareEx(ByVal serial As StringBuilder, ByVal firmwarePath As StringBuilder, ByVal settings As StringBuilder, ByVal force As Integer, ByVal startUpdate As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStartOutOfBand", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
-  Private Function _yapiHTTPRequestSyncStartOutOfBand(ByRef iohdl As YIOHDL, ByVal channel As Integer, ByVal device As StringBuilder, ByVal request As StringBuilder, ByVal requestsize As Integer, ByRef reply As IntPtr, ByRef replysize As Integer, ByRef progress_cb As IntPtr, ByRef progress_ctx As IntPtr, ByVal errmsg As StringBuilder) As Integer
+  Private Function _yapiHTTPRequestSyncStartOutOfBand(ByRef iohdl As YIOHDL, ByVal channel As Integer, ByVal device As StringBuilder, ByVal request As StringBuilder, ByVal requestsize As Integer, ByRef reply As IntPtr, ByRef replysize As Integer, ByVal progress_cb As IntPtr, ByRef progress_ctx As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsyncOutOfBand", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
-  Private Function _yapiHTTPRequestAsyncOutOfBand(ByVal channel As Integer, ByVal device As StringBuilder, ByVal request As StringBuilder, ByVal requestsize As Integer, ByRef callback As IntPtr, ByRef context As IntPtr, ByVal errmsg As StringBuilder) As Integer
+  Private Function _yapiHTTPRequestAsyncOutOfBand(ByVal channel As Integer, ByVal device As StringBuilder, ByVal request As StringBuilder, ByVal requestsize As Integer, ByVal callback As IntPtr, ByRef context As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiTestHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiTestHub(ByVal url As StringBuilder, ByVal mstimeout As Integer, ByVal errmsg As StringBuilder) As Integer
@@ -11985,8 +12019,10 @@ Module yocto_api
   <DllImport("yapi.dll", EntryPoint:="yapiGetNetDevListValidity", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
   Private Function _yapiGetNetDevListValidity() As Integer
   End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterBeaconCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  Private Sub _yapiRegisterBeaconCallback(ByVal beaconCallback As IntPtr)
+  End Sub
     REM --- (end of generated code: YFunction dlldef)
-
 
 
   Private Sub vbmodule_initialization()
@@ -12024,6 +12060,4 @@ Module yocto_api
     _DataEvents = Nothing
     YAPI.handlersCleanUp()
   End Sub
-
-
 End Module

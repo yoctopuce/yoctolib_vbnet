@@ -16,6 +16,10 @@
     Console.WriteLine(modul.get_serialNumber() + ": configuration changed")
   End Sub
 
+  Sub beaconCallBack(ByVal modul As YModule, ByVal beacon As Integer)
+    Console.WriteLine(modul.get_serialNumber() + " beacon changed to " + beacon.ToString())
+  End Sub
+
   Sub deviceArrival(ByVal m As YModule)
     Dim serial, hardwareId As String
     Dim fctcount, i As Integer
@@ -25,6 +29,7 @@
     serial = m.get_serialNumber()
     Console.WriteLine("Device Arrival : " + serial)
     m.registerConfigChangeCallback(AddressOf configChangeCallBack)
+    m.registerBeaconCallback(AddressOf beaconCallBack)
 
     REM // First solution: look for a specific type of function (eg. anButton)
     fctcount = m.functionCount()
