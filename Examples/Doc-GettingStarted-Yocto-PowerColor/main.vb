@@ -1,3 +1,17 @@
+' ********************************************************************
+'
+'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'
+'  An example that show how to use a  Yocto-PowerColor
+'
+'  You can find more information on our web site:
+'   Yocto-PowerColor documentation:
+'      https://www.yoctopuce.com/EN/products/yocto-powercolor/doc.html
+'   VB .NET API Reference:
+'      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
+'
+' *********************************************************************
+
 Imports System.Reflection
 Imports System.IO
 

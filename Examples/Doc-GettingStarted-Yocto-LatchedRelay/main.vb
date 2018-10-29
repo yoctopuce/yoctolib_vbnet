@@ -1,3 +1,17 @@
+' ********************************************************************
+'
+'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'
+'  An example that show how to use a  Yocto-LatchedRelay
+'
+'  You can find more information on our web site:
+'   Yocto-LatchedRelay documentation:
+'      https://www.yoctopuce.com/EN/products/yocto-latchedrelay/doc.html
+'   VB .NET API Reference:
+'      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
+'
+' *********************************************************************
+
 Module Module1
 
   Private Sub Usage()

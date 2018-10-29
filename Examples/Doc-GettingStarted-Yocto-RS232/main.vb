@@ -1,4 +1,18 @@
-﻿Module Module1
+' ********************************************************************
+'
+'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'
+'  An example that show how to use a  Yocto-RS232
+'
+'  You can find more information on our web site:
+'   Yocto-RS232 documentation:
+'      https://www.yoctopuce.com/EN/products/yocto-rs232/doc.html
+'   VB .NET API Reference:
+'      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
+'
+' *********************************************************************
+
+Module Module1
 
   Private Sub Usage()
     Dim ex = System.AppDomain.CurrentDomain.FriendlyName

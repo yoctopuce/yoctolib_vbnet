@@ -1,4 +1,18 @@
-﻿Module Module1
+' ********************************************************************
+'
+'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'
+'  An example that show how to use a  Yocto-0-10V-Rx
+'
+'  You can find more information on our web site:
+'   Yocto-0-10V-Rx documentation:
+'      https://www.yoctopuce.com/EN/products/yocto-0-10v-rx/doc.html
+'   VB .NET API Reference:
+'      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
+'
+' *********************************************************************
+
+Module Module1
 
   Private Sub Usage()
     Dim execname = System.AppDomain.CurrentDomain.FriendlyName

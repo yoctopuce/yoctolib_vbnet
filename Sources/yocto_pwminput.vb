@@ -1,41 +1,41 @@
-'*********************************************************************
-'*
-'* $Id: yocto_pwminput.vb 31448 2018-08-08 09:13:11Z seb $
-'*
-'* Implements yFindPwmInput(), the high-level API for PwmInput functions
-'*
-'* - - - - - - - - - License information: - - - - - - - - -
-'*
-'*  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
-'*
-'*  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
-'*  non-exclusive license to use, modify, copy and integrate this
-'*  file into your software for the sole purpose of interfacing
-'*  with Yoctopuce products.
-'*
-'*  You may reproduce and distribute copies of this file in
-'*  source or object form, as long as the sole purpose of this
-'*  code is to interface with Yoctopuce products. You must retain
-'*  this notice in the distributed source file.
-'*
-'*  You should refer to Yoctopuce General Terms and Conditions
-'*  for additional information regarding your rights and
-'*  obligations.
-'*
-'*  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
-'*  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
-'*  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
-'*  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
-'*  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
-'*  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
-'*  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
-'*  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
-'*  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
-'*  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
-'*  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
-'*  WARRANTY, OR OTHERWISE.
-'*
-'*********************************************************************/
+' ********************************************************************
+'
+'  $Id: yocto_pwminput.vb 32610 2018-10-10 06:52:20Z seb $
+'
+'  Implements yFindPwmInput(), the high-level API for PwmInput functions
+'
+'  - - - - - - - - - License information: - - - - - - - - -
+'
+'  Copyright (C) 2011 and beyond by Yoctopuce Sarl, Switzerland.
+'
+'  Yoctopuce Sarl (hereafter Licensor) grants to you a perpetual
+'  non-exclusive license to use, modify, copy and integrate this
+'  file into your software for the sole purpose of interfacing
+'  with Yoctopuce products.
+'
+'  You may reproduce and distribute copies of this file in
+'  source or object form, as long as the sole purpose of this
+'  code is to interface with Yoctopuce products. You must retain
+'  this notice in the distributed source file.
+'
+'  You should refer to Yoctopuce General Terms and Conditions
+'  for additional information regarding your rights and
+'  obligations.
+'
+'  THE SOFTWARE AND DOCUMENTATION ARE PROVIDED 'AS IS' WITHOUT
+'  WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
+'  WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, FITNESS
+'  FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO
+'  EVENT SHALL LICENSOR BE LIABLE FOR ANY INCIDENTAL, SPECIAL,
+'  INDIRECT OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA,
+'  COST OF PROCUREMENT OF SUBSTITUTE GOODS, TECHNOLOGY OR
+'  SERVICES, ANY CLAIMS BY THIRD PARTIES (INCLUDING BUT NOT
+'  LIMITED TO ANY DEFENSE THEREOF), ANY CLAIMS FOR INDEMNITY OR
+'  CONTRIBUTION, OR OTHER SIMILAR COSTS, WHETHER ASSERTED ON THE
+'  BASIS OF CONTRACT, TORT (INCLUDING NEGLIGENCE), BREACH OF
+'  WARRANTY, OR OTHERWISE.
+'
+' *********************************************************************
 
 
 Imports YDEV_DESCR = System.Int32
@@ -177,6 +177,36 @@ Module yocto_pwminput
     REM --- (end of YPwmInput private methods declaration)
 
     REM --- (YPwmInput public methods declaration)
+
+    '''*
+    ''' <summary>
+    '''   Changes the measuring unit for the measured quantity.
+    ''' <para>
+    '''   That unit
+    '''   is just a string which is automatically initialized each time
+    '''   the measurement mode is changed. But is can be set to an
+    '''   arbitrary value.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the measuring unit for the measured quantity
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_unit(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("unit", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Returns the PWM duty cycle, in per cents.

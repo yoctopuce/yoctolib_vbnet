@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 32376 2018-09-27 07:57:07Z seb $
+'* $Id: yocto_api.vb 32519 2018-10-05 08:25:46Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -779,7 +779,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "32391"
+  Public Const YOCTO_API_BUILD_NO As String = "32759"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -5342,7 +5342,7 @@ Module yocto_api
     ''' </para>
     '''/
 
-    Public Function get_hardwareId() As String
+    Public Overridable Function get_hardwareId() As String
       Dim retcode As YRETCODE
       Dim fundesc As YFUN_DESCR = 0
       Dim devdesc As YDEV_DESCR = 0
@@ -7994,6 +7994,27 @@ Module yocto_api
       Next i_i
       Me.clearCache()
       Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the unique hardware identifier of the module.
+    ''' <para>
+    '''   The unique hardware identifier is made of the device serial
+    '''   number followed by string ".module".
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string that uniquely identifies the module
+    ''' </returns>
+    '''/
+    Public Overrides Function get_hardwareId() As String
+      Dim serial As String
+
+      serial = Me.get_serialNumber()
+      Return serial + ".module"
     End Function
 
     '''*
