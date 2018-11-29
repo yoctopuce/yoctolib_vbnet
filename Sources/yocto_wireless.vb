@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 31448 2018-08-08 09:13:11Z seb $
+'* $Id: yocto_wireless.vb 32908 2018-11-02 10:19:28Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -664,6 +664,9 @@ Module yocto_wireless
     ''' <summary>
     '''   Continues the enumeration of wireless lan interfaces started using <c>yFirstWireless()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned wireless lan interfaces order.
+    '''   If you want to find a specific a wireless lan interface, use <c>Wireless.findWireless()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

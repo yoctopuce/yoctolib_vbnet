@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_currentloopoutput.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_currentloopoutput.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindCurrentLoopOutput(), the high-level API for CurrentLoopOutput functions
 '
@@ -426,6 +426,9 @@ Module yocto_currentloopoutput
     ''' <summary>
     '''   Continues the enumeration of 4-20mA outputs started using <c>yFirstCurrentLoopOutput()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned 4-20mA outputs order.
+    '''   If you want to find a specific a 4-20mA output, use <c>CurrentLoopOutput.findCurrentLoopOutput()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

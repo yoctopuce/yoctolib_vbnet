@@ -177,6 +177,9 @@
 <Compile Include="..\..\Sources\yocto_multicellweighscale.vb">
 <Link>yocto_api\yocto_multicellweighscale.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_multisenscontroller.vb">
+<Link>yocto_api\yocto_multisenscontroller.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_network.vb">
 <Link>yocto_api\yocto_network.vb</Link>
 </Compile>
@@ -242,6 +245,9 @@
 </Compile>
 <Compile Include="..\..\Sources\yocto_tilt.vb">
 <Link>yocto_api\yocto_tilt.vb</Link>
+</Compile>
+<Compile Include="..\..\Sources\yocto_tvoc.vb">
+<Link>yocto_api\yocto_tvoc.vb</Link>
 </Compile>
 <Compile Include="..\..\Sources\yocto_voc.vb">
 <Link>yocto_api\yocto_voc.vb</Link>

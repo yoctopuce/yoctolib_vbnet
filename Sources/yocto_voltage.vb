@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_voltage.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_voltage.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindVoltage(), the high-level API for Voltage functions
 '
@@ -275,6 +275,9 @@ Module yocto_voltage
     ''' <summary>
     '''   Continues the enumeration of voltage sensors started using <c>yFirstVoltage()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned voltage sensors order.
+    '''   If you want to find a specific a voltage sensor, use <c>Voltage.findVoltage()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

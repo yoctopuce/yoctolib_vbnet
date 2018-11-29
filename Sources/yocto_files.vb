@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 31448 2018-08-08 09:13:11Z seb $
+'* $Id: yocto_files.vb 32908 2018-11-02 10:19:28Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -495,6 +495,9 @@ Module yocto_files
     ''' <summary>
     '''   Continues the enumeration of filesystems started using <c>yFirstFiles()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned filesystems order.
+    '''   If you want to find a specific a filesystem, use <c>Files.findFiles()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

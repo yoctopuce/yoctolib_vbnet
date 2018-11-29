@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwminput.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_pwminput.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindPwmInput(), the high-level API for PwmInput functions
 '
@@ -658,6 +658,9 @@ Module yocto_pwminput
     ''' <summary>
     '''   Continues the enumeration of PWM inputs started using <c>yFirstPwmInput()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned PWM inputs order.
+    '''   If you want to find a specific a PWM input, use <c>PwmInput.findPwmInput()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

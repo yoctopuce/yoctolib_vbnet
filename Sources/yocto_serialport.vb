@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 31448 2018-08-08 09:13:11Z seb $
+'* $Id: yocto_serialport.vb 32908 2018-11-02 10:19:28Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -2389,6 +2389,9 @@ Module yocto_serialport
     ''' <summary>
     '''   Continues the enumeration of serial ports started using <c>yFirstSerialPort()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned serial ports order.
+    '''   If you want to find a specific a serial port, use <c>SerialPort.findSerialPort()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

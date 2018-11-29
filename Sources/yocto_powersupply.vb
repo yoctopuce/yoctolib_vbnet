@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_powersupply.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_powersupply.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindPowerSupply(), the high-level API for PowerSupply functions
 '
@@ -812,6 +812,9 @@ Module yocto_powersupply
     ''' <summary>
     '''   Continues the enumeration of regulated power supplies started using <c>yFirstPowerSupply()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned regulated power supplies order.
+    '''   If you want to find a specific a regulated power supply, use <c>PowerSupply.findPowerSupply()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

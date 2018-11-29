@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_servo.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_servo.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindServo(), the high-level API for Servo functions
 '
@@ -653,6 +653,9 @@ End Class
     ''' <summary>
     '''   Continues the enumeration of servos started using <c>yFirstServo()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned servos order.
+    '''   If you want to find a specific a servo, use <c>Servo.findServo()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

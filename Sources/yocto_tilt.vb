@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_tilt.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_tilt.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindTilt(), the high-level API for Tilt functions
 '
@@ -338,6 +338,9 @@ Module yocto_tilt
     ''' <summary>
     '''   Continues the enumeration of tilt sensors started using <c>yFirstTilt()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned tilt sensors order.
+    '''   If you want to find a specific a tilt sensor, use <c>Tilt.findTilt()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

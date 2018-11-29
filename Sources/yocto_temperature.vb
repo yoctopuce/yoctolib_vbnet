@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_temperature.vb 33082 2018-11-08 18:08:16Z seb $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -68,6 +68,7 @@ Module yocto_temperature
   Public Const Y_SENSORTYPE_RES_NTC As Integer = 12
   Public Const Y_SENSORTYPE_RES_LINEAR As Integer = 13
   Public Const Y_SENSORTYPE_RES_INTERNAL As Integer = 14
+  Public Const Y_SENSORTYPE_IR As Integer = 15
   Public Const Y_SENSORTYPE_INVALID As Integer = -1
   Public Const Y_SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
@@ -110,6 +111,7 @@ Module yocto_temperature
     Public Const SENSORTYPE_RES_NTC As Integer = 12
     Public Const SENSORTYPE_RES_LINEAR As Integer = 13
     Public Const SENSORTYPE_RES_INTERNAL As Integer = 14
+    Public Const SENSORTYPE_IR As Integer = 15
     Public Const SENSORTYPE_INVALID As Integer = -1
     Public Const SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
@@ -207,8 +209,8 @@ Module yocto_temperature
     '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
     '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
     '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
-    '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c> and <c>Y_SENSORTYPE_RES_INTERNAL</c>
-    '''   corresponding to the temperature sensor type
+    '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c>, <c>Y_SENSORTYPE_RES_INTERNAL</c> and
+    '''   <c>Y_SENSORTYPE_IR</c> corresponding to the temperature sensor type
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_SENSORTYPE_INVALID</c>.
@@ -244,8 +246,8 @@ Module yocto_temperature
     '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
     '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
     '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
-    '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c> and <c>Y_SENSORTYPE_RES_INTERNAL</c>
-    '''   corresponding to the temperature sensor type
+    '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c>, <c>Y_SENSORTYPE_RES_INTERNAL</c> and
+    '''   <c>Y_SENSORTYPE_IR</c> corresponding to the temperature sensor type
     ''' </param>
     ''' <para>
     ''' </para>
@@ -690,6 +692,9 @@ Module yocto_temperature
     ''' <summary>
     '''   Continues the enumeration of temperature sensors started using <c>yFirstTemperature()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned temperature sensors order.
+    '''   If you want to find a specific a temperature sensor, use <c>Temperature.findTemperature()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

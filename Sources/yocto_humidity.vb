@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_humidity.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_humidity.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindHumidity(), the high-level API for Humidity functions
 '
@@ -347,6 +347,9 @@ Module yocto_humidity
     ''' <summary>
     '''   Continues the enumeration of humidity sensors started using <c>yFirstHumidity()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned humidity sensors order.
+    '''   If you want to find a specific a humidity sensor, use <c>Humidity.findHumidity()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

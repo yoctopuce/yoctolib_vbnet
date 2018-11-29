@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 31448 2018-08-08 09:13:11Z seb $
+'* $Id: yocto_messagebox.vb 32908 2018-11-02 10:19:28Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -2275,6 +2275,9 @@ Module yocto_messagebox
     ''' <summary>
     '''   Continues the enumeration of MessageBox interfaces started using <c>yFirstMessageBox()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned MessageBox interfaces order.
+    '''   If you want to find a specific a MessageBox interface, use <c>MessageBox.findMessageBox()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

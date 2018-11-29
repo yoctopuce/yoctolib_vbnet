@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_led.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_led.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindLed(), the high-level API for Led functions
 '
@@ -402,6 +402,9 @@ Module yocto_led
     ''' <summary>
     '''   Continues the enumeration of LEDs started using <c>yFirstLed()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned LEDs order.
+    '''   If you want to find a specific a LED, use <c>Led.findLed()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

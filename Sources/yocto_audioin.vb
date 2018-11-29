@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_audioin.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_audioin.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindAudioIn(), the high-level API for AudioIn functions
 '
@@ -430,6 +430,9 @@ Module yocto_audioin
     ''' <summary>
     '''   Continues the enumeration of audio inputs started using <c>yFirstAudioIn()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned audio inputs order.
+    '''   If you want to find a specific an audio input, use <c>AudioIn.findAudioIn()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>

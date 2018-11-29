@@ -1,8 +1,8 @@
 ' ********************************************************************
 '
-'  $Id: yocto_poweroutput.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_tvoc.vb 33270 2018-11-22 08:41:15Z seb $
 '
-'  Implements yFindPowerOutput(), the high-level API for PowerOutput functions
+'  Implements yFindTvoc(), the high-level API for Tvoc functions
 '
 '  - - - - - - - - - License information: - - - - - - - - -
 '
@@ -43,132 +43,65 @@ Imports YFUN_DESCR = System.Int32
 Imports System.Runtime.InteropServices
 Imports System.Text
 
-Module yocto_poweroutput
+Module yocto_tvoc
 
-    REM --- (YPowerOutput return codes)
-    REM --- (end of YPowerOutput return codes)
-    REM --- (YPowerOutput dlldef)
-    REM --- (end of YPowerOutput dlldef)
-   REM --- (YPowerOutput yapiwrapper)
-   REM --- (end of YPowerOutput yapiwrapper)
-  REM --- (YPowerOutput globals)
+    REM --- (YTvoc return codes)
+    REM --- (end of YTvoc return codes)
+    REM --- (YTvoc dlldef)
+    REM --- (end of YTvoc dlldef)
+   REM --- (YTvoc yapiwrapper)
+   REM --- (end of YTvoc yapiwrapper)
+  REM --- (YTvoc globals)
 
-  Public Const Y_VOLTAGE_OFF As Integer = 0
-  Public Const Y_VOLTAGE_OUT3V3 As Integer = 1
-  Public Const Y_VOLTAGE_OUT5V As Integer = 2
-  Public Const Y_VOLTAGE_INVALID As Integer = -1
-  Public Delegate Sub YPowerOutputValueCallback(ByVal func As YPowerOutput, ByVal value As String)
-  Public Delegate Sub YPowerOutputTimedReportCallback(ByVal func As YPowerOutput, ByVal measure As YMeasure)
-  REM --- (end of YPowerOutput globals)
+  Public Delegate Sub YTvocValueCallback(ByVal func As YTvoc, ByVal value As String)
+  Public Delegate Sub YTvocTimedReportCallback(ByVal func As YTvoc, ByVal measure As YMeasure)
+  REM --- (end of YTvoc globals)
 
-  REM --- (YPowerOutput class start)
+  REM --- (YTvoc class start)
 
   '''*
   ''' <summary>
-  '''   Yoctopuce application programming interface allows you to control
-  '''   the power ouput featured on some devices such as the Yocto-Serial.
+  '''   The Yoctopuce class YTvoc allows you to read and configure Yoctopuce Total Volatile Organic
+  '''   Compound sensors.
   ''' <para>
+  '''   It inherits from YSensor class the core functions to read measurements,
+  '''   to register callback functions, to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
-  Public Class YPowerOutput
-    Inherits YFunction
-    REM --- (end of YPowerOutput class start)
+  Public Class YTvoc
+    Inherits YSensor
+    REM --- (end of YTvoc class start)
 
-    REM --- (YPowerOutput definitions)
-    Public Const VOLTAGE_OFF As Integer = 0
-    Public Const VOLTAGE_OUT3V3 As Integer = 1
-    Public Const VOLTAGE_OUT5V As Integer = 2
-    Public Const VOLTAGE_INVALID As Integer = -1
-    REM --- (end of YPowerOutput definitions)
+    REM --- (YTvoc definitions)
+    REM --- (end of YTvoc definitions)
 
-    REM --- (YPowerOutput attributes declaration)
-    Protected _voltage As Integer
-    Protected _valueCallbackPowerOutput As YPowerOutputValueCallback
-    REM --- (end of YPowerOutput attributes declaration)
+    REM --- (YTvoc attributes declaration)
+    Protected _valueCallbackTvoc As YTvocValueCallback
+    Protected _timedReportCallbackTvoc As YTvocTimedReportCallback
+    REM --- (end of YTvoc attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
-      _classname = "PowerOutput"
-      REM --- (YPowerOutput attributes initialization)
-      _voltage = VOLTAGE_INVALID
-      _valueCallbackPowerOutput = Nothing
-      REM --- (end of YPowerOutput attributes initialization)
+      _classname = "Tvoc"
+      REM --- (YTvoc attributes initialization)
+      _valueCallbackTvoc = Nothing
+      _timedReportCallbackTvoc = Nothing
+      REM --- (end of YTvoc attributes initialization)
     End Sub
 
-    REM --- (YPowerOutput private methods declaration)
+    REM --- (YTvoc private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
-      If json_val.has("voltage") Then
-        _voltage = CInt(json_val.getLong("voltage"))
-      End If
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YPowerOutput private methods declaration)
+    REM --- (end of YTvoc private methods declaration)
 
-    REM --- (YPowerOutput public methods declaration)
+    REM --- (YTvoc public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the voltage on the power output featured by the module.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a value among <c>Y_VOLTAGE_OFF</c>, <c>Y_VOLTAGE_OUT3V3</c> and <c>Y_VOLTAGE_OUT5V</c>
-    '''   corresponding to the voltage on the power output featured by the module
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLTAGE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_voltage() As Integer
-      Dim res As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return VOLTAGE_INVALID
-        End If
-      End If
-      res = Me._voltage
-      Return res
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the voltage on the power output provided by the
-    '''   module.
-    ''' <para>
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a value among <c>Y_VOLTAGE_OFF</c>, <c>Y_VOLTAGE_OUT3V3</c> and <c>Y_VOLTAGE_OUT5V</c>
-    '''   corresponding to the voltage on the power output provided by the
-    '''   module
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_voltage(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("voltage", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Retrieves a dual power  ouput control for a given identifier.
+    '''   Retrieves a Total  Volatile Organic Compound sensor for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -192,11 +125,11 @@ Module yocto_poweroutput
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the power ouput control is online at the time
+    '''   This function does not require that the Total  Volatile Organic Compound sensor is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YPowerOutput.isOnline()</c> to test if the power ouput control is
+    '''   Use the method <c>YTvoc.isOnline()</c> to test if the Total  Volatile Organic Compound sensor is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a dual power  ouput control by logical name, no error is notified: the first instance
+    '''   a Total  Volatile Organic Compound sensor by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -209,18 +142,18 @@ Module yocto_poweroutput
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the power ouput control
+    '''   a string that uniquely characterizes the Total  Volatile Organic Compound sensor
     ''' </param>
     ''' <returns>
-    '''   a <c>YPowerOutput</c> object allowing you to drive the power ouput control.
+    '''   a <c>YTvoc</c> object allowing you to drive the Total  Volatile Organic Compound sensor.
     ''' </returns>
     '''/
-    Public Shared Function FindPowerOutput(func As String) As YPowerOutput
-      Dim obj As YPowerOutput
-      obj = CType(YFunction._FindFromCache("PowerOutput", func), YPowerOutput)
+    Public Shared Function FindTvoc(func As String) As YTvoc
+      Dim obj As YTvoc
+      obj = CType(YFunction._FindFromCache("Tvoc", func), YTvoc)
       If ((obj Is Nothing)) Then
-        obj = New YPowerOutput(func)
-        YFunction._AddToCache("PowerOutput", func, obj)
+        obj = New YTvoc(func)
+        YFunction._AddToCache("Tvoc", func, obj)
       End If
       Return obj
     End Function
@@ -243,14 +176,14 @@ Module yocto_poweroutput
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerValueCallback(callback As YPowerOutputValueCallback) As Integer
+    Public Overloads Function registerValueCallback(callback As YTvocValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
         YFunction._UpdateValueCallbackList(Me, True)
       Else
         YFunction._UpdateValueCallbackList(Me, False)
       End If
-      Me._valueCallbackPowerOutput = callback
+      Me._valueCallbackTvoc = callback
       REM // Immediately invoke value callback with current value
       If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
@@ -262,10 +195,49 @@ Module yocto_poweroutput
     End Function
 
     Public Overrides Function _invokeValueCallback(value As String) As Integer
-      If (Not (Me._valueCallbackPowerOutput Is Nothing)) Then
-        Me._valueCallbackPowerOutput(Me, value)
+      If (Not (Me._valueCallbackTvoc Is Nothing)) Then
+        Me._valueCallbackTvoc(Me, value)
       Else
         MyBase._invokeValueCallback(value)
+      End If
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers the callback function that is invoked on every periodic timed notification.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
+    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a Nothing pointer. The callback function should take two
+    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   the new advertised value.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overloads Function registerTimedReportCallback(callback As YTvocTimedReportCallback) As Integer
+      Dim sensor As YSensor
+      sensor = Me
+      If (Not (callback Is Nothing)) Then
+        YFunction._UpdateTimedReportCallbackList(sensor, True)
+      Else
+        YFunction._UpdateTimedReportCallbackList(sensor, False)
+      End If
+      Me._timedReportCallbackTvoc = callback
+      Return 0
+    End Function
+
+    Public Overrides Function _invokeTimedReportCallback(value As YMeasure) As Integer
+      If (Not (Me._timedReportCallbackTvoc Is Nothing)) Then
+        Me._timedReportCallbackTvoc(Me, value)
+      Else
+        MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
     End Function
@@ -273,20 +245,20 @@ Module yocto_poweroutput
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of dual power ouput controls started using <c>yFirstPowerOutput()</c>.
+    '''   Continues the enumeration of Total Volatile Organic Compound sensors started using <c>yFirstTvoc()</c>.
     ''' <para>
-    '''   Caution: You can't make any assumption about the returned dual power ouput controls order.
-    '''   If you want to find a specific a dual power  ouput control, use <c>PowerOutput.findPowerOutput()</c>
+    '''   Caution: You can't make any assumption about the returned Total Volatile Organic Compound sensors order.
+    '''   If you want to find a specific a Total  Volatile Organic Compound sensor, use <c>Tvoc.findTvoc()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YPowerOutput</c> object, corresponding to
-    '''   a dual power  ouput control currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more dual power ouput controls to enumerate.
+    '''   a pointer to a <c>YTvoc</c> object, corresponding to
+    '''   a Total  Volatile Organic Compound sensor currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more Total Volatile Organic Compound sensors to enumerate.
     ''' </returns>
     '''/
-    Public Function nextPowerOutput() As YPowerOutput
+    Public Function nextTvoc() As YTvoc
       Dim hwid As String = ""
       If (YISERR(_nextFunction(hwid))) Then
         Return Nothing
@@ -294,24 +266,24 @@ Module yocto_poweroutput
       If (hwid = "") Then
         Return Nothing
       End If
-      Return YPowerOutput.FindPowerOutput(hwid)
+      Return YTvoc.FindTvoc(hwid)
     End Function
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of dual power ouput controls currently accessible.
+    '''   Starts the enumeration of Total Volatile Organic Compound sensors currently accessible.
     ''' <para>
-    '''   Use the method <c>YPowerOutput.nextPowerOutput()</c> to iterate on
-    '''   next dual power ouput controls.
+    '''   Use the method <c>YTvoc.nextTvoc()</c> to iterate on
+    '''   next Total Volatile Organic Compound sensors.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YPowerOutput</c> object, corresponding to
-    '''   the first dual power ouput control currently online, or a <c>Nothing</c> pointer
+    '''   a pointer to a <c>YTvoc</c> object, corresponding to
+    '''   the first Total Volatile Organic Compound sensor currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
-    Public Shared Function FirstPowerOutput() As YPowerOutput
+    Public Shared Function FirstTvoc() As YTvoc
       Dim v_fundescr(1) As YFUN_DESCR
       Dim dev As YDEV_DESCR
       Dim neededsize, err As Integer
@@ -320,7 +292,7 @@ Module yocto_poweroutput
       Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
       Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
 
-      err = yapiGetFunctionsByClass("PowerOutput", 0, p, size, neededsize, errmsg)
+      err = yapiGetFunctionsByClass("Tvoc", 0, p, size, neededsize, errmsg)
       Marshal.Copy(p, v_fundescr, 0, 1)
       Marshal.FreeHGlobal(p)
 
@@ -335,18 +307,18 @@ Module yocto_poweroutput
       If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
         Return Nothing
       End If
-      Return YPowerOutput.FindPowerOutput(serial + "." + funcId)
+      Return YTvoc.FindTvoc(serial + "." + funcId)
     End Function
 
-    REM --- (end of YPowerOutput public methods declaration)
+    REM --- (end of YTvoc public methods declaration)
 
   End Class
 
-  REM --- (YPowerOutput functions)
+  REM --- (YTvoc functions)
 
   '''*
   ''' <summary>
-  '''   Retrieves a dual power  ouput control for a given identifier.
+  '''   Retrieves a Total  Volatile Organic Compound sensor for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -370,11 +342,11 @@ Module yocto_poweroutput
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the power ouput control is online at the time
+  '''   This function does not require that the Total  Volatile Organic Compound sensor is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YPowerOutput.isOnline()</c> to test if the power ouput control is
+  '''   Use the method <c>YTvoc.isOnline()</c> to test if the Total  Volatile Organic Compound sensor is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a dual power  ouput control by logical name, no error is notified: the first instance
+  '''   a Total  Volatile Organic Compound sensor by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -387,35 +359,35 @@ Module yocto_poweroutput
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the power ouput control
+  '''   a string that uniquely characterizes the Total  Volatile Organic Compound sensor
   ''' </param>
   ''' <returns>
-  '''   a <c>YPowerOutput</c> object allowing you to drive the power ouput control.
+  '''   a <c>YTvoc</c> object allowing you to drive the Total  Volatile Organic Compound sensor.
   ''' </returns>
   '''/
-  Public Function yFindPowerOutput(ByVal func As String) As YPowerOutput
-    Return YPowerOutput.FindPowerOutput(func)
+  Public Function yFindTvoc(ByVal func As String) As YTvoc
+    Return YTvoc.FindTvoc(func)
   End Function
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of dual power ouput controls currently accessible.
+  '''   Starts the enumeration of Total Volatile Organic Compound sensors currently accessible.
   ''' <para>
-  '''   Use the method <c>YPowerOutput.nextPowerOutput()</c> to iterate on
-  '''   next dual power ouput controls.
+  '''   Use the method <c>YTvoc.nextTvoc()</c> to iterate on
+  '''   next Total Volatile Organic Compound sensors.
   ''' </para>
   ''' </summary>
   ''' <returns>
-  '''   a pointer to a <c>YPowerOutput</c> object, corresponding to
-  '''   the first dual power ouput control currently online, or a <c>Nothing</c> pointer
+  '''   a pointer to a <c>YTvoc</c> object, corresponding to
+  '''   the first Total Volatile Organic Compound sensor currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
-  Public Function yFirstPowerOutput() As YPowerOutput
-    Return YPowerOutput.FirstPowerOutput()
+  Public Function yFirstTvoc() As YTvoc
+    Return YTvoc.FirstTvoc()
   End Function
 
 
-  REM --- (end of YPowerOutput functions)
+  REM --- (end of YTvoc functions)
 
 End Module

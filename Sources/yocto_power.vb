@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_power.vb 32610 2018-10-10 06:52:20Z seb $
+'  $Id: yocto_power.vb 32908 2018-11-02 10:19:28Z seb $
 '
 '  Implements yFindPower(), the high-level API for Power functions
 '
@@ -374,6 +374,9 @@ Module yocto_power
     ''' <summary>
     '''   Continues the enumeration of electrical power sensors started using <c>yFirstPower()</c>.
     ''' <para>
+    '''   Caution: You can't make any assumption about the returned electrical power sensors order.
+    '''   If you want to find a specific a electrical power sensor, use <c>Power.findPower()</c>
+    '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
