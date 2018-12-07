@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 33400 2018-11-27 07:58:29Z seb $
+'* $Id: yocto_api.vb 33505 2018-12-05 14:45:46Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -779,7 +779,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "33423"
+  Public Const YOCTO_API_BUILD_NO As String = "33576"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -958,6 +958,8 @@ Module yocto_api
 
     Public Const INVALID_STRING As String = "!INVALID!"
     Public Const INVALID_DOUBLE As Double = -1.7976931348623157E+308
+    Public Const MIN_DOUBLE As Double = Double.MinValue
+    Public Const MAX_DOUBLE As Double = Double.MaxValue
     Public Const INVALID_INT As Integer = -2147483648
     Public Const INVALID_UINT As Integer = -1
     Public Const INVALID_LONG As Long = -9223372036854775807
@@ -3563,32 +3565,40 @@ Module yocto_api
     Protected _hardwareId As String
     Protected _functionId As String
     Protected _unit As String
-    Protected _startTime As Double
-    Protected _endTime As Double
+    Protected _startTimeMs As Double
+    Protected _endTimeMs As Double
     Protected _progress As Integer
     Protected _calib As List(Of Integer)
     Protected _streams As List(Of YDataStream)
     Protected _summary As YMeasure
     Protected _preview As List(Of YMeasure)
     Protected _measures As List(Of YMeasure)
+    Protected _summaryMinVal As Double
+    Protected _summaryMaxVal As Double
+    Protected _summaryTotalAvg As Double
+    Protected _summaryTotalTime As Double
     REM --- (end of generated code: YDataSet attributes declaration)
 
 
     Sub New(parent As YFunction, functionId As String, unit As String, startTime As double, endTime As double)
       REM --- (generated code: YDataSet attributes initialization)
-      _startTime = 0
-      _endTime = 0
+      _startTimeMs = 0
+      _endTimeMs = 0
       _progress = 0
       _calib = New List(Of Integer)()
       _streams = New List(Of YDataStream)()
       _preview = New List(Of YMeasure)()
       _measures = New List(Of YMeasure)()
+      _summaryMinVal = 0
+      _summaryMaxVal = 0
+      _summaryTotalAvg = 0
+      _summaryTotalTime = 0
       REM --- (end of generated code: YDataSet attributes initialization)
       _parent = parent
       _functionId = functionId
       _unit = unit
-      _startTime = startTime
-      _endTime = endTime
+      _startTimeMs = startTime * 1000
+      _endTimeMs = endTime * 1000
       _summary = New YMeasure(0, 0, 0, 0, 0)
       _progress = - 1
     End Sub
@@ -3596,17 +3606,21 @@ Module yocto_api
 
     Sub New(parent As YFunction)
       REM --- (generated code: YDataSet attributes initialization)
-      _startTime = 0
-      _endTime = 0
+      _startTimeMs = 0
+      _endTimeMs = 0
       _progress = 0
       _calib = New List(Of Integer)()
       _streams = New List(Of YDataStream)()
       _preview = New List(Of YMeasure)()
       _measures = New List(Of YMeasure)()
+      _summaryMinVal = 0
+      _summaryMaxVal = 0
+      _summaryTotalAvg = 0
+      _summaryTotalTime = 0
       REM --- (end of generated code: YDataSet attributes initialization)
       _parent = parent
-      _startTime = 0
-      _endTime = 0
+      _startTimeMs = 0
+      _endTimeMs = 0
       _summary = New YMeasure(0, 0, 0, 0, 0)
     End Sub
 
@@ -3628,12 +3642,6 @@ Module yocto_api
       Dim stream As YDataStream
       Dim streamStartTime As double
       Dim streamEndTime As double
-      Dim startTime As double = &H7fffffff
-      Dim endTime As double = 0
-      Dim summaryMinVal As Double = [Double].MaxValue
-      Dim summaryMaxVal As Double = - [Double].MaxValue
-      Dim summaryTotalTime As Double = 0
-      Dim summaryTotalAvg As Double = 0
 
       Me._functionId = p.getString("id")
       Me._unit = p.getString("unit")
@@ -3649,52 +3657,16 @@ Module yocto_api
       Me._measures = New List(Of YMeasure)()
       For i As Integer = 0 To arr.Length - 1
         stream = _parent._findDataStream(Me, arr.getString(i))
-        streamStartTime = stream.get_realStartTimeUTC()
-        streamEndTime = streamStartTime + stream.get_realDuration()
-        If _startTime > 0 AndAlso streamEndTime <= _startTime Then
+        streamStartTime = Math.Round(stream.get_realStartTimeUTC() * 1000)
+        streamEndTime = streamStartTime + Math.Round(stream.get_realDuration() * 1000)
+        If _startTimeMs > 0 AndAlso streamEndTime <= _startTimeMs Then
           REM this stream is too early, drop it
-        ElseIf _endTime > 0 AndAlso streamStartTime >= Me._endTime Then
+        ElseIf _endTimeMs > 0 AndAlso streamStartTime >= Me._endTimeMs Then
           REM this stream is too late, drop it
         Else
           _streams.Add(stream)
-          If startTime > streamStartTime Then
-            startTime = streamStartTime
-          End If
-          If endTime < streamEndTime Then
-            endTime = streamEndTime
-          End If
-          If stream.isClosed() AndAlso streamStartTime >= Me._startTime AndAlso (Me._endTime = 0 OrElse streamEndTime <= Me._endTime) Then
-            If summaryMinVal > stream.get_minValue() Then
-              summaryMinVal = stream.get_minValue()
-            End If
-            If summaryMaxVal < stream.get_maxValue() Then
-              summaryMaxVal = stream.get_maxValue()
-            End If
-            summaryTotalAvg += stream.get_averageValue()*stream.get_realDuration()
-            summaryTotalTime += stream.get_realDuration()
-            Dim rec As New YMeasure(streamStartTime,
-                                    streamEndTime,
-                                    stream.get_minValue(),
-                                    stream.get_averageValue(),
-                                    stream.get_maxValue())
-            _preview.Add(rec)
-          End If
         End If
       Next i
-      If (_streams.Count > 0) And (summaryTotalTime > 0) Then
-        REM update time boundaries with actual data
-        If (_startTime < startTime) Then
-          _startTime = startTime
-        End If
-        If (_endTime = 0 Or _endTime > endTime) Then
-          _endTime = endTime
-        End If
-        _summary = New YMeasure(_startTime,
-                                _endTime,
-                                summaryMinVal,
-                                summaryTotalAvg/summaryTotalTime,
-                                summaryMaxVal)
-      End If
       _progress = 0
       Return get_progress()
     End Function
@@ -3708,11 +3680,179 @@ Module yocto_api
       Return Me._calib
     End Function
 
+    Public Overridable Function loadSummary(data As Byte()) As Integer
+      Dim i_i As Integer
+      Dim dataRows As List(Of List(Of Double)) = New List(Of List(Of Double))()
+      Dim tim As Double = 0
+      Dim mitv As Double = 0
+      Dim itv As Double = 0
+      Dim fitv As Double = 0
+      Dim end_ As Double = 0
+      Dim nCols As Integer = 0
+      Dim minCol As Integer = 0
+      Dim avgCol As Integer = 0
+      Dim maxCol As Integer = 0
+      Dim res As Integer = 0
+      Dim m_pos As Integer = 0
+      Dim previewTotalTime As Double = 0
+      Dim previewTotalAvg As Double = 0
+      Dim previewMinVal As Double = 0
+      Dim previewMaxVal As Double = 0
+      Dim previewAvgVal As Double = 0
+      Dim previewStartMs As Double = 0
+      Dim previewStopMs As Double = 0
+      Dim previewDuration As Double = 0
+      Dim streamStartTimeMs As Double = 0
+      Dim streamDuration As Double = 0
+      Dim streamEndTimeMs As Double = 0
+      Dim minVal As Double = 0
+      Dim avgVal As Double = 0
+      Dim maxVal As Double = 0
+      Dim summaryStartMs As Double = 0
+      Dim summaryStopMs As Double = 0
+      Dim summaryTotalTime As Double = 0
+      Dim summaryTotalAvg As Double = 0
+      Dim summaryMinVal As Double = 0
+      Dim summaryMaxVal As Double = 0
+      Dim url As String
+      Dim strdata As String
+      Dim measure_data As List(Of Double) = New List(Of Double)()
+
+      If (Me._progress < 0) Then
+        strdata = YAPI.DefaultEncoding.GetString(data)
+        If (strdata = "{}") Then
+          Me._parent._throw(YAPI.VERSION_MISMATCH, "device firmware is too old")
+          Return YAPI.VERSION_MISMATCH
+        End If
+        res = Me._parse(strdata)
+        If (res < 0) Then
+          Return res
+        End If
+      End If
+      summaryTotalTime = 0
+      summaryTotalAvg = 0
+      summaryMinVal = YAPI.MAX_DOUBLE
+      summaryMaxVal = YAPI.MIN_DOUBLE
+      summaryStartMs = YAPI.MAX_DOUBLE
+      summaryStopMs = YAPI.MIN_DOUBLE
+
+      REM // Parse comlete streams
+      For i_i = 0 To  Me._streams.Count - 1
+        streamStartTimeMs = Math.Round( Me._streams(i_i).get_realStartTimeUTC() *1000)
+        streamDuration =  Me._streams(i_i).get_realDuration()
+        streamEndTimeMs = streamStartTimeMs + Math.Round(streamDuration * 1000)
+        If ((streamStartTimeMs >= Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (streamEndTimeMs <= Me._endTimeMs))) Then
+          REM // stream that are completely inside the dataset
+          previewMinVal =  Me._streams(i_i).get_minValue()
+          previewAvgVal =  Me._streams(i_i).get_averageValue()
+          previewMaxVal =  Me._streams(i_i).get_maxValue()
+          previewStartMs = streamStartTimeMs
+          previewStopMs = streamEndTimeMs
+          previewDuration = streamDuration
+        Else
+          REM // stream that are partially in the dataset
+          REM // we need to parse data to filter value outide the dataset
+          url =  Me._streams(i_i)._get_url()
+          data = Me._parent._download(url)
+          Me._streams(i_i)._parseStream(data)
+          dataRows =  Me._streams(i_i).get_dataRows()
+          If (dataRows.Count = 0) Then
+            Return Me.get_progress()
+          End If
+          tim = streamStartTimeMs
+          fitv = Math.Round( Me._streams(i_i).get_firstDataSamplesInterval() * 1000)
+          itv = Math.Round( Me._streams(i_i).get_dataSamplesInterval() * 1000)
+          nCols = dataRows(0).Count
+          minCol = 0
+          If (nCols > 2) Then
+            avgCol = 1
+          Else
+            avgCol = 0
+          End If
+          If (nCols > 2) Then
+            maxCol = 2
+          Else
+            maxCol = 0
+          End If
+          previewTotalTime = 0
+          previewTotalAvg = 0
+          previewStartMs = streamEndTimeMs
+          previewStopMs = streamStartTimeMs
+          previewMinVal = YAPI.MAX_DOUBLE
+          previewMaxVal = YAPI.MIN_DOUBLE
+          m_pos = 0
+          While (m_pos < dataRows.Count)
+            measure_data  = dataRows(m_pos)
+            If (m_pos = 0) Then
+              mitv = fitv
+            Else
+              mitv = itv
+            End If
+            end_ = tim + mitv
+            If ((end_ > Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (tim < Me._endTimeMs))) Then
+              minVal = measure_data(minCol)
+              avgVal = measure_data(avgCol)
+              maxVal = measure_data(maxCol)
+              If (previewStartMs > tim) Then
+                previewStartMs = tim
+              End If
+              If (previewStopMs < end_) Then
+                previewStopMs = end_
+              End If
+              If (previewMinVal > minVal) Then
+                previewMinVal = minVal
+              End If
+              If (previewMaxVal < maxVal) Then
+                previewMaxVal = maxVal
+              End If
+              previewTotalAvg = previewTotalAvg + (avgVal * mitv)
+              previewTotalTime = previewTotalTime + mitv
+            End If
+            tim = end_
+            m_pos = m_pos + 1
+          End While
+          If (previewTotalTime > 0) Then
+            previewAvgVal = previewTotalAvg / previewTotalTime
+            previewDuration = (previewStopMs - previewStartMs) / 1000.0
+          Else
+            previewAvgVal = 0.0
+            previewDuration = 0.0
+          End If
+        End If
+        Me._preview.Add(New YMeasure(previewStartMs / 1000.0, previewStopMs / 1000.0, previewMinVal, previewAvgVal, previewMaxVal))
+        If (summaryMinVal > previewMinVal) Then
+          summaryMinVal = previewMinVal
+        End If
+        If (summaryMaxVal < previewMaxVal) Then
+          summaryMaxVal = previewMaxVal
+        End If
+        If (summaryStartMs > previewStartMs) Then
+          summaryStartMs = previewStartMs
+        End If
+        If (summaryStopMs < previewStopMs) Then
+          summaryStopMs = previewStopMs
+        End If
+        summaryTotalAvg = summaryTotalAvg + (previewAvgVal * previewDuration)
+        summaryTotalTime = summaryTotalTime + previewDuration
+      Next i_i
+      If ((Me._startTimeMs = 0) OrElse (Me._startTimeMs > summaryStartMs)) Then
+        Me._startTimeMs = summaryStartMs
+      End If
+      If ((Me._endTimeMs = 0) OrElse (Me._endTimeMs < summaryStopMs)) Then
+        Me._endTimeMs = summaryStopMs
+      End If
+      If (summaryTotalTime > 0) Then
+        Me._summary = New YMeasure(summaryStartMs / 1000.0, summaryStopMs / 1000.0, summaryMinVal, summaryTotalAvg / summaryTotalTime, summaryMaxVal)
+      Else
+        Me._summary = New YMeasure(0.0, 0.0, YAPI.INVALID_DOUBLE, YAPI.INVALID_DOUBLE, YAPI.INVALID_DOUBLE)
+      End If
+      Return Me.get_progress()
+    End Function
+
     Public Overridable Function processMore(progress As Integer, data As Byte()) As Integer
       Dim i_i As Integer
       Dim stream As YDataStream
       Dim dataRows As List(Of List(Of Double)) = New List(Of List(Of Double))()
-      Dim strdata As String
       Dim tim As Double = 0
       Dim itv As Double = 0
       Dim fitv As Double = 0
@@ -3727,12 +3867,7 @@ Module yocto_api
         Return Me._progress
       End If
       If (Me._progress < 0) Then
-        strdata = YAPI.DefaultEncoding.GetString(data)
-        If (strdata = "{}") Then
-          Me._parent._throw(YAPI.VERSION_MISMATCH, "device firmware is too old")
-          Return YAPI.VERSION_MISMATCH
-        End If
-        Return Me._parse(strdata)
+        Return Me.loadSummary(data)
       End If
       stream = Me._streams(Me._progress)
       stream._parseStream(data)
@@ -3741,9 +3876,9 @@ Module yocto_api
       If (dataRows.Count = 0) Then
         Return Me.get_progress()
       End If
-      tim = stream.get_realStartTimeUTC()
-      fitv = stream.get_firstDataSamplesInterval()
-      itv = stream.get_dataSamplesInterval()
+      tim = Math.Round(stream.get_realStartTimeUTC() * 1000)
+      fitv = Math.Round(stream.get_firstDataSamplesInterval() * 1000)
+      itv = Math.Round(stream.get_dataSamplesInterval() * 1000)
       If (fitv = 0) Then
         fitv = itv
       End If
@@ -3771,8 +3906,8 @@ Module yocto_api
         Else
           end_ = tim + itv
         End If
-        If ((tim >= Me._startTime) AndAlso ((Me._endTime = 0) OrElse (end_ <= Me._endTime))) Then
-          Me._measures.Add(New YMeasure(tim, end_, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
+        If ((end_ > Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (tim < Me._endTimeMs))) Then
+          Me._measures.Add(New YMeasure(tim / 1000, end_ / 1000, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
         End If
         tim = end_
       Next i_i
@@ -3878,7 +4013,7 @@ Module yocto_api
     End Function
 
     Public Overridable Function imm_get_startTimeUTC() As Long
-      Return CType(Me._startTime, Long)
+      Return CType((Me._startTimeMs / 1000.0), Long)
     End Function
 
     '''*
@@ -3911,7 +4046,7 @@ Module yocto_api
     End Function
 
     Public Overridable Function imm_get_endTimeUTC() As Long
-      Return CType(Math.Round(Me._endTime), Long)
+      Return CType(Math.Round(Me._endTimeMs / 1000.0), Long)
     End Function
 
     '''*
@@ -3963,10 +4098,10 @@ Module yocto_api
       Dim stream As YDataStream
       If (Me._progress < 0) Then
         url = "logger.json?id=" + Me._functionId
-        If (Me._startTime <> 0) Then
+        If (Me._startTimeMs <> 0) Then
           url = "" + url + "&from=" + Convert.ToString(Me.imm_get_startTimeUTC())
         End If
-        If (Me._endTime <> 0) Then
+        If (Me._endTimeMs <> 0) Then
           url = "" + url + "&to=" + Convert.ToString(Me.imm_get_endTimeUTC()+1)
         End If
       Else
@@ -4067,7 +4202,7 @@ Module yocto_api
     '''/
     Public Overridable Function get_measuresAt(measure As YMeasure) As List(Of YMeasure)
       Dim i_i As Integer
-      Dim startUtc As Double = 0
+      Dim startUtcMs As Double = 0
       Dim stream As YDataStream
       Dim dataRows As List(Of List(Of Double)) = New List(Of List(Of Double))()
       Dim measures As List(Of YMeasure) = New List(Of YMeasure)()
@@ -4079,10 +4214,10 @@ Module yocto_api
       Dim avgCol As Integer = 0
       Dim maxCol As Integer = 0
 
-      startUtc = measure.get_startTimeUTC()
+      startUtcMs = measure.get_startTimeUTC() * 1000
       stream = Nothing
       For i_i = 0 To Me._streams.Count - 1
-        If (Me._streams(i_i).get_realStartTimeUTC() = startUtc) Then
+        If (Math.Round(Me._streams(i_i).get_realStartTimeUTC() *1000) = startUtcMs) Then
           stream = Me._streams(i_i)
         End If
       Next i_i
@@ -4093,8 +4228,8 @@ Module yocto_api
       If (dataRows.Count = 0) Then
         Return measures
       End If
-      tim = stream.get_realStartTimeUTC()
-      itv = stream.get_dataSamplesInterval()
+      tim = Math.Round(stream.get_realStartTimeUTC() * 1000)
+      itv = Math.Round(stream.get_dataSamplesInterval() * 1000)
       If (tim < itv) Then
         tim = itv
       End If
@@ -4113,8 +4248,8 @@ Module yocto_api
 
       For i_i = 0 To dataRows.Count - 1
         end_ = tim + itv
-        If ((tim >= Me._startTime) AndAlso ((Me._endTime = 0) OrElse (end_ <= Me._endTime))) Then
-          measures.Add(New YMeasure(tim, end_, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
+        If ((end_ > Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (tim < Me._endTimeMs))) Then
+          measures.Add(New YMeasure(tim / 1000.0, end_ / 1000.0, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
         End If
         tim = end_
       Next i_i
@@ -10442,7 +10577,7 @@ Module yocto_api
       Return YAPI_SUCCESS
     End Function
 
-  
+
   End Class
 
   REM --- (generated code: YDataLogger functions)
