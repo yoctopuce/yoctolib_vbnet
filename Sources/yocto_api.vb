@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 33505 2018-12-05 14:45:46Z seb $
+'* $Id: yocto_api.vb 33601 2018-12-09 14:30:31Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -779,7 +779,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "33576"
+  Public Const YOCTO_API_BUILD_NO As String = "33636"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -9921,6 +9921,7 @@ Module yocto_api
   Public Const Y_BEACONDRIVEN_OFF As Integer = 0
   Public Const Y_BEACONDRIVEN_ON As Integer = 1
   Public Const Y_BEACONDRIVEN_INVALID As Integer = -1
+  Public Const Y_USAGE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CLEARHISTORY_FALSE As Integer = 0
   Public Const Y_CLEARHISTORY_TRUE As Integer = 1
   Public Const Y_CLEARHISTORY_INVALID As Integer = -1
@@ -9958,6 +9959,7 @@ Module yocto_api
     Public Const BEACONDRIVEN_OFF As Integer = 0
     Public Const BEACONDRIVEN_ON As Integer = 1
     Public Const BEACONDRIVEN_INVALID As Integer = -1
+    Public Const USAGE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CLEARHISTORY_FALSE As Integer = 0
     Public Const CLEARHISTORY_TRUE As Integer = 1
     Public Const CLEARHISTORY_INVALID As Integer = -1
@@ -9969,6 +9971,7 @@ Module yocto_api
     Protected _recording As Integer
     Protected _autoStart As Integer
     Protected _beaconDriven As Integer
+    Protected _usage As Integer
     Protected _clearHistory As Integer
     Protected _valueCallbackDataLogger As YDataLoggerValueCallback
     REM --- (end of generated code: YDataLogger attributes declaration)
@@ -9983,6 +9986,7 @@ Module yocto_api
       _recording = RECORDING_INVALID
       _autoStart = AUTOSTART_INVALID
       _beaconDriven = BEACONDRIVEN_INVALID
+      _usage = USAGE_INVALID
       _clearHistory = CLEARHISTORY_INVALID
       _valueCallbackDataLogger = Nothing
       REM --- (end of generated code: YDataLogger attributes initialization)
@@ -10005,6 +10009,9 @@ Module yocto_api
       End If
       If json_val.has("beaconDriven") Then
         If (json_val.getInt("beaconDriven") > 0) Then _beaconDriven = 1 Else _beaconDriven = 0
+      End If
+      If json_val.has("usage") Then
+        _usage = CInt(json_val.getLong("usage"))
       End If
       If json_val.has("clearHistory") Then
         If (json_val.getInt("clearHistory") > 0) Then _clearHistory = 1 Else _clearHistory = 0
@@ -10261,6 +10268,32 @@ Module yocto_api
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("beaconDriven", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the percentage of datalogger memory in use.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the percentage of datalogger memory in use
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_USAGE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_usage() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return USAGE_INVALID
+        End If
+      End If
+      res = Me._usage
+      Return res
+    End Function
+
     Public Function get_clearHistory() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
