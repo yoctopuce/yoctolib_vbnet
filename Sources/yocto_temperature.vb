@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 33082 2018-11-08 18:08:16Z seb $
+'  $Id: yocto_temperature.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -533,7 +533,7 @@ Module yocto_temperature
     ''' </summary>
     ''' <param name="tempValues">
     '''   array of floating point numbers, corresponding to all
-    '''   temperatures (in degrees Celcius) for which the resistance of the
+    '''   temperatures (in degrees Celsius) for which the resistance of the
     '''   thermistor is specified.
     ''' </param>
     ''' <param name="resValues">
@@ -614,7 +614,7 @@ Module yocto_temperature
     ''' </summary>
     ''' <param name="tempValues">
     '''   array of floating point numbers, that is filled by the function
-    '''   with all temperatures (in degrees Celcius) for which the resistance
+    '''   with all temperatures (in degrees Celsius) for which the resistance
     '''   of the thermistor is specified.
     ''' </param>
     ''' <param name="resValues">

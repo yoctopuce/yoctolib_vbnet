@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 32908 2018-11-02 10:19:28Z seb $
+'* $Id: yocto_files.vb 33719 2018-12-14 14:22:41Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -358,7 +358,7 @@ Module yocto_files
     ''' </summary>
     ''' <param name="pattern">
     '''   an optional filter pattern, using star and question marks
-    '''   as wildcards. When an empty pattern is provided, all file records
+    '''   as wild cards. When an empty pattern is provided, all file records
     '''   are returned.
     ''' </param>
     ''' <returns>
@@ -393,7 +393,7 @@ Module yocto_files
     '''   the file name to test.
     ''' </param>
     ''' <returns>
-    '''   a true if the file existe, false ortherwise.
+    '''   a true if the file exist, false otherwise.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception.

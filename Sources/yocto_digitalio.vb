@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_digitalio.vb 33135 2018-11-12 15:32:32Z mvuilleu $
+'  $Id: yocto_digitalio.vb 33722 2018-12-14 15:04:43Z seb $
 '
 '  Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '
@@ -76,7 +76,7 @@ Module yocto_digitalio
   '''   channel of the I/O port.
   ''' <para>
   '''   You can switch all channels at once, or one by one. Most functions
-  '''   use a binary represention for channels where bit 0 matches channel #0 , bit 1 matches channel
+  '''   use a binary representation for channels where bit 0 matches channel #0 , bit 1 matches channel
   '''   #1 and so on.... If you are not familiar with numbers binary representation, you will find more
   '''   information here: en.wikipedia.org/wiki/Binary_number#Representation . The library
   '''   can also automatically generate short pulses of a determined duration. Electrical behavior
@@ -665,11 +665,11 @@ Module yocto_digitalio
     '''/
     Public Overridable Function set_bitState(bitno As Integer, bitstate As Integer) As Integer
       If Not(bitstate >= 0) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bitstate")
+        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bit state")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not(bitstate <= 1) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bitstate")
+        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bit state")
         return YAPI.INVALID_ARGUMENT
       end if
       Return Me.set_command("" + Chr(82+bitstate) + "" + Convert.ToString(bitno))
@@ -797,11 +797,11 @@ Module yocto_digitalio
     '''/
     Public Overridable Function set_bitPolarity(bitno As Integer, bitpolarity As Integer) As Integer
       If Not(bitpolarity >= 0) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bitpolarity")
+        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bit polarity")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not(bitpolarity <= 1) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bitpolarity")
+        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bit polarity")
         return YAPI.INVALID_ARGUMENT
       end if
       Return Me.set_command("" + Chr(110+4*bitpolarity) + "" + Convert.ToString(bitno))

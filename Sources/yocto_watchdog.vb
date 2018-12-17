@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_watchdog.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_watchdog.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindWatchdog(), the high-level API for Watchdog functions
 '
@@ -82,13 +82,13 @@ End Class
 
   '''*
   ''' <summary>
-  '''   The watchog function works like a relay and can cause a brief power cut
+  '''   The watchdog function works like a relay and can cause a brief power cut
   '''   to an appliance after a preset delay to force this appliance to
   '''   reset.
   ''' <para>
   '''   The Watchdog must be called from time to time to reset the
   '''   timer and prevent the appliance reset.
-  '''   The watchdog can be driven direcly with <i>pulse</i> and <i>delayedpulse</i> methods to switch
+  '''   The watchdog can be driven directly with <i>pulse</i> and <i>delayedpulse</i> methods to switch
   '''   off an appliance for a given duration.
   ''' </para>
   ''' </summary>
@@ -533,7 +533,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="ms_duration">
-    '''   pulse duration, in millisecondes
+    '''   pulse duration, in milliseconds
     ''' </param>
     ''' <para>
     ''' </para>
@@ -576,10 +576,10 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="ms_delay">
-    '''   waiting time before the pulse, in millisecondes
+    '''   waiting time before the pulse, in milliseconds
     ''' </param>
     ''' <param name="ms_duration">
-    '''   pulse duration, in millisecondes
+    '''   pulse duration, in milliseconds
     ''' </param>
     ''' <para>
     ''' </para>
@@ -625,14 +625,14 @@ End Class
 
     '''*
     ''' <summary>
-    '''   Returns the watchdog runing state at module power on.
+    '''   Returns the watchdog running state at module power on.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_AUTOSTART_OFF</c> or <c>Y_AUTOSTART_ON</c>, according to the watchdog runing state at
+    '''   either <c>Y_AUTOSTART_OFF</c> or <c>Y_AUTOSTART_ON</c>, according to the watchdog running state at
     '''   module power on
     ''' </returns>
     ''' <para>
@@ -653,7 +653,7 @@ End Class
 
     '''*
     ''' <summary>
-    '''   Changes the watchdog runningsttae at module power on.
+    '''   Changes the watchdog running state at module power on.
     ''' <para>
     '''   Remember to call the
     '''   <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
@@ -662,7 +662,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_AUTOSTART_OFF</c> or <c>Y_AUTOSTART_ON</c>, according to the watchdog runningsttae at
+    '''   either <c>Y_AUTOSTART_OFF</c> or <c>Y_AUTOSTART_ON</c>, according to the watchdog running state at
     '''   module power on
     ''' </param>
     ''' <para>
@@ -737,7 +737,7 @@ End Class
     '''   Resets the watchdog.
     ''' <para>
     '''   When the watchdog is running, this function
-    '''   must be called on a regular basis to prevent the watchog to
+    '''   must be called on a regular basis to prevent the watchdog to
     '''   trigger
     ''' </para>
     ''' <para>

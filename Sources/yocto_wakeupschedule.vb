@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupschedule.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_wakeupschedule.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindWakeUpSchedule(), the high-level API for WakeUpSchedule functions
 '
@@ -200,14 +200,14 @@ Module yocto_wakeupschedule
     End Function
     '''*
     ''' <summary>
-    '''   Returns the minutes in the 30-59 intervalof each hour scheduled for wake up.
+    '''   Returns the minutes in the 30-59 interval of each hour scheduled for wake up.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the minutes in the 30-59 intervalof each hour scheduled for wake up
+    '''   an integer corresponding to the minutes in the 30-59 interval of each hour scheduled for wake up
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_MINUTESB_INVALID</c>.
@@ -460,14 +460,14 @@ Module yocto_wakeupschedule
     End Function
     '''*
     ''' <summary>
-    '''   Returns the date/time (seconds) of the next wake up occurence.
+    '''   Returns the date/time (seconds) of the next wake up occurrence.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the date/time (seconds) of the next wake up occurence
+    '''   an integer corresponding to the date/time (seconds) of the next wake up occurrence
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_NEXTOCCURENCE_INVALID</c>.

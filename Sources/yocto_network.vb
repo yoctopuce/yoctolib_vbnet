@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_network.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -821,7 +821,7 @@ Module yocto_network
     '''   Changes the default HTML page returned by the hub.
     ''' <para>
     '''   If not value are set the hub return
-    '''   "index.html" which is the web interface of the hub. It is possible de change this page
+    '''   "index.html" which is the web interface of the hub. It is possible to change this page
     '''   for file that has been uploaded on the hub.
     ''' </para>
     ''' <para>
@@ -876,7 +876,7 @@ Module yocto_network
     '''   Changes the default HTML page returned by the hub.
     ''' <para>
     '''   If not value are set the hub return
-    '''   "index.html" which is the web interface of the hub. It is possible de change this page
+    '''   "index.html" which is the web interface of the hub. It is possible to change this page
     '''   for file that has been uploaded on the hub.
     ''' </para>
     ''' <para>
@@ -1498,7 +1498,7 @@ Module yocto_network
     End Function
     '''*
     ''' <summary>
-    '''   Returns the current consumed by the module from Power-over-Ethernet (PoE), in milli-amps.
+    '''   Returns the current consumed by the module from Power-over-Ethernet (PoE), in milliamps.
     ''' <para>
     '''   The current consumption is measured after converting PoE source to 5 Volt, and should
     '''   never exceed 1800 mA.
@@ -1507,7 +1507,7 @@ Module yocto_network
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the current consumed by the module from Power-over-Ethernet (PoE), in milli-amps
+    '''   an integer corresponding to the current consumed by the module from Power-over-Ethernet (PoE), in milliamps
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_POECURRENT_INVALID</c>.
@@ -1643,7 +1643,7 @@ Module yocto_network
     ''' </param>
     ''' <param name="fallbackSubnetMaskLen">
     '''   fallback subnet mask length when no DHCP reply is received, as an
-    '''   integer (eg. 24 means 255.255.255.0)
+    '''   integer (e.g. 24 means 255.255.255.0)
     ''' </param>
     ''' <param name="fallbackRouter">
     '''   fallback router IP address, to be used when no DHCP reply is received
@@ -1691,7 +1691,7 @@ Module yocto_network
     '''   device IP address
     ''' </param>
     ''' <param name="subnetMaskLen">
-    '''   subnet mask length, as an integer (eg. 24 means 255.255.255.0)
+    '''   subnet mask length, as an integer (e.g. 24 means 255.255.255.0)
     ''' </param>
     ''' <param name="router">
     '''   router IP address (default gateway)
@@ -1755,7 +1755,7 @@ Module yocto_network
 
     '''*
     ''' <summary>
-    '''   Setup periodic HTTP callbacks (simplifed function).
+    '''   Setup periodic HTTP callbacks (simplified function).
     ''' <para>
     ''' </para>
     ''' </summary>

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_gps.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_gps.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindGps(), the high-level API for Gps functions
 '
@@ -79,12 +79,12 @@ Module yocto_gps
 
   '''*
   ''' <summary>
-  '''   The Gps function allows you to extract positionning
+  '''   The GPS function allows you to extract positioning
   '''   data from the GPS device.
   ''' <para>
   '''   This class can provides
-  '''   complete positionning information: However, if you
-  '''   whish to define callbacks on position changes, you
+  '''   complete positioning information: However, if you
+  '''   wish to define callbacks on position changes, you
   '''   should use the YLatitude et YLongitude classes.
   ''' </para>
   ''' </summary>

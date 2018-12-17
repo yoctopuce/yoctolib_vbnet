@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_latitude.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_latitude.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindLatitude(), the high-level API for Latitude functions
 '
@@ -62,7 +62,7 @@ Module yocto_latitude
   '''*
   ''' <summary>
   '''   The Yoctopuce class YLatitude allows you to read the latitude from Yoctopuce
-  '''   geolocalization sensors.
+  '''   geolocation sensors.
   ''' <para>
   '''   It inherits from the YSensor class the core functions to
   '''   read measurements, to register callback functions, to access the autonomous

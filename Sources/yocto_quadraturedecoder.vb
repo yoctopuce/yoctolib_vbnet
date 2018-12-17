@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_quadraturedecoder.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_quadraturedecoder.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '
@@ -122,7 +122,7 @@ Module yocto_quadraturedecoder
     ''' <summary>
     '''   Changes the current expected position of the quadrature decoder.
     ''' <para>
-    '''   Invoking this function implicitely activates the quadrature decoder.
+    '''   Invoking this function implicitly activates the quadrature decoder.
     ''' </para>
     ''' <para>
     ''' </para>

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_spiport.vb 33722 2018-12-14 15:04:43Z seb $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -75,9 +75,9 @@ Module yocto_spiport
   Public Const Y_SSPOLARITY_ACTIVE_LOW As Integer = 0
   Public Const Y_SSPOLARITY_ACTIVE_HIGH As Integer = 1
   Public Const Y_SSPOLARITY_INVALID As Integer = -1
-  Public Const Y_SHITFTSAMPLING_OFF As Integer = 0
-  Public Const Y_SHITFTSAMPLING_ON As Integer = 1
-  Public Const Y_SHITFTSAMPLING_INVALID As Integer = -1
+  Public Const Y_SHIFTSAMPLING_OFF As Integer = 0
+  Public Const Y_SHIFTSAMPLING_ON As Integer = 1
+  Public Const Y_SHIFTSAMPLING_INVALID As Integer = -1
   Public Delegate Sub YSpiPortValueCallback(ByVal func As YSpiPort, ByVal value As String)
   Public Delegate Sub YSpiPortTimedReportCallback(ByVal func As YSpiPort, ByVal measure As YMeasure)
   REM --- (end of YSpiPort globals)
@@ -122,9 +122,9 @@ Module yocto_spiport
     Public Const SSPOLARITY_ACTIVE_LOW As Integer = 0
     Public Const SSPOLARITY_ACTIVE_HIGH As Integer = 1
     Public Const SSPOLARITY_INVALID As Integer = -1
-    Public Const SHITFTSAMPLING_OFF As Integer = 0
-    Public Const SHITFTSAMPLING_ON As Integer = 1
-    Public Const SHITFTSAMPLING_INVALID As Integer = -1
+    Public Const SHIFTSAMPLING_OFF As Integer = 0
+    Public Const SHIFTSAMPLING_ON As Integer = 1
+    Public Const SHIFTSAMPLING_INVALID As Integer = -1
     REM --- (end of YSpiPort definitions)
 
     REM --- (YSpiPort attributes declaration)
@@ -141,7 +141,7 @@ Module yocto_spiport
     Protected _protocol As String
     Protected _spiMode As String
     Protected _ssPolarity As Integer
-    Protected _shitftSampling As Integer
+    Protected _shiftSampling As Integer
     Protected _valueCallbackSpiPort As YSpiPortValueCallback
     Protected _rxptr As Integer
     Protected _rxbuff As Byte()
@@ -165,7 +165,7 @@ Module yocto_spiport
       _protocol = PROTOCOL_INVALID
       _spiMode = SPIMODE_INVALID
       _ssPolarity = SSPOLARITY_INVALID
-      _shitftSampling = SHITFTSAMPLING_INVALID
+      _shiftSampling = SHIFTSAMPLING_INVALID
       _valueCallbackSpiPort = Nothing
       _rxptr = 0
       _rxbuffptr = 0
@@ -214,8 +214,8 @@ Module yocto_spiport
       If json_val.has("ssPolarity") Then
         If (json_val.getInt("ssPolarity") > 0) Then _ssPolarity = 1 Else _ssPolarity = 0
       End If
-      If json_val.has("shitftSampling") Then
-        If (json_val.getInt("shitftSampling") > 0) Then _shitftSampling = 1 Else _shitftSampling = 0
+      If json_val.has("shiftSampling") Then
+        If (json_val.getInt("shiftSampling") > 0) Then _shiftSampling = 1 Else _shiftSampling = 0
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -748,21 +748,21 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_SHITFTSAMPLING_OFF</c> or <c>Y_SHITFTSAMPLING_ON</c>, according to true when the SDI
-    '''   line phase is shifted with regards to the SDO line
+    '''   either <c>Y_SHIFTSAMPLING_OFF</c> or <c>Y_SHIFTSAMPLING_ON</c>, according to true when the SDI line
+    '''   phase is shifted with regards to the SDO line
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SHITFTSAMPLING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_SHIFTSAMPLING_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_shitftSampling() As Integer
+    Public Function get_shiftSampling() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return SHITFTSAMPLING_INVALID
+          Return SHIFTSAMPLING_INVALID
         End If
       End If
-      res = Me._shitftSampling
+      res = Me._shiftSampling
       Return res
     End Function
 
@@ -779,7 +779,7 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_SHITFTSAMPLING_OFF</c> or <c>Y_SHITFTSAMPLING_ON</c>, according to the SDI line sampling shift
+    '''   either <c>Y_SHIFTSAMPLING_OFF</c> or <c>Y_SHIFTSAMPLING_ON</c>, according to the SDI line sampling shift
     ''' </param>
     ''' <para>
     ''' </para>
@@ -790,10 +790,10 @@ Module yocto_spiport
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_shitftSampling(ByVal newval As Integer) As Integer
+    Public Function set_shiftSampling(ByVal newval As Integer) As Integer
       Dim rest_val As String
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
-      Return _setAttr("shitftSampling", rest_val)
+      Return _setAttr("shiftSampling", rest_val)
     End Function
     '''*
     ''' <summary>

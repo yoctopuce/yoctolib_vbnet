@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 33601 2018-12-09 14:30:31Z mvuilleu $
+'* $Id: yocto_api.vb 33719 2018-12-14 14:22:41Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -779,7 +779,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "33657"
+  Public Const YOCTO_API_BUILD_NO As String = "33736"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1649,7 +1649,7 @@ Module yocto_api
     ''' </para>
     ''' <para>
     '''   <b>usb</b>: When the <c>usb</c> keyword is used, the API will work with
-    '''   devices connected directly to the USB bus. Some programming languages such a Javascript,
+    '''   devices connected directly to the USB bus. Some programming languages such a JavaScript,
     '''   PHP, and Java don't provide direct access to USB hardware, so <c>usb</c> will
     '''   not work with these. In this case, use a VirtualHub or a networked YoctoHub (see below).
     ''' </para>
@@ -3736,7 +3736,7 @@ Module yocto_api
       summaryStartMs = YAPI.MAX_DOUBLE
       summaryStopMs = YAPI.MIN_DOUBLE
 
-      REM // Parse comlete streams
+      REM // Parse complete streams
       For i_i = 0 To  Me._streams.Count - 1
         streamStartTimeMs = Math.Round( Me._streams(i_i).get_realStartTimeUTC() *1000)
         streamDuration =  Me._streams(i_i).get_realDuration()
@@ -3751,7 +3751,7 @@ Module yocto_api
           previewDuration = streamDuration
         Else
           REM // stream that are partially in the dataset
-          REM // we need to parse data to filter value outide the dataset
+          REM // we need to parse data to filter value outside the dataset
           url =  Me._streams(i_i)._get_url()
           data = Me._parent._download(url)
           Me._streams(i_i)._parseStream(data)
@@ -6682,14 +6682,14 @@ Module yocto_api
     End Function
     '''*
     ''' <summary>
-    '''   Returns the luminosity of the  module informative leds (from 0 to 100).
+    '''   Returns the luminosity of the  module informative LEDs (from 0 to 100).
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the luminosity of the  module informative leds (from 0 to 100)
+    '''   an integer corresponding to the luminosity of the  module informative LEDs (from 0 to 100)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_LUMINOSITY_INVALID</c>.
@@ -8909,7 +8909,7 @@ Module yocto_api
     ''' <para>
     '''   The frequency can be specified as samples per second,
     '''   as sample per minute (for instance "15/m") or in samples per
-    '''   hour (eg. "4/h"). To disable timed value notifications for this
+    '''   hour (e.g. "4/h"). To disable timed value notifications for this
     '''   function, use the value "OFF".
     ''' </para>
     ''' <para>
@@ -9235,7 +9235,7 @@ Module yocto_api
             Return 0
           End If
         End If
-        REM // New 32bit text format
+        REM // New 32 bits text format
         Me._offset = 0
         Me._scale = 1000
         maxpos = iCalib.Count
@@ -9437,13 +9437,13 @@ Module yocto_api
     '''   the start of the desired measure time interval,
     '''   as a Unix timestamp, i.e. the number of seconds since
     '''   January 1, 1970 UTC. The special value 0 can be used
-    '''   to include any meaasure, without initial limit.
+    '''   to include any measure, without initial limit.
     ''' </param>
     ''' <param name="endTime">
     '''   the end of the desired measure time interval,
     '''   as a Unix timestamp, i.e. the number of seconds since
     '''   January 1, 1970 UTC. The special value 0 can be used
-    '''   to include any meaasure, without ending limit.
+    '''   to include any measure, without ending limit.
     ''' </param>
     ''' <returns>
     '''   an instance of YDataSet, providing access to historical
@@ -9663,7 +9663,7 @@ Module yocto_api
       If (startTime = 0) Then
         startTime = endTime
       End If
-      REM // 32bit timed report format
+      REM // 32 bits timed report format
       If (report.Count <= 5) Then
         REM // sub-second report, 1-4 bytes
         poww = 1
@@ -11209,7 +11209,7 @@ Module yocto_api
   ''' </para>
   ''' <para>
   '''   <b>usb</b>: When the <c>usb</c> keyword is used, the API will work with
-  '''   devices connected directly to the USB bus. Some programming languages such a Javascript,
+  '''   devices connected directly to the USB bus. Some programming languages such a JavaScript,
   '''   PHP, and Java don't provide direct access to USB hardware, so <c>usb</c> will
   '''   not work with these. In this case, use a VirtualHub or a networked YoctoHub (see below).
   ''' </para>

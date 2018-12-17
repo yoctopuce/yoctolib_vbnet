@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_poweroutput.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_poweroutput.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindPowerOutput(), the high-level API for PowerOutput functions
 '
@@ -66,7 +66,7 @@ Module yocto_poweroutput
   '''*
   ''' <summary>
   '''   Yoctopuce application programming interface allows you to control
-  '''   the power ouput featured on some devices such as the Yocto-Serial.
+  '''   the power output featured on some devices such as the Yocto-Serial.
   ''' <para>
   ''' </para>
   ''' </summary>
@@ -168,7 +168,7 @@ Module yocto_poweroutput
     End Function
     '''*
     ''' <summary>
-    '''   Retrieves a dual power  ouput control for a given identifier.
+    '''   Retrieves a dual power  output control for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -192,11 +192,11 @@ Module yocto_poweroutput
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the power ouput control is online at the time
+    '''   This function does not require that the power output control is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YPowerOutput.isOnline()</c> to test if the power ouput control is
+    '''   Use the method <c>YPowerOutput.isOnline()</c> to test if the power output control is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a dual power  ouput control by logical name, no error is notified: the first instance
+    '''   a dual power  output control by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -209,10 +209,10 @@ Module yocto_poweroutput
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the power ouput control
+    '''   a string that uniquely characterizes the power output control
     ''' </param>
     ''' <returns>
-    '''   a <c>YPowerOutput</c> object allowing you to drive the power ouput control.
+    '''   a <c>YPowerOutput</c> object allowing you to drive the power output control.
     ''' </returns>
     '''/
     Public Shared Function FindPowerOutput(func As String) As YPowerOutput
@@ -273,17 +273,17 @@ Module yocto_poweroutput
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of dual power ouput controls started using <c>yFirstPowerOutput()</c>.
+    '''   Continues the enumeration of dual power output controls started using <c>yFirstPowerOutput()</c>.
     ''' <para>
-    '''   Caution: You can't make any assumption about the returned dual power ouput controls order.
-    '''   If you want to find a specific a dual power  ouput control, use <c>PowerOutput.findPowerOutput()</c>
+    '''   Caution: You can't make any assumption about the returned dual power output controls order.
+    '''   If you want to find a specific a dual power  output control, use <c>PowerOutput.findPowerOutput()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YPowerOutput</c> object, corresponding to
-    '''   a dual power  ouput control currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more dual power ouput controls to enumerate.
+    '''   a dual power  output control currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more dual power output controls to enumerate.
     ''' </returns>
     '''/
     Public Function nextPowerOutput() As YPowerOutput
@@ -299,15 +299,15 @@ Module yocto_poweroutput
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of dual power ouput controls currently accessible.
+    '''   Starts the enumeration of dual power output controls currently accessible.
     ''' <para>
     '''   Use the method <c>YPowerOutput.nextPowerOutput()</c> to iterate on
-    '''   next dual power ouput controls.
+    '''   next dual power output controls.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YPowerOutput</c> object, corresponding to
-    '''   the first dual power ouput control currently online, or a <c>Nothing</c> pointer
+    '''   the first dual power output control currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -346,7 +346,7 @@ Module yocto_poweroutput
 
   '''*
   ''' <summary>
-  '''   Retrieves a dual power  ouput control for a given identifier.
+  '''   Retrieves a dual power  output control for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -370,11 +370,11 @@ Module yocto_poweroutput
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the power ouput control is online at the time
+  '''   This function does not require that the power output control is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YPowerOutput.isOnline()</c> to test if the power ouput control is
+  '''   Use the method <c>YPowerOutput.isOnline()</c> to test if the power output control is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a dual power  ouput control by logical name, no error is notified: the first instance
+  '''   a dual power  output control by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -387,10 +387,10 @@ Module yocto_poweroutput
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the power ouput control
+  '''   a string that uniquely characterizes the power output control
   ''' </param>
   ''' <returns>
-  '''   a <c>YPowerOutput</c> object allowing you to drive the power ouput control.
+  '''   a <c>YPowerOutput</c> object allowing you to drive the power output control.
   ''' </returns>
   '''/
   Public Function yFindPowerOutput(ByVal func As String) As YPowerOutput
@@ -399,15 +399,15 @@ Module yocto_poweroutput
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of dual power ouput controls currently accessible.
+  '''   Starts the enumeration of dual power output controls currently accessible.
   ''' <para>
   '''   Use the method <c>YPowerOutput.nextPowerOutput()</c> to iterate on
-  '''   next dual power ouput controls.
+  '''   next dual power output controls.
   ''' </para>
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YPowerOutput</c> object, corresponding to
-  '''   the first dual power ouput control currently online, or a <c>Nothing</c> pointer
+  '''   the first dual power output control currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

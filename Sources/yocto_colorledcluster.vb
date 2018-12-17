@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorledcluster.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_colorledcluster.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '
@@ -459,7 +459,7 @@ Module yocto_colorledcluster
 
     '''*
     ''' <summary>
-    '''   Changes the current color of consecutve LEDs in the cluster, using a RGB color.
+    '''   Changes the current color of consecutive LEDs in the cluster, using a RGB color.
     ''' <para>
     '''   Encoding is done as follows: 0xRRGGBB.
     ''' </para>
@@ -486,7 +486,7 @@ Module yocto_colorledcluster
 
     '''*
     ''' <summary>
-    '''   Changes the  color at device startup of consecutve LEDs in the cluster, using a RGB color.
+    '''   Changes the  color at device startup of consecutive LEDs in the cluster, using a RGB color.
     ''' <para>
     '''   Encoding is done as follows: 0xRRGGBB.
     '''   Don't forget to call <c>saveLedsConfigAtPowerOn()</c> to make sure the modification is saved in the
@@ -515,7 +515,7 @@ Module yocto_colorledcluster
 
     '''*
     ''' <summary>
-    '''   Changes the  color at device startup of consecutve LEDs in the cluster, using a HSL color.
+    '''   Changes the  color at device startup of consecutive LEDs in the cluster, using a HSL color.
     ''' <para>
     '''   Encoding is done as follows: 0xHHSSLL.
     '''   Don't forget to call <c>saveLedsConfigAtPowerOn()</c> to make sure the modification is saved in the
@@ -615,7 +615,7 @@ Module yocto_colorledcluster
     ''' </para>
     ''' </summary>
     ''' <param name="ledIndex">
-    '''   index of the fisrt affected LED.
+    '''   index of the first affected LED.
     ''' </param>
     ''' <param name="count">
     '''   affected LED count.
@@ -671,7 +671,7 @@ Module yocto_colorledcluster
     '''   Adds an HSL transition to a sequence.
     ''' <para>
     '''   A sequence is a transition list, which can
-    '''   be executed in loop by an group of LEDs.  Sequences are persistant and are saved
+    '''   be executed in loop by an group of LEDs.  Sequences are persistent and are saved
     '''   in the device flash memory as soon as the <c>saveBlinkSeq()</c> method is called.
     ''' </para>
     ''' </summary>
@@ -804,7 +804,7 @@ Module yocto_colorledcluster
 
     '''*
     ''' <summary>
-    '''   Links adjacent LEDs to a specific sequence at device poweron.
+    '''   Links adjacent LEDs to a specific sequence at device power-on.
     ''' <para>
     '''   Don't forget to configure
     '''   the sequence auto start flag as well and call <c>saveLedsConfigAtPowerOn()</c>. It is possible to add an offset
@@ -939,7 +939,7 @@ Module yocto_colorledcluster
     ''' <summary>
     '''   Stops a sequence execution and resets its contents.
     ''' <para>
-    '''   Leds linked to this
+    '''   LEDs linked to this
     '''   sequence are not automatically updated anymore.
     ''' </para>
     ''' </summary>
@@ -1369,7 +1369,7 @@ Module yocto_colorledcluster
     '''*
     ''' <summary>
     '''   Returns a list on 24bit RGB color values with the current colors displayed on
-    '''   the RGB leds.
+    '''   the RGB LEDs.
     ''' <para>
     '''   The first number represents the RGB value of the first LED,
     '''   the second number represents the RGB value of the second LED, etc.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_relay.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_relay.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindRelay(), the high-level API for Relay functions
 '
@@ -500,7 +500,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="ms_duration">
-    '''   pulse duration, in millisecondes
+    '''   pulse duration, in milliseconds
     ''' </param>
     ''' <para>
     ''' </para>
@@ -543,10 +543,10 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="ms_delay">
-    '''   waiting time before the pulse, in millisecondes
+    '''   waiting time before the pulse, in milliseconds
     ''' </param>
     ''' <param name="ms_duration">
-    '''   pulse duration, in millisecondes
+    '''   pulse duration, in milliseconds
     ''' </param>
     ''' <para>
     ''' </para>

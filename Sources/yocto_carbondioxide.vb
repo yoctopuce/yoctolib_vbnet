@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_carbondioxide.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_carbondioxide.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '
@@ -68,7 +68,7 @@ Module yocto_carbondioxide
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
   '''   to register callback functions,  to access the autonomous datalogger.
-  '''   This class adds the ability to perform manual calibration if reuired.
+  '''   This class adds the ability to perform manual calibration if required.
   ''' </para>
   ''' </summary>
   '''/
@@ -149,7 +149,7 @@ Module yocto_carbondioxide
     ''' <para>
     '''   If you need
     '''   to disable automatic baseline calibration (for instance when using the
-    '''   sensor in an environment that is constantly above 400ppm CO2), set the
+    '''   sensor in an environment that is constantly above 400 ppm CO2), set the
     '''   period to -1. Remember to call the <c>saveToFlash()</c> method of the
     '''   module if the modification must be kept.
     ''' </para>
@@ -343,7 +343,7 @@ Module yocto_carbondioxide
     '''   automatic calibration period. However, if you disable automatic baseline
     '''   calibration, you may want to manually trigger a calibration from time to
     '''   time. Before starting a baseline calibration, make sure to put the sensor
-    '''   in a standard environment (e.g. outside in fresh air) at around 400ppm.
+    '''   in a standard environment (e.g. outside in fresh air) at around 400 ppm.
     ''' </para>
     ''' <para>
     ''' </para>

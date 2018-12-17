@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorled.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_colorled.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindColorLed(), the high-level API for ColorLed functions
 '
@@ -651,7 +651,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="HSLcolor">
-    '''   desired HSL color when the traisntion is completed
+    '''   desired HSL color when the transition is completed
     ''' </param>
     ''' <param name="msDelay">
     '''   duration of the color transition, in milliseconds.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_voltageoutput.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_voltageoutput.vb 33719 2018-12-14 14:22:41Z seb $
 '
 '  Implements yFindVoltageOutput(), the high-level API for VoltageOutput functions
 '
@@ -345,7 +345,7 @@ Module yocto_voltageoutput
 
     '''*
     ''' <summary>
-    '''   Performs a smooth transistion of output voltage.
+    '''   Performs a smooth transition of output voltage.
     ''' <para>
     '''   Any explicit voltage
     '''   change cancels any ongoing transition process.
