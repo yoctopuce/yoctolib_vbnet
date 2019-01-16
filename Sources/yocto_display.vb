@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 33719 2018-12-14 14:22:41Z seb $
+'* $Id: yocto_display.vb 33877 2018-12-26 12:19:48Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -406,7 +406,8 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <param name="fontname">
-    '''   the font file name
+    '''   the font file name, embedded fonts are 8x8.yfm, Small.yfm, Medium.yfm, Large.yfm (not available on
+    '''   Yocto-MiniDisplay).
     ''' </param>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.

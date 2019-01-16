@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_network.vb 34022 2019-01-15 18:21:34Z seb $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -641,6 +641,8 @@ Module yocto_network
     ''' <summary>
     '''   Changes the IP address of the NTP server to be used by the module.
     ''' <para>
+    '''   Use an empty
+    '''   string to restore the factory set  address.
     '''   Remember to call the <c>saveToFlash()</c> method and then to reboot the module to apply this setting.
     ''' </para>
     ''' <para>

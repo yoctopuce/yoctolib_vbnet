@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 33719 2018-12-14 14:22:41Z seb $
+'* $Id: yocto_api.vb 33916 2018-12-28 10:38:18Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -779,7 +779,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "33736"
+  Public Const YOCTO_API_BUILD_NO As String = "34022"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1831,7 +1831,9 @@ Module yocto_api
     ''' </para>
     ''' <para>
     '''   This function can be called as frequently as desired to refresh the device list
-    '''   and to make the application aware of hot-plug events.
+    '''   and to make the application aware of hot-plug events. However, since device
+    '''   detection is quite a heavy process, UpdateDeviceList shouldn't be called more
+    '''   than once every two seconds.
     ''' </para>
     ''' </summary>
     ''' <param name="errmsg">
@@ -5346,6 +5348,25 @@ Module yocto_api
       Return YAPI.DefaultEncoding.GetString(attrVal)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the serial number of the module, as set by the factory.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the serial number of the module, as set by the factory.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+    ''' </para>
+    '''/
+    Public Overridable Function get_serialNumber() As String
+      Dim m As YModule
+      m = Me.get_module()
+      Return m.get_serialNumber()
+    End Function
+
     Public Overridable Function _parserHelper() As Integer
       Return 0
     End Function
@@ -6555,10 +6576,10 @@ Module yocto_api
     '''   a string corresponding to the serial number of the module, as set by the factory
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SERIALNUMBER_INVALID</c>.
+    '''   On failure, throws an exception or returns Y_SERIALNUMBER_INVALID.
     ''' </para>
     '''/
-    Public Function get_serialNumber() As String
+    Public Overrides Function get_serialNumber() As String
       Dim res As String
       If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
@@ -8649,6 +8670,14 @@ Module yocto_api
     ''' <summary>
     '''   Returns the current value of the measure, in the specified unit, as a floating point number.
     ''' <para>
+    '''   Note that a get_currentValue() call will *not* start a measure in the device, it
+    '''   will just return the last measure that occurred in the device. Indeed, internally, each Yoctopuce
+    '''   devices is continuously making measurements at a hardware specific frequency.
+    ''' </para>
+    ''' <para>
+    '''   If continuously calling  get_currentValue() leads you to performances issues, then
+    '''   you might consider to switch to callback programming model. Check the "advanced
+    '''   programming" chapter in in your device user manual for more information.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -8852,7 +8881,9 @@ Module yocto_api
     '''   The frequency can be specified as samples per second,
     '''   as sample per minute (for instance "15/m") or in samples per
     '''   hour (eg. "4/h"). To disable recording for this function, use
-    '''   the value "OFF".
+    '''   the value "OFF". Note that setting the  datalogger recording frequency
+    '''   to a greater value than the sensor native sampling frequency is useless,
+    '''   and even counterproductive: those two frequencies are not related.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -8910,7 +8941,10 @@ Module yocto_api
     '''   The frequency can be specified as samples per second,
     '''   as sample per minute (for instance "15/m") or in samples per
     '''   hour (e.g. "4/h"). To disable timed value notifications for this
-    '''   function, use the value "OFF".
+    '''   function, use the value "OFF". Note that setting the  timed value
+    '''   notification frequency to a greater value than the sensor native
+    '''   sampling frequency is unless, and even counterproductive: those two
+    '''   frequencies are not related.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -9938,7 +9972,8 @@ Module yocto_api
   '''   data automatically, without requiring a permanent connection to a computer.
   ''' <para>
   '''   The DataLogger function controls the global parameters of the internal data
-  '''   logger.
+  '''   logger. Recording control (start/stop) as well as data retreival is done at
+  '''   sensor objects level.
   ''' </para>
   ''' </summary>
   '''/
@@ -10188,8 +10223,10 @@ Module yocto_api
     ''' <summary>
     '''   Changes the default activation state of the data logger on power up.
     ''' <para>
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
+    '''   Do not forget to call the <c>saveToFlash()</c> method of the module to save the
+    '''   configuration change.  Note: if the device doesn't have any time source at his disposal when
+    '''   starting up, it will wait for ~8 seconds before automatically starting to record  with
+    '''   an arbitrary timestamp
     ''' </para>
     ''' <para>
     ''' </para>
@@ -11357,7 +11394,9 @@ Module yocto_api
   ''' </para>
   ''' <para>
   '''   This function can be called as frequently as desired to refresh the device list
-  '''   and to make the application aware of hot-plug events.
+  '''   and to make the application aware of hot-plug events. However, since device
+  '''   detection is quite a heavy process, UpdateDeviceList shouldn't be called more
+  '''   than once every two seconds.
   ''' </para>
   ''' </summary>
   ''' <param name="errmsg">
