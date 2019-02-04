@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_buzzer.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_buzzer.vb 34289 2019-02-03 21:12:49Z mvuilleu $
 '
 '  Implements yFindBuzzer(), the high-level API for Buzzer functions
 '
@@ -757,6 +757,36 @@ Module yocto_buzzer
     '''/
     Public Overridable Function oncePlaySeq() As Integer
       Return Me.sendCommand("s")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Saves the preprogrammed playing sequence to flash memory.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function savePlaySeq() As Integer
+      Return Me.sendCommand("W")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reloads the preprogrammed playing sequence from the flash memory.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function reloadPlaySeq() As Integer
+      Return Me.sendCommand("R")
     End Function
 
     '''*
