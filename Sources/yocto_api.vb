@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 33916 2018-12-28 10:38:18Z seb $
+'* $Id: yocto_api.vb 34553 2019-03-06 10:16:15Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -131,6 +131,7 @@ Module yocto_api
       Dim sti As Char = data(start)
       While start < [stop] AndAlso (sti = ControlChars.Lf OrElse sti = ControlChars.Cr OrElse sti = " "c)
         start += 1
+        sti = data(start)
       End While
       Return start
     End Function
@@ -178,7 +179,7 @@ Module yocto_api
     Public Overrides Function parse() As Integer
       Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
 
-      If _data(cur_pos) <> "["c Then
+      If cur_pos >= _data_boundary  OrElse _data(cur_pos) <> "["c Then
         Throw New System.Exception(FormatError("Opening braces was expected", cur_pos))
       End If
       cur_pos += 1
@@ -334,7 +335,7 @@ Module yocto_api
       Dim value As String = ""
       Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
 
-      If _data(cur_pos) <> """"c Then
+      If cur_pos >= _data_boundary  OrElse _data(cur_pos) <> """"c Then
         Throw New System.Exception(FormatError("double quote was expected", cur_pos))
       End If
       cur_pos += 1
@@ -530,7 +531,7 @@ Module yocto_api
       Dim name_start As Integer = _data_start
       Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
 
-      If _data.Length <= cur_pos OrElse _data(cur_pos) <> "{"c Then
+      If _data.Length <= cur_pos OrElse cur_pos >= _data_boundary  OrElse _data(cur_pos) <> "{"c Then
         Throw New System.Exception(FormatError("Opening braces was expected", cur_pos))
       End If
       cur_pos += 1
@@ -779,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "34302"
+  Public Const YOCTO_API_BUILD_NO As String = "34560"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
