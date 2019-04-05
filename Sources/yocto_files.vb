@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 33719 2018-12-14 14:22:41Z seb $
+'* $Id: yocto_files.vb 34651 2019-03-15 17:21:54Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -58,6 +58,14 @@ Module yocto_files
 
   REM --- (generated code: YFileRecord class start)
 
+  '''*
+  ''' <summary>
+  '''   YFileRecord objects are used to describe a file that is stored on a Yoctopuce device.
+  ''' <para>
+  '''   These objects are used in particular in conjunction with the YFiles class.
+  ''' </para>
+  ''' </summary>
+  '''/
   Public Class YFileRecord
     REM --- (end of generated code: YFileRecord class start)
 
@@ -75,14 +83,44 @@ Module yocto_files
     REM --- (end of generated code: YFileRecord private methods declaration)
 
     REM --- (generated code: YFileRecord public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the name of the file.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with the name of the file.
+    ''' </returns>
+    '''/
     Public Overridable Function get_name() As String
       Return Me._name
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the size of the file in bytes.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the size of the file.
+    ''' </returns>
+    '''/
     Public Overridable Function get_size() As Integer
       Return Me._size
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the 32-bit CRC of the file content.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the 32-bit CRC of the file content.
+    ''' </returns>
+    '''/
     Public Overridable Function get_crc() As Integer
       Return Me._crc
     End Function

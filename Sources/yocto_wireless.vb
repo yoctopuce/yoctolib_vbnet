@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 33719 2018-12-14 14:22:41Z seb $
+'* $Id: yocto_wireless.vb 34651 2019-03-15 17:21:54Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -74,6 +74,15 @@ Module yocto_wireless
 
   REM --- (generated code: YWlanRecord class start)
 
+  '''*
+  ''' <summary>
+  '''   YWlanRecord objects are used to describe a wireless network.
+  ''' <para>
+  '''   These objects are  used in particular in conjunction with the
+  '''   YWireless class.
+  ''' </para>
+  ''' </summary>
+  '''/
   Public Class YWlanRecord
     REM --- (end of generated code: YWlanRecord class start)
     REM --- (generated code: YWlanRecord definitions)
@@ -90,18 +99,58 @@ Module yocto_wireless
     REM --- (end of generated code: YWlanRecord private methods declaration)
 
     REM --- (generated code: YWlanRecord public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the name of the wireless network (SSID).
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with the name of the wireless network (SSID).
+    ''' </returns>
+    '''/
     Public Overridable Function get_ssid() As String
       Return Me._ssid
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the 802.11 channel.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the 802.11 channel.
+    ''' </returns>
+    '''/
     Public Overridable Function get_channel() As Integer
       Return Me._channel
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the security algorithm used by the wireless network.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with the security algorithm.
+    ''' </returns>
+    '''/
     Public Overridable Function get_security() As String
       Return Me._sec
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the quality of the wireless network link, in per cents.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the quality of the wireless network link, in per cents.
+    ''' </returns>
+    '''/
     Public Overridable Function get_linkQuality() As Integer
       Return Me._rssi
     End Function

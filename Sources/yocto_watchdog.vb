@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_watchdog.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_watchdog.vb 34976 2019-04-05 06:47:49Z seb $
 '
 '  Implements yFindWatchdog(), the high-level API for Watchdog functions
 '
@@ -137,6 +137,7 @@ End Class
     Protected _triggerDelay As Long
     Protected _triggerDuration As Long
     Protected _valueCallbackWatchdog As YWatchdogValueCallback
+    Protected _firm As Integer
     REM --- (end of YWatchdog attributes declaration)
 
     Public Sub New(ByVal func As String)
@@ -156,6 +157,7 @@ End Class
       _triggerDelay = TRIGGERDELAY_INVALID
       _triggerDuration = TRIGGERDURATION_INVALID
       _valueCallbackWatchdog = Nothing
+      _firm = 0
       REM --- (end of YWatchdog attributes initialization)
     End Sub
 
@@ -962,6 +964,47 @@ End Class
         MyBase._invokeValueCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Switch the relay to the opposite state.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function toggle() As Integer
+      Dim sta As Integer = 0
+      Dim fw As String
+      Dim mo As YModule
+      If (Me._firm = 0) Then
+        mo = Me.get_module()
+        fw = mo.get_firmwareRelease()
+        If (fw = YModule.FIRMWARERELEASE_INVALID) Then
+          Return STATE_INVALID
+        End If
+        Me._firm = YAPI._atoi(fw)
+      End If
+      If (Me._firm < 34921) Then
+        sta = Me.get_state()
+        If (sta = STATE_INVALID) Then
+          Return STATE_INVALID
+        End If
+        If (sta = STATE_B) Then
+          Me.set_state(STATE_A)
+        Else
+          Me.set_state(STATE_B)
+        End If
+        Return YAPI.SUCCESS
+      Else
+        Return Me._setAttr("state","X")
+      End If
     End Function
 
 

@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 34553 2019-03-06 10:16:15Z seb $
+'* $Id: yocto_api.vb 34790 2019-03-25 09:39:49Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "34560"
+  Public Const YOCTO_API_BUILD_NO As String = "34990"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -817,6 +817,7 @@ Module yocto_api
   Public Const Y_RUNNING_OFF As Integer = 0
   Public Const Y_RUNNING_ON As Integer = 1
   Public Const Y_RUNNING_INVALID As Integer = -1
+
 
 
   REM --- (generated code: YAPIContext return codes)
@@ -11214,6 +11215,7 @@ Module yocto_api
 
   '''*
   '''/
+  Public Const Y_DETECT_NONE As Integer = YAPI.DETECT_NONE
   Public Const Y_DETECT_USB As Integer = YAPI.DETECT_USB
   Public Const Y_DETECT_NET As Integer = YAPI.DETECT_NET
   Public Const Y_DETECT_ALL As Integer = YAPI.DETECT_ALL
@@ -11636,13 +11638,6 @@ Module yocto_api
     errmsg = buffer.ToString()
   End Function
 
-  Public Function yapiGetAllDevices(ByVal dbuffer As IntPtr, ByVal maxsize As Integer, ByVal neededsize As Integer, ByRef errmsg As String) As Integer
-    Dim buffer As New StringBuilder(YOCTO_ERRMSG_LEN)
-    buffer.Length = 0
-    yapiGetAllDevices = _yapiGetAllDevices(dbuffer, maxsize, neededsize, buffer)
-    errmsg = buffer.ToString()
-  End Function
-
   Public Function yapiGetDeviceInfo(ByVal d As YDEV_DESCR, ByRef infos As yDeviceSt, ByRef errmsg As String) As Integer
     Dim buffer As New StringBuilder(YOCTO_ERRMSG_LEN)
     buffer.Length = 0
@@ -11675,231 +11670,170 @@ Module yocto_api
   Private Sub DllCallTest(ByRef data As yDeviceSt)
   End Sub
 
+  REM --- (generated code: YFunction dlldef)
   <DllImport("yapi.dll", EntryPoint:="yapiInitAPI", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiInitAPI(ByVal mode As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiFreeAPI", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiFreeAPI()
   End Sub
-
+  <DllImport("yapi.dll", EntryPoint:="yapiSetTraceFile", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Sub _yapiSetTraceFile(ByVal tracefile As StringBuilder)
+  End Sub
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterLogFunction", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterLogFunction(ByVal fct As IntPtr)
   End Sub
-
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceArrivalCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceArrivalCallback(ByVal fct As IntPtr)
   End Sub
-
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceRemovalCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceRemovalCallback(ByVal fct As IntPtr)
   End Sub
-
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceChangeCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceChangeCallback(ByVal fct As IntPtr)
   End Sub
-
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceConfigChangeCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceConfigChangeCallback(ByVal fct As IntPtr)
   End Sub
-
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterFunctionUpdateCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterFunctionUpdateCallback(ByVal fct As IntPtr)
   End Sub
-
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterTimedReportCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterTimedReportCallback(ByVal fct As IntPtr)
   End Sub
-
   <DllImport("yapi.dll", EntryPoint:="yapiLockDeviceCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiLockDeviceCallBack(ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiUnlockDeviceCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiUnlockDeviceCallBack(ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiLockFunctionCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiLockFunctionCallBack(ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiUnlockFunctionCallBack", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiUnlockFunctionCallBack(ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiRegisterHub(ByVal rootUrl As StringBuilder, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiPreregisterHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiPreregisterHub(ByVal rootUrl As StringBuilder, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiUnregisterHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiUnregisterHub(ByVal rootUrl As StringBuilder)
   End Sub
-
   <DllImport("yapi.dll", EntryPoint:="yapiUpdateDeviceList", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiUpdateDeviceList(ByVal force As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiHandleEvents", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHandleEvents(ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiGetTickCount", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetTickCount() As yu64
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiCheckLogicalName", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiCheckLogicalName(ByVal name As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiGetAPIVersion", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiGetAPIVersion(ByRef version As IntPtr, ByRef subversion As IntPtr) As yu16
+  Private Function _yapiGetAPIVersion(ByRef version As IntPtr, ByRef dat_ As IntPtr) As yu16
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiGetDevice", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetDevice(ByVal device_str As StringBuilder, ByVal errmsg As StringBuilder) As YDEV_DESCR
   End Function
-
-  <DllImport("yapi.dll", EntryPoint:="yapiGetAllDevices", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiGetAllDevices(ByVal buffer As IntPtr, ByVal maxsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
-  End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiGetDeviceInfo", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetDeviceInfo(ByVal d As YDEV_DESCR, ByRef infos As yDeviceSt, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiGetFunction", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetFunction(ByVal class_str As StringBuilder, ByVal function_str As StringBuilder, ByVal errmsg As StringBuilder) As YFUN_DESCR
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiGetFunctionsByClass", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiGetFunctionsByClass(ByVal class_str As StringBuilder, ByVal precFuncDesc As YFUN_DESCR, ByVal buffer As IntPtr,
-                                       ByVal maxsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
+  Private Function _yapiGetFunctionsByClass(ByVal class_str As StringBuilder, ByVal precFuncDesc As YFUN_DESCR, ByVal buffer As IntPtr, ByVal maxsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiGetFunctionsByDevice", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetFunctionsByDevice(ByVal device As YDEV_DESCR, ByVal precFuncDesc As YFUN_DESCR, ByVal buffer As IntPtr, ByVal maxsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiGetFunctionInfoEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiGetFunctionInfoEx(ByVal fundesc As YFUN_DESCR,
-                                         ByRef devdesc As YDEV_DESCR,
-                                         ByVal serial As StringBuilder,
-                                         ByVal funcId As StringBuilder,
-                                         ByVal baseType As StringBuilder,
-                                         ByVal funcName As StringBuilder,
-                                         ByVal funcVal As StringBuilder,
-                                         ByVal errmsg As StringBuilder) As Integer
+  Private Function _yapiGetFunctionInfoEx(ByVal fundesc As YFUN_DESCR, ByRef devdesc As YDEV_DESCR, ByVal serial As StringBuilder, ByVal funcId As StringBuilder, ByVal baseType As StringBuilder, ByVal funcName As StringBuilder, ByVal funcVal As StringBuilder, ByVal errmsg As StringBuilder) As Integer
   End Function
-
-  <DllImport("yapi.dll", EntryPoint:="yapiGetErrorString", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiGetErrorString(ByVal errorcode As Integer, ByVal buffer As StringBuilder, ByVal maxsize As Integer, ByVal errmsg As StringBuilder) As Integer
-  End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStart", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiHTTPRequestSyncStart(ByRef iohdl As YIOHDL, ByVal device As StringBuilder, ByVal url As StringBuilder, ByRef reply As IntPtr, ByRef replysize As Integer, ByVal errmsg As StringBuilder) As Integer
+  Private Function _yapiHTTPRequestSyncStart(ByRef iohdl As YIOHDL, ByVal device As StringBuilder, ByVal request As StringBuilder, ByRef reply As IntPtr, ByRef replysize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStartEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiHTTPRequestSyncStartEx(ByRef iohdl As YIOHDL, ByVal device As StringBuilder, ByVal url As IntPtr, ByVal urllen As Integer, ByRef reply As IntPtr, ByRef replysize As Integer, ByVal errmsg As StringBuilder) As Integer
+  Private Function _yapiHTTPRequestSyncStartEx(ByRef iohdl As YIOHDL, ByVal device As StringBuilder, ByVal request As IntPtr, ByVal requestlen As Integer, ByRef reply As IntPtr, ByRef replysize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-
-
   <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncDone", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequestSyncDone(ByRef iohdl As YIOHDL, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsync", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiHTTPRequestAsync(ByVal device As StringBuilder, ByVal url As IntPtr, ByVal callback As IntPtr, ByVal context As IntPtr, ByVal errmsg As StringBuilder) As Integer
+  Private Function _yapiHTTPRequestAsync(ByVal device As StringBuilder, ByVal request As IntPtr, ByVal callback As IntPtr, ByRef context As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsyncEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiHTTPRequestAsyncEx(ByVal device As StringBuilder, ByVal url As IntPtr, ByVal urllen As Integer, ByVal callback As IntPtr, ByVal context As IntPtr, ByVal errmsg As StringBuilder) As Integer
+  Private Function _yapiHTTPRequestAsyncEx(ByVal device As StringBuilder, ByVal request As IntPtr, ByVal requestlen As Integer, ByVal callback As IntPtr, ByRef context As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequest", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequest(ByVal device As StringBuilder, ByVal url As StringBuilder, ByVal buffer As StringBuilder, ByVal buffsize As Integer, ByRef fullsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-
-  <DllImport("yapi.dll", EntryPoint:="yapiGetBootloadersDevs", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiGetBootloadersDevs(ByVal serials As StringBuilder, ByVal maxNbSerial As yu32, ByRef totalBootladers As yu32, ByVal errmsg As StringBuilder) As Integer
-  End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiGetDevicePath", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiGetDevicePath(ByVal devdesc As Integer,
-                                           ByVal rootdevice As StringBuilder,
-                                           ByVal path As StringBuilder,
-                                           ByVal pathsize As Integer,
-                                           ByRef neededsize As Integer,
-                                           ByVal errmsg As StringBuilder) As Integer
+  Private Function _yapiGetDevicePath(ByVal devdesc As Integer, ByVal rootdevice As StringBuilder, ByVal path As StringBuilder, ByVal pathsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiSleep", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiSleep(ByVal duration_ms As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterHubDiscoveryCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterHubDiscoveryCallback(ByVal fct As IntPtr)
   End Sub
-
   <DllImport("yapi.dll", EntryPoint:="yapiTriggerHubDiscovery", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiTriggerHubDiscovery(ByVal errmsg As StringBuilder) As Integer
   End Function
-
   <DllImport("yapi.dll", EntryPoint:="yapiRegisterDeviceLogCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterDeviceLogCallback(ByVal fct As IntPtr)
   End Sub
-
-  REM --- (generated code: YFunction dlldef)
-  <DllImport("yapi.dll", EntryPoint:="yapiGetAllJsonKeys", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetAllJsonKeys", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetAllJsonKeys(ByVal jsonbuffer As StringBuilder, ByVal out_buffer As StringBuilder, ByVal out_buffersize As Integer, ByRef fullsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiCheckFirmware", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiCheckFirmware", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiCheckFirmware(ByVal serial As StringBuilder, ByVal rev As StringBuilder, ByVal path As StringBuilder, ByVal buffer As StringBuilder, ByVal buffersize As Integer, ByRef fullsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiGetBootloaders", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetBootloaders", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetBootloaders(ByVal buffer As StringBuilder, ByVal buffersize As Integer, ByRef totalSize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiUpdateFirmwareEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiUpdateFirmwareEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiUpdateFirmwareEx(ByVal serial As StringBuilder, ByVal firmwarePath As StringBuilder, ByVal settings As StringBuilder, ByVal force As Integer, ByVal startUpdate As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStartOutOfBand", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestSyncStartOutOfBand", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequestSyncStartOutOfBand(ByRef iohdl As YIOHDL, ByVal channel As Integer, ByVal device As StringBuilder, ByVal request As StringBuilder, ByVal requestsize As Integer, ByRef reply As IntPtr, ByRef replysize As Integer, ByVal progress_cb As IntPtr, ByRef progress_ctx As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsyncOutOfBand", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiHTTPRequestAsyncOutOfBand", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiHTTPRequestAsyncOutOfBand(ByVal channel As Integer, ByVal device As StringBuilder, ByVal request As StringBuilder, ByVal requestsize As Integer, ByVal callback As IntPtr, ByRef context As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiTestHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiTestHub", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiTestHub(ByVal url As StringBuilder, ByVal mstimeout As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiJsonGetPath", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiJsonGetPath", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiJsonGetPath(ByVal path As StringBuilder, ByVal json_data As StringBuilder, ByVal json_len As Integer, ByRef result As IntPtr, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiJsonDecodeString", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiJsonDecodeString", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiJsonDecodeString(ByVal json_data As StringBuilder, ByVal output As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiGetSubdevices", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetSubdevices", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetSubdevices(ByVal serial As StringBuilder, ByVal buffer As StringBuilder, ByVal buffersize As Integer, ByRef totalSize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiFreeMem", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiFreeMem", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiFreeMem(ByRef buffer As IntPtr)
   End Sub
-  <DllImport("yapi.dll", EntryPoint:="yapiGetDevicePathEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetDevicePathEx", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetDevicePathEx(ByVal serial As StringBuilder, ByVal rootdevice As StringBuilder, ByVal path As StringBuilder, ByVal pathsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiSetNetDevListValidity", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiSetNetDevListValidity", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiSetNetDevListValidity(ByVal sValidity As Integer)
   End Sub
-  <DllImport("yapi.dll", EntryPoint:="yapiGetNetDevListValidity", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiGetNetDevListValidity", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetNetDevListValidity() As Integer
   End Function
-  <DllImport("yapi.dll", EntryPoint:="yapiRegisterBeaconCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiRegisterBeaconCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiRegisterBeaconCallback(ByVal beaconCallback As IntPtr)
   End Sub
-  <DllImport("yapi.dll", EntryPoint:="yapiStartStopDeviceLogCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)> _
+  <DllImport("yapi.dll", EntryPoint:="yapiStartStopDeviceLogCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiStartStopDeviceLogCallback(ByVal serial As StringBuilder, ByVal start As Integer)
   End Sub
     REM --- (end of generated code: YFunction dlldef)

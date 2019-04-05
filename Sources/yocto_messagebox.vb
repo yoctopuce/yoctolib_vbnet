@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 32908 2018-11-02 10:19:28Z seb $
+'* $Id: yocto_messagebox.vb 34661 2019-03-18 11:02:50Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -56,6 +56,14 @@ Module yocto_messagebox
 
   REM --- (generated code: YSms class start)
 
+  '''*
+  ''' <summary>
+  '''   YSms objects are used to describe a SMS.
+  ''' <para>
+  '''   These objects are used in particular in conjunction with the YMessageBox class.
+  ''' </para>
+  ''' </summary>
+  '''/
   Public Class YSms
     REM --- (end of generated code: YSms class start)
 
@@ -159,6 +167,18 @@ Module yocto_messagebox
       Return Me._udata
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the content of the message.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with the content of the message.
+    ''' </returns>
+    '''/
     Public Overridable Function get_textData() As String
       Dim isolatin As Byte()
       Dim isosize As Integer = 0
@@ -365,6 +385,25 @@ Module yocto_messagebox
       Return YAPI.SUCCESS
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Add a regular text to the SMS.
+    ''' <para>
+    '''   This function support messages
+    '''   of more than 160 characters. ISO-latin accented characters
+    '''   are supported. For messages with special unicode characters such as asian
+    '''   characters and emoticons, use the  <c>addUnicodeData</c> method.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="val">
+    '''   the text to be sent in the message
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    '''/
     Public Overridable Function addText(val As String) As Integer
       Dim udata As Byte()
       Dim udatalen As Integer = 0
@@ -421,6 +460,23 @@ Module yocto_messagebox
       Return Me.set_userData(udata)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Add a unicode text to the SMS.
+    ''' <para>
+    '''   This function support messages
+    '''   of more than 160 characters, using SMS concatenation.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="val">
+    '''   an array of special unicode characters
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    '''/
     Public Overridable Function addUnicodeData(val As List(Of Integer)) As Integer
       Dim arrlen As Integer = 0
       Dim newdatalen As Integer = 0
@@ -1200,6 +1256,23 @@ Module yocto_messagebox
       Return YAPI.SUCCESS
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Sends the SMS to the recipient.
+    ''' <para>
+    '''   Messages of more than 160 characters are supported
+    '''   using SMS concatenation.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
     Public Overridable Function send() As Integer
       Dim i As Integer = 0
       Dim retcode As Integer = 0

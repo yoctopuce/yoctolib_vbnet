@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_temperature.vb 34584 2019-03-08 09:36:55Z mvuilleu $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -646,6 +646,9 @@ Module yocto_temperature
 
       id = Me.get_functionId()
       id = (id).Substring( 11, (id).Length - 11)
+      If (id = "") Then
+        id = "1"
+      End If
       bin_json = Me._download("extra.json?page=" + id)
       paramlist = Me._json_get_array(bin_json)
       REM // first convert all temperatures to float
