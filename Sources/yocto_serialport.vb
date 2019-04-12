@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 32908 2018-11-02 10:19:28Z seb $
+'* $Id: yocto_serialport.vb 35124 2019-04-12 09:03:41Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -1528,7 +1528,7 @@ Module yocto_serialport
       Dim msglen As Integer = 0
       Dim res As String
 
-      url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + query
+      url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + Me._escapeAttr(query)
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count

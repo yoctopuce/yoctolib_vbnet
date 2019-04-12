@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 33722 2018-12-14 15:04:43Z seb $
+'  $Id: yocto_spiport.vb 35124 2019-04-12 09:03:41Z seb $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -1585,7 +1585,7 @@ Module yocto_spiport
       Dim msglen As Integer = 0
       Dim res As String
 
-      url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + query
+      url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + Me._escapeAttr(query)
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
