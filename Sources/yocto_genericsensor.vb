@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_genericsensor.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_genericsensor.vb 35360 2019-05-09 09:02:29Z mvuilleu $
 '
 '  Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '
@@ -64,6 +64,9 @@ Module yocto_genericsensor
   Public Const Y_SIGNALSAMPLING_LOW_NOISE_FILTERED As Integer = 3
   Public Const Y_SIGNALSAMPLING_HIGHEST_RATE As Integer = 4
   Public Const Y_SIGNALSAMPLING_INVALID As Integer = -1
+  Public Const Y_ENABLED_FALSE As Integer = 0
+  Public Const Y_ENABLED_TRUE As Integer = 1
+  Public Const Y_ENABLED_INVALID As Integer = -1
   Public Delegate Sub YGenericSensorValueCallback(ByVal func As YGenericSensor, ByVal value As String)
   Public Delegate Sub YGenericSensorTimedReportCallback(ByVal func As YGenericSensor, ByVal measure As YMeasure)
   REM --- (end of YGenericSensor globals)
@@ -98,6 +101,9 @@ Module yocto_genericsensor
     Public Const SIGNALSAMPLING_LOW_NOISE_FILTERED As Integer = 3
     Public Const SIGNALSAMPLING_HIGHEST_RATE As Integer = 4
     Public Const SIGNALSAMPLING_INVALID As Integer = -1
+    Public Const ENABLED_FALSE As Integer = 0
+    Public Const ENABLED_TRUE As Integer = 1
+    Public Const ENABLED_INVALID As Integer = -1
     REM --- (end of YGenericSensor definitions)
 
     REM --- (YGenericSensor attributes declaration)
@@ -107,6 +113,7 @@ Module yocto_genericsensor
     Protected _valueRange As String
     Protected _signalBias As Double
     Protected _signalSampling As Integer
+    Protected _enabled As Integer
     Protected _valueCallbackGenericSensor As YGenericSensorValueCallback
     Protected _timedReportCallbackGenericSensor As YGenericSensorTimedReportCallback
     REM --- (end of YGenericSensor attributes declaration)
@@ -121,6 +128,7 @@ Module yocto_genericsensor
       _valueRange = VALUERANGE_INVALID
       _signalBias = SIGNALBIAS_INVALID
       _signalSampling = SIGNALSAMPLING_INVALID
+      _enabled = ENABLED_INVALID
       _valueCallbackGenericSensor = Nothing
       _timedReportCallbackGenericSensor = Nothing
       REM --- (end of YGenericSensor attributes initialization)
@@ -146,6 +154,9 @@ Module yocto_genericsensor
       End If
       If json_val.has("signalSampling") Then
         _signalSampling = CInt(json_val.getLong("signalSampling"))
+      End If
+      If json_val.has("enabled") Then
+        If (json_val.getInt("enabled") > 0) Then _enabled = 1 Else _enabled = 0
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -461,6 +472,61 @@ Module yocto_genericsensor
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("signalSampling", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the activation state of this input.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the activation state of this input
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_ENABLED_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_enabled() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return ENABLED_INVALID
+        End If
+      End If
+      res = Me._enabled
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the activation state of this input.
+    ''' <para>
+    '''   When an input is disabled,
+    '''   its value is no more updated. On some devices, disabling an input can
+    '''   improve the refresh rate of the other active inputs.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the activation state of this input
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_enabled(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("enabled", rest_val)
     End Function
     '''*
     ''' <summary>

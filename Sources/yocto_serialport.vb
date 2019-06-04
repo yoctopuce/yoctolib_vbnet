@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 35124 2019-04-12 09:03:41Z seb $
+'* $Id: yocto_serialport.vb 35464 2019-05-16 14:39:59Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -72,6 +72,7 @@ Module yocto_serialport
   Public Const Y_VOLTAGELEVEL_TTL5VR As Integer = 4
   Public Const Y_VOLTAGELEVEL_RS232 As Integer = 5
   Public Const Y_VOLTAGELEVEL_RS485 As Integer = 6
+  Public Const Y_VOLTAGELEVEL_TTL1V8 As Integer = 7
   Public Const Y_VOLTAGELEVEL_INVALID As Integer = -1
   Public Const Y_PROTOCOL_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SERIALMODE_INVALID As String = YAPI.INVALID_STRING
@@ -169,6 +170,7 @@ Module yocto_serialport
     Public Const VOLTAGELEVEL_TTL5VR As Integer = 4
     Public Const VOLTAGELEVEL_RS232 As Integer = 5
     Public Const VOLTAGELEVEL_RS485 As Integer = 6
+    Public Const VOLTAGELEVEL_TTL1V8 As Integer = 7
     Public Const VOLTAGELEVEL_INVALID As Integer = -1
     Public Const PROTOCOL_INVALID As String = YAPI.INVALID_STRING
     Public Const SERIALMODE_INVALID As String = YAPI.INVALID_STRING
@@ -551,8 +553,9 @@ Module yocto_serialport
     ''' </summary>
     ''' <returns>
     '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
-    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c> and
-    '''   <c>Y_VOLTAGELEVEL_RS485</c> corresponding to the voltage level used on the serial line
+    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c>,
+    '''   <c>Y_VOLTAGELEVEL_RS485</c> and <c>Y_VOLTAGELEVEL_TTL1V8</c> corresponding to the voltage level
+    '''   used on the serial line
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_VOLTAGELEVEL_INVALID</c>.
@@ -585,8 +588,9 @@ Module yocto_serialport
     ''' </summary>
     ''' <param name="newval">
     '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
-    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c> and
-    '''   <c>Y_VOLTAGELEVEL_RS485</c> corresponding to the voltage type used on the serial line
+    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c>,
+    '''   <c>Y_VOLTAGELEVEL_RS485</c> and <c>Y_VOLTAGELEVEL_TTL1V8</c> corresponding to the voltage type used
+    '''   on the serial line
     ''' </param>
     ''' <para>
     ''' </para>

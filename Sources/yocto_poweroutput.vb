@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_poweroutput.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_poweroutput.vb 35464 2019-05-16 14:39:59Z seb $
 '
 '  Implements yFindPowerOutput(), the high-level API for PowerOutput functions
 '
@@ -56,6 +56,8 @@ Module yocto_poweroutput
   Public Const Y_VOLTAGE_OFF As Integer = 0
   Public Const Y_VOLTAGE_OUT3V3 As Integer = 1
   Public Const Y_VOLTAGE_OUT5V As Integer = 2
+  Public Const Y_VOLTAGE_OUT4V7 As Integer = 3
+  Public Const Y_VOLTAGE_OUT1V8 As Integer = 4
   Public Const Y_VOLTAGE_INVALID As Integer = -1
   Public Delegate Sub YPowerOutputValueCallback(ByVal func As YPowerOutput, ByVal value As String)
   Public Delegate Sub YPowerOutputTimedReportCallback(ByVal func As YPowerOutput, ByVal measure As YMeasure)
@@ -79,6 +81,8 @@ Module yocto_poweroutput
     Public Const VOLTAGE_OFF As Integer = 0
     Public Const VOLTAGE_OUT3V3 As Integer = 1
     Public Const VOLTAGE_OUT5V As Integer = 2
+    Public Const VOLTAGE_OUT4V7 As Integer = 3
+    Public Const VOLTAGE_OUT1V8 As Integer = 4
     Public Const VOLTAGE_INVALID As Integer = -1
     REM --- (end of YPowerOutput definitions)
 
@@ -117,8 +121,9 @@ Module yocto_poweroutput
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_VOLTAGE_OFF</c>, <c>Y_VOLTAGE_OUT3V3</c> and <c>Y_VOLTAGE_OUT5V</c>
-    '''   corresponding to the voltage on the power output featured by the module
+    '''   a value among <c>Y_VOLTAGE_OFF</c>, <c>Y_VOLTAGE_OUT3V3</c>, <c>Y_VOLTAGE_OUT5V</c>,
+    '''   <c>Y_VOLTAGE_OUT4V7</c> and <c>Y_VOLTAGE_OUT1V8</c> corresponding to the voltage on the power
+    '''   output featured by the module
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_VOLTAGE_INVALID</c>.
@@ -148,8 +153,9 @@ Module yocto_poweroutput
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_VOLTAGE_OFF</c>, <c>Y_VOLTAGE_OUT3V3</c> and <c>Y_VOLTAGE_OUT5V</c>
-    '''   corresponding to the voltage on the power output provided by the
+    '''   a value among <c>Y_VOLTAGE_OFF</c>, <c>Y_VOLTAGE_OUT3V3</c>, <c>Y_VOLTAGE_OUT5V</c>,
+    '''   <c>Y_VOLTAGE_OUT4V7</c> and <c>Y_VOLTAGE_OUT1V8</c> corresponding to the voltage on the power
+    '''   output provided by the
     '''   module
     ''' </param>
     ''' <para>

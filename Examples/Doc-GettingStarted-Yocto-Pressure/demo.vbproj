@@ -75,17 +75,11 @@
       <Link>yocto\yocto_api.vb</Link>
     </Compile>
     
-<Compile Include="..\..\Sources\yocto_anbutton.vb">
-<Link>yocto_api\yocto_anbutton.vb</Link>
+<Compile Include="..\..\Sources\yocto_pressure.vb">
+<Link>yocto_api\yocto_pressure.vb</Link>
 </Compile>
-<Compile Include="..\..\Sources\yocto_buzzer.vb">
-<Link>yocto_api\yocto_buzzer.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_files.vb">
-<Link>yocto_api\yocto_files.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_led.vb">
-<Link>yocto_api\yocto_led.vb</Link>
+<Compile Include="..\..\Sources\yocto_temperature.vb">
+<Link>yocto_api\yocto_temperature.vb</Link>
 </Compile>
 
     <Compile Include="main.vb" />

@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 34790 2019-03-25 09:39:49Z seb $
+'* $Id: yocto_api.vb 35620 2019-06-04 08:29:58Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "35153"
+  Public Const YOCTO_API_BUILD_NO As String = "35622"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -5352,6 +5352,36 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Test if the function is readOnly.
+    ''' <para>
+    '''   Return <c>true</c> if the function is write protected
+    '''   or that the function is not available.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>true</c> if the function is readOnly or not online.
+    ''' </returns>
+    '''/
+    Public Overridable Function isReadOnly() As Boolean
+      Dim serial As String
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim res As Integer = 0
+      Try
+          serial = Me.get_serialNumber()
+      Catch
+          Return True
+      End Try
+      res = _yapiIsModuleWritable(New StringBuilder(serial), errmsg)
+      If (res > 0) Then
+        Return False
+      End If
+      Return True
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Returns the serial number of the module, as set by the factory.
     ''' <para>
     ''' </para>
@@ -6988,10 +7018,17 @@ Module yocto_api
     '''/
     Public Shared Function FindModule(func As String) As YModule
       Dim obj As YModule
-      obj = CType(YFunction._FindFromCache("Module", func), YModule)
+      Dim cleanHwId As String
+      Dim modpos As Integer = 0
+      cleanHwId = func
+      modpos = func.IndexOf(".module")
+      If (modpos <> ((func).Length - 7)) Then
+        cleanHwId = func + ".module"
+      End If
+      obj = CType(YFunction._FindFromCache("Module", cleanHwId), YModule)
       If ((obj Is Nothing)) Then
-        obj = New YModule(func)
-        YFunction._AddToCache("Module", func, obj)
+        obj = New YModule(cleanHwId)
+        YFunction._AddToCache("Module", cleanHwId, obj)
       End If
       Return obj
     End Function
@@ -7381,15 +7418,17 @@ Module yocto_api
         If (YAPI._atoi(Me.get_firmwareRelease()) > 9000) Then
           url = "api/" +  templist(i_i) + "/sensorType"
           t_type = YAPI.DefaultEncoding.GetString(Me._download(url))
-          If (t_type = "RES_NTC") Then
+          If (t_type = "RES_NTC" OrElse t_type = "RES_LINEAR") Then
             id = ( templist(i_i)).Substring( 11, ( templist(i_i)).Length - 11)
-            temp_data_bin = Me._download("extra.json?page=" + id)
-            If ((temp_data_bin).Length = 0) Then
-              Return temp_data_bin
+            If (id = "") Then
+              id = "1"
             End If
-            item = "" +  sep + "{""fid"":""" +   templist(i_i) + """, ""json"":" + YAPI.DefaultEncoding.GetString(temp_data_bin) + "}" + vbLf + ""
-            ext_settings = ext_settings + item
-            sep = ","
+            temp_data_bin = Me._download("extra.json?page=" + id)
+            If ((temp_data_bin).Length > 0) Then
+              item = "" +  sep + "{""fid"":""" +   templist(i_i) + """, ""json"":" + YAPI.DefaultEncoding.GetString(temp_data_bin) + "}" + vbLf + ""
+              ext_settings = ext_settings + item
+              sep = ","
+            End If
           End If
         End If
       Next i_i
@@ -7433,7 +7472,7 @@ Module yocto_api
       While (ofs + 1 < size)
         curr = values(ofs)
         currTemp = values(ofs + 1)
-        url = "api/" +   funcId + "/.json?command=m" +  curr + ":" + currTemp
+        url = "api/" +  funcId + ".json?command=m" +  curr + ":" + currTemp
         Me._download(url)
         ofs = ofs + 2
       End While
@@ -11836,6 +11875,9 @@ Module yocto_api
   <DllImport("yapi.dll", EntryPoint:="yapiStartStopDeviceLogCallback", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Sub _yapiStartStopDeviceLogCallback(ByVal serial As StringBuilder, ByVal start As Integer)
   End Sub
+  <DllImport("yapi.dll", EntryPoint:="yapiIsModuleWritable", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiIsModuleWritable(ByVal serial As StringBuilder, ByVal errmsg As StringBuilder) As Integer
+  End Function
     REM --- (end of generated code: YFunction dlldef)
 
 

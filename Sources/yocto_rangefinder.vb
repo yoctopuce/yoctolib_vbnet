@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_rangefinder.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_rangefinder.vb 35185 2019-04-16 19:43:18Z mvuilleu $
 '
 '  Implements yFindRangeFinder(), the high-level API for RangeFinder functions
 '
@@ -58,6 +58,8 @@ Module yocto_rangefinder
   Public Const Y_RANGEFINDERMODE_HIGH_ACCURACY As Integer = 2
   Public Const Y_RANGEFINDERMODE_HIGH_SPEED As Integer = 3
   Public Const Y_RANGEFINDERMODE_INVALID As Integer = -1
+  Public Const Y_TIMEFRAME_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_QUALITY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_HARDWARECALIBRATION_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CURRENTTEMPERATURE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
@@ -89,6 +91,8 @@ Module yocto_rangefinder
     Public Const RANGEFINDERMODE_HIGH_ACCURACY As Integer = 2
     Public Const RANGEFINDERMODE_HIGH_SPEED As Integer = 3
     Public Const RANGEFINDERMODE_INVALID As Integer = -1
+    Public Const TIMEFRAME_INVALID As Long = YAPI.INVALID_LONG
+    Public Const QUALITY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const HARDWARECALIBRATION_INVALID As String = YAPI.INVALID_STRING
     Public Const CURRENTTEMPERATURE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
@@ -96,6 +100,8 @@ Module yocto_rangefinder
 
     REM --- (YRangeFinder attributes declaration)
     Protected _rangeFinderMode As Integer
+    Protected _timeFrame As Long
+    Protected _quality As Integer
     Protected _hardwareCalibration As String
     Protected _currentTemperature As Double
     Protected _command As String
@@ -108,6 +114,8 @@ Module yocto_rangefinder
       _classname = "RangeFinder"
       REM --- (YRangeFinder attributes initialization)
       _rangeFinderMode = RANGEFINDERMODE_INVALID
+      _timeFrame = TIMEFRAME_INVALID
+      _quality = QUALITY_INVALID
       _hardwareCalibration = HARDWARECALIBRATION_INVALID
       _currentTemperature = CURRENTTEMPERATURE_INVALID
       _command = COMMAND_INVALID
@@ -121,6 +129,12 @@ Module yocto_rangefinder
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("rangeFinderMode") Then
         _rangeFinderMode = CInt(json_val.getLong("rangeFinderMode"))
+      End If
+      If json_val.has("timeFrame") Then
+        _timeFrame = json_val.getLong("timeFrame")
+      End If
+      If json_val.has("quality") Then
+        _quality = CInt(json_val.getLong("quality"))
       End If
       If json_val.has("hardwareCalibration") Then
         _hardwareCalibration = json_val.getString("hardwareCalibration")
@@ -228,6 +242,92 @@ Module yocto_rangefinder
       rest_val = Ltrim(Str(newval))
       Return _setAttr("rangeFinderMode", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the time frame used to measure the distance and estimate the measure
+    '''   reliability.
+    ''' <para>
+    '''   The time frame is expressed in milliseconds.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the time frame used to measure the distance and estimate the measure
+    '''   reliability
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_TIMEFRAME_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_timeFrame() As Long
+      Dim res As Long = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return TIMEFRAME_INVALID
+        End If
+      End If
+      res = Me._timeFrame
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the time frame used to measure the distance and estimate the measure
+    '''   reliability.
+    ''' <para>
+    '''   The time frame is expressed in milliseconds. A larger timeframe
+    '''   improves stability and reliability, at the cost of higher latency, but prevents
+    '''   the detection of events shorter than the time frame.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the time frame used to measure the distance and estimate the measure
+    '''   reliability
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_timeFrame(ByVal newval As Long) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("timeFrame", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns a measure quality estimate, based on measured dispersion.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to a measure quality estimate, based on measured dispersion
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_QUALITY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_quality() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return QUALITY_INVALID
+        End If
+      End If
+      res = Me._quality
+      Return res
+    End Function
+
     Public Function get_hardwareCalibration() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then

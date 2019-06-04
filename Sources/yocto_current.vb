@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_current.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_current.vb 35360 2019-05-09 09:02:29Z mvuilleu $
 '
 '  Implements yFindCurrent(), the high-level API for Current functions
 '
@@ -110,6 +110,21 @@ Module yocto_current
     REM --- (end of YCurrent private methods declaration)
 
     REM --- (YCurrent public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the activation state of this input.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the activation state of this input
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_ENABLED_INVALID</c>.
+    ''' </para>
+    '''/
     Public Function get_enabled() As Integer
       Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -122,6 +137,29 @@ Module yocto_current
     End Function
 
 
+    '''*
+    ''' <summary>
+    '''   Changes the activation state of this input.
+    ''' <para>
+    '''   When an input is disabled,
+    '''   its value is no more updated. On some devices, disabling an input can
+    '''   improve the refresh rate of the other active inputs.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the activation state of this input
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
     Public Function set_enabled(ByVal newval As Integer) As Integer
       Dim rest_val As String
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
