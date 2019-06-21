@@ -84,6 +84,9 @@
 <Compile Include="..\..\Sources\yocto_anbutton.vb">
 <Link>yocto_api\yocto_anbutton.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_arithmeticsensor.vb">
+<Link>yocto_api\yocto_arithmeticsensor.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_audioin.vb">
 <Link>yocto_api\yocto_audioin.vb</Link>
 </Compile>

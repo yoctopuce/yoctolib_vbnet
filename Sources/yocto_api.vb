@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 35620 2019-06-04 08:29:58Z seb $
+'* $Id: yocto_api.vb 35684 2019-06-05 10:22:12Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "35652"
+  Public Const YOCTO_API_BUILD_NO As String = "35871"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -4939,29 +4939,36 @@ Module yocto_api
     REM Method used to send http request to the device (not the function)
     Public Function _download(ByVal url As String) As Byte()
       Dim request As String
-      Dim outbuf, res As Byte()
-      Dim found, body As Integer
-
+      Dim outbuf As Byte()
+      
       request = "GET /" + url + " HTTP/1.1" + Chr(13) + Chr(10) + Chr(13) + Chr(10)
       outbuf = _request(request)
-      If (outbuf.Length = 0) Then
-        Return outbuf
-      End If
-      found = 0
-      Do While found < outbuf.Length - 4 And
-          (outbuf(found) <> 13 Or outbuf(found + 1) <> 10 Or
-           outbuf(found + 2) <> 13 Or outbuf(found + 3) <> 10)
-        found += 1
-      Loop
-      If found >= outbuf.Length - 4 Then
-        _throw(YAPI.IO_ERROR, "http request failed")
-        ReDim outbuf(-1)
-        Return outbuf
-      End If
-      body = found + 4
-      ReDim res(outbuf.Length - body - 1)
-      Buffer.BlockCopy(outbuf, body, res, 0, outbuf.Length - body)
-      Return res
+        Return _strip_http_header(outbuf)
+    End Function
+
+    Private Function _strip_http_header(outbuf As Byte()) As Byte()
+        Dim found As Integer
+        Dim body As Integer
+        Dim res As Byte()
+
+        If (outbuf.Length = 0) Then
+            Return outbuf
+        End If
+        found = 0
+        Do While found < outbuf.Length - 4 And
+                 (outbuf(found) <> 13 Or outbuf(found + 1) <> 10 Or
+                  outbuf(found + 2) <> 13 Or outbuf(found + 3) <> 10)
+            found += 1
+        Loop
+        If found >= outbuf.Length - 4 Then
+            _throw(YAPI.IO_ERROR, "http request failed")
+            ReDim outbuf(-1)
+            Return outbuf
+        End If
+        body = found + 4
+        ReDim res(outbuf.Length - body - 1)
+        Buffer.BlockCopy(outbuf, body, res, 0, outbuf.Length - body)
+        Return res
     End Function
 
     REM Method used to upload a file to the device
@@ -4976,6 +4983,16 @@ Module yocto_api
 
     REM Method used to upload a file to the device
     Public Function _upload(ByVal path As String, ByVal content As Byte()) As Integer
+      Dim outbuf As Byte()
+      outbuf = _uploadEx(path, content)
+      If outbuf.Length = 0 Then
+        Return YAPI.IO_ERROR
+      End If
+      Return YAPI.SUCCESS
+    End Function
+
+     REM Method used to upload a file to the device
+    Public Function _uploadEx(ByVal path As String, ByVal content As Byte()) As Byte()
       Dim bodystr, boundary As String
       Dim body, bb, header, footer, fullrequest, outbuf As Byte()
 
@@ -5018,11 +5035,7 @@ Module yocto_api
       Buffer.BlockCopy(footer, 0, fullrequest, header.Length + body.Length, footer.Length)
 
       outbuf = _request(fullrequest)
-      If outbuf.Length = 0 Then
-        _throw(YAPI.IO_ERROR, "http request failed")
-        Return YAPI.IO_ERROR
-      End If
-      Return YAPI.SUCCESS
+      Return _strip_http_header(outbuf)
     End Function
 
     Public Function _findDataStream(dataset As YDataSet, def As String) As YDataStream
