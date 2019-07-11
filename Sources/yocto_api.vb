@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 35684 2019-06-05 10:22:12Z seb $
+'* $Id: yocto_api.vb 36141 2019-07-08 17:51:33Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "35983"
+  Public Const YOCTO_API_BUILD_NO As String = "36218"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2348,6 +2348,10 @@ Module yocto_api
   REM --- (generated code: YDataSet globals)
 
   REM --- (end of generated code: YDataSet globals)
+
+  REM --- (generated code: YConsolidatedDataSet globals)
+
+  REM --- (end of generated code: YConsolidatedDataSet globals)
 
   Public Class YAPI_Exception
     Inherits ApplicationException
@@ -4310,6 +4314,192 @@ Module yocto_api
 
 
   REM --- (end of generated code: YDataSet functions)
+
+  REM --- (generated code: YConsolidatedDataSet class start)
+
+  '''*
+  ''' <summary>
+  '''   YConsolidatedDataSet objects make it possible to retrieve a set of
+  '''   recorded measures from multiple sensors, for a specified time interval.
+  ''' <para>
+  '''   They can be used to load data points progressively, and to receive
+  '''   data records by timestamp, one by one..
+  ''' </para>
+  ''' </summary>
+  '''/
+  Public Class YConsolidatedDataSet
+    REM --- (end of generated code: YConsolidatedDataSet class start)
+    REM --- (generated code: YConsolidatedDataSet definitions)
+    REM --- (end of generated code: YConsolidatedDataSet definitions)
+
+    REM --- (generated code: YConsolidatedDataSet attributes declaration)
+    Protected _start As Double
+    Protected _end As Double
+    Protected _nsensors As Integer
+    Protected _sensors As List(Of YSensor)
+    Protected _datasets As List(Of YDataSet)
+    Protected _progresss As List(Of Integer)
+    Protected _nextidx As List(Of Integer)
+    Protected _nexttim As List(Of Double)
+    REM --- (end of generated code: YConsolidatedDataSet attributes declaration)
+
+
+    Sub New(startTime As double, endTime As double, sensorList as List(Of YSensor))
+      REM --- (generated code: YConsolidatedDataSet attributes initialization)
+      _start = 0
+      _end = 0
+      _nsensors = 0
+      _sensors = New List(Of YSensor)()
+      _datasets = New List(Of YDataSet)()
+      _progresss = New List(Of Integer)()
+      _nextidx = New List(Of Integer)()
+      _nexttim = New List(Of Double)()
+      REM --- (end of generated code: YConsolidatedDataSet attributes initialization)
+      _init(startTime, endTime, sensorList)
+    End Sub
+
+    REM --- (generated code: YConsolidatedDataSet private methods declaration)
+
+    REM --- (end of generated code: YConsolidatedDataSet private methods declaration)
+
+    REM --- (generated code: YConsolidatedDataSet public methods declaration)
+    Public Overridable Function _init(startt As Double, endt As Double, sensorList As List(Of YSensor)) As Integer
+      Me._start = startt
+      Me._end = endt
+      Me._sensors = sensorList
+      Me._nsensors = -1
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Extracts the next data record from the dataLogger of all sensors linked to this
+    '''   object.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="datarec">
+    '''   array of floating point numbers, that will be filled by the
+    '''   function with the timestamp of the measure in first position,
+    '''   followed by the measured value in next positions.
+    ''' </param>
+    ''' <returns>
+    '''   an integer in the range 0 to 100 (percentage of completion),
+    '''   or a negative error code in case of failure.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function nextRecord(datarec As List(Of Double)) As Integer
+      Dim s As Integer = 0
+      Dim idx As Integer = 0
+      Dim sensor As YSensor
+      Dim newdataset As YDataSet
+      Dim globprogress As Integer = 0
+      Dim currprogress As Integer = 0
+      Dim currnexttim As Double = 0
+      Dim newvalue As Double = 0
+      Dim measures As List(Of YMeasure) = New List(Of YMeasure)()
+      Dim nexttime As Double = 0
+      REM //
+      REM // Ensure the dataset have been retrieved
+      REM //
+      If (Me._nsensors = -1) Then
+        Me._nsensors = Me._sensors.Count
+        Me._datasets.Clear()
+        Me._progresss.Clear()
+        Me._nextidx.Clear()
+        Me._nexttim.Clear()
+        s = 0
+        While (s < Me._nsensors)
+          sensor = Me._sensors(s)
+          newdataset = sensor.get_recordedData(Me._start, Me._end)
+          Me._datasets.Add(newdataset)
+          Me._progresss.Add(0)
+          Me._nextidx.Add(0)
+          Me._nexttim.Add(0.0)
+          s = s + 1
+        End While
+      End If
+      datarec.Clear()
+      REM //
+      REM // Find next timestamp to process
+      REM //
+      nexttime = 0
+      s = 0
+      While (s < Me._nsensors)
+        currnexttim = Me._nexttim(s)
+        If (currnexttim = 0) Then
+          idx = Me._nextidx(s)
+          measures = Me._datasets(s).get_measures()
+          currprogress = Me._progresss(s)
+          While ((idx >= measures.Count) AndAlso (currprogress < 100))
+            currprogress = Me._datasets(s).loadMore()
+            If (currprogress < 0) Then
+              currprogress = 100
+            End If
+            Me._progresss( s) = currprogress
+            measures = Me._datasets(s).get_measures()
+          End While
+          If (idx < measures.Count) Then
+            currnexttim = measures(idx).get_endTimeUTC()
+            Me._nexttim( s) = currnexttim
+          End If
+        End If
+        If (currnexttim > 0) Then
+          If ((nexttime = 0) OrElse (nexttime > currnexttim)) Then
+            nexttime = currnexttim
+          End If
+        End If
+        s = s + 1
+      End While
+      If (nexttime = 0) Then
+        Return 100
+      End If
+      REM //
+      REM // Extract data for this timestamp
+      REM //
+      datarec.Clear()
+      datarec.Add(nexttime)
+      globprogress = 0
+      s = 0
+      While (s < Me._nsensors)
+        If (Me._nexttim(s) = nexttime) Then
+          idx = Me._nextidx(s)
+          measures = Me._datasets(s).get_measures()
+          newvalue = measures(idx).get_averageValue()
+          datarec.Add(newvalue)
+          Me._nexttim( s) = 0.0
+          Me._nextidx( s) = idx+1
+        Else
+          datarec.Add(Double.NaN)
+        End If
+        currprogress = Me._progresss(s)
+        globprogress = globprogress + currprogress
+        s = s + 1
+      End While
+      If (globprogress > 0) Then
+        globprogress = (globprogress \ Me._nsensors)
+        If (globprogress > 99) Then
+          globprogress = 99
+        End If
+      End If
+
+      Return globprogress
+    End Function
+
+
+
+    REM --- (end of generated code: YConsolidatedDataSet public methods declaration)
+  End Class
+
+  REM --- (generated code: YConsolidatedDataSet functions)
+
+
+  REM --- (end of generated code: YConsolidatedDataSet functions)
 
 
   Public Class YDevice
@@ -6499,12 +6689,12 @@ Module yocto_api
         Return YAPI.INVALID_STRING
       End If
       first = funcId(0)
-      i = 1
-      While (i < funcId.Length)
-        If (Not Char.IsLetter(funcId(i))) Then
+      i = funcId.Length
+      While (i > 0)
+        If (Char.IsLetter(funcId(i - 1))) Then
           Exit While
         End If
-        i += 1
+        i -= 1
       End While
       Return Char.ToUpper(first) + funcId.Substring(1, i - 1)
     End Function
@@ -8874,7 +9064,8 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the uncalibrated, unrounded raw value returned by the sensor, in the specified unit, as a floating point number.
+    '''   Returns the uncalibrated, unrounded raw value returned by the
+    '''   sensor, in the specified unit, as a floating point number.
     ''' <para>
     ''' </para>
     ''' <para>

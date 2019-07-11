@@ -1,8 +1,8 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 36048 2019-06-28 17:43:51Z mvuilleu $
+'  $Id: yocto_i2cport.vb 36207 2019-07-10 20:46:18Z mvuilleu $
 '
-'  Implements yFindSpiPort(), the high-level API for SpiPort functions
+'  Implements yFindI2cPort(), the high-level API for I2cPort functions
 '
 '  - - - - - - - - - License information: - - - - - - - - -
 '
@@ -43,15 +43,15 @@ Imports YFUN_DESCR = System.Int32
 Imports System.Runtime.InteropServices
 Imports System.Text
 
-Module yocto_spiport
+Module yocto_i2cport
 
-    REM --- (YSpiPort return codes)
-    REM --- (end of YSpiPort return codes)
-    REM --- (YSpiPort dlldef)
-    REM --- (end of YSpiPort dlldef)
-   REM --- (YSpiPort yapiwrapper)
-   REM --- (end of YSpiPort yapiwrapper)
-  REM --- (YSpiPort globals)
+    REM --- (YI2cPort return codes)
+    REM --- (end of YI2cPort return codes)
+    REM --- (YI2cPort dlldef)
+    REM --- (end of YI2cPort dlldef)
+   REM --- (YI2cPort yapiwrapper)
+   REM --- (end of YI2cPort yapiwrapper)
+  REM --- (YI2cPort globals)
 
   Public Const Y_RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -72,35 +72,29 @@ Module yocto_spiport
   Public Const Y_VOLTAGELEVEL_TTL1V8 As Integer = 7
   Public Const Y_VOLTAGELEVEL_INVALID As Integer = -1
   Public Const Y_PROTOCOL_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_SPIMODE_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_SSPOLARITY_ACTIVE_LOW As Integer = 0
-  Public Const Y_SSPOLARITY_ACTIVE_HIGH As Integer = 1
-  Public Const Y_SSPOLARITY_INVALID As Integer = -1
-  Public Const Y_SHIFTSAMPLING_OFF As Integer = 0
-  Public Const Y_SHIFTSAMPLING_ON As Integer = 1
-  Public Const Y_SHIFTSAMPLING_INVALID As Integer = -1
-  Public Delegate Sub YSpiPortValueCallback(ByVal func As YSpiPort, ByVal value As String)
-  Public Delegate Sub YSpiPortTimedReportCallback(ByVal func As YSpiPort, ByVal measure As YMeasure)
-  REM --- (end of YSpiPort globals)
+  Public Const Y_I2CMODE_INVALID As String = YAPI.INVALID_STRING
+  Public Delegate Sub YI2cPortValueCallback(ByVal func As YI2cPort, ByVal value As String)
+  Public Delegate Sub YI2cPortTimedReportCallback(ByVal func As YI2cPort, ByVal measure As YMeasure)
+  REM --- (end of YI2cPort globals)
 
-  REM --- (YSpiPort class start)
+  REM --- (YI2cPort class start)
 
   '''*
   ''' <summary>
-  '''   The SpiPort function interface allows you to fully drive a Yoctopuce
-  '''   SPI port, to send and receive data, and to configure communication
-  '''   parameters (baud rate, bit count, parity, flow control and protocol).
+  '''   The I2cPort function interface allows you to fully drive a Yoctopuce
+  '''   I2C port, to send and receive data, and to configure communication
+  '''   parameters (baud rate, etc).
   ''' <para>
-  '''   Note that Yoctopuce SPI ports are not exposed as virtual COM ports.
+  '''   Note that Yoctopuce I2C ports are not exposed as virtual COM ports.
   '''   They are meant to be used in the same way as all Yoctopuce devices.
   ''' </para>
   ''' </summary>
   '''/
-  Public Class YSpiPort
+  Public Class YI2cPort
     Inherits YFunction
-    REM --- (end of YSpiPort class start)
+    REM --- (end of YI2cPort class start)
 
-    REM --- (YSpiPort definitions)
+    REM --- (YI2cPort definitions)
     Public Const RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -120,16 +114,10 @@ Module yocto_spiport
     Public Const VOLTAGELEVEL_TTL1V8 As Integer = 7
     Public Const VOLTAGELEVEL_INVALID As Integer = -1
     Public Const PROTOCOL_INVALID As String = YAPI.INVALID_STRING
-    Public Const SPIMODE_INVALID As String = YAPI.INVALID_STRING
-    Public Const SSPOLARITY_ACTIVE_LOW As Integer = 0
-    Public Const SSPOLARITY_ACTIVE_HIGH As Integer = 1
-    Public Const SSPOLARITY_INVALID As Integer = -1
-    Public Const SHIFTSAMPLING_OFF As Integer = 0
-    Public Const SHIFTSAMPLING_ON As Integer = 1
-    Public Const SHIFTSAMPLING_INVALID As Integer = -1
-    REM --- (end of YSpiPort definitions)
+    Public Const I2CMODE_INVALID As String = YAPI.INVALID_STRING
+    REM --- (end of YI2cPort definitions)
 
-    REM --- (YSpiPort attributes declaration)
+    REM --- (YI2cPort attributes declaration)
     Protected _rxCount As Integer
     Protected _txCount As Integer
     Protected _errCount As Integer
@@ -141,19 +129,17 @@ Module yocto_spiport
     Protected _command As String
     Protected _voltageLevel As Integer
     Protected _protocol As String
-    Protected _spiMode As String
-    Protected _ssPolarity As Integer
-    Protected _shiftSampling As Integer
-    Protected _valueCallbackSpiPort As YSpiPortValueCallback
+    Protected _i2cMode As String
+    Protected _valueCallbackI2cPort As YI2cPortValueCallback
     Protected _rxptr As Integer
     Protected _rxbuff As Byte()
     Protected _rxbuffptr As Integer
-    REM --- (end of YSpiPort attributes declaration)
+    REM --- (end of YI2cPort attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
-      _classname = "SpiPort"
-      REM --- (YSpiPort attributes initialization)
+      _classname = "I2cPort"
+      REM --- (YI2cPort attributes initialization)
       _rxCount = RXCOUNT_INVALID
       _txCount = TXCOUNT_INVALID
       _errCount = ERRCOUNT_INVALID
@@ -165,16 +151,14 @@ Module yocto_spiport
       _command = COMMAND_INVALID
       _voltageLevel = VOLTAGELEVEL_INVALID
       _protocol = PROTOCOL_INVALID
-      _spiMode = SPIMODE_INVALID
-      _ssPolarity = SSPOLARITY_INVALID
-      _shiftSampling = SHIFTSAMPLING_INVALID
-      _valueCallbackSpiPort = Nothing
+      _i2cMode = I2CMODE_INVALID
+      _valueCallbackI2cPort = Nothing
       _rxptr = 0
       _rxbuffptr = 0
-      REM --- (end of YSpiPort attributes initialization)
+      REM --- (end of YI2cPort attributes initialization)
     End Sub
 
-    REM --- (YSpiPort private methods declaration)
+    REM --- (YI2cPort private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("rxCount") Then
@@ -210,21 +194,15 @@ Module yocto_spiport
       If json_val.has("protocol") Then
         _protocol = json_val.getString("protocol")
       End If
-      If json_val.has("spiMode") Then
-        _spiMode = json_val.getString("spiMode")
-      End If
-      If json_val.has("ssPolarity") Then
-        If (json_val.getInt("ssPolarity") > 0) Then _ssPolarity = 1 Else _ssPolarity = 0
-      End If
-      If json_val.has("shiftSampling") Then
-        If (json_val.getInt("shiftSampling") > 0) Then _shiftSampling = 1 Else _shiftSampling = 0
+      If json_val.has("i2cMode") Then
+        _i2cMode = json_val.getString("i2cMode")
       End If
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YSpiPort private methods declaration)
+    REM --- (end of YI2cPort private methods declaration)
 
-    REM --- (YSpiPort public methods declaration)
+    REM --- (YI2cPort public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the total number of bytes received since last reset.
@@ -573,10 +551,9 @@ Module yocto_spiport
     ''' <summary>
     '''   Returns the type of protocol used over the serial line, as a string.
     ''' <para>
-    '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
-    '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
-    '''   "Char" for a continuous ASCII stream or
-    '''   "Byte" for a continuous binary stream.
+    '''   Possible values are
+    '''   "Line" for messages separated by LF or
+    '''   "Char" for continuous stream of codes.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -604,12 +581,11 @@ Module yocto_spiport
     ''' <summary>
     '''   Changes the type of protocol used over the serial line.
     ''' <para>
-    '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
-    '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
-    '''   "Char" for a continuous ASCII stream or
-    '''   "Byte" for a continuous binary stream.
+    '''   Possible values are
+    '''   "Line" for messages separated by LF or
+    '''   "Char" for continuous stream of codes.
     '''   The suffix "/[wait]ms" can be added to reduce the transmit rate so that there
-    '''   is always at lest the specified number of milliseconds between each bytes sent.
+    '''   is always at lest the specified number of milliseconds between each message sent.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -634,30 +610,30 @@ Module yocto_spiport
     '''*
     ''' <summary>
     '''   Returns the SPI port communication parameters, as a string such as
-    '''   "125000,0,msb".
+    '''   "400kbps,2000ms".
     ''' <para>
-    '''   The string includes the baud rate, the SPI mode (between
-    '''   0 and 3) and the bit order.
+    '''   The string includes the baud rate and  th  e recovery delay
+    '''   after communications errors.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a string corresponding to the SPI port communication parameters, as a string such as
-    '''   "125000,0,msb"
+    '''   "400kbps,2000ms"
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SPIMODE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>Y_I2CMODE_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_spiMode() As String
+    Public Function get_i2cMode() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return SPIMODE_INVALID
+          Return I2CMODE_INVALID
         End If
       End If
-      res = Me._spiMode
+      res = Me._i2cMode
       Return res
     End Function
 
@@ -665,17 +641,17 @@ Module yocto_spiport
     '''*
     ''' <summary>
     '''   Changes the SPI port communication parameters, with a string such as
-    '''   "125000,0,msb".
+    '''   "400kbps,2000ms".
     ''' <para>
-    '''   The string includes the baud rate, the SPI mode (between
-    '''   0 and 3) and the bit order.
+    '''   The string includes the baud rate and the recovery delay
+    '''   after communications errors.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
     '''   a string corresponding to the SPI port communication parameters, with a string such as
-    '''   "125000,0,msb"
+    '''   "400kbps,2000ms"
     ''' </param>
     ''' <para>
     ''' </para>
@@ -686,122 +662,14 @@ Module yocto_spiport
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_spiMode(ByVal newval As String) As Integer
+    Public Function set_i2cMode(ByVal newval As String) As Integer
       Dim rest_val As String
       rest_val = newval
-      Return _setAttr("spiMode", rest_val)
+      Return _setAttr("i2cMode", rest_val)
     End Function
     '''*
     ''' <summary>
-    '''   Returns the SS line polarity.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   either <c>Y_SSPOLARITY_ACTIVE_LOW</c> or <c>Y_SSPOLARITY_ACTIVE_HIGH</c>, according to the SS line polarity
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SSPOLARITY_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_ssPolarity() As Integer
-      Dim res As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return SSPOLARITY_INVALID
-        End If
-      End If
-      res = Me._ssPolarity
-      Return res
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the SS line polarity.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   either <c>Y_SSPOLARITY_ACTIVE_LOW</c> or <c>Y_SSPOLARITY_ACTIVE_HIGH</c>, according to the SS line polarity
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_ssPolarity(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
-      Return _setAttr("ssPolarity", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Returns true when the SDI line phase is shifted with regards to the SDO line.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   either <c>Y_SHIFTSAMPLING_OFF</c> or <c>Y_SHIFTSAMPLING_ON</c>, according to true when the SDI line
-    '''   phase is shifted with regards to the SDO line
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SHIFTSAMPLING_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_shiftSampling() As Integer
-      Dim res As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return SHIFTSAMPLING_INVALID
-        End If
-      End If
-      res = Me._shiftSampling
-      Return res
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the SDI line sampling shift.
-    ''' <para>
-    '''   When disabled, SDI line is
-    '''   sampled in the middle of data output time. When enabled, SDI line is
-    '''   samples at the end of data output time.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   either <c>Y_SHIFTSAMPLING_OFF</c> or <c>Y_SHIFTSAMPLING_ON</c>, according to the SDI line sampling shift
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_shiftSampling(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
-      Return _setAttr("shiftSampling", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Retrieves a SPI port for a given identifier.
+    '''   Retrieves an I2C port for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -825,11 +693,11 @@ Module yocto_spiport
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the SPI port is online at the time
+    '''   This function does not require that the I2C port is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YSpiPort.isOnline()</c> to test if the SPI port is
+    '''   Use the method <c>YI2cPort.isOnline()</c> to test if the I2C port is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a SPI port by logical name, no error is notified: the first instance
+    '''   an I2C port by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -842,18 +710,18 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the SPI port
+    '''   a string that uniquely characterizes the I2C port
     ''' </param>
     ''' <returns>
-    '''   a <c>YSpiPort</c> object allowing you to drive the SPI port.
+    '''   a <c>YI2cPort</c> object allowing you to drive the I2C port.
     ''' </returns>
     '''/
-    Public Shared Function FindSpiPort(func As String) As YSpiPort
-      Dim obj As YSpiPort
-      obj = CType(YFunction._FindFromCache("SpiPort", func), YSpiPort)
+    Public Shared Function FindI2cPort(func As String) As YI2cPort
+      Dim obj As YI2cPort
+      obj = CType(YFunction._FindFromCache("I2cPort", func), YI2cPort)
       If ((obj Is Nothing)) Then
-        obj = New YSpiPort(func)
-        YFunction._AddToCache("SpiPort", func, obj)
+        obj = New YI2cPort(func)
+        YFunction._AddToCache("I2cPort", func, obj)
       End If
       Return obj
     End Function
@@ -876,14 +744,14 @@ Module yocto_spiport
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerValueCallback(callback As YSpiPortValueCallback) As Integer
+    Public Overloads Function registerValueCallback(callback As YI2cPortValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
         YFunction._UpdateValueCallbackList(Me, True)
       Else
         YFunction._UpdateValueCallbackList(Me, False)
       End If
-      Me._valueCallbackSpiPort = callback
+      Me._valueCallbackI2cPort = callback
       REM // Immediately invoke value callback with current value
       If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
@@ -895,8 +763,8 @@ Module yocto_spiport
     End Function
 
     Public Overrides Function _invokeValueCallback(value As String) As Integer
-      If (Not (Me._valueCallbackSpiPort Is Nothing)) Then
-        Me._valueCallbackSpiPort(Me, value)
+      If (Not (Me._valueCallbackI2cPort Is Nothing)) Then
+        Me._valueCallbackI2cPort(Me, value)
       Else
         MyBase._invokeValueCallback(value)
       End If
@@ -1191,8 +1059,349 @@ Module yocto_spiport
 
     '''*
     ''' <summary>
-    '''   Sends a single byte to the serial port.
+    '''   Sends a one-way message (provided as a a binary buffer) to a device on the I2C bus.
     ''' <para>
+    '''   This function checks and reports communication errors on the I2C bus.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="slaveAddr">
+    '''   the 7-bit address of the slave device (without the direction bit)
+    ''' </param>
+    ''' <param name="buff">
+    '''   the binary buffer to be sent
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function i2cSendBin(slaveAddr As Integer, buff As Byte()) As Integer
+      Dim nBytes As Integer = 0
+      Dim idx As Integer = 0
+      Dim val As Integer = 0
+      Dim msg As String
+      Dim reply As String
+      msg = "@" + (slaveAddr).ToString("x02") + ":"
+      nBytes = (buff).Length
+      idx = 0
+      While (idx < nBytes)
+        val = buff(idx)
+        msg = "" +  msg + "" + (val).ToString("x02")
+        idx = idx + 1
+      End While
+
+      reply = Me.queryLine(msg,1000)
+      If Not((reply).Length > 0) Then
+        me._throw( YAPI.IO_ERROR,  "no response from device")
+        return YAPI.IO_ERROR
+      end if
+      idx = reply.IndexOf("[N]!")
+      If Not(idx < 0) Then
+        me._throw( YAPI.IO_ERROR,  "No ACK received")
+        return YAPI.IO_ERROR
+      end if
+      idx = reply.IndexOf("!")
+      If Not(idx < 0) Then
+        me._throw( YAPI.IO_ERROR,  "Protocol error")
+        return YAPI.IO_ERROR
+      end if
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a one-way message (provided as a list of integer) to a device on the I2C bus.
+    ''' <para>
+    '''   This function checks and reports communication errors on the I2C bus.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="slaveAddr">
+    '''   the 7-bit address of the slave device (without the direction bit)
+    ''' </param>
+    ''' <param name="values">
+    '''   a list of data bytes to be sent
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function i2cSendArray(slaveAddr As Integer, values As List(Of Integer)) As Integer
+      Dim nBytes As Integer = 0
+      Dim idx As Integer = 0
+      Dim val As Integer = 0
+      Dim msg As String
+      Dim reply As String
+      msg = "@" + (slaveAddr).ToString("x02") + ":"
+      nBytes = values.Count
+      idx = 0
+      While (idx < nBytes)
+        val = values(idx)
+        msg = "" +  msg + "" + (val).ToString("x02")
+        idx = idx + 1
+      End While
+
+      reply = Me.queryLine(msg,1000)
+      If Not((reply).Length > 0) Then
+        me._throw( YAPI.IO_ERROR,  "no response from device")
+        return YAPI.IO_ERROR
+      end if
+      idx = reply.IndexOf("[N]!")
+      If Not(idx < 0) Then
+        me._throw( YAPI.IO_ERROR,  "No ACK received")
+        return YAPI.IO_ERROR
+      end if
+      idx = reply.IndexOf("!")
+      If Not(idx < 0) Then
+        me._throw( YAPI.IO_ERROR,  "Protocol error")
+        return YAPI.IO_ERROR
+      end if
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a one-way message (provided as a a binary buffer) to a device on the I2C bus,
+    '''   then read back the specified number of bytes from device.
+    ''' <para>
+    '''   This function checks and reports communication errors on the I2C bus.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="slaveAddr">
+    '''   the 7-bit address of the slave device (without the direction bit)
+    ''' </param>
+    ''' <param name="buff">
+    '''   the binary buffer to be sent
+    ''' </param>
+    ''' <param name="rcvCount">
+    '''   the number of bytes to receive once the data bytes are sent
+    ''' </param>
+    ''' <returns>
+    '''   a list of bytes with the data received from slave device.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty binary buffer.
+    ''' </para>
+    '''/
+    Public Overridable Function i2cSendAndReceiveBin(slaveAddr As Integer, buff As Byte(), rcvCount As Integer) As Byte()
+      Dim nBytes As Integer = 0
+      Dim idx As Integer = 0
+      Dim val As Integer = 0
+      Dim msg As String
+      Dim reply As String
+      Dim rcvbytes As Byte()
+      msg = "@" + (slaveAddr).ToString("x02") + ":"
+      nBytes = (buff).Length
+      idx = 0
+      While (idx < nBytes)
+        val = buff(idx)
+        msg = "" +  msg + "" + (val).ToString("x02")
+        idx = idx + 1
+      End While
+      idx = 0
+      While (idx < rcvCount)
+        msg = "" + msg + "xx"
+        idx = idx + 1
+      End While
+
+      reply = Me.queryLine(msg,1000)
+      ReDim rcvbytes(0-1)
+      If Not((reply).Length > 0) Then
+        me._throw( YAPI.IO_ERROR,  "no response from device")
+        return rcvbytes
+      end if
+      idx = reply.IndexOf("[N]!")
+      If Not(idx < 0) Then
+        me._throw( YAPI.IO_ERROR,  "No ACK received")
+        return rcvbytes
+      end if
+      idx = reply.IndexOf("!")
+      If Not(idx < 0) Then
+        me._throw( YAPI.IO_ERROR,  "Protocol error")
+        return rcvbytes
+      end if
+      reply = (reply).Substring( (reply).Length-2*rcvCount, 2*rcvCount)
+      rcvbytes = YAPI._hexStrToBin(reply)
+      Return rcvbytes
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a one-way message (provided as a list of integer) to a device on the I2C bus,
+    '''   then read back the specified number of bytes from device.
+    ''' <para>
+    '''   This function checks and reports communication errors on the I2C bus.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="slaveAddr">
+    '''   the 7-bit address of the slave device (without the direction bit)
+    ''' </param>
+    ''' <param name="values">
+    '''   a list of data bytes to be sent
+    ''' </param>
+    ''' <param name="rcvCount">
+    '''   the number of bytes to receive once the data bytes are sent
+    ''' </param>
+    ''' <returns>
+    '''   a list of bytes with the data received from slave device.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function i2cSendAndReceiveArray(slaveAddr As Integer, values As List(Of Integer), rcvCount As Integer) As List(Of Integer)
+      Dim nBytes As Integer = 0
+      Dim idx As Integer = 0
+      Dim val As Integer = 0
+      Dim msg As String
+      Dim reply As String
+      Dim rcvbytes As Byte()
+      Dim res As List(Of Integer) = New List(Of Integer)()
+      msg = "@" + (slaveAddr).ToString("x02") + ":"
+      nBytes = values.Count
+      idx = 0
+      While (idx < nBytes)
+        val = values(idx)
+        msg = "" +  msg + "" + (val).ToString("x02")
+        idx = idx + 1
+      End While
+      idx = 0
+      While (idx < rcvCount)
+        msg = "" + msg + "xx"
+        idx = idx + 1
+      End While
+
+      reply = Me.queryLine(msg,1000)
+      If Not((reply).Length > 0) Then
+        me._throw( YAPI.IO_ERROR,  "no response from device")
+        return res
+      end if
+      idx = reply.IndexOf("[N]!")
+      If Not(idx < 0) Then
+        me._throw( YAPI.IO_ERROR,  "No ACK received")
+        return res
+      end if
+      idx = reply.IndexOf("!")
+      If Not(idx < 0) Then
+        me._throw( YAPI.IO_ERROR,  "Protocol error")
+        return res
+      end if
+      reply = (reply).Substring( (reply).Length-2*rcvCount, 2*rcvCount)
+      rcvbytes = YAPI._hexStrToBin(reply)
+      res.Clear()
+      idx = 0
+      While (idx < rcvCount)
+        val = rcvbytes(idx)
+        res.Add(val)
+        idx = idx + 1
+      End While
+
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a text-encoded I2C code stream to the I2C bus, as is.
+    ''' <para>
+    '''   An I2C code stream is a string made of hexadecimal data bytes,
+    '''   but that may also include the I2C state transitions code:
+    '''   "{S}" to emit a start condition,
+    '''   "{R}" for a repeated start condition,
+    '''   "{P}" for a stop condition,
+    '''   "xx" for receiving a data byte,
+    '''   "{A}" to ack a data byte received and
+    '''   "{N}" to nack a data byte received.
+    '''   If a newline ("\n") is included in the stream, the message
+    '''   will be terminated and a newline will also be added to the
+    '''   receive stream.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="codes">
+    '''   the code stream to send
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function writeStr(codes As String) As Integer
+      Dim bufflen As Integer = 0
+      Dim buff As Byte()
+      Dim idx As Integer = 0
+      Dim ch As Integer = 0
+      buff = YAPI.DefaultEncoding.GetBytes(codes)
+      bufflen = (buff).Length
+      If (bufflen < 100) Then
+        REM // if string is pure text, we can send it as a simple command (faster)
+        ch = &H20
+        idx = 0
+        While ((idx < bufflen) AndAlso (ch <> 0))
+          ch = buff(idx)
+          If ((ch >= &H20) AndAlso (ch < &H7f)) Then
+            idx = idx + 1
+          Else
+            ch = 0
+          End If
+        End While
+        If (idx >= bufflen) Then
+          Return Me.sendCommand("+" + codes)
+        End If
+      End If
+      REM // send string using file upload
+      Return Me._upload("txdata", buff)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a text-encoded I2C code stream to the I2C bus, and terminate
+    '''   the message en relâchant le bus.
+    ''' <para>
+    '''   An I2C code stream is a string made of hexadecimal data bytes,
+    '''   but that may also include the I2C state transitions code:
+    '''   "{S}" to emit a start condition,
+    '''   "{R}" for a repeated start condition,
+    '''   "{P}" for a stop condition,
+    '''   "xx" for receiving a data byte,
+    '''   "{A}" to ack a data byte received and
+    '''   "{N}" to nack a data byte received.
+    '''   At the end of the stream, a stop condition is added if missing
+    '''   and a newline is added to the receive buffer as well.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="codes">
+    '''   the code stream to send
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function writeLine(codes As String) As Integer
+      Dim bufflen As Integer = 0
+      Dim buff As Byte()
+      bufflen = (codes).Length
+      If (bufflen < 100) Then
+        Return Me.sendCommand("!" + codes)
+      End If
+      REM // send string using file upload
+      buff = YAPI.DefaultEncoding.GetBytes("" + codes + "" + vbLf + "")
+      Return Me._upload("txdata", buff)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a single byte to the I2C bus.
+    ''' <para>
+    '''   Depending on the I2C bus state, the byte
+    '''   will be interpreted as an address byte or a data byte.
     ''' </para>
     ''' </summary>
     ''' <param name="code">
@@ -1206,111 +1415,15 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function writeByte(code As Integer) As Integer
-      Return Me.sendCommand("$" + (code).ToString("X02"))
+      Return Me.sendCommand("+" + (code).ToString("X02"))
     End Function
 
     '''*
     ''' <summary>
-    '''   Sends an ASCII string to the serial port, as is.
+    '''   Sends a byte sequence (provided as a hexadecimal string) to the I2C bus.
     ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="text">
-    '''   the text string to send
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function writeStr(text As String) As Integer
-      Dim buff As Byte()
-      Dim bufflen As Integer = 0
-      Dim idx As Integer = 0
-      Dim ch As Integer = 0
-      buff = YAPI.DefaultEncoding.GetBytes(text)
-      bufflen = (buff).Length
-      If (bufflen < 100) Then
-        REM // if string is pure text, we can send it as a simple command (faster)
-        ch = &H20
-        idx = 0
-        While ((idx < bufflen) AndAlso (ch <> 0))
-          ch = buff(idx)
-          If ((ch >= &H20) AndAlso (ch < &H7f)) Then
-            idx = idx + 1
-          Else
-            ch = 0
-          End If
-        End While
-        If (idx >= bufflen) Then
-          Return Me.sendCommand("+" + text)
-        End If
-      End If
-      REM // send string using file upload
-      Return Me._upload("txdata", buff)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Sends a binary buffer to the serial port, as is.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="buff">
-    '''   the binary buffer to send
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function writeBin(buff As Byte()) As Integer
-      Return Me._upload("txdata", buff)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Sends a byte sequence (provided as a list of bytes) to the serial port.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="byteList">
-    '''   a list of byte codes
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function writeArray(byteList As List(Of Integer)) As Integer
-      Dim buff As Byte()
-      Dim bufflen As Integer = 0
-      Dim idx As Integer = 0
-      Dim hexb As Integer = 0
-      Dim res As Integer = 0
-      bufflen = byteList.Count
-      ReDim buff(bufflen-1)
-      idx = 0
-      While (idx < bufflen)
-        hexb = byteList(idx)
-        buff( idx) = Convert.ToByte(hexb And &HFF)
-        idx = idx + 1
-      End While
-
-      res = Me._upload("txdata", buff)
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Sends a byte sequence (provided as a hexadecimal string) to the serial port.
-    ''' <para>
+    '''   Depending on the I2C bus state, the first byte will be interpreted as an
+    '''   address byte or a data byte.
     ''' </para>
     ''' </summary>
     ''' <param name="hexString">
@@ -1324,348 +1437,27 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function writeHex(hexString As String) As Integer
-      Dim buff As Byte()
       Dim bufflen As Integer = 0
-      Dim idx As Integer = 0
-      Dim hexb As Integer = 0
-      Dim res As Integer = 0
+      Dim buff As Byte()
       bufflen = (hexString).Length
       If (bufflen < 100) Then
-        Return Me.sendCommand("$" + hexString)
+        Return Me.sendCommand("+" + hexString)
       End If
-      bufflen = ((bufflen) >> (1))
-      ReDim buff(bufflen-1)
-      idx = 0
-      While (idx < bufflen)
-        hexb = Convert.ToInt32((hexString).Substring( 2 * idx, 2), 16)
-        buff( idx) = Convert.ToByte(hexb And &HFF)
-        idx = idx + 1
-      End While
+      buff = YAPI.DefaultEncoding.GetBytes(hexString)
 
-      res = Me._upload("txdata", buff)
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Sends an ASCII string to the serial port, followed by a line break (CR LF).
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="text">
-    '''   the text string to send
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function writeLine(text As String) As Integer
-      Dim buff As Byte()
-      Dim bufflen As Integer = 0
-      Dim idx As Integer = 0
-      Dim ch As Integer = 0
-      buff = YAPI.DefaultEncoding.GetBytes("" + text + "" + vbCr + "" + vbLf + "")
-      bufflen = (buff).Length-2
-      If (bufflen < 100) Then
-        REM // if string is pure text, we can send it as a simple command (faster)
-        ch = &H20
-        idx = 0
-        While ((idx < bufflen) AndAlso (ch <> 0))
-          ch = buff(idx)
-          If ((ch >= &H20) AndAlso (ch < &H7f)) Then
-            idx = idx + 1
-          Else
-            ch = 0
-          End If
-        End While
-        If (idx >= bufflen) Then
-          Return Me.sendCommand("!" + text)
-        End If
-      End If
-      REM // send string using file upload
       Return Me._upload("txdata", buff)
     End Function
 
     '''*
     ''' <summary>
-    '''   Reads one byte from the receive buffer, starting at current stream position.
+    '''   Sends a binary buffer to the I2C bus, as is.
     ''' <para>
-    '''   If data at current stream position is not available anymore in the receive buffer,
-    '''   or if there is no data available yet, the function returns YAPI_NO_MORE_DATA.
+    '''   Depending on the I2C bus state, the first byte will be interpreted
+    '''   as an address byte or a data byte.
     ''' </para>
     ''' </summary>
-    ''' <returns>
-    '''   the next byte
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function readByte() As Integer
-      Dim currpos As Integer = 0
-      Dim reqlen As Integer = 0
-      Dim buff As Byte()
-      Dim bufflen As Integer = 0
-      Dim mult As Integer = 0
-      Dim endpos As Integer = 0
-      Dim res As Integer = 0
-      REM // first check if we have the requested character in the look-ahead buffer
-      bufflen = (Me._rxbuff).Length
-      If ((Me._rxptr >= Me._rxbuffptr) AndAlso (Me._rxptr < Me._rxbuffptr+bufflen)) Then
-        res = Me._rxbuff(Me._rxptr-Me._rxbuffptr)
-        Me._rxptr = Me._rxptr + 1
-        Return res
-      End If
-      REM // try to preload more than one byte to speed-up byte-per-byte access
-      currpos = Me._rxptr
-      reqlen = 1024
-      buff = Me.readBin(reqlen)
-      bufflen = (buff).Length
-      If (Me._rxptr = currpos+bufflen) Then
-        res = buff(0)
-        Me._rxptr = currpos+1
-        Me._rxbuffptr = currpos
-        Me._rxbuff = buff
-        Return res
-      End If
-      REM // mixed bidirectional data, retry with a smaller block
-      Me._rxptr = currpos
-      reqlen = 16
-      buff = Me.readBin(reqlen)
-      bufflen = (buff).Length
-      If (Me._rxptr = currpos+bufflen) Then
-        res = buff(0)
-        Me._rxptr = currpos+1
-        Me._rxbuffptr = currpos
-        Me._rxbuff = buff
-        Return res
-      End If
-      REM // still mixed, need to process character by character
-      Me._rxptr = currpos
-
-      buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=1")
-      bufflen = (buff).Length - 1
-      endpos = 0
-      mult = 1
-      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
-        endpos = endpos + mult * (buff(bufflen) - 48)
-        mult = mult * 10
-        bufflen = bufflen - 1
-      End While
-      Me._rxptr = endpos
-      If (bufflen = 0) Then
-        Return YAPI.NO_MORE_DATA
-      End If
-      res = buff(0)
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Reads data from the receive buffer as a string, starting at current stream position.
-    ''' <para>
-    '''   If data at current stream position is not available anymore in the receive buffer, the
-    '''   function performs a short read.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="nChars">
-    '''   the maximum number of characters to read
-    ''' </param>
-    ''' <returns>
-    '''   a string with receive buffer contents
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function readStr(nChars As Integer) As String
-      Dim buff As Byte()
-      Dim bufflen As Integer = 0
-      Dim mult As Integer = 0
-      Dim endpos As Integer = 0
-      Dim res As String
-      If (nChars > 65535) Then
-        nChars = 65535
-      End If
-
-      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
-      bufflen = (buff).Length - 1
-      endpos = 0
-      mult = 1
-      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
-        endpos = endpos + mult * (buff(bufflen) - 48)
-        mult = mult * 10
-        bufflen = bufflen - 1
-      End While
-      Me._rxptr = endpos
-      res = (YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen)
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Reads data from the receive buffer as a binary buffer, starting at current stream position.
-    ''' <para>
-    '''   If data at current stream position is not available anymore in the receive buffer, the
-    '''   function performs a short read.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="nChars">
-    '''   the maximum number of bytes to read
-    ''' </param>
-    ''' <returns>
-    '''   a binary object with receive buffer contents
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function readBin(nChars As Integer) As Byte()
-      Dim buff As Byte()
-      Dim bufflen As Integer = 0
-      Dim mult As Integer = 0
-      Dim endpos As Integer = 0
-      Dim idx As Integer = 0
-      Dim res As Byte()
-      If (nChars > 65535) Then
-        nChars = 65535
-      End If
-
-      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
-      bufflen = (buff).Length - 1
-      endpos = 0
-      mult = 1
-      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
-        endpos = endpos + mult * (buff(bufflen) - 48)
-        mult = mult * 10
-        bufflen = bufflen - 1
-      End While
-      Me._rxptr = endpos
-      ReDim res(bufflen-1)
-      idx = 0
-      While (idx < bufflen)
-        res( idx) = Convert.ToByte(buff(idx) And &HFF)
-        idx = idx + 1
-      End While
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Reads data from the receive buffer as a list of bytes, starting at current stream position.
-    ''' <para>
-    '''   If data at current stream position is not available anymore in the receive buffer, the
-    '''   function performs a short read.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="nChars">
-    '''   the maximum number of bytes to read
-    ''' </param>
-    ''' <returns>
-    '''   a sequence of bytes with receive buffer contents
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty array.
-    ''' </para>
-    '''/
-    Public Overridable Function readArray(nChars As Integer) As List(Of Integer)
-      Dim buff As Byte()
-      Dim bufflen As Integer = 0
-      Dim mult As Integer = 0
-      Dim endpos As Integer = 0
-      Dim idx As Integer = 0
-      Dim b As Integer = 0
-      Dim res As List(Of Integer) = New List(Of Integer)()
-      If (nChars > 65535) Then
-        nChars = 65535
-      End If
-
-      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
-      bufflen = (buff).Length - 1
-      endpos = 0
-      mult = 1
-      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
-        endpos = endpos + mult * (buff(bufflen) - 48)
-        mult = mult * 10
-        bufflen = bufflen - 1
-      End While
-      Me._rxptr = endpos
-      res.Clear()
-      idx = 0
-      While (idx < bufflen)
-        b = buff(idx)
-        res.Add(b)
-        idx = idx + 1
-      End While
-
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Reads data from the receive buffer as a hexadecimal string, starting at current stream position.
-    ''' <para>
-    '''   If data at current stream position is not available anymore in the receive buffer, the
-    '''   function performs a short read.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="nBytes">
-    '''   the maximum number of bytes to read
-    ''' </param>
-    ''' <returns>
-    '''   a string with receive buffer contents, encoded in hexadecimal
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function readHex(nBytes As Integer) As String
-      Dim buff As Byte()
-      Dim bufflen As Integer = 0
-      Dim mult As Integer = 0
-      Dim endpos As Integer = 0
-      Dim ofs As Integer = 0
-      Dim res As String
-      If (nBytes > 65535) Then
-        nBytes = 65535
-      End If
-
-      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nBytes))
-      bufflen = (buff).Length - 1
-      endpos = 0
-      mult = 1
-      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
-        endpos = endpos + mult * (buff(bufflen) - 48)
-        mult = mult * 10
-        bufflen = bufflen - 1
-      End While
-      Me._rxptr = endpos
-      res = ""
-      ofs = 0
-      While (ofs + 3 < bufflen)
-        res = "" +  res + "" + ( buff(ofs)).ToString("X02") + "" + ( buff(ofs + 1)).ToString("X02") + "" + ( buff(ofs + 2)).ToString("X02") + "" + (buff(ofs + 3)).ToString("X02")
-        ofs = ofs + 4
-      End While
-      While (ofs < bufflen)
-        res = "" +  res + "" + (buff(ofs)).ToString("X02")
-        ofs = ofs + 1
-      End While
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Manually sets the state of the SS line.
-    ''' <para>
-    '''   This function has no effect when
-    '''   the SS line is handled automatically.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="val">
-    '''   1 to turn SS active, 0 to release SS.
+    ''' <param name="buff">
+    '''   the binary buffer to send
     ''' </param>
     ''' <returns>
     '''   <c>YAPI_SUCCESS</c> if the call succeeds.
@@ -1674,27 +1466,75 @@ Module yocto_spiport
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function set_SS(val As Integer) As Integer
-      Return Me.sendCommand("S" + Convert.ToString(val))
+    Public Overridable Function writeBin(buff As Byte()) As Integer
+      Dim nBytes As Integer = 0
+      Dim idx As Integer = 0
+      Dim val As Integer = 0
+      Dim msg As String
+      msg = ""
+      nBytes = (buff).Length
+      idx = 0
+      While (idx < nBytes)
+        val = buff(idx)
+        msg = "" +  msg + "" + (val).ToString("x02")
+        idx = idx + 1
+      End While
+
+      Return Me.writeHex(msg)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a byte sequence (provided as a list of bytes) to the I2C bus.
+    ''' <para>
+    '''   Depending on the I2C bus state, the first byte will be interpreted as an
+    '''   address byte or a data byte.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="byteList">
+    '''   a list of byte codes
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function writeArray(byteList As List(Of Integer)) As Integer
+      Dim nBytes As Integer = 0
+      Dim idx As Integer = 0
+      Dim val As Integer = 0
+      Dim msg As String
+      msg = ""
+      nBytes = byteList.Count
+      idx = 0
+      While (idx < nBytes)
+        val = byteList(idx)
+        msg = "" +  msg + "" + (val).ToString("x02")
+        idx = idx + 1
+      End While
+
+      Return Me.writeHex(msg)
     End Function
 
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of SPI ports started using <c>yFirstSpiPort()</c>.
+    '''   Continues the enumeration of I2C ports started using <c>yFirstI2cPort()</c>.
     ''' <para>
-    '''   Caution: You can't make any assumption about the returned SPI ports order.
-    '''   If you want to find a specific a SPI port, use <c>SpiPort.findSpiPort()</c>
+    '''   Caution: You can't make any assumption about the returned I2C ports order.
+    '''   If you want to find a specific an I2C port, use <c>I2cPort.findI2cPort()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YSpiPort</c> object, corresponding to
-    '''   a SPI port currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more SPI ports to enumerate.
+    '''   a pointer to a <c>YI2cPort</c> object, corresponding to
+    '''   an I2C port currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more I2C ports to enumerate.
     ''' </returns>
     '''/
-    Public Function nextSpiPort() As YSpiPort
+    Public Function nextI2cPort() As YI2cPort
       Dim hwid As String = ""
       If (YISERR(_nextFunction(hwid))) Then
         Return Nothing
@@ -1702,24 +1542,24 @@ Module yocto_spiport
       If (hwid = "") Then
         Return Nothing
       End If
-      Return YSpiPort.FindSpiPort(hwid)
+      Return YI2cPort.FindI2cPort(hwid)
     End Function
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of SPI ports currently accessible.
+    '''   Starts the enumeration of I2C ports currently accessible.
     ''' <para>
-    '''   Use the method <c>YSpiPort.nextSpiPort()</c> to iterate on
-    '''   next SPI ports.
+    '''   Use the method <c>YI2cPort.nextI2cPort()</c> to iterate on
+    '''   next I2C ports.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YSpiPort</c> object, corresponding to
-    '''   the first SPI port currently online, or a <c>Nothing</c> pointer
+    '''   a pointer to a <c>YI2cPort</c> object, corresponding to
+    '''   the first I2C port currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
-    Public Shared Function FirstSpiPort() As YSpiPort
+    Public Shared Function FirstI2cPort() As YI2cPort
       Dim v_fundescr(1) As YFUN_DESCR
       Dim dev As YDEV_DESCR
       Dim neededsize, err As Integer
@@ -1728,7 +1568,7 @@ Module yocto_spiport
       Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
       Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
 
-      err = yapiGetFunctionsByClass("SpiPort", 0, p, size, neededsize, errmsg)
+      err = yapiGetFunctionsByClass("I2cPort", 0, p, size, neededsize, errmsg)
       Marshal.Copy(p, v_fundescr, 0, 1)
       Marshal.FreeHGlobal(p)
 
@@ -1743,18 +1583,18 @@ Module yocto_spiport
       If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
         Return Nothing
       End If
-      Return YSpiPort.FindSpiPort(serial + "." + funcId)
+      Return YI2cPort.FindI2cPort(serial + "." + funcId)
     End Function
 
-    REM --- (end of YSpiPort public methods declaration)
+    REM --- (end of YI2cPort public methods declaration)
 
   End Class
 
-  REM --- (YSpiPort functions)
+  REM --- (YI2cPort functions)
 
   '''*
   ''' <summary>
-  '''   Retrieves a SPI port for a given identifier.
+  '''   Retrieves an I2C port for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -1778,11 +1618,11 @@ Module yocto_spiport
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the SPI port is online at the time
+  '''   This function does not require that the I2C port is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YSpiPort.isOnline()</c> to test if the SPI port is
+  '''   Use the method <c>YI2cPort.isOnline()</c> to test if the I2C port is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a SPI port by logical name, no error is notified: the first instance
+  '''   an I2C port by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -1795,35 +1635,35 @@ Module yocto_spiport
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the SPI port
+  '''   a string that uniquely characterizes the I2C port
   ''' </param>
   ''' <returns>
-  '''   a <c>YSpiPort</c> object allowing you to drive the SPI port.
+  '''   a <c>YI2cPort</c> object allowing you to drive the I2C port.
   ''' </returns>
   '''/
-  Public Function yFindSpiPort(ByVal func As String) As YSpiPort
-    Return YSpiPort.FindSpiPort(func)
+  Public Function yFindI2cPort(ByVal func As String) As YI2cPort
+    Return YI2cPort.FindI2cPort(func)
   End Function
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of SPI ports currently accessible.
+  '''   Starts the enumeration of I2C ports currently accessible.
   ''' <para>
-  '''   Use the method <c>YSpiPort.nextSpiPort()</c> to iterate on
-  '''   next SPI ports.
+  '''   Use the method <c>YI2cPort.nextI2cPort()</c> to iterate on
+  '''   next I2C ports.
   ''' </para>
   ''' </summary>
   ''' <returns>
-  '''   a pointer to a <c>YSpiPort</c> object, corresponding to
-  '''   the first SPI port currently online, or a <c>Nothing</c> pointer
+  '''   a pointer to a <c>YI2cPort</c> object, corresponding to
+  '''   the first I2C port currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
-  Public Function yFirstSpiPort() As YSpiPort
-    Return YSpiPort.FirstSpiPort()
+  Public Function yFirstI2cPort() As YI2cPort
+    Return YI2cPort.FirstI2cPort()
   End Function
 
 
-  REM --- (end of YSpiPort functions)
+  REM --- (end of YI2cPort functions)
 
 End Module

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 35464 2019-05-16 14:39:59Z seb $
+'* $Id: yocto_serialport.vb 36048 2019-06-28 17:43:51Z mvuilleu $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -852,6 +852,265 @@ Module yocto_serialport
 
     '''*
     ''' <summary>
+    '''   Reads a single line (or message) from the receive buffer, starting at current stream position.
+    ''' <para>
+    '''   This function is intended to be used when the serial port is configured for a message protocol,
+    '''   such as 'Line' mode or frame protocols.
+    ''' </para>
+    ''' <para>
+    '''   If data at current stream position is not available anymore in the receive buffer,
+    '''   the function returns the oldest available line and moves the stream position just after.
+    '''   If no new full line is received, the function returns an empty line.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with a single line of text
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function readLine() As String
+      Dim url As String
+      Dim msgbin As Byte()
+      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msglen As Integer = 0
+      Dim res As String
+
+      url = "rxmsg.json?pos=" + Convert.ToString(Me._rxptr) + "&len=1&maxw=1"
+      msgbin = Me._download(url)
+      msgarr = Me._json_get_array(msgbin)
+      msglen = msgarr.Count
+      If (msglen = 0) Then
+        Return ""
+      End If
+      REM // last element of array is the new position
+      msglen = msglen - 1
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      If (msglen = 0) Then
+        Return ""
+      End If
+      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Searches for incoming messages in the serial port receive buffer matching a given pattern,
+    '''   starting at current position.
+    ''' <para>
+    '''   This function will only compare and return printable characters
+    '''   in the message strings. Binary protocols are handled as hexadecimal strings.
+    ''' </para>
+    ''' <para>
+    '''   The search returns all messages matching the expression provided as argument in the buffer.
+    '''   If no matching message is found, the search waits for one up to the specified maximum timeout
+    '''   (in milliseconds).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="pattern">
+    '''   a limited regular expression describing the expected message format,
+    '''   or an empty string if all messages should be returned (no filtering).
+    '''   When using binary protocols, the format applies to the hexadecimal
+    '''   representation of the message.
+    ''' </param>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a message if none is found
+    '''   in the receive buffer.
+    ''' </param>
+    ''' <returns>
+    '''   an array of strings containing the messages found, if any.
+    '''   Binary messages are converted to hexadecimal representation.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function readMessages(pattern As String, maxWait As Integer) As List(Of String)
+      Dim url As String
+      Dim msgbin As Byte()
+      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msglen As Integer = 0
+      Dim res As List(Of String) = New List(Of String)()
+      Dim idx As Integer = 0
+
+      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&pat=" + pattern
+      msgbin = Me._download(url)
+      msgarr = Me._json_get_array(msgbin)
+      msglen = msgarr.Count
+      If (msglen = 0) Then
+        Return res
+      End If
+      REM // last element of array is the new position
+      msglen = msglen - 1
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      idx = 0
+
+      While (idx < msglen)
+        res.Add(Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(idx))))
+        idx = idx + 1
+      End While
+
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the current internal stream position to the specified value.
+    ''' <para>
+    '''   This function
+    '''   does not affect the device, it only changes the value stored in the API object
+    '''   for the next read operations.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="absPos">
+    '''   the absolute position index for next read operations.
+    ''' </param>
+    ''' <returns>
+    '''   nothing.
+    ''' </returns>
+    '''/
+    Public Overridable Function read_seek(absPos As Integer) As Integer
+      Me._rxptr = absPos
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the current absolute stream position pointer of the API object.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the absolute position index for next read operations.
+    ''' </returns>
+    '''/
+    Public Overridable Function read_tell() As Integer
+      Return Me._rxptr
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the number of bytes available to read in the input buffer starting from the
+    '''   current absolute stream position pointer of the API object.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the number of bytes available to read
+    ''' </returns>
+    '''/
+    Public Overridable Function read_avail() As Integer
+      Dim buff As Byte()
+      Dim bufflen As Integer = 0
+      Dim res As Integer = 0
+
+      buff = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
+      bufflen = (buff).Length - 1
+      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
+        bufflen = bufflen - 1
+      End While
+      res = YAPI._atoi((YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen))
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a text line query to the serial port, and reads the reply, if any.
+    ''' <para>
+    '''   This function is intended to be used when the serial port is configured for 'Line' protocol.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="query">
+    '''   the line query to send (without CR/LF)
+    ''' </param>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a reply.
+    ''' </param>
+    ''' <returns>
+    '''   the next text line received after sending the text query, as a string.
+    '''   Additional lines can be obtained by calling readLine or readMessages.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty string.
+    ''' </para>
+    '''/
+    Public Overridable Function queryLine(query As String, maxWait As Integer) As String
+      Dim url As String
+      Dim msgbin As Byte()
+      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msglen As Integer = 0
+      Dim res As String
+
+      url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + Me._escapeAttr(query)
+      msgbin = Me._download(url)
+      msgarr = Me._json_get_array(msgbin)
+      msglen = msgarr.Count
+      If (msglen = 0) Then
+        Return ""
+      End If
+      REM // last element of array is the new position
+      msglen = msglen - 1
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      If (msglen = 0) Then
+        Return ""
+      End If
+      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Saves the job definition string (JSON data) into a job file.
+    ''' <para>
+    '''   The job file can be later enabled using <c>selectJob()</c>.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="jobfile">
+    '''   name of the job file to save on the device filesystem
+    ''' </param>
+    ''' <param name="jsonDef">
+    '''   a string containing a JSON definition of the job
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function uploadJob(jobfile As String, jsonDef As String) As Integer
+      Me._upload(jobfile, YAPI.DefaultEncoding.GetBytes(jsonDef))
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Load and start processing the specified job file.
+    ''' <para>
+    '''   The file must have
+    '''   been previously created using the user interface or uploaded on the
+    '''   device filesystem using the <c>uploadJob()</c> function.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="jobfile">
+    '''   name of the job file (on the device filesystem)
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function selectJob(jobfile As String) As Integer
+      Return Me.set_currentJob(jobfile)
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Clears the serial port buffer and resets counters to zero.
     ''' <para>
     ''' </para>
@@ -1252,7 +1511,7 @@ Module yocto_serialport
     '''   a sequence of bytes with receive buffer contents
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure, throws an exception or returns an empty array.
     ''' </para>
     '''/
     Public Overridable Function readArray(nChars As Integer) As List(Of Integer)
@@ -1338,265 +1597,6 @@ Module yocto_serialport
         ofs = ofs + 1
       End While
       Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Reads a single line (or message) from the receive buffer, starting at current stream position.
-    ''' <para>
-    '''   This function is intended to be used when the serial port is configured for a message protocol,
-    '''   such as 'Line' mode or frame protocols.
-    ''' </para>
-    ''' <para>
-    '''   If data at current stream position is not available anymore in the receive buffer,
-    '''   the function returns the oldest available line and moves the stream position just after.
-    '''   If no new full line is received, the function returns an empty line.
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string with a single line of text
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function readLine() As String
-      Dim url As String
-      Dim msgbin As Byte()
-      Dim msgarr As List(Of String) = New List(Of String)()
-      Dim msglen As Integer = 0
-      Dim res As String
-
-      url = "rxmsg.json?pos=" + Convert.ToString(Me._rxptr) + "&len=1&maxw=1"
-      msgbin = Me._download(url)
-      msgarr = Me._json_get_array(msgbin)
-      msglen = msgarr.Count
-      If (msglen = 0) Then
-        Return ""
-      End If
-      REM // last element of array is the new position
-      msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
-      If (msglen = 0) Then
-        Return ""
-      End If
-      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Searches for incoming messages in the serial port receive buffer matching a given pattern,
-    '''   starting at current position.
-    ''' <para>
-    '''   This function will only compare and return printable characters
-    '''   in the message strings. Binary protocols are handled as hexadecimal strings.
-    ''' </para>
-    ''' <para>
-    '''   The search returns all messages matching the expression provided as argument in the buffer.
-    '''   If no matching message is found, the search waits for one up to the specified maximum timeout
-    '''   (in milliseconds).
-    ''' </para>
-    ''' </summary>
-    ''' <param name="pattern">
-    '''   a limited regular expression describing the expected message format,
-    '''   or an empty string if all messages should be returned (no filtering).
-    '''   When using binary protocols, the format applies to the hexadecimal
-    '''   representation of the message.
-    ''' </param>
-    ''' <param name="maxWait">
-    '''   the maximum number of milliseconds to wait for a message if none is found
-    '''   in the receive buffer.
-    ''' </param>
-    ''' <returns>
-    '''   an array of strings containing the messages found, if any.
-    '''   Binary messages are converted to hexadecimal representation.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty array.
-    ''' </para>
-    '''/
-    Public Overridable Function readMessages(pattern As String, maxWait As Integer) As List(Of String)
-      Dim url As String
-      Dim msgbin As Byte()
-      Dim msgarr As List(Of String) = New List(Of String)()
-      Dim msglen As Integer = 0
-      Dim res As List(Of String) = New List(Of String)()
-      Dim idx As Integer = 0
-
-      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&pat=" + pattern
-      msgbin = Me._download(url)
-      msgarr = Me._json_get_array(msgbin)
-      msglen = msgarr.Count
-      If (msglen = 0) Then
-        Return res
-      End If
-      REM // last element of array is the new position
-      msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
-      idx = 0
-
-      While (idx < msglen)
-        res.Add(Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(idx))))
-        idx = idx + 1
-      End While
-
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Changes the current internal stream position to the specified value.
-    ''' <para>
-    '''   This function
-    '''   does not affect the device, it only changes the value stored in the API object
-    '''   for the next read operations.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="absPos">
-    '''   the absolute position index for next read operations.
-    ''' </param>
-    ''' <returns>
-    '''   nothing.
-    ''' </returns>
-    '''/
-    Public Overridable Function read_seek(absPos As Integer) As Integer
-      Me._rxptr = absPos
-      Return YAPI.SUCCESS
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current absolute stream position pointer of the API object.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   the absolute position index for next read operations.
-    ''' </returns>
-    '''/
-    Public Overridable Function read_tell() As Integer
-      Return Me._rxptr
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the number of bytes available to read in the input buffer starting from the
-    '''   current absolute stream position pointer of the API object.
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   the number of bytes available to read
-    ''' </returns>
-    '''/
-    Public Overridable Function read_avail() As Integer
-      Dim buff As Byte()
-      Dim bufflen As Integer = 0
-      Dim res As Integer = 0
-
-      buff = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
-      bufflen = (buff).Length - 1
-      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
-        bufflen = bufflen - 1
-      End While
-      res = YAPI._atoi((YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen))
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Sends a text line query to the serial port, and reads the reply, if any.
-    ''' <para>
-    '''   This function is intended to be used when the serial port is configured for 'Line' protocol.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="query">
-    '''   the line query to send (without CR/LF)
-    ''' </param>
-    ''' <param name="maxWait">
-    '''   the maximum number of milliseconds to wait for a reply.
-    ''' </param>
-    ''' <returns>
-    '''   the next text line received after sending the text query, as a string.
-    '''   Additional lines can be obtained by calling readLine or readMessages.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns an empty array.
-    ''' </para>
-    '''/
-    Public Overridable Function queryLine(query As String, maxWait As Integer) As String
-      Dim url As String
-      Dim msgbin As Byte()
-      Dim msgarr As List(Of String) = New List(Of String)()
-      Dim msglen As Integer = 0
-      Dim res As String
-
-      url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + Me._escapeAttr(query)
-      msgbin = Me._download(url)
-      msgarr = Me._json_get_array(msgbin)
-      msglen = msgarr.Count
-      If (msglen = 0) Then
-        Return ""
-      End If
-      REM // last element of array is the new position
-      msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
-      If (msglen = 0) Then
-        Return ""
-      End If
-      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Saves the job definition string (JSON data) into a job file.
-    ''' <para>
-    '''   The job file can be later enabled using <c>selectJob()</c>.
-    ''' </para>
-    ''' </summary>
-    ''' <param name="jobfile">
-    '''   name of the job file to save on the device filesystem
-    ''' </param>
-    ''' <param name="jsonDef">
-    '''   a string containing a JSON definition of the job
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function uploadJob(jobfile As String, jsonDef As String) As Integer
-      Me._upload(jobfile, YAPI.DefaultEncoding.GetBytes(jsonDef))
-      Return YAPI.SUCCESS
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Load and start processing the specified job file.
-    ''' <para>
-    '''   The file must have
-    '''   been previously created using the user interface or uploaded on the
-    '''   device filesystem using the <c>uploadJob()</c> function.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="jobfile">
-    '''   name of the job file (on the device filesystem)
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function selectJob(jobfile As String) As Integer
-      Return Me.set_currentJob(jobfile)
     End Function
 
     '''*

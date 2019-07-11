@@ -153,6 +153,9 @@
 <Compile Include="..\..\Sources\yocto_humidity.vb">
 <Link>yocto_api\yocto_humidity.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_i2cport.vb">
+<Link>yocto_api\yocto_i2cport.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_latitude.vb">
 <Link>yocto_api\yocto_latitude.vb</Link>
 </Compile>
