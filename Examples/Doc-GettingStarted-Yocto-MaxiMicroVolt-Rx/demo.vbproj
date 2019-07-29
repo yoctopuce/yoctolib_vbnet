@@ -75,8 +75,20 @@
       <Link>yocto\yocto_api.vb</Link>
     </Compile>
     
-<Compile Include="..\..\Sources\yocto_carbondioxide.vb">
-<Link>yocto_api\yocto_carbondioxide.vb</Link>
+<Compile Include="..\..\Sources\yocto_arithmeticsensor.vb">
+<Link>yocto_api\yocto_arithmeticsensor.vb</Link>
+</Compile>
+<Compile Include="..\..\Sources\yocto_files.vb">
+<Link>yocto_api\yocto_files.vb</Link>
+</Compile>
+<Compile Include="..\..\Sources\yocto_genericsensor.vb">
+<Link>yocto_api\yocto_genericsensor.vb</Link>
+</Compile>
+<Compile Include="..\..\Sources\yocto_poweroutput.vb">
+<Link>yocto_api\yocto_poweroutput.vb</Link>
+</Compile>
+<Compile Include="..\..\Sources\yocto_temperature.vb">
+<Link>yocto_api\yocto_temperature.vb</Link>
 </Compile>
 
     <Compile Include="main.vb" />
