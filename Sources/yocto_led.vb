@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_led.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_led.vb 36554 2019-07-29 12:21:31Z mvuilleu $
 '
 '  Implements yFindLed(), the high-level API for Led functions
 '
@@ -216,6 +216,8 @@ Module yocto_led
     ''' <summary>
     '''   Changes the current LED intensity (in per cent).
     ''' <para>
+    '''   Remember to call the
+    '''   <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

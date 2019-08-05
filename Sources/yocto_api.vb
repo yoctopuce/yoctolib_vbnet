@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 36141 2019-07-08 17:51:33Z mvuilleu $
+'* $Id: yocto_api.vb 36629 2019-07-31 13:03:53Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "36518"
+  Public Const YOCTO_API_BUILD_NO As String = "36692"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2891,7 +2891,15 @@ Module yocto_api
         val = 0
       End If
       Me._nRows = val
-      Me._duration = Me._nRows * Me._dataSamplesInterval
+      If (Me._nRows > 0) Then
+        If (Me._firstMeasureDuration > 0) Then
+          Me._duration = Me._firstMeasureDuration + (Me._nRows - 1) * Me._dataSamplesInterval
+        Else
+          Me._duration = Me._nRows * Me._dataSamplesInterval
+        End If
+      Else
+        Me._duration = 0
+      End If
       REM // precompute decoding parameters
       iCalib = dataset._get_calibration()
       Me._caltyp = iCalib(0)
@@ -5150,9 +5158,13 @@ Module yocto_api
                   outbuf(found + 2) <> 13 Or outbuf(found + 3) <> 10)
             found += 1
         Loop
-        If found >= outbuf.Length - 4 Then
+        If found > outbuf.Length - 4 Then
             _throw(YAPI.IO_ERROR, "http request failed")
             ReDim outbuf(-1)
+            Return outbuf
+        End If
+        If found = outbuf.Length - 4 Then
+            ReDim outbuf(0)
             Return outbuf
         End If
         body = found + 4
@@ -6853,14 +6865,15 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the hardware release version of the module.
+    '''   Returns the release number of the module hardware, preprogrammed at the factory.
     ''' <para>
+    '''   The original hardware release returns value 1, revision B returns value 2, etc.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the hardware release version of the module
+    '''   an integer corresponding to the release number of the module hardware, preprogrammed at the factory
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_PRODUCTRELEASE_INVALID</c>.
@@ -6868,7 +6881,7 @@ Module yocto_api
     '''/
     Public Function get_productRelease() As Integer
       Dim res As Integer = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+      If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PRODUCTRELEASE_INVALID
         End If
@@ -7279,6 +7292,21 @@ Module yocto_api
         MyBase._invokeValueCallback(value)
       End If
       Return 0
+    End Function
+
+    Public Overridable Function get_productNameAndRevision() As String
+      Dim prodname As String
+      Dim prodrel As Integer = 0
+      Dim fullname As String
+
+      prodname = Me.get_productName()
+      prodrel = Me.get_productRelease()
+      If (prodrel > 1) Then
+        fullname = "" +  prodname + " rev. " + Chr(64+prodrel)
+      Else
+        fullname = prodname
+      End If
+      Return fullname
     End Function
 
     '''*
