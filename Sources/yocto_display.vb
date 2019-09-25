@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 33877 2018-12-26 12:19:48Z seb $
+'* $Id: yocto_display.vb 37000 2019-09-03 06:40:17Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -1256,7 +1256,7 @@ end enum
     '''/
     Public Function get_displayWidth() As Integer
       Dim res As Integer = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+      If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DISPLAYWIDTH_INVALID
         End If
@@ -1282,7 +1282,7 @@ end enum
     '''/
     Public Function get_displayHeight() As Integer
       Dim res As Integer = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+      If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return DISPLAYHEIGHT_INVALID
         End If

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupmonitor.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_wakeupmonitor.vb 37000 2019-09-03 06:40:17Z mvuilleu $
 '
 '  Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '
@@ -186,6 +186,8 @@ Module yocto_wakeupmonitor
     ''' <summary>
     '''   Changes the maximal wake up time (seconds) before automatically going to sleep.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

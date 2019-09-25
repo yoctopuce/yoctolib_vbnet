@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_digitalio.vb 33722 2018-12-14 15:04:43Z seb $
+'  $Id: yocto_digitalio.vb 37149 2019-09-12 21:24:53Z mvuilleu $
 '
 '  Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '
@@ -458,7 +458,7 @@ Module yocto_digitalio
     '''/
     Public Function get_portSize() As Integer
       Dim res As Integer = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+      If (Me._cacheExpiration = 0) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return PORTSIZE_INVALID
         End If

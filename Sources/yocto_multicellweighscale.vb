@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multicellweighscale.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_multicellweighscale.vb 37165 2019-09-13 16:57:27Z mvuilleu $
 '
 '  Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '
@@ -229,6 +229,8 @@ Module yocto_multicellweighscale
     ''' <summary>
     '''   Changes the number of load cells in use.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -282,6 +284,8 @@ Module yocto_multicellweighscale
     ''' <summary>
     '''   Changes the current load cell bridge excitation method.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -313,6 +317,8 @@ Module yocto_multicellweighscale
     '''   The averaged temperature is updated every 10 seconds, by applying this adaptation rate
     '''   to the difference between the measures ambient temperature and the current compensation
     '''   temperature. The standard rate is 0.2 per mille, and the maximal rate is 65 per mille.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -371,7 +377,9 @@ Module yocto_multicellweighscale
     ''' <para>
     '''   The temperature change is updated every 10 seconds, by applying this adaptation rate
     '''   to the difference between the measures ambient temperature and the current temperature used for
-    '''   change compensation. The standard rate is 0.6 per mille, and the maximal rate is 65 pour mille.
+    '''   change compensation. The standard rate is 0.6 per mille, and the maximal rate is 65 per mille.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -399,7 +407,7 @@ Module yocto_multicellweighscale
     ''' <para>
     '''   The temperature change is updated every 10 seconds, by applying this adaptation rate
     '''   to the difference between the measures ambient temperature and the current temperature used for
-    '''   change compensation. The standard rate is 0.6 per mille, and the maximal rate is 65 pour mille.
+    '''   change compensation. The standard rate is 0.6 per mille, and the maximal rate is 65 per mille.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -508,6 +516,8 @@ Module yocto_multicellweighscale
     '''   When this threshold is larger than
     '''   zero, any measure under the threshold will automatically be ignored and the
     '''   zero compensation will be updated.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

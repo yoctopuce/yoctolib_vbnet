@@ -52,7 +52,7 @@ Module Module1
 
     If (i2cPort.isOnline()) Then
       i2cPort.set_i2cMode("400kbps")
-      i2cPort.set_voltageLevel(YI2cPort.VOLTAGELEVEL_TTL3V)
+      i2cPort.set_i2cVoltageLevel(YI2cPort.I2CVOLTAGELEVEL_3V3)
       i2cPort.reset()
       REM do not forget to configure the powerOutput and 
       REM of the Yocto-I2C as well if used

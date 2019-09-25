@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_gps.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_gps.vb 37165 2019-09-13 16:57:27Z mvuilleu $
 '
 '  Implements yFindGps(), the high-level API for Gps functions
 '
@@ -61,6 +61,14 @@ Module yocto_gps
   Public Const Y_COORDSYSTEM_GPS_DM As Integer = 1
   Public Const Y_COORDSYSTEM_GPS_D As Integer = 2
   Public Const Y_COORDSYSTEM_INVALID As Integer = -1
+  Public Const Y_CONSTELLATION_GPS As Integer = 0
+  Public Const Y_CONSTELLATION_GLONASS As Integer = 1
+  Public Const Y_CONSTELLATION_GALLILEO As Integer = 2
+  Public Const Y_CONSTELLATION_GNSS As Integer = 3
+  Public Const Y_CONSTELLATION_GPS_GLONASS As Integer = 4
+  Public Const Y_CONSTELLATION_GPS_GALLILEO As Integer = 5
+  Public Const Y_CONSTELLATION_GLONASS_GALLELIO As Integer = 6
+  Public Const Y_CONSTELLATION_INVALID As Integer = -1
   Public Const Y_LATITUDE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_LONGITUDE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_DILUTION_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -102,6 +110,14 @@ Module yocto_gps
     Public Const COORDSYSTEM_GPS_DM As Integer = 1
     Public Const COORDSYSTEM_GPS_D As Integer = 2
     Public Const COORDSYSTEM_INVALID As Integer = -1
+    Public Const CONSTELLATION_GPS As Integer = 0
+    Public Const CONSTELLATION_GLONASS As Integer = 1
+    Public Const CONSTELLATION_GALLILEO As Integer = 2
+    Public Const CONSTELLATION_GNSS As Integer = 3
+    Public Const CONSTELLATION_GPS_GLONASS As Integer = 4
+    Public Const CONSTELLATION_GPS_GALLILEO As Integer = 5
+    Public Const CONSTELLATION_GLONASS_GALLELIO As Integer = 6
+    Public Const CONSTELLATION_INVALID As Integer = -1
     Public Const LATITUDE_INVALID As String = YAPI.INVALID_STRING
     Public Const LONGITUDE_INVALID As String = YAPI.INVALID_STRING
     Public Const DILUTION_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -118,6 +134,7 @@ Module yocto_gps
     Protected _isFixed As Integer
     Protected _satCount As Long
     Protected _coordSystem As Integer
+    Protected _constellation As Integer
     Protected _latitude As String
     Protected _longitude As String
     Protected _dilution As Double
@@ -138,6 +155,7 @@ Module yocto_gps
       _isFixed = ISFIXED_INVALID
       _satCount = SATCOUNT_INVALID
       _coordSystem = COORDSYSTEM_INVALID
+      _constellation = CONSTELLATION_INVALID
       _latitude = LATITUDE_INVALID
       _longitude = LONGITUDE_INVALID
       _dilution = DILUTION_INVALID
@@ -163,6 +181,9 @@ Module yocto_gps
       End If
       If json_val.has("coordSystem") Then
         _coordSystem = CInt(json_val.getLong("coordSystem"))
+      End If
+      If json_val.has("constellation") Then
+        _constellation = CInt(json_val.getLong("constellation"))
       End If
       If json_val.has("latitude") Then
         _latitude = json_val.getString("latitude")
@@ -285,6 +306,8 @@ Module yocto_gps
     ''' <summary>
     '''   Changes the representation system used for positioning data.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -306,6 +329,70 @@ Module yocto_gps
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("coordSystem", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the the satellites constellation used to compute
+    '''   positioning data.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_CONSTELLATION_GPS</c>, <c>Y_CONSTELLATION_GLONASS</c>,
+    '''   <c>Y_CONSTELLATION_GALLILEO</c>, <c>Y_CONSTELLATION_GNSS</c>, <c>Y_CONSTELLATION_GPS_GLONASS</c>,
+    '''   <c>Y_CONSTELLATION_GPS_GALLILEO</c> and <c>Y_CONSTELLATION_GLONASS_GALLELIO</c> corresponding to
+    '''   the the satellites constellation used to compute
+    '''   positioning data
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_CONSTELLATION_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_constellation() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return CONSTELLATION_INVALID
+        End If
+      End If
+      res = Me._constellation
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the satellites constellation used to compute
+    '''   positioning data.
+    ''' <para>
+    '''   Possible  constellations are GPS, Glonass, Galileo ,
+    '''   GNSS ( = GPS + Glonass + Galileo) and the 3 possible pairs. This seeting has effect on Yocto-GPS rev A.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>Y_CONSTELLATION_GPS</c>, <c>Y_CONSTELLATION_GLONASS</c>,
+    '''   <c>Y_CONSTELLATION_GALLILEO</c>, <c>Y_CONSTELLATION_GNSS</c>, <c>Y_CONSTELLATION_GPS_GLONASS</c>,
+    '''   <c>Y_CONSTELLATION_GPS_GALLILEO</c> and <c>Y_CONSTELLATION_GLONASS_GALLELIO</c> corresponding to
+    '''   the satellites constellation used to compute
+    '''   positioning data
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_constellation(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("constellation", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -556,6 +643,8 @@ Module yocto_gps
     ''' <para>
     '''   The timezone is automatically rounded to the nearest multiple of 15 minutes.
     '''   If current UTC time is known, the current time is automatically be updated according to the selected time zone.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

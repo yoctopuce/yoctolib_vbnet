@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwminput.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_pwminput.vb 37149 2019-09-12 21:24:53Z mvuilleu $
 '
 '  Implements yFindPwmInput(), the high-level API for PwmInput functions
 '
@@ -186,6 +186,7 @@ Module yocto_pwminput
     '''   is just a string which is automatically initialized each time
     '''   the measurement mode is changed. But is can be set to an
     '''   arbitrary value.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -412,6 +413,7 @@ Module yocto_pwminput
     ''' <para>
     '''   The edge count value is limited to the 6 lowest digits. For values greater than one million, use
     '''   get_pulseCounter().
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -472,6 +474,7 @@ Module yocto_pwminput
     '''   Changes the shortest expected pulse duration, in ms.
     ''' <para>
     '''   Any shorter pulse will be automatically ignored (debounce).
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 36629 2019-07-31 13:03:53Z seb $
+'* $Id: yocto_api.vb 37230 2019-09-20 08:43:51Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "36692"
+  Public Const YOCTO_API_BUILD_NO As String = "37304"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -853,20 +853,20 @@ Module yocto_api
     REM --- (generated code: YAPIContext public methods declaration)
     '''*
     ''' <summary>
-    '''   Change the time between each forced enumeration of the YoctoHub used.
+    '''   Modifies the delay between each forced enumeration of the used YoctoHubs.
     ''' <para>
-    '''   By default, the library performs a complete enumeration every 10 seconds.
-    '''   To reduce network traffic it is possible to increase this delay.
-    '''   This is particularly useful when a YoctoHub is connected to a GSM network
-    '''   where the traffic is charged. This setting does not affect modules connected by USB,
-    '''   nor the operation of arrival/removal callbacks.
-    '''   Note: This function must be called after <c>yInitAPI</c>.
+    '''   By default, the library performs a full enumeration every 10 seconds.
+    '''   To reduce network traffic, you can increase this delay.
+    '''   It's particularly useful when a YoctoHub is connected to the GSM network
+    '''   where traffic is billed. This parameter doesn't impact modules connected by USB,
+    '''   nor the working of module arrival/removal callbacks.
+    '''   Note: you must call this function after <c>yInitAPI</c>.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="deviceListValidity">
-    '''   number of seconds between each enumeration.
+    '''   nubmer of seconds between each enumeration.
     ''' @noreturn
     ''' </param>
     '''/
@@ -876,9 +876,9 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the time between each forced enumeration of the YoctoHub used.
+    '''   Returns the delay between each forced enumeration of the used YoctoHubs.
     ''' <para>
-    '''   Note: This function must be called after <c>yInitAPI</c>.
+    '''   Note: you must call this function after <c>yInitAPI</c>.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -888,6 +888,49 @@ Module yocto_api
     Public Overridable Function GetDeviceListValidity() As Integer
       Dim res As Integer = 0
       res = _yapiGetNetDevListValidity()
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   M
+    ''' <para>
+    '''   odifies the network connection delay for <c>YAPI.RegisterHub()</c> and
+    '''   <c>YAPI.UpdateDeviceList()</c>. This delay impacts only the YoctoHubs and VirtualHub
+    '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
+    '''   but depending or you network you may want to change this delay.
+    '''   For example if your network infrastructure uses a GSM connection.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="networkMsTimeout">
+    '''   the network connection delay in milliseconds.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overridable Sub SetNetworkTimeout(networkMsTimeout As Integer)
+      _yapiSetNetworkTimeout(networkMsTimeout)
+    End Sub
+
+    '''*
+    ''' <summary>
+    '''   R
+    ''' <para>
+    '''   eturns the network connection delay for <c>YAPI.RegisterHub()</c> and
+    '''   <c>YAPI.UpdateDeviceList()</c>. This delay impacts only the YoctoHubs and VirtualHub
+    '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
+    '''   but depending or you network you may want to change this delay.
+    '''   For example if your network infrastructure uses a GSM connection.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the network connection delay in milliseconds.
+    ''' </returns>
+    '''/
+    Public Overridable Function GetNetworkTimeout() As Integer
+      Dim res As Integer = 0
+      res = _yapiGetNetworkTimeout()
       Return res
     End Function
 
@@ -1418,20 +1461,20 @@ Module yocto_api
     REM --- (generated code: YAPIContext yapiwrapper)
     '''*
     ''' <summary>
-    '''   Change the time between each forced enumeration of the YoctoHub used.
+    '''   Modifies the delay between each forced enumeration of the used YoctoHubs.
     ''' <para>
-    '''   By default, the library performs a complete enumeration every 10 seconds.
-    '''   To reduce network traffic it is possible to increase this delay.
-    '''   This is particularly useful when a YoctoHub is connected to a GSM network
-    '''   where the traffic is charged. This setting does not affect modules connected by USB,
-    '''   nor the operation of arrival/removal callbacks.
-    '''   Note: This function must be called after <c>yInitAPI</c>.
+    '''   By default, the library performs a full enumeration every 10 seconds.
+    '''   To reduce network traffic, you can increase this delay.
+    '''   It's particularly useful when a YoctoHub is connected to the GSM network
+    '''   where traffic is billed. This parameter doesn't impact modules connected by USB,
+    '''   nor the working of module arrival/removal callbacks.
+    '''   Note: you must call this function after <c>yInitAPI</c>.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="deviceListValidity">
-    '''   number of seconds between each enumeration.
+    '''   nubmer of seconds between each enumeration.
     ''' @noreturn
     ''' </param>
     '''/
@@ -1440,9 +1483,9 @@ Module yocto_api
     End Sub
     '''*
     ''' <summary>
-    '''   Returns the time between each forced enumeration of the YoctoHub used.
+    '''   Returns the delay between each forced enumeration of the used YoctoHubs.
     ''' <para>
-    '''   Note: This function must be called after <c>yInitAPI</c>.
+    '''   Note: you must call this function after <c>yInitAPI</c>.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -1451,6 +1494,45 @@ Module yocto_api
     '''/
     Public Shared Function GetDeviceListValidity() As Integer
         return _yapiContext.GetDeviceListValidity()
+    End Function
+    '''*
+    ''' <summary>
+    '''   M
+    ''' <para>
+    '''   odifies the network connection delay for <c>YAPI.RegisterHub()</c> and
+    '''   <c>YAPI.UpdateDeviceList()</c>. This delay impacts only the YoctoHubs and VirtualHub
+    '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
+    '''   but depending or you network you may want to change this delay.
+    '''   For example if your network infrastructure uses a GSM connection.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="networkMsTimeout">
+    '''   the network connection delay in milliseconds.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Shared Sub SetNetworkTimeout(networkMsTimeout As Integer)
+        _yapiContext.SetNetworkTimeout(networkMsTimeout)
+    End Sub
+    '''*
+    ''' <summary>
+    '''   R
+    ''' <para>
+    '''   eturns the network connection delay for <c>YAPI.RegisterHub()</c> and
+    '''   <c>YAPI.UpdateDeviceList()</c>. This delay impacts only the YoctoHubs and VirtualHub
+    '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
+    '''   but depending or you network you may want to change this delay.
+    '''   For example if your network infrastructure uses a GSM connection.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the network connection delay in milliseconds.
+    ''' </returns>
+    '''/
+    Public Shared Function GetNetworkTimeout() As Integer
+        return _yapiContext.GetNetworkTimeout()
     End Function
     '''*
     ''' <summary>
@@ -7789,8 +7871,7 @@ Module yocto_api
         Next i_i
       End If
       REM // Apply settings a second time for file-dependent settings and dynamic sensor nodes
-      Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
-      Return YAPI.SUCCESS
+      Return Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
     End Function
 
     '''*
@@ -8119,6 +8200,29 @@ Module yocto_api
       Return param
     End Function
 
+    Public Overridable Function _tryExec(url As String) As Integer
+      Dim res As Integer = 0
+      Dim done As Integer = 0
+      res = YAPI.SUCCESS
+      done = 1
+      Try
+          Me._download(url)
+      Catch
+          done = 0
+      End Try
+      If (done = 0) Then
+        REM // retry silently after a short wait
+        Try
+            YAPI.Sleep(500, Nothing)
+            Me._download(url)
+        Catch
+            REM // second failure, return error code
+            res = Me.get_errorType()
+        End Try
+      End If
+      Return res
+    End Function
+
     '''*
     ''' <summary>
     '''   Restores all the settings of the device.
@@ -8158,6 +8262,8 @@ Module yocto_api
       Dim leng As Integer = 0
       Dim i As Integer = 0
       Dim j As Integer = 0
+      Dim subres As Integer = 0
+      Dim res As Integer = 0
       Dim njpath As String
       Dim jpath As String
       Dim fun As String
@@ -8174,6 +8280,7 @@ Module yocto_api
       Dim each_str As String
       Dim do_update As Boolean
       Dim found As Boolean
+      res = YAPI.SUCCESS
       tmp = YAPI.DefaultEncoding.GetString(settings)
       tmp = Me._get_json_path(tmp, "api")
       If (Not (tmp = "")) Then
@@ -8206,7 +8313,13 @@ Module yocto_api
 
 
 
-      actualSettings = Me._download("api.json")
+      Try
+          actualSettings = Me._download("api.json")
+      Catch
+          REM // retry silently after a short wait
+          YAPI.Sleep(500, Nothing)
+          actualSettings = Me._download("api.json")
+      End Try
       actualSettings = Me._flattenJsonStruct(actualSettings)
       new_dslist = Me._json_get_array(actualSettings)
 
@@ -8302,6 +8415,9 @@ Module yocto_api
         If ((do_update) AndAlso (attr = "message")) Then
           do_update = False
         End If
+        If ((do_update) AndAlso (attr = "signalValue")) Then
+          do_update = False
+        End If
         If ((do_update) AndAlso (attr = "currentValue")) Then
           do_update = False
         End If
@@ -8354,6 +8470,12 @@ Module yocto_api
           do_update = False
         End If
         If ((do_update) AndAlso (attr = "msgCount")) Then
+          do_update = False
+        End If
+        If ((do_update) AndAlso (attr = "rxMsgCount")) Then
+          do_update = False
+        End If
+        If ((do_update) AndAlso (attr = "txMsgCount")) Then
           do_update = False
         End If
         If (do_update) Then
@@ -8409,13 +8531,19 @@ Module yocto_api
             End While
             newval = Me.calibConvert(old_calib, new_val_arr(i), unit_name, sensorType)
             url = "api/" + fun + ".json?" + attr + "=" + Me._escapeAttr(newval)
-            Me._download(url)
+            subres = Me._tryExec(url)
+            If ((res = YAPI.SUCCESS) AndAlso (subres <> YAPI.SUCCESS)) Then
+              res = subres
+            End If
           Else
             url = "api/" + fun + ".json?" + attr + "=" + Me._escapeAttr(oldval)
             If (attr = "resolution") Then
               restoreLast.Add(url)
             Else
-              Me._download(url)
+              subres = Me._tryExec(url)
+              If ((res = YAPI.SUCCESS) AndAlso (subres <> YAPI.SUCCESS)) Then
+                res = subres
+              End If
             End If
           End If
         End If
@@ -8423,10 +8551,13 @@ Module yocto_api
       End While
 
       For i_i = 0 To restoreLast.Count - 1
-        Me._download(restoreLast(i_i))
+        subres = Me._tryExec(restoreLast(i_i))
+        If ((res = YAPI.SUCCESS) AndAlso (subres <> YAPI.SUCCESS)) Then
+          res = subres
+        End If
       Next i_i
       Me.clearCache()
-      Return YAPI.SUCCESS
+      Return res
     End Function
 
     '''*
@@ -9157,6 +9288,7 @@ Module yocto_api
     '''   the value "OFF". Note that setting the  datalogger recording frequency
     '''   to a greater value than the sensor native sampling frequency is useless,
     '''   and even counterproductive: those two frequencies are not related.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -9218,6 +9350,7 @@ Module yocto_api
     '''   notification frequency to a greater value than the sensor native
     '''   sampling frequency is unless, and even counterproductive: those two
     '''   frequencies are not related.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -9272,6 +9405,7 @@ Module yocto_api
     ''' <summary>
     '''   Changes the measuring mode used for the advertised value pushed to the parent hub.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -9319,6 +9453,7 @@ Module yocto_api
     ''' <para>
     '''   The resolution corresponds to the numerical precision
     '''   when displaying value. It does not change the precision of the measure itself.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -9346,6 +9481,7 @@ Module yocto_api
     ''' <para>
     '''   The resolution corresponds to the numerical precision
     '''   of the measures, which is not always the same as the actual precision of the sensor.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -12109,6 +12245,15 @@ Module yocto_api
   End Sub
   <DllImport("yapi.dll", EntryPoint:="yapiIsModuleWritable", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiIsModuleWritable(ByVal serial As StringBuilder, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiGetDLLPath", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiGetDLLPath(ByVal path As StringBuilder, ByVal pathsize As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiSetNetworkTimeout", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Sub _yapiSetNetworkTimeout(ByVal sValidity As Integer)
+  End Sub
+  <DllImport("yapi.dll", EntryPoint:="yapiGetNetworkTimeout", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiGetNetworkTimeout() As Integer
   End Function
     REM --- (end of generated code: YFunction dlldef)
 

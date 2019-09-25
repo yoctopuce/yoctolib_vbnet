@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_i2cport.vb 36207 2019-07-10 20:46:18Z mvuilleu $
+'  $Id: yocto_i2cport.vb 37168 2019-09-13 17:25:10Z mvuilleu $
 '
 '  Implements yFindI2cPort(), the high-level API for I2cPort functions
 '
@@ -62,16 +62,11 @@ Module yocto_i2cport
   Public Const Y_CURRENTJOB_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_VOLTAGELEVEL_OFF As Integer = 0
-  Public Const Y_VOLTAGELEVEL_TTL3V As Integer = 1
-  Public Const Y_VOLTAGELEVEL_TTL3VR As Integer = 2
-  Public Const Y_VOLTAGELEVEL_TTL5V As Integer = 3
-  Public Const Y_VOLTAGELEVEL_TTL5VR As Integer = 4
-  Public Const Y_VOLTAGELEVEL_RS232 As Integer = 5
-  Public Const Y_VOLTAGELEVEL_RS485 As Integer = 6
-  Public Const Y_VOLTAGELEVEL_TTL1V8 As Integer = 7
-  Public Const Y_VOLTAGELEVEL_INVALID As Integer = -1
   Public Const Y_PROTOCOL_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_I2CVOLTAGELEVEL_OFF As Integer = 0
+  Public Const Y_I2CVOLTAGELEVEL_3V3 As Integer = 1
+  Public Const Y_I2CVOLTAGELEVEL_1V8 As Integer = 2
+  Public Const Y_I2CVOLTAGELEVEL_INVALID As Integer = -1
   Public Const Y_I2CMODE_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YI2cPortValueCallback(ByVal func As YI2cPort, ByVal value As String)
   Public Delegate Sub YI2cPortTimedReportCallback(ByVal func As YI2cPort, ByVal measure As YMeasure)
@@ -104,16 +99,11 @@ Module yocto_i2cport
     Public Const CURRENTJOB_INVALID As String = YAPI.INVALID_STRING
     Public Const STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
-    Public Const VOLTAGELEVEL_OFF As Integer = 0
-    Public Const VOLTAGELEVEL_TTL3V As Integer = 1
-    Public Const VOLTAGELEVEL_TTL3VR As Integer = 2
-    Public Const VOLTAGELEVEL_TTL5V As Integer = 3
-    Public Const VOLTAGELEVEL_TTL5VR As Integer = 4
-    Public Const VOLTAGELEVEL_RS232 As Integer = 5
-    Public Const VOLTAGELEVEL_RS485 As Integer = 6
-    Public Const VOLTAGELEVEL_TTL1V8 As Integer = 7
-    Public Const VOLTAGELEVEL_INVALID As Integer = -1
     Public Const PROTOCOL_INVALID As String = YAPI.INVALID_STRING
+    Public Const I2CVOLTAGELEVEL_OFF As Integer = 0
+    Public Const I2CVOLTAGELEVEL_3V3 As Integer = 1
+    Public Const I2CVOLTAGELEVEL_1V8 As Integer = 2
+    Public Const I2CVOLTAGELEVEL_INVALID As Integer = -1
     Public Const I2CMODE_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YI2cPort definitions)
 
@@ -127,8 +117,8 @@ Module yocto_i2cport
     Protected _currentJob As String
     Protected _startupJob As String
     Protected _command As String
-    Protected _voltageLevel As Integer
     Protected _protocol As String
+    Protected _i2cVoltageLevel As Integer
     Protected _i2cMode As String
     Protected _valueCallbackI2cPort As YI2cPortValueCallback
     Protected _rxptr As Integer
@@ -149,8 +139,8 @@ Module yocto_i2cport
       _currentJob = CURRENTJOB_INVALID
       _startupJob = STARTUPJOB_INVALID
       _command = COMMAND_INVALID
-      _voltageLevel = VOLTAGELEVEL_INVALID
       _protocol = PROTOCOL_INVALID
+      _i2cVoltageLevel = I2CVOLTAGELEVEL_INVALID
       _i2cMode = I2CMODE_INVALID
       _valueCallbackI2cPort = Nothing
       _rxptr = 0
@@ -188,11 +178,11 @@ Module yocto_i2cport
       If json_val.has("command") Then
         _command = json_val.getString("command")
       End If
-      If json_val.has("voltageLevel") Then
-        _voltageLevel = CInt(json_val.getLong("voltageLevel"))
-      End If
       If json_val.has("protocol") Then
         _protocol = json_val.getString("protocol")
+      End If
+      If json_val.has("i2cVoltageLevel") Then
+        _i2cVoltageLevel = CInt(json_val.getLong("i2cVoltageLevel"))
       End If
       If json_val.has("i2cMode") Then
         _i2cMode = json_val.getString("i2cMode")
@@ -388,16 +378,16 @@ Module yocto_i2cport
 
     '''*
     ''' <summary>
-    '''   Changes the job to use when the device is powered on.
+    '''   Selects a job file to run immediately.
     ''' <para>
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
-    '''   modification must be kept.
+    '''   If an empty string is
+    '''   given as argument, stops running current job file.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a string corresponding to the job to use when the device is powered on
+    '''   a string
     ''' </param>
     ''' <para>
     ''' </para>
@@ -486,70 +476,7 @@ Module yocto_i2cport
     End Function
     '''*
     ''' <summary>
-    '''   Returns the voltage level used on the serial line.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
-    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c>,
-    '''   <c>Y_VOLTAGELEVEL_RS485</c> and <c>Y_VOLTAGELEVEL_TTL1V8</c> corresponding to the voltage level
-    '''   used on the serial line
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLTAGELEVEL_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_voltageLevel() As Integer
-      Dim res As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return VOLTAGELEVEL_INVALID
-        End If
-      End If
-      res = Me._voltageLevel
-      Return res
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the voltage type used on the serial line.
-    ''' <para>
-    '''   Valid
-    '''   values  will depend on the Yoctopuce device model featuring
-    '''   the serial port feature.  Check your device documentation
-    '''   to find out which values are valid for that specific model.
-    '''   Trying to set an invalid value will have no effect.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
-    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c>,
-    '''   <c>Y_VOLTAGELEVEL_RS485</c> and <c>Y_VOLTAGELEVEL_TTL1V8</c> corresponding to the voltage type used
-    '''   on the serial line
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_voltageLevel(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("voltageLevel", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Returns the type of protocol used over the serial line, as a string.
+    '''   Returns the type of protocol used to send I2C messages, as a string.
     ''' <para>
     '''   Possible values are
     '''   "Line" for messages separated by LF or
@@ -559,7 +486,7 @@ Module yocto_i2cport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the type of protocol used over the serial line, as a string
+    '''   a string corresponding to the type of protocol used to send I2C messages, as a string
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_PROTOCOL_INVALID</c>.
@@ -579,19 +506,21 @@ Module yocto_i2cport
 
     '''*
     ''' <summary>
-    '''   Changes the type of protocol used over the serial line.
+    '''   Changes the type of protocol used to send I2C messages.
     ''' <para>
     '''   Possible values are
     '''   "Line" for messages separated by LF or
     '''   "Char" for continuous stream of codes.
     '''   The suffix "/[wait]ms" can be added to reduce the transmit rate so that there
     '''   is always at lest the specified number of milliseconds between each message sent.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a string corresponding to the type of protocol used over the serial line
+    '''   a string corresponding to the type of protocol used to send I2C messages
     ''' </param>
     ''' <para>
     ''' </para>
@@ -609,18 +538,76 @@ Module yocto_i2cport
     End Function
     '''*
     ''' <summary>
-    '''   Returns the SPI port communication parameters, as a string such as
-    '''   "400kbps,2000ms".
+    '''   Returns the voltage level used on the I2C bus.
     ''' <para>
-    '''   The string includes the baud rate and  th  e recovery delay
-    '''   after communications errors.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>Y_I2CVOLTAGELEVEL_OFF</c>, <c>Y_I2CVOLTAGELEVEL_3V3</c> and
+    '''   <c>Y_I2CVOLTAGELEVEL_1V8</c> corresponding to the voltage level used on the I2C bus
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_I2CVOLTAGELEVEL_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_i2cVoltageLevel() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return I2CVOLTAGELEVEL_INVALID
+        End If
+      End If
+      res = Me._i2cVoltageLevel
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the voltage level used on the I2C bus.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>Y_I2CVOLTAGELEVEL_OFF</c>, <c>Y_I2CVOLTAGELEVEL_3V3</c> and
+    '''   <c>Y_I2CVOLTAGELEVEL_1V8</c> corresponding to the voltage level used on the I2C bus
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_i2cVoltageLevel(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("i2cVoltageLevel", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the SPI port communication parameters, as a string such as
+    '''   "400kbps,2000ms,NoRestart".
+    ''' <para>
+    '''   The string includes the baud rate, the
+    '''   recovery delay after communications errors, and if needed the option
+    '''   <c>NoRestart</c> to use a Stop/Start sequence instead of the
+    '''   Restart state when performing read on the I2C bus.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a string corresponding to the SPI port communication parameters, as a string such as
-    '''   "400kbps,2000ms"
+    '''   "400kbps,2000ms,NoRestart"
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_I2CMODE_INVALID</c>.
@@ -643,8 +630,12 @@ Module yocto_i2cport
     '''   Changes the SPI port communication parameters, with a string such as
     '''   "400kbps,2000ms".
     ''' <para>
-    '''   The string includes the baud rate and the recovery delay
-    '''   after communications errors.
+    '''   The string includes the baud rate, the
+    '''   recovery delay after communications errors, and if needed the option
+    '''   <c>NoRestart</c> to use a Stop/Start sequence instead of the
+    '''   Restart state when performing read on the I2C bus.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -1094,17 +1085,17 @@ Module yocto_i2cport
 
       reply = Me.queryLine(msg,1000)
       If Not((reply).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "no response from device")
+        me._throw( YAPI.IO_ERROR,  "No response from I2C device")
         return YAPI.IO_ERROR
       end if
       idx = reply.IndexOf("[N]!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "No ACK received")
+        me._throw( YAPI.IO_ERROR,  "No I2C ACK received")
         return YAPI.IO_ERROR
       end if
       idx = reply.IndexOf("!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "Protocol error")
+        me._throw( YAPI.IO_ERROR,  "I2C protocol error")
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS
@@ -1147,17 +1138,17 @@ Module yocto_i2cport
 
       reply = Me.queryLine(msg,1000)
       If Not((reply).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "no response from device")
+        me._throw( YAPI.IO_ERROR,  "No response from I2C device")
         return YAPI.IO_ERROR
       end if
       idx = reply.IndexOf("[N]!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "No ACK received")
+        me._throw( YAPI.IO_ERROR,  "No I2C ACK received")
         return YAPI.IO_ERROR
       end if
       idx = reply.IndexOf("!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "Protocol error")
+        me._throw( YAPI.IO_ERROR,  "I2C protocol error")
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS
@@ -1211,17 +1202,17 @@ Module yocto_i2cport
       reply = Me.queryLine(msg,1000)
       ReDim rcvbytes(0-1)
       If Not((reply).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "no response from device")
+        me._throw( YAPI.IO_ERROR,  "No response from I2C device")
         return rcvbytes
       end if
       idx = reply.IndexOf("[N]!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "No ACK received")
+        me._throw( YAPI.IO_ERROR,  "No I2C ACK received")
         return rcvbytes
       end if
       idx = reply.IndexOf("!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "Protocol error")
+        me._throw( YAPI.IO_ERROR,  "I2C protocol error")
         return rcvbytes
       end if
       reply = (reply).Substring( (reply).Length-2*rcvCount, 2*rcvCount)
@@ -1277,17 +1268,17 @@ Module yocto_i2cport
 
       reply = Me.queryLine(msg,1000)
       If Not((reply).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "no response from device")
+        me._throw( YAPI.IO_ERROR,  "No response from I2C device")
         return res
       end if
       idx = reply.IndexOf("[N]!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "No ACK received")
+        me._throw( YAPI.IO_ERROR,  "No I2C ACK received")
         return res
       end if
       idx = reply.IndexOf("!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "Protocol error")
+        me._throw( YAPI.IO_ERROR,  "I2C protocol error")
         return res
       end if
       reply = (reply).Substring( (reply).Length-2*rcvCount, 2*rcvCount)

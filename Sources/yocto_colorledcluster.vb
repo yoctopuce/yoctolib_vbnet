@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorledcluster.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_colorledcluster.vb 37000 2019-09-03 06:40:17Z mvuilleu $
 '
 '  Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '
@@ -179,6 +179,8 @@ Module yocto_colorledcluster
     ''' <summary>
     '''   Changes the number of LEDs currently handled by the device.
     ''' <para>
+    '''   Remember to call the matching module
+    '''   <c>saveToFlash()</c> method to save the setting permanently.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -232,6 +234,8 @@ Module yocto_colorledcluster
     ''' <summary>
     '''   Changes the RGB LED type currently handled by the device.
     ''' <para>
+    '''   Remember to call the matching module
+    '''   <c>saveToFlash()</c> method to save the setting permanently.
     ''' </para>
     ''' <para>
     ''' </para>

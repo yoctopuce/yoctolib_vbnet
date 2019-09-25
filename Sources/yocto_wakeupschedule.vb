@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupschedule.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_wakeupschedule.vb 37000 2019-09-03 06:40:17Z mvuilleu $
 '
 '  Implements yFindWakeUpSchedule(), the high-level API for WakeUpSchedule functions
 '
@@ -177,6 +177,8 @@ Module yocto_wakeupschedule
     ''' <summary>
     '''   Changes the minutes in the 00-29 interval when a wake up must take place.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -229,6 +231,8 @@ Module yocto_wakeupschedule
     ''' <summary>
     '''   Changes the minutes in the 30-59 interval when a wake up must take place.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -281,6 +285,8 @@ Module yocto_wakeupschedule
     ''' <summary>
     '''   Changes the hours when a wake up must take place.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -333,6 +339,8 @@ Module yocto_wakeupschedule
     ''' <summary>
     '''   Changes the days of the week when a wake up must take place.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -385,6 +393,8 @@ Module yocto_wakeupschedule
     ''' <summary>
     '''   Changes the days of the month when a wake up must take place.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -437,6 +447,8 @@ Module yocto_wakeupschedule
     ''' <summary>
     '''   Changes the months when a wake up must take place.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
