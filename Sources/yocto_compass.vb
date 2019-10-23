@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_compass.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_compass.vb 37619 2019-10-11 11:52:42Z mvuilleu $
 '
 '  Implements yFindCompass(), the high-level API for Compass functions
 '
@@ -165,6 +165,8 @@ Module yocto_compass
     ''' <para>
     '''   When the
     '''   frequency is lower, the device performs averaging.
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

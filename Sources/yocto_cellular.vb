@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 33719 2018-12-14 14:22:41Z seb $
+'* $Id: yocto_cellular.vb 37619 2019-10-11 11:52:42Z mvuilleu $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -586,6 +586,8 @@ Module yocto_cellular
     '''   If the name is an empty
     '''   string, the choice will be made automatically based on the SIM card. Otherwise,
     '''   the selected operator is the only one that will be used.
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -701,6 +703,8 @@ Module yocto_cellular
     ''' </para>
     ''' <para>
     '''   When data services are disabled, SMS are the only mean of communication.
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -757,6 +761,8 @@ Module yocto_cellular
     '''   Returns the Access Point Name (APN) to be used, if needed.
     ''' <para>
     '''   When left blank, the APN suggested by the cell operator will be used.
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -844,6 +850,8 @@ Module yocto_cellular
     ''' <summary>
     '''   Changes the automated connectivity check interval, in seconds.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

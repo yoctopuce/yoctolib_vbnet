@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_audioin.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_audioin.vb 37619 2019-10-11 11:52:42Z mvuilleu $
 '
 '  Implements yFindAudioIn(), the high-level API for AudioIn functions
 '
@@ -164,6 +164,8 @@ Module yocto_audioin
     ''' <summary>
     '''   Changes audio input gain, in per cents.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

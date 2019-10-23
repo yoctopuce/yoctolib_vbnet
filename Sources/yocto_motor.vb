@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_motor.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_motor.vb 37619 2019-10-11 11:52:42Z mvuilleu $
 '
 '  Implements yFindMotor(), the high-level API for Motor functions
 '
@@ -347,6 +347,8 @@ Module yocto_motor
     '''   occur when drawing current from an "empty" battery.
     '''   Note that whatever the cutoff threshold, the controller switches to undervoltage
     '''   error state if the power supply goes under 3V, even for a very brief time.
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -401,24 +403,6 @@ Module yocto_motor
       Return res
     End Function
 
-    '''*
-    ''' <summary>
-    '''   Returns the current threshold (in mA) above which the controller automatically
-    '''   switches to error state.
-    ''' <para>
-    '''   A zero value means that there is no limit.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the current threshold (in mA) above which the controller automatically
-    '''   switches to error state
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_OVERCURRENTLIMIT_INVALID</c>.
-    ''' </para>
-    '''/
     Public Function get_overCurrentLimit() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -438,7 +422,8 @@ Module yocto_motor
     ''' <para>
     '''   A zero value means that there is no limit. Note that whatever the
     '''   current limit is, the controller switches to OVERCURRENT status if the current
-    '''   goes above 32A, even for a very brief time.
+    '''   goes above 32A, even for a very brief time. Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -469,7 +454,8 @@ Module yocto_motor
     '''   Low frequency is usually
     '''   more efficient and may help the motor to start, but an audible noise might be
     '''   generated. A higher frequency reduces the noise, but more energy is converted
-    '''   into heat.
+    '''   into heat. Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -551,6 +537,8 @@ Module yocto_motor
     '''   Changes the duration (in ms) during which the motor is driven at low frequency to help
     '''   it start up.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -613,6 +601,8 @@ Module yocto_motor
     '''   When this delay has elapsed,
     '''   the controller automatically stops the motor and switches to FAILSAFE error.
     '''   Failsafe security is disabled when the value is zero.
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

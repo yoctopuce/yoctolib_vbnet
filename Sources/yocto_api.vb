@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 37230 2019-09-20 08:43:51Z seb $
+'* $Id: yocto_api.vb 37692 2019-10-14 14:58:03Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "37304"
+  Public Const YOCTO_API_BUILD_NO As String = "37780"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -893,10 +893,9 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   M
+    '''   Modifies the network connection delay for <c>yRegisterHub()</c> and <c>yUpdateDeviceList()</c>.
     ''' <para>
-    '''   odifies the network connection delay for <c>YAPI.RegisterHub()</c> and
-    '''   <c>YAPI.UpdateDeviceList()</c>. This delay impacts only the YoctoHubs and VirtualHub
+    '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
     '''   but depending or you network you may want to change this delay.
     '''   For example if your network infrastructure uses a GSM connection.
@@ -915,10 +914,9 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   R
+    '''   Returns the network connection delay for <c>yRegisterHub()</c> and <c>yUpdateDeviceList()</c>.
     ''' <para>
-    '''   eturns the network connection delay for <c>YAPI.RegisterHub()</c> and
-    '''   <c>YAPI.UpdateDeviceList()</c>. This delay impacts only the YoctoHubs and VirtualHub
+    '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
     '''   but depending or you network you may want to change this delay.
     '''   For example if your network infrastructure uses a GSM connection.
@@ -1497,10 +1495,9 @@ Module yocto_api
     End Function
     '''*
     ''' <summary>
-    '''   M
+    '''   Modifies the network connection delay for <c>yRegisterHub()</c> and <c>yUpdateDeviceList()</c>.
     ''' <para>
-    '''   odifies the network connection delay for <c>YAPI.RegisterHub()</c> and
-    '''   <c>YAPI.UpdateDeviceList()</c>. This delay impacts only the YoctoHubs and VirtualHub
+    '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
     '''   but depending or you network you may want to change this delay.
     '''   For example if your network infrastructure uses a GSM connection.
@@ -1518,10 +1515,9 @@ Module yocto_api
     End Sub
     '''*
     ''' <summary>
-    '''   R
+    '''   Returns the network connection delay for <c>yRegisterHub()</c> and <c>yUpdateDeviceList()</c>.
     ''' <para>
-    '''   eturns the network connection delay for <c>YAPI.RegisterHub()</c> and
-    '''   <c>YAPI.UpdateDeviceList()</c>. This delay impacts only the YoctoHubs and VirtualHub
+    '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
     '''   but depending or you network you may want to change this delay.
     '''   For example if your network infrastructure uses a GSM connection.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_dualpower.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_dualpower.vb 37609 2019-10-09 16:59:35Z mvuilleu $
 '
 '  Implements yFindDualPower(), the high-level API for DualPower functions
 '
@@ -194,6 +194,7 @@ Module yocto_dualpower
     ''' <summary>
     '''   Changes the selected power source for module functions that require lots of current.
     ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
