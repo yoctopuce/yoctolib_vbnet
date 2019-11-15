@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 37692 2019-10-14 14:58:03Z seb $
+'* $Id: yocto_api.vb 38137 2019-11-14 10:23:36Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "37780"
+  Public Const YOCTO_API_BUILD_NO As String = "38155"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -4441,7 +4441,7 @@ Module yocto_api
       _nextidx = New List(Of Integer)()
       _nexttim = New List(Of Double)()
       REM --- (end of generated code: YConsolidatedDataSet attributes initialization)
-      _init(startTime, endTime, sensorList)
+      imm_init(startTime, endTime, sensorList)
     End Sub
 
     REM --- (generated code: YConsolidatedDataSet private methods declaration)
@@ -4449,7 +4449,7 @@ Module yocto_api
     REM --- (end of generated code: YConsolidatedDataSet private methods declaration)
 
     REM --- (generated code: YConsolidatedDataSet public methods declaration)
-    Public Overridable Function _init(startt As Double, endt As Double, sensorList As List(Of YSensor)) As Integer
+    Public Overridable Function imm_init(startt As Double, endt As Double, sensorList As List(Of YSensor)) As Integer
       Me._start = startt
       Me._end = endt
       Me._sensors = sensorList
@@ -5216,7 +5216,7 @@ Module yocto_api
     Public Function _download(ByVal url As String) As Byte()
       Dim request As String
       Dim outbuf As Byte()
-      
+
       request = "GET /" + url + " HTTP/1.1" + Chr(13) + Chr(10) + Chr(13) + Chr(10)
       outbuf = _request(request)
         Return _strip_http_header(outbuf)
@@ -5516,7 +5516,8 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the function
+    '''   a string that uniquely characterizes the function, for instance
+    '''   <c>MyDevice.</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YFunction</c> object allowing you to drive the function.
@@ -6389,7 +6390,8 @@ Module yocto_api
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the function
+  '''   a string that uniquely characterizes the function, for instance
+  '''   <c>MyDevice.</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YFunction</c> object allowing you to drive the function.
@@ -6419,7 +6421,7 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   This interface is identical for all Yoctopuce USB modules.
+  '''   The YModule class can be used with all Yoctopuce USB devices.
   ''' <para>
   '''   It can be used to control the module global parameters, and
   '''   to enumerate the functions provided by each module.
@@ -8905,7 +8907,7 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   The YSensor class is the parent class for all Yoctopuce sensors.
+  '''   The YSensor class is the parent class for all Yoctopuce sensor types.
   ''' <para>
   '''   It can be
   '''   used to read the current value and unit of any sensor, read the min/max
@@ -9571,7 +9573,8 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the sensor
+    '''   a string that uniquely characterizes the sensor, for instance
+    '''   <c>MyDevice.</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YSensor</c> object allowing you to drive the sensor.
@@ -10317,7 +10320,8 @@ Module yocto_api
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the sensor
+  '''   a string that uniquely characterizes the sensor, for instance
+  '''   <c>MyDevice.</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YSensor</c> object allowing you to drive the sensor.
@@ -10373,10 +10377,12 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   Yoctopuce sensors include a non-volatile memory capable of storing ongoing measured
-  '''   data automatically, without requiring a permanent connection to a computer.
+  '''   A non-volatile memory for storing ongoing measured data is available on most Yoctopuce
+  '''   sensors, for instance using a Yocto-Light-V3, a Yocto-Meteo-V2, a Yocto-Watt or a Yocto-3D-V2.
   ''' <para>
-  '''   The DataLogger function controls the global parameters of the internal data
+  '''   Recording can happen automatically, without requiring a permanent
+  '''   connection to a computer.
+  '''   The YDataLogger class controls the global parameters of the internal data
   '''   logger. Recording control (start/stop) as well as data retreival is done at
   '''   sensor objects level.
   ''' </para>
@@ -10796,7 +10802,8 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the data logger
+    '''   a string that uniquely characterizes the data logger, for instance
+    '''   <c>LIGHTMK3.dataLogger</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YDataLogger</c> object allowing you to drive the data logger.
@@ -11100,7 +11107,8 @@ Module yocto_api
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the data logger
+  '''   a string that uniquely characterizes the data logger, for instance
+  '''   <c>LIGHTMK3.dataLogger</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YDataLogger</c> object allowing you to drive the data logger.

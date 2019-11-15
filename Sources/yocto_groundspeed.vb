@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_groundspeed.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_groundspeed.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindGroundSpeed(), the high-level API for GroundSpeed functions
 '
@@ -61,8 +61,8 @@ Module yocto_groundspeed
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YGroundSpeed allows you to read the ground speed from Yoctopuce
-  '''   geolocation sensors.
+  '''   The YGroundSpeed class allows you to read the ground speed from Yoctopuce
+  '''   geolocation sensors, for instance using a Yocto-GPS.
   ''' <para>
   '''   It inherits from the YSensor class the core functions to
   '''   read measurements, register callback functions, access the autonomous
@@ -143,7 +143,8 @@ Module yocto_groundspeed
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the ground speed sensor
+    '''   a string that uniquely characterizes the ground speed sensor, for instance
+    '''   <c>YGNSSMK1.groundSpeed</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YGroundSpeed</c> object allowing you to drive the ground speed sensor.
@@ -360,7 +361,8 @@ Module yocto_groundspeed
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the ground speed sensor
+  '''   a string that uniquely characterizes the ground speed sensor, for instance
+  '''   <c>YGNSSMK1.groundSpeed</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YGroundSpeed</c> object allowing you to drive the ground speed sensor.

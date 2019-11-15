@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 37619 2019-10-11 11:52:42Z mvuilleu $
+'  $Id: yocto_network.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -108,7 +108,7 @@ Module yocto_network
   '''*
   ''' <summary>
   '''   YNetwork objects provide access to TCP/IP parameters of Yoctopuce
-  '''   modules that include a built-in network interface.
+  '''   devices that include a built-in network interface, for instance using a YoctoHub-Ethernet, a YoctoHub-Wireless-g, a YoctoHub-GSM-3G-NA or a YoctoHub-GSM-3G-EU.
   ''' <para>
   ''' </para>
   ''' </summary>
@@ -1585,7 +1585,8 @@ Module yocto_network
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the network interface
+    '''   a string that uniquely characterizes the network interface, for instance
+    '''   <c>YHUBETH1.network</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YNetwork</c> object allowing you to drive the network interface.
@@ -1914,7 +1915,8 @@ Module yocto_network
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the network interface
+  '''   a string that uniquely characterizes the network interface, for instance
+  '''   <c>YHUBETH1.network</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YNetwork</c> object allowing you to drive the network interface.

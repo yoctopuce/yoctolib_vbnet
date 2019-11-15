@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_segmenteddisplay.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_segmenteddisplay.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindSegmentedDisplay(), the high-level API for SegmentedDisplay functions
 '
@@ -228,7 +228,8 @@ Module yocto_segmenteddisplay
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the segmented displays
+    '''   a string that uniquely characterizes the segmented displays, for instance
+    '''   <c>MyDevice.segmentedDisplay</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YSegmentedDisplay</c> object allowing you to drive the segmented displays.
@@ -406,7 +407,8 @@ Module yocto_segmenteddisplay
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the segmented displays
+  '''   a string that uniquely characterizes the segmented displays, for instance
+  '''   <c>MyDevice.segmentedDisplay</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YSegmentedDisplay</c> object allowing you to drive the segmented displays.

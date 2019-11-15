@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_servo.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_servo.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindServo(), the high-level API for Servo functions
 '
@@ -78,11 +78,12 @@ End Class
 
   '''*
   ''' <summary>
-  '''   Yoctopuce application programming interface allows you not only to move
-  '''   a servo to a given position, but also to specify the time interval
-  '''   in which the move should be performed.
+  '''   The YServo class is designed to drive remote-control servo motors
+  '''   outputs, for instance using a Yocto-Servo.
   ''' <para>
-  '''   This makes it possible to
+  '''   This class allows you not only to move
+  '''   a servo to a given position, but also to specify the time interval
+  '''   in which the move should be performed. This makes it possible to
   '''   synchronize two servos involved in a same move.
   ''' </para>
   ''' </summary>
@@ -587,7 +588,8 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the servo
+    '''   a string that uniquely characterizes the servo, for instance
+    '''   <c>SERVORC1.servo1</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YServo</c> object allowing you to drive the servo.
@@ -765,7 +767,8 @@ End Class
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the servo
+  '''   a string that uniquely characterizes the servo, for instance
+  '''   <c>SERVORC1.servo1</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YServo</c> object allowing you to drive the servo.

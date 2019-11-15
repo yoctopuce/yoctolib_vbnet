@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_magnetometer.vb 37619 2019-10-11 11:52:42Z mvuilleu $
+'  $Id: yocto_magnetometer.vb 38030 2019-11-04 17:56:01Z mvuilleu $
 '
 '  Implements yFindMagnetometer(), the high-level API for Magnetometer functions
 '
@@ -53,7 +53,7 @@ Module yocto_magnetometer
    REM --- (end of YMagnetometer yapiwrapper)
   REM --- (YMagnetometer globals)
 
-  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -65,7 +65,7 @@ Module yocto_magnetometer
 
   '''*
   ''' <summary>
-  '''   The YSensor class is the parent class for all Yoctopuce sensors.
+  '''   The YSensor class is the parent class for all Yoctopuce sensor types.
   ''' <para>
   '''   It can be
   '''   used to read the current value and unit of any sensor, read the min/max
@@ -84,7 +84,7 @@ Module yocto_magnetometer
     REM --- (end of YMagnetometer class start)
 
     REM --- (YMagnetometer definitions)
-    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
+    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const XVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const YVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const ZVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -310,7 +310,8 @@ Module yocto_magnetometer
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the magnetometer
+    '''   a string that uniquely characterizes the magnetometer, for instance
+    '''   <c>Y3DMK002.magnetometer</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YMagnetometer</c> object allowing you to drive the magnetometer.
@@ -527,7 +528,8 @@ Module yocto_magnetometer
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the magnetometer
+  '''   a string that uniquely characterizes the magnetometer, for instance
+  '''   <c>Y3DMK002.magnetometer</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YMagnetometer</c> object allowing you to drive the magnetometer.

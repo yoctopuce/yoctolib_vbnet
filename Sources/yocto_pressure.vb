@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pressure.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_pressure.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindPressure(), the high-level API for Pressure functions
 '
@@ -61,8 +61,8 @@ Module yocto_pressure
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YPressure allows you to read and configure Yoctopuce pressure
-  '''   sensors.
+  '''   The YPressure class allows you to read and configure Yoctopuce pressure
+  '''   sensors, for instance using a Yocto-Meteo-V2, a Yocto-Pressure, a Yocto-CO2-V2 or a Yocto-Altimeter-V2.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
   '''   to register callback functions, to access the autonomous datalogger.
@@ -142,7 +142,8 @@ Module yocto_pressure
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the pressure sensor
+    '''   a string that uniquely characterizes the pressure sensor, for instance
+    '''   <c>METEOMK2.pressure</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YPressure</c> object allowing you to drive the pressure sensor.
@@ -359,7 +360,8 @@ Module yocto_pressure
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the pressure sensor
+  '''   a string that uniquely characterizes the pressure sensor, for instance
+  '''   <c>METEOMK2.pressure</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YPressure</c> object allowing you to drive the pressure sensor.

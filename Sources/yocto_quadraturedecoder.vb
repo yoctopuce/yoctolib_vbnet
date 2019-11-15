@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_quadraturedecoder.vb 37619 2019-10-11 11:52:42Z mvuilleu $
+'  $Id: yocto_quadraturedecoder.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '
@@ -65,8 +65,8 @@ Module yocto_quadraturedecoder
 
   '''*
   ''' <summary>
-  '''   The class YQuadratureDecoder allows you to decode a two-wire signal produced by a
-  '''   quadrature encoder.
+  '''   The YQuadratureDecoder class allows you to decode a two-wire signal produced by a
+  '''   quadrature encoder, for instance using a Yocto-PWM-Rx.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
   '''   to register callback functions, to access the autonomous datalogger.
@@ -269,7 +269,8 @@ Module yocto_quadraturedecoder
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the quadrature decoder
+    '''   a string that uniquely characterizes the quadrature decoder, for instance
+    '''   <c>YPWMRX01.quadratureDecoder</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YQuadratureDecoder</c> object allowing you to drive the quadrature decoder.
@@ -486,7 +487,8 @@ Module yocto_quadraturedecoder
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the quadrature decoder
+  '''   a string that uniquely characterizes the quadrature decoder, for instance
+  '''   <c>YPWMRX01.quadratureDecoder</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YQuadratureDecoder</c> object allowing you to drive the quadrature decoder.

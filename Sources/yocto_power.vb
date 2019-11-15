@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_power.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_power.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindPower(), the high-level API for Power functions
 '
@@ -64,8 +64,8 @@ Module yocto_power
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YPower allows you to read and configure Yoctopuce power
-  '''   sensors.
+  '''   The YPower class allows you to read and configure Yoctopuce power
+  '''   sensors, for instance using a Yocto-Watt.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
   '''   to register callback functions, to access the autonomous datalogger.
@@ -252,7 +252,8 @@ Module yocto_power
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the electrical power sensor
+    '''   a string that uniquely characterizes the electrical power sensor, for instance
+    '''   <c>YWATTMK1.power</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YPower</c> object allowing you to drive the electrical power sensor.
@@ -486,7 +487,8 @@ Module yocto_power
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the electrical power sensor
+  '''   a string that uniquely characterizes the electrical power sensor, for instance
+  '''   <c>YWATTMK1.power</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YPower</c> object allowing you to drive the electrical power sensor.

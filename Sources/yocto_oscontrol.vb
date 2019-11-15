@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_oscontrol.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_oscontrol.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindOsControl(), the high-level API for OsControl functions
 '
@@ -62,9 +62,9 @@ Module yocto_oscontrol
 
   '''*
   ''' <summary>
-  '''   The OScontrol object allows some control over the operating system running a VirtualHub.
+  '''   The YOScontrol class provides some control over the operating system running a VirtualHub.
   ''' <para>
-  '''   OsControl is available on the VirtualHub software only. This feature must be activated at the VirtualHub
+  '''   YOsControl is available on VirtualHub software only. This feature must be activated at the VirtualHub
   '''   start up with -o option.
   ''' </para>
   ''' </summary>
@@ -180,7 +180,8 @@ Module yocto_oscontrol
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the OS control
+    '''   a string that uniquely characterizes the OS control, for instance
+    '''   <c>MyDevice.osControl</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YOsControl</c> object allowing you to drive the OS control.
@@ -378,7 +379,8 @@ Module yocto_oscontrol
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the OS control
+  '''   a string that uniquely characterizes the OS control, for instance
+  '''   <c>MyDevice.osControl</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YOsControl</c> object allowing you to drive the OS control.

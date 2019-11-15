@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_altitude.vb 37619 2019-10-11 11:52:42Z mvuilleu $
+'  $Id: yocto_altitude.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindAltitude(), the high-level API for Altitude functions
 '
@@ -63,8 +63,8 @@ Module yocto_altitude
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YAltitude allows you to read and configure Yoctopuce altitude
-  '''   sensors.
+  '''   The YAltitude class allows you to read and configure Yoctopuce altitude
+  '''   sensors, for instance using a Yocto-GPS or a Yocto-Altimeter-V2.
   ''' <para>
   '''   It inherits from the YSensor class the core functions to read measurements,
   '''   to register callback functions, to access the autonomous datalogger.
@@ -278,7 +278,8 @@ Module yocto_altitude
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the altimeter
+    '''   a string that uniquely characterizes the altimeter, for instance
+    '''   <c>YGNSSMK1.altitude</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YAltitude</c> object allowing you to drive the altimeter.
@@ -495,7 +496,8 @@ Module yocto_altitude
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the altimeter
+  '''   a string that uniquely characterizes the altimeter, for instance
+  '''   <c>YGNSSMK1.altitude</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YAltitude</c> object allowing you to drive the altimeter.

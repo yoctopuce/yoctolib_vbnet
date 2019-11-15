@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_hubport.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_hubport.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindHubPort(), the high-level API for HubPort functions
 '
@@ -71,9 +71,10 @@ Module yocto_hubport
 
   '''*
   ''' <summary>
-  '''   YHubPort objects provide control over the power supply for every
-  '''   YoctoHub port and provide information about the device connected to it.
+  '''   The YHubPort class provides control over the power supply for every port
+  '''   on a YoctoHub, for instance using a YoctoHub-Ethernet, a YoctoHub-Wireless-g, a YoctoHub-Shield or a YoctoHub-GSM-3G-NA.
   ''' <para>
+  '''   It provide information about the device connected to it.
   '''   The logical name of a YHubPort is always automatically set to the
   '''   unique serial number of the Yoctopuce device connected to it.
   ''' </para>
@@ -285,7 +286,8 @@ Module yocto_hubport
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the Yocto-hub port
+    '''   a string that uniquely characterizes the Yocto-hub port, for instance
+    '''   <c>YHUBETH1.hubPort1</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YHubPort</c> object allowing you to drive the Yocto-hub port.
@@ -463,7 +465,8 @@ Module yocto_hubport
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the Yocto-hub port
+  '''   a string that uniquely characterizes the Yocto-hub port, for instance
+  '''   <c>YHUBETH1.hubPort1</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YHubPort</c> object allowing you to drive the Yocto-hub port.

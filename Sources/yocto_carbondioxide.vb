@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_carbondioxide.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_carbondioxide.vb 38030 2019-11-04 17:56:01Z mvuilleu $
 '
 '  Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '
@@ -53,7 +53,7 @@ Module yocto_carbondioxide
    REM --- (end of YCarbonDioxide yapiwrapper)
   REM --- (YCarbonDioxide globals)
 
-  Public Const Y_ABCPERIOD_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_ABCPERIOD_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YCarbonDioxideValueCallback(ByVal func As YCarbonDioxide, ByVal value As String)
   Public Delegate Sub YCarbonDioxideTimedReportCallback(ByVal func As YCarbonDioxide, ByVal measure As YMeasure)
@@ -63,8 +63,8 @@ Module yocto_carbondioxide
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YCarbonDioxide allows you to read and configure Yoctopuce CO2
-  '''   sensors.
+  '''   The YCarbonDioxide class allows you to read and configure Yoctopuce CO2
+  '''   sensors, for instance using a Yocto-CO2-V2.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
   '''   to register callback functions,  to access the autonomous datalogger.
@@ -77,7 +77,7 @@ Module yocto_carbondioxide
     REM --- (end of YCarbonDioxide class start)
 
     REM --- (YCarbonDioxide definitions)
-    Public Const ABCPERIOD_INVALID As Integer = YAPI.INVALID_INT
+    Public Const ABCPERIOD_INVALID As Integer = YAPI.INVALID_UINT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YCarbonDioxide definitions)
 
@@ -233,7 +233,8 @@ Module yocto_carbondioxide
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the CO2 sensor
+    '''   a string that uniquely characterizes the CO2 sensor, for instance
+    '''   <c>YCO2MK02.carbonDioxide</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YCarbonDioxide</c> object allowing you to drive the CO2 sensor.
@@ -512,7 +513,8 @@ Module yocto_carbondioxide
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the CO2 sensor
+  '''   a string that uniquely characterizes the CO2 sensor, for instance
+  '''   <c>YCO2MK02.carbonDioxide</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YCarbonDioxide</c> object allowing you to drive the CO2 sensor.

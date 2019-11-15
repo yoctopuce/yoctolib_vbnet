@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 34661 2019-03-18 11:02:50Z seb $
+'* $Id: yocto_messagebox.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -1345,8 +1345,8 @@ Module yocto_messagebox
 
   '''*
   ''' <summary>
-  '''   YMessageBox functions provides SMS sending and receiving capability to
-  '''   GSM-enabled Yoctopuce devices.
+  '''   The YMessageBox class provides SMS sending and receiving capability to
+  '''   GSM-enabled Yoctopuce devices, for instance using a YoctoHub-GSM-3G-NA, a YoctoHub-GSM-3G-EU or a YoctoHub-GSM-2G.
   ''' <para>
   ''' </para>
   ''' </summary>
@@ -1653,7 +1653,8 @@ Module yocto_messagebox
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the MessageBox interface
+    '''   a string that uniquely characterizes the MessageBox interface, for instance
+    '''   <c>YHUBGSM4.messageBox</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YMessageBox</c> object allowing you to drive the MessageBox interface.
@@ -2460,7 +2461,8 @@ Module yocto_messagebox
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the MessageBox interface
+  '''   a string that uniquely characterizes the MessageBox interface, for instance
+  '''   <c>YHUBGSM4.messageBox</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YMessageBox</c> object allowing you to drive the MessageBox interface.

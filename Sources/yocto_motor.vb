@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_motor.vb 37619 2019-10-11 11:52:42Z mvuilleu $
+'  $Id: yocto_motor.vb 38030 2019-11-04 17:56:01Z mvuilleu $
 '
 '  Implements yFindMotor(), the high-level API for Motor functions
 '
@@ -65,9 +65,9 @@ Module yocto_motor
   Public Const Y_DRIVINGFORCE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_BRAKINGFORCE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_CUTOFFVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_OVERCURRENTLIMIT_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_OVERCURRENTLIMIT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_FREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_STARTERTIME_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_STARTERTIME_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_FAILSAFETIMEOUT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YMotorValueCallback(ByVal func As YMotor, ByVal value As String)
@@ -78,11 +78,11 @@ Module yocto_motor
 
   '''*
   ''' <summary>
-  '''   Yoctopuce application programming interface allows you to drive the
-  '''   power sent to the motor to make it turn both ways, but also to drive accelerations
-  '''   and decelerations.
+  '''   The YMotor class allows you to drive a DC motor, for instance using a Yocto-Motor-DC.
   ''' <para>
-  '''   The motor will then accelerate automatically: you will not
+  '''   It can be used to configure the
+  '''   power sent to the motor to make it turn both ways, but also to drive accelerations
+  '''   and decelerations. The motor will then accelerate automatically: you will not
   '''   have to monitor it. The API also allows to slow down the motor by shortening
   '''   its terminals: the motor will then act as an electromagnetic brake.
   ''' </para>
@@ -105,9 +105,9 @@ Module yocto_motor
     Public Const DRIVINGFORCE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const BRAKINGFORCE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const CUTOFFVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const OVERCURRENTLIMIT_INVALID As Integer = YAPI.INVALID_INT
+    Public Const OVERCURRENTLIMIT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const FREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const STARTERTIME_INVALID As Integer = YAPI.INVALID_INT
+    Public Const STARTERTIME_INVALID As Integer = YAPI.INVALID_UINT
     Public Const FAILSAFETIMEOUT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YMotor definitions)
@@ -403,6 +403,24 @@ Module yocto_motor
       Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the current threshold (in mA) above which the controller automatically
+    '''   switches to error state.
+    ''' <para>
+    '''   A zero value means that there is no limit.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the current threshold (in mA) above which the controller automatically
+    '''   switches to error state
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_OVERCURRENTLIMIT_INVALID</c>.
+    ''' </para>
+    '''/
     Public Function get_overCurrentLimit() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -685,7 +703,8 @@ Module yocto_motor
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the motor
+    '''   a string that uniquely characterizes the motor, for instance
+    '''   <c>MOTORCTL.motor</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YMotor</c> object allowing you to drive the motor.
@@ -937,7 +956,8 @@ Module yocto_motor
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the motor
+  '''   a string that uniquely characterizes the motor, for instance
+  '''   <c>MOTORCTL.motor</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YMotor</c> object allowing you to drive the motor.

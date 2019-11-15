@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwmoutput.vb 37619 2019-10-11 11:52:42Z mvuilleu $
+'  $Id: yocto_pwmoutput.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '
@@ -73,8 +73,10 @@ Module yocto_pwmoutput
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce application programming interface allows you to configure, start, and stop the PWM.
+  '''   The YPwmOutput class allows you to drive a PWM output, for instance using a Yocto-PWM-Tx.
   ''' <para>
+  '''   You can configure the frequency as well as the duty cycle, and setup progressive
+  '''   transitions.
   ''' </para>
   ''' </summary>
   '''/
@@ -602,7 +604,8 @@ Module yocto_pwmoutput
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the PWM
+    '''   a string that uniquely characterizes the PWM, for instance
+    '''   <c>YPWMTX01.pwmOutput1</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YPwmOutput</c> object allowing you to drive the PWM.
@@ -1002,7 +1005,8 @@ Module yocto_pwmoutput
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the PWM
+  '''   a string that uniquely characterizes the PWM, for instance
+  '''   <c>YPWMTX01.pwmOutput1</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YPwmOutput</c> object allowing you to drive the PWM.

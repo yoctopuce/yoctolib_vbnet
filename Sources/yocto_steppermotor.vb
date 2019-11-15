@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_steppermotor.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_steppermotor.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '
@@ -87,7 +87,7 @@ Module yocto_steppermotor
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce application programming interface allows you to drive a stepper motor.
+  '''   The YStepperMotor class allows you to drive a stepper motor.
   ''' <para>
   ''' </para>
   ''' </summary>
@@ -877,7 +877,8 @@ Module yocto_steppermotor
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the stepper motor
+    '''   a string that uniquely characterizes the stepper motor, for instance
+    '''   <c>MyDevice.stepperMotor1</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YStepperMotor</c> object allowing you to drive the stepper motor.
@@ -1307,7 +1308,8 @@ Module yocto_steppermotor
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the stepper motor
+  '''   a string that uniquely characterizes the stepper motor, for instance
+  '''   <c>MyDevice.stepperMotor1</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YStepperMotor</c> object allowing you to drive the stepper motor.

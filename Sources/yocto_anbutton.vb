@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_anbutton.vb 32908 2018-11-02 10:19:28Z seb $
+'  $Id: yocto_anbutton.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindAnButton(), the high-level API for AnButton functions
 '
@@ -76,9 +76,11 @@ Module yocto_anbutton
 
   '''*
   ''' <summary>
-  '''   Yoctopuce application programming interface allows you to measure the state
-  '''   of a simple button as well as to read an analog potentiometer (variable resistance).
+  '''   The YAnButton class allows you to access simple resistive inputs on Yoctopuce
+  '''   devices, for instance using a Yocto-Knob, a Yocto-MaxiDisplay, a Yocto-Buzzer or a Yocto-MaxiDisplay-G.
   ''' <para>
+  '''   Such inputs can be used to measure the state
+  '''   of a simple button as well as to read an analog potentiometer (variable resistance).
   '''   This can be use for instance with a continuous rotating knob, a throttle grip
   '''   or a joystick. The module is capable to calibrate itself on min and max values,
   '''   in order to compute a calibrated value that varies proportionally with the
@@ -648,7 +650,8 @@ Module yocto_anbutton
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the analog input
+    '''   a string that uniquely characterizes the analog input, for instance
+    '''   <c>YBUTTON1.anButton1</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YAnButton</c> object allowing you to drive the analog input.
@@ -843,7 +846,8 @@ Module yocto_anbutton
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the analog input
+  '''   a string that uniquely characterizes the analog input, for instance
+  '''   <c>YBUTTON1.anButton1</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YAnButton</c> object allowing you to drive the analog input.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_latitude.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_latitude.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindLatitude(), the high-level API for Latitude functions
 '
@@ -61,8 +61,8 @@ Module yocto_latitude
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YLatitude allows you to read the latitude from Yoctopuce
-  '''   geolocation sensors.
+  '''   The YLatitude class allows you to read the latitude from Yoctopuce
+  '''   geolocation sensors, for instance using a Yocto-GPS.
   ''' <para>
   '''   It inherits from the YSensor class the core functions to
   '''   read measurements, to register callback functions, to access the autonomous
@@ -143,7 +143,8 @@ Module yocto_latitude
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the latitude sensor
+    '''   a string that uniquely characterizes the latitude sensor, for instance
+    '''   <c>YGNSSMK1.latitude</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YLatitude</c> object allowing you to drive the latitude sensor.
@@ -360,7 +361,8 @@ Module yocto_latitude
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the latitude sensor
+  '''   a string that uniquely characterizes the latitude sensor, for instance
+  '''   <c>YGNSSMK1.latitude</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YLatitude</c> object allowing you to drive the latitude sensor.

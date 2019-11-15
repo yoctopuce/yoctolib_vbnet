@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_tilt.vb 37619 2019-10-11 11:52:42Z mvuilleu $
+'  $Id: yocto_tilt.vb 38030 2019-11-04 17:56:01Z mvuilleu $
 '
 '  Implements yFindTilt(), the high-level API for Tilt functions
 '
@@ -53,7 +53,7 @@ Module yocto_tilt
    REM --- (end of YTilt yapiwrapper)
   REM --- (YTilt globals)
 
-  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_AXIS_X As Integer = 0
   Public Const Y_AXIS_Y As Integer = 1
   Public Const Y_AXIS_Z As Integer = 2
@@ -66,7 +66,7 @@ Module yocto_tilt
 
   '''*
   ''' <summary>
-  '''   The YSensor class is the parent class for all Yoctopuce sensors.
+  '''   The YSensor class is the parent class for all Yoctopuce sensor types.
   ''' <para>
   '''   It can be
   '''   used to read the current value and unit of any sensor, read the min/max
@@ -85,7 +85,7 @@ Module yocto_tilt
     REM --- (end of YTilt class start)
 
     REM --- (YTilt definitions)
-    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_INT
+    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const AXIS_X As Integer = 0
     Public Const AXIS_Y As Integer = 1
     Public Const AXIS_Z As Integer = 2
@@ -235,7 +235,8 @@ Module yocto_tilt
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the tilt sensor
+    '''   a string that uniquely characterizes the tilt sensor, for instance
+    '''   <c>Y3DMK002.tilt1</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YTilt</c> object allowing you to drive the tilt sensor.
@@ -452,7 +453,8 @@ Module yocto_tilt
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the tilt sensor
+  '''   a string that uniquely characterizes the tilt sensor, for instance
+  '''   <c>Y3DMK002.tilt1</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YTilt</c> object allowing you to drive the tilt sensor.

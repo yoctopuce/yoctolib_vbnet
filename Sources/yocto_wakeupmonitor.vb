@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupmonitor.vb 37000 2019-09-03 06:40:17Z mvuilleu $
+'  $Id: yocto_wakeupmonitor.vb 38030 2019-11-04 17:56:01Z mvuilleu $
 '
 '  Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '
@@ -53,8 +53,8 @@ Module yocto_wakeupmonitor
    REM --- (end of YWakeUpMonitor yapiwrapper)
   REM --- (YWakeUpMonitor globals)
 
-  Public Const Y_POWERDURATION_INVALID As Integer = YAPI.INVALID_INT
-  Public Const Y_SLEEPCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_POWERDURATION_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_SLEEPCOUNTDOWN_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_NEXTWAKEUP_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_WAKEUPREASON_USBPOWER As Integer = 0
   Public Const Y_WAKEUPREASON_EXTPOWER As Integer = 1
@@ -75,8 +75,8 @@ Module yocto_wakeupmonitor
 
   '''*
   ''' <summary>
-  '''   The WakeUpMonitor function handles globally all wake-up sources, as well
-  '''   as automated sleep mode.
+  '''   The YWakeUpMonitor class handles globally all wake-up sources, as well
+  '''   as automated sleep mode, for instance using a YoctoHub-Wireless-g, a YoctoHub-GSM-3G-NA, a YoctoHub-GSM-3G-EU or a YoctoHub-Wireless-SR.
   ''' <para>
   ''' </para>
   ''' </summary>
@@ -86,8 +86,8 @@ Module yocto_wakeupmonitor
     REM --- (end of YWakeUpMonitor class start)
 
     REM --- (YWakeUpMonitor definitions)
-    Public Const POWERDURATION_INVALID As Integer = YAPI.INVALID_INT
-    Public Const SLEEPCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
+    Public Const POWERDURATION_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const SLEEPCOUNTDOWN_INVALID As Integer = YAPI.INVALID_UINT
     Public Const NEXTWAKEUP_INVALID As Long = YAPI.INVALID_LONG
     Public Const WAKEUPREASON_USBPOWER As Integer = 0
     Public Const WAKEUPREASON_EXTPOWER As Integer = 1
@@ -428,7 +428,8 @@ Module yocto_wakeupmonitor
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the monitor
+    '''   a string that uniquely characterizes the monitor, for instance
+    '''   <c>YHUBWLN3.wakeUpMonitor</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YWakeUpMonitor</c> object allowing you to drive the monitor.
@@ -731,7 +732,8 @@ Module yocto_wakeupmonitor
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the monitor
+  '''   a string that uniquely characterizes the monitor, for instance
+  '''   <c>YHUBWLN3.wakeUpMonitor</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YWakeUpMonitor</c> object allowing you to drive the monitor.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_longitude.vb 33719 2018-12-14 14:22:41Z seb $
+'  $Id: yocto_longitude.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindLongitude(), the high-level API for Longitude functions
 '
@@ -61,8 +61,8 @@ Module yocto_longitude
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YLongitude allows you to read the longitude from Yoctopuce
-  '''   geolocation sensors.
+  '''   The YLongitude class allows you to read the longitude from Yoctopuce
+  '''   geolocation sensors, for instance using a Yocto-GPS.
   ''' <para>
   '''   It inherits from the YSensor class the core functions to
   '''   read measurements, register callback functions, access the autonomous
@@ -143,7 +143,8 @@ Module yocto_longitude
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the longitude sensor
+    '''   a string that uniquely characterizes the longitude sensor, for instance
+    '''   <c>YGNSSMK1.longitude</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YLongitude</c> object allowing you to drive the longitude sensor.
@@ -360,7 +361,8 @@ Module yocto_longitude
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the longitude sensor
+  '''   a string that uniquely characterizes the longitude sensor, for instance
+  '''   <c>YGNSSMK1.longitude</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YLongitude</c> object allowing you to drive the longitude sensor.

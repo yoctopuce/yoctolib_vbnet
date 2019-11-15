@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_poweroutput.vb 35464 2019-05-16 14:39:59Z seb $
+'  $Id: yocto_poweroutput.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindPowerOutput(), the high-level API for PowerOutput functions
 '
@@ -215,7 +215,8 @@ Module yocto_poweroutput
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the power output control
+    '''   a string that uniquely characterizes the power output control, for instance
+    '''   <c>YSPIMK01.powerOutput</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YPowerOutput</c> object allowing you to drive the power output control.
@@ -393,7 +394,8 @@ Module yocto_poweroutput
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the power output control
+  '''   a string that uniquely characterizes the power output control, for instance
+  '''   <c>YSPIMK01.powerOutput</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YPowerOutput</c> object allowing you to drive the power output control.

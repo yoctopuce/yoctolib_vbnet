@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_voltage.vb 37619 2019-10-11 11:52:42Z mvuilleu $
+'  $Id: yocto_voltage.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindVoltage(), the high-level API for Voltage functions
 '
@@ -64,8 +64,8 @@ Module yocto_voltage
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YVoltage allows you to read and configure Yoctopuce voltage
-  '''   sensors.
+  '''   The YVoltage class allows you to read and configure Yoctopuce voltage
+  '''   sensors, for instance using a Yocto-Watt, a Yocto-Volt or a Yocto-Motor-DC.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
   '''   to register callback functions, to access the autonomous datalogger.
@@ -211,7 +211,8 @@ Module yocto_voltage
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the voltage sensor
+    '''   a string that uniquely characterizes the voltage sensor, for instance
+    '''   <c>YWATTMK1.voltage1</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YVoltage</c> object allowing you to drive the voltage sensor.
@@ -428,7 +429,8 @@ Module yocto_voltage
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the voltage sensor
+  '''   a string that uniquely characterizes the voltage sensor, for instance
+  '''   <c>YWATTMK1.voltage1</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YVoltage</c> object allowing you to drive the voltage sensor.

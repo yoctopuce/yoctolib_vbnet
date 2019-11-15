@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multicellweighscale.vb 37165 2019-09-13 16:57:27Z mvuilleu $
+'  $Id: yocto_multicellweighscale.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '
@@ -73,8 +73,8 @@ Module yocto_multicellweighscale
 
   '''*
   ''' <summary>
-  '''   The YMultiCellWeighScale class provides a weight measurement from a set of ratiometric load cells
-  '''   sensor.
+  '''   The YMultiCellWeighScale class provides a weight measurement from a set of ratiometric
+  '''   sensors, for instance using a Yocto-MaxiBridge.
   ''' <para>
   '''   It can be used to control the bridge excitation parameters, in order to avoid
   '''   measure shifts caused by temperature variation in the electronics, and can also
@@ -628,7 +628,8 @@ Module yocto_multicellweighscale
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the multi-cell weighing scale sensor
+    '''   a string that uniquely characterizes the multi-cell weighing scale sensor, for instance
+    '''   <c>YWMBRDG1.multiCellWeighScale</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YMultiCellWeighScale</c> object allowing you to drive the multi-cell weighing scale sensor.
@@ -892,7 +893,8 @@ Module yocto_multicellweighscale
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the multi-cell weighing scale sensor
+  '''   a string that uniquely characterizes the multi-cell weighing scale sensor, for instance
+  '''   <c>YWMBRDG1.multiCellWeighScale</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YMultiCellWeighScale</c> object allowing you to drive the multi-cell weighing scale sensor.

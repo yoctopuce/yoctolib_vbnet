@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_tvoc.vb 33270 2018-11-22 08:41:15Z seb $
+'  $Id: yocto_tvoc.vb 37827 2019-10-25 13:07:48Z mvuilleu $
 '
 '  Implements yFindTvoc(), the high-level API for Tvoc functions
 '
@@ -61,8 +61,8 @@ Module yocto_tvoc
 
   '''*
   ''' <summary>
-  '''   The Yoctopuce class YTvoc allows you to read and configure Yoctopuce Total Volatile Organic
-  '''   Compound sensors.
+  '''   The YTvoc class allows you to read and configure Yoctopuce Total Volatile Organic
+  '''   Compound sensors, for instance using a Yocto-VOC-V3.
   ''' <para>
   '''   It inherits from YSensor class the core functions to read measurements,
   '''   to register callback functions, to access the autonomous datalogger.
@@ -142,7 +142,8 @@ Module yocto_tvoc
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the Total  Volatile Organic Compound sensor
+    '''   a string that uniquely characterizes the Total  Volatile Organic Compound sensor, for instance
+    '''   <c>YVOCMK03.tvoc</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YTvoc</c> object allowing you to drive the Total  Volatile Organic Compound sensor.
@@ -359,7 +360,8 @@ Module yocto_tvoc
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the Total  Volatile Organic Compound sensor
+  '''   a string that uniquely characterizes the Total  Volatile Organic Compound sensor, for instance
+  '''   <c>YVOCMK03.tvoc</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YTvoc</c> object allowing you to drive the Total  Volatile Organic Compound sensor.
