@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_carbondioxide.vb 38030 2019-11-04 17:56:01Z mvuilleu $
+'  $Id: yocto_carbondioxide.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '
@@ -63,11 +63,10 @@ Module yocto_carbondioxide
 
   '''*
   ''' <summary>
-  '''   The YCarbonDioxide class allows you to read and configure Yoctopuce CO2
-  '''   sensors, for instance using a Yocto-CO2-V2.
+  '''   The <c>YCarbonDioxide</c> class allows you to read and configure Yoctopuce CO2 sensors.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   to register callback functions,  to access the autonomous datalogger.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
   '''   This class adds the ability to perform manual calibration if required.
   ''' </para>
   ''' </summary>
@@ -308,7 +307,7 @@ Module yocto_carbondioxide
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>

@@ -8,7 +8,7 @@
 
     ComboBox1.Items.Clear()
     currentmodule = Nothing
-    sensor = yFirstTemperature()
+    sensor = YTemperature.FirstTemperature()
     While sensor IsNot Nothing
       m = sensor.get_module()
       ComboBox1.Items.Add(m)
@@ -53,7 +53,7 @@
       index = 4
     Else
       m = ComboBox1.Items(ComboBox1.SelectedIndex)
-      sensor = yFindTemperature(m.get_serialNumber() + ".temperature")
+      sensor = YTemperature.FindTemperature(m.get_serialNumber() + ".temperature")
       If sensor.isOnline() Then
 
         Label1.Text = sensor.get_currentValue().ToString("0.#") + " °C"
@@ -68,7 +68,7 @@
       End If
     End If
 
-   
+
   End Sub
 
   Private Sub devicelistchanged(ByVal m As YModule)
@@ -82,8 +82,8 @@
 
     modulesInventory()
     REM we wanna know when device list changes
-    yRegisterDeviceArrivalCallback(AddressOf devicelistchanged)
-    yRegisterDeviceRemovalCallback(AddressOf devicelistchanged)
+    YAPI.RegisterDeviceArrivalCallback(AddressOf devicelistchanged)
+    YAPI.RegisterDeviceRemovalCallback(AddressOf devicelistchanged)
     InventoryTimer.Interval = 1000
     InventoryTimer.Start()
     RefreshTimer.Interval = 200
@@ -93,7 +93,7 @@
 
   Private Sub Timer1_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles InventoryTimer.Tick
     Dim errmsg As String = ""
-    yUpdateDeviceList(errmsg) REM scan for changes
+    YAPI.UpdateDeviceList(errmsg) REM scan for changes
   End Sub
 
   Private Sub RefreshTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles RefreshTimer.Tick

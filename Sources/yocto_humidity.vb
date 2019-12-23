@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_humidity.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_humidity.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindHumidity(), the high-level API for Humidity functions
 '
@@ -63,11 +63,10 @@ Module yocto_humidity
 
   '''*
   ''' <summary>
-  '''   The YHumidity class allows you to read and configure Yoctopuce humidity
-  '''   sensors, for instance using a Yocto-Meteo-V2, a Yocto-VOC-V3 or a Yocto-CO2-V2.
+  '''   The <c>YHumidity</c> class allows you to read and configure Yoctopuce humidity sensors.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   to register callback functions, to access the autonomous datalogger.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
@@ -243,7 +242,7 @@ Module yocto_humidity
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the humidity sensor, for instance
-    '''   <c>METEOMK2.humidity</c>.
+    '''   <c>YCO2MK02.humidity</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YHumidity</c> object allowing you to drive the humidity sensor.
@@ -317,7 +316,7 @@ Module yocto_humidity
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>
@@ -461,7 +460,7 @@ Module yocto_humidity
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the humidity sensor, for instance
-  '''   <c>METEOMK2.humidity</c>.
+  '''   <c>YCO2MK02.humidity</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YHumidity</c> object allowing you to drive the humidity sensor.

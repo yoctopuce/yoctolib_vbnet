@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-MaxiThermistor
 '
@@ -36,32 +36,32 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      tsensor = yFirstTemperature()
+      tsensor = YTemperature.FirstTemperature()
       If tsensor Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
       Console.WriteLine("using:" + tsensor.get_module().get_serialNumber())
     Else
-      tsensor = yFindTemperature(target + ".temperature1")
+      tsensor = YTemperature.FindTemperature(target + ".temperature1")
     End If
 
     REM retreive module serial number
     serial = tsensor.get_module().get_serialNumber()
 
     REM retreive all channels
-    ch1 = yFindTemperature(serial + ".temperature1")
-    ch2 = yFindTemperature(serial + ".temperature2")
-    ch3 = yFindTemperature(serial + ".temperature3")
-    ch4 = yFindTemperature(serial + ".temperature4")
-    ch5 = yFindTemperature(serial + ".temperature5")
-    ch6 = yFindTemperature(serial + ".temperature6")
+    ch1 = YTemperature.FindTemperature(serial + ".temperature1")
+    ch2 = YTemperature.FindTemperature(serial + ".temperature2")
+    ch3 = YTemperature.FindTemperature(serial + ".temperature3")
+    ch4 = YTemperature.FindTemperature(serial + ".temperature4")
+    ch5 = YTemperature.FindTemperature(serial + ".temperature5")
+    ch6 = YTemperature.FindTemperature(serial + ".temperature6")
 
     While (True)
       If Not (tsensor.isOnline()) Then
@@ -76,10 +76,10 @@ Module Module1
       Console.Write("| 5: " + ch5.get_currentValue().ToString(" 0.0"))
       Console.Write("| 6: " + ch6.get_currentValue().ToString(" 0.0"))
       Console.WriteLine("| deg C |")
-      ySleep(1000, errmsg)
+      YAPI.Sleep(1000, errmsg)
 
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
 
   End Sub
 

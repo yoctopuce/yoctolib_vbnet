@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_refframe.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_refframe.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindRefFrame(), the high-level API for RefFrame functions
 '
@@ -86,8 +86,8 @@ end enum
 
   '''*
   ''' <summary>
-  '''   The YRefFrame class is used to setup the base orientation of the Yoctopuce inertial
-  '''   sensors, for instance using a Yocto-3D-V2.
+  '''   The <c>YRefFrame</c> class is used to setup the base orientation of the Yoctopuce inertial
+  '''   sensors.
   ''' <para>
   '''   Thanks to this, orientation functions relative to the earth surface plane
   '''   can use the proper reference frame. The class also implements a tridimensional

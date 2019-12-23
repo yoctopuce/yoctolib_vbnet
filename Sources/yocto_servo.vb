@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_servo.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_servo.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindServo(), the high-level API for Servo functions
 '
@@ -78,8 +78,8 @@ End Class
 
   '''*
   ''' <summary>
-  '''   The YServo class is designed to drive remote-control servo motors
-  '''   outputs, for instance using a Yocto-Servo.
+  '''   The <c>YServo</c> class is designed to drive remote-control servo motors
+  '''   outputs.
   ''' <para>
   '''   This class allows you not only to move
   '''   a servo to a given position, but also to specify the time interval
@@ -225,14 +225,14 @@ End Class
     End Function
     '''*
     ''' <summary>
-    '''   Returns the state of the servos.
+    '''   Returns the state of the RC servo motors.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the state of the servos
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the state of the RC servo motors
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_ENABLED_INVALID</c>.
@@ -252,7 +252,7 @@ End Class
 
     '''*
     ''' <summary>
-    '''   Stops or starts the servo.
+    '''   Stops or starts the RC servo motor.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -547,7 +547,7 @@ End Class
     End Function
     '''*
     ''' <summary>
-    '''   Retrieves a servo for a given identifier.
+    '''   Retrieves a RC servo motor for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -571,11 +571,11 @@ End Class
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the servo is online at the time
+    '''   This function does not require that the RC servo motor is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YServo.isOnline()</c> to test if the servo is
+    '''   Use the method <c>YServo.isOnline()</c> to test if the RC servo motor is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a servo by logical name, no error is notified: the first instance
+    '''   a RC servo motor by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -588,11 +588,11 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the servo, for instance
+    '''   a string that uniquely characterizes the RC servo motor, for instance
     '''   <c>SERVORC1.servo1</c>.
     ''' </param>
     ''' <returns>
-    '''   a <c>YServo</c> object allowing you to drive the servo.
+    '''   a <c>YServo</c> object allowing you to drive the RC servo motor.
     ''' </returns>
     '''/
     Public Shared Function FindServo(func As String) As YServo
@@ -653,17 +653,17 @@ End Class
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of servos started using <c>yFirstServo()</c>.
+    '''   Continues the enumeration of RC servo motors started using <c>yFirstServo()</c>.
     ''' <para>
-    '''   Caution: You can't make any assumption about the returned servos order.
-    '''   If you want to find a specific a servo, use <c>Servo.findServo()</c>
+    '''   Caution: You can't make any assumption about the returned RC servo motors order.
+    '''   If you want to find a specific a RC servo motor, use <c>Servo.findServo()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YServo</c> object, corresponding to
-    '''   a servo currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more servos to enumerate.
+    '''   a RC servo motor currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more RC servo motors to enumerate.
     ''' </returns>
     '''/
     Public Function nextServo() As YServo
@@ -679,15 +679,15 @@ End Class
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of servos currently accessible.
+    '''   Starts the enumeration of RC servo motors currently accessible.
     ''' <para>
     '''   Use the method <c>YServo.nextServo()</c> to iterate on
-    '''   next servos.
+    '''   next RC servo motors.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YServo</c> object, corresponding to
-    '''   the first servo currently online, or a <c>Nothing</c> pointer
+    '''   the first RC servo motor currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -726,7 +726,7 @@ End Class
 
   '''*
   ''' <summary>
-  '''   Retrieves a servo for a given identifier.
+  '''   Retrieves a RC servo motor for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -750,11 +750,11 @@ End Class
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the servo is online at the time
+  '''   This function does not require that the RC servo motor is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YServo.isOnline()</c> to test if the servo is
+  '''   Use the method <c>YServo.isOnline()</c> to test if the RC servo motor is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a servo by logical name, no error is notified: the first instance
+  '''   a RC servo motor by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -767,11 +767,11 @@ End Class
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the servo, for instance
+  '''   a string that uniquely characterizes the RC servo motor, for instance
   '''   <c>SERVORC1.servo1</c>.
   ''' </param>
   ''' <returns>
-  '''   a <c>YServo</c> object allowing you to drive the servo.
+  '''   a <c>YServo</c> object allowing you to drive the RC servo motor.
   ''' </returns>
   '''/
   Public Function yFindServo(ByVal func As String) As YServo
@@ -780,15 +780,15 @@ End Class
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of servos currently accessible.
+  '''   Starts the enumeration of RC servo motors currently accessible.
   ''' <para>
   '''   Use the method <c>YServo.nextServo()</c> to iterate on
-  '''   next servos.
+  '''   next RC servo motors.
   ''' </para>
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YServo</c> object, corresponding to
-  '''   the first servo currently online, or a <c>Nothing</c> pointer
+  '''   the first RC servo motor currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

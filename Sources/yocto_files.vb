@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'* $Id: yocto_files.vb 38913 2019-12-20 18:59:49Z mvuilleu $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -59,12 +59,8 @@ Module yocto_files
   REM --- (generated code: YFileRecord class start)
 
   '''*
-  ''' <summary>
-  '''   YFileRecord objects are used to describe a file that is stored on a Yoctopuce device.
-  ''' <para>
-  '''   These objects are used in particular in conjunction with the YFiles class.
-  ''' </para>
-  ''' </summary>
+  ''' <c>YFileRecord</c> objects are used to describe a file that is stored on a Yoctopuce device.
+  ''' These objects are used in particular in conjunction with the <c>YFiles</c> class.
   '''/
   Public Class YFileRecord
     REM --- (end of generated code: YFileRecord class start)
@@ -151,7 +147,7 @@ Module yocto_files
   '''*
   ''' <summary>
   '''   The YFiles class is used to access the filesystem embedded on
-  '''   some Yoctopuce devices, for instance using a YoctoHub-Ethernet, a Yocto-Color-V2, a YoctoHub-Wireless-g or a Yocto-RS232.
+  '''   some Yoctopuce devices.
   ''' <para>
   '''   This filesystem makes it
   '''   possible for instance to design a custom web UI
@@ -295,7 +291,7 @@ Module yocto_files
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the filesystem, for instance
-    '''   <c>YHUBETH1.files</c>.
+    '''   <c>YRGBLED2.files</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YFiles</c> object allowing you to drive the filesystem.
@@ -648,7 +644,7 @@ Module yocto_files
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the filesystem, for instance
-  '''   <c>YHUBETH1.files</c>.
+  '''   <c>YRGBLED2.files</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YFiles</c> object allowing you to drive the filesystem.

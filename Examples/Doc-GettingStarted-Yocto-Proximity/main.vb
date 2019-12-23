@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-Proximity
 '
@@ -38,13 +38,13 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      p = yFirstProximity()
+      p = YProximity.FirstProximity()
       If p Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
@@ -52,11 +52,11 @@ Module Module1
       target = p.get_module().get_serialNumber()
 
     Else
-      p = yFindProximity(target + ".proximity1")
+      p = YProximity.FindProximity(target + ".proximity1")
     End If
 
-    al = yFindLightSensor(target + ".lightSensor1")
-    ir = yFindLightSensor(target + ".lightSensor2")
+    al = YLightSensor.FindLightSensor(target + ".lightSensor1")
+    ir = YLightSensor.FindLightSensor(target + ".lightSensor2")
 
     While (True)
       If Not (p.isOnline()) Then
@@ -68,10 +68,10 @@ Module Module1
       Console.Write(" ir: " + Str(ir.get_currentValue()))
 
       Console.WriteLine("  (press Ctrl-C to exit)")
-      ySleep(1000, errmsg)
+      YAPI.Sleep(1000, errmsg)
 
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
 
   End Sub
 

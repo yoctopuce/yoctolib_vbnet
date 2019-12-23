@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-Volt
 '
@@ -44,24 +44,24 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
       REM retreive any voltage sensor (can be AC or DC)
-      sensor = yFirstVoltage()
+      sensor = YVoltage.FirstVoltage()
       If sensor Is Nothing Then Die("No module connected")
     Else
-      sensor = yFindVoltage(target + ".voltage1")
+      sensor = YVoltage.FindVoltage(target + ".voltage1")
     End If
 
     REM  we need to retreive both DC and AC voltage from the device.
     If (sensor.isOnline()) Then
       m = sensor.get_module()
-      sensorDC = yFindVoltage(m.get_serialNumber() + ".voltage1")
-      sensorAC = yFindVoltage(m.get_serialNumber() + ".voltage2")
+      sensorDC = YVoltage.FindVoltage(m.get_serialNumber() + ".voltage1")
+      sensorAC = YVoltage.FindVoltage(m.get_serialNumber() + ".voltage2")
     Else
       Die("Module not connected")
     End If
@@ -71,9 +71,9 @@ Module Module1
       Console.Write("DC: " + sensorDC.get_currentValue().ToString() + " v ")
       Console.Write("AC: " + sensorAC.get_currentValue().ToString() + " v ")
       Console.WriteLine("  (press Ctrl-C to exit)")
-      ySleep(1000, errmsg)
+      YAPI.Sleep(1000, errmsg)
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
 
   End Sub
 End Module

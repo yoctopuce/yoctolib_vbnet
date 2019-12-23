@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'* $Id: yocto_serialport.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -64,6 +64,8 @@ Module yocto_serialport
   Public Const Y_LASTMSG_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CURRENTJOB_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_JOBMAXTASK_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_JOBMAXSIZE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PROTOCOL_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_VOLTAGELEVEL_OFF As Integer = 0
@@ -99,14 +101,44 @@ Module yocto_serialport
     REM --- (end of generated code: YSnoopingRecord private methods declaration)
 
     REM --- (generated code: YSnoopingRecord public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the elapsed time, in ms, since the beginning of the preceding message.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the elapsed time, in ms, since the beginning of the preceding message.
+    ''' </returns>
+    '''/
     Public Overridable Function get_time() As Integer
       Return Me._tim
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the message direction (RX=0 , TX=1) .
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the message direction (RX=0 , TX=1) .
+    ''' </returns>
+    '''/
     Public Overridable Function get_direction() As Integer
       Return Me._dir
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the message content.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the message content.
+    ''' </returns>
+    '''/
     Public Overridable Function get_message() As String
       Return Me._msg
     End Function
@@ -140,7 +172,7 @@ Module yocto_serialport
 
   '''*
   ''' <summary>
-  '''   The YSerialPort class allows you to fully drive a Yoctopuce serial port, for instance using a Yocto-RS232, a Yocto-RS485 or a Yocto-Serial.
+  '''   The <c>YSerialPort</c> class allows you to fully drive a Yoctopuce serial port.
   ''' <para>
   '''   It can be used to send and receive data, and to configure communication
   '''   parameters (baud rate, bit count, parity, flow control and protocol).
@@ -162,6 +194,8 @@ Module yocto_serialport
     Public Const LASTMSG_INVALID As String = YAPI.INVALID_STRING
     Public Const CURRENTJOB_INVALID As String = YAPI.INVALID_STRING
     Public Const STARTUPJOB_INVALID As String = YAPI.INVALID_STRING
+    Public Const JOBMAXTASK_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const JOBMAXSIZE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     Public Const PROTOCOL_INVALID As String = YAPI.INVALID_STRING
     Public Const VOLTAGELEVEL_OFF As Integer = 0
@@ -185,6 +219,8 @@ Module yocto_serialport
     Protected _lastMsg As String
     Protected _currentJob As String
     Protected _startupJob As String
+    Protected _jobMaxTask As Integer
+    Protected _jobMaxSize As Integer
     Protected _command As String
     Protected _protocol As String
     Protected _voltageLevel As Integer
@@ -207,6 +243,8 @@ Module yocto_serialport
       _lastMsg = LASTMSG_INVALID
       _currentJob = CURRENTJOB_INVALID
       _startupJob = STARTUPJOB_INVALID
+      _jobMaxTask = JOBMAXTASK_INVALID
+      _jobMaxSize = JOBMAXSIZE_INVALID
       _command = COMMAND_INVALID
       _protocol = PROTOCOL_INVALID
       _voltageLevel = VOLTAGELEVEL_INVALID
@@ -243,6 +281,12 @@ Module yocto_serialport
       End If
       If json_val.has("startupJob") Then
         _startupJob = json_val.getString("startupJob")
+      End If
+      If json_val.has("jobMaxTask") Then
+        _jobMaxTask = CInt(json_val.getLong("jobMaxTask"))
+      End If
+      If json_val.has("jobMaxSize") Then
+        _jobMaxSize = CInt(json_val.getLong("jobMaxSize"))
       End If
       If json_val.has("command") Then
         _command = json_val.getString("command")
@@ -526,6 +570,58 @@ Module yocto_serialport
       rest_val = newval
       Return _setAttr("startupJob", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the maximum number of tasks in a job that the device can handle.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the maximum number of tasks in a job that the device can handle
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_JOBMAXTASK_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_jobMaxTask() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return JOBMAXTASK_INVALID
+        End If
+      End If
+      res = Me._jobMaxTask
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns maximum size allowed for job files.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to maximum size allowed for job files
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_JOBMAXSIZE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_jobMaxSize() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return JOBMAXSIZE_INVALID
+        End If
+      End If
+      res = Me._jobMaxSize
+      Return res
+    End Function
+
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -1677,7 +1773,7 @@ Module yocto_serialport
     '''   in the receive buffer.
     ''' </param>
     ''' <returns>
-    '''   an array of YSnoopingRecord objects containing the messages found, if any.
+    '''   an array of <c>YSnoopingRecord</c> objects containing the messages found, if any.
     '''   Binary messages are converted to hexadecimal representation.
     ''' </returns>
     ''' <para>

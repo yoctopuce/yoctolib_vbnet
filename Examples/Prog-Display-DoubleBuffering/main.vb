@@ -43,20 +43,20 @@
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      disp = yFirstDisplay()
+      disp = YDisplay.FirstDisplay()
       If disp Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
 
     Else
-      disp = yFindDisplay(target + ".display")
+      disp = YDisplay.FindDisplay(target + ".display")
 
     End If
 

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-RS485
 '
@@ -35,9 +35,9 @@ Module Module1
     End If
 
     If (argv.Length > 1 And argv(1) <> "any") Then
-      serialPort = yFindSerialPort(argv(1))
+      serialPort = YSerialPort.FindSerialPort(argv(1))
     Else
-      serialPort = yFirstSerialPort()
+      serialPort = YSerialPort.FirstSerialPort()
       If serialPort Is Nothing Then
         Console.WriteLine("No module connected (check USB cable)")
         End
@@ -78,7 +78,7 @@ Module Module1
         End If
       End If
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
   End Sub
 
 End Module

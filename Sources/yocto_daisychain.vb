@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_daisychain.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_daisychain.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindDaisyChain(), the high-level API for DaisyChain functions
 '
@@ -69,7 +69,7 @@ Module yocto_daisychain
 
   '''*
   ''' <summary>
-  '''   The YDaisyChain interface can be used to verify that devices that
+  '''   The <c>YDaisyChain</c> class can be used to verify that devices that
   '''   are daisy-chained directly from device to device, without a hub,
   '''   are detected properly.
   ''' <para>

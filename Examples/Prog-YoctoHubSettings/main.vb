@@ -16,15 +16,15 @@
     If (argv.Length <> 3) Then usage()
 
     REM Setup the API to use local USB devices
-    If yRegisterHub("usb", errmsg) <> YAPI_SUCCESS Then
+    If YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
-    m = yFindModule(argv(1)) REM use serial or logical name
+    m = YModule.FindModule(argv(1)) REM use serial or logical name
     If m.isOnline() Then
       newname = argv(2)
-      If (Not yCheckLogicalName(newname)) Then
+      If (Not YAPI.CheckLogicalName(newname)) Then
         Console.WriteLine("Invalid name (" + newname + ")")
         End
       End If
@@ -35,7 +35,7 @@
     Else
       Console.Write("not connected (check identification and USB cable")
     End If
-    yFreeAPI()
+    YAPI.FreeAPI()
 
   End Sub
 

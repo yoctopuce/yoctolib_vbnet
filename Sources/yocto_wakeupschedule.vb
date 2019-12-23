@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupschedule.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_wakeupschedule.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindWakeUpSchedule(), the high-level API for WakeUpSchedule functions
 '
@@ -68,7 +68,7 @@ Module yocto_wakeupschedule
 
   '''*
   ''' <summary>
-  '''   The YWakeUpSchedule class implements a wake up condition, for instance using a YoctoHub-Wireless-g, a YoctoHub-GSM-3G-NA, a YoctoHub-GSM-3G-EU or a YoctoHub-Wireless-SR.
+  '''   The <c>YWakeUpSchedule</c> class implements a wake up condition.
   ''' <para>
   '''   The wake up time is
   '''   specified as a set of months and/or days and/or hours and/or minutes when the
@@ -540,7 +540,7 @@ Module yocto_wakeupschedule
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the wake up schedule, for instance
-    '''   <c>YHUBWLN3.wakeUpSchedule1</c>.
+    '''   <c>YHUBGSM3.wakeUpSchedule1</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YWakeUpSchedule</c> object allowing you to drive the wake up schedule.
@@ -757,7 +757,7 @@ Module yocto_wakeupschedule
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the wake up schedule, for instance
-  '''   <c>YHUBWLN3.wakeUpSchedule1</c>.
+  '''   <c>YHUBGSM3.wakeUpSchedule1</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YWakeUpSchedule</c> object allowing you to drive the wake up schedule.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multicellweighscale.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_multicellweighscale.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '
@@ -73,8 +73,8 @@ Module yocto_multicellweighscale
 
   '''*
   ''' <summary>
-  '''   The YMultiCellWeighScale class provides a weight measurement from a set of ratiometric
-  '''   sensors, for instance using a Yocto-MaxiBridge.
+  '''   The <c>YMultiCellWeighScale</c> class provides a weight measurement from a set of ratiometric
+  '''   sensors.
   ''' <para>
   '''   It can be used to control the bridge excitation parameters, in order to avoid
   '''   measure shifts caused by temperature variation in the electronics, and can also
@@ -703,7 +703,7 @@ Module yocto_multicellweighscale
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>

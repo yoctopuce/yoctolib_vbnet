@@ -8,10 +8,10 @@
 
     ComboBox1.Items.Clear()
     currentmodule = Nothing
-    m = yFirstModule()
+    m = YModule.FirstModule()
     While m IsNot Nothing
       name = m.get_serialNumber()
-      If Mid(name, 1, 8) = "YCTOPOC1" Then     
+      If Mid(name, 1, 8) = "YCTOPOC1" Then
         ComboBox1.Items.Add(m)
       End If
       m = m.nextModule()
@@ -56,7 +56,7 @@
       index = 4
     Else
       m = CType(ComboBox1.Items(ComboBox1.SelectedIndex), YModule)
-      led = yFindLed(m.get_serialNumber() + ".led")
+      led = YLed.FindLed(m.get_serialNumber() + ".led")
       If led.isOnline() Then
         If led.get_power() = Y_POWER_ON Then
           index = index Or 1
@@ -92,8 +92,8 @@
 
     modulesInventory()
     REM we wanna know when device list changes
-    yRegisterDeviceArrivalCallback(AddressOf devicelistchanged)
-    yRegisterDeviceRemovalCallback(AddressOf devicelistchanged)
+    YAPI.RegisterDeviceArrivalCallback(AddressOf devicelistchanged)
+    YAPI.RegisterDeviceRemovalCallback(AddressOf devicelistchanged)
     InventoryTimer.Interval = 1000
     InventoryTimer.Start()
     RefreshTimer.Interval = 200
@@ -103,10 +103,10 @@
 
   Private Sub Timer1_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles InventoryTimer.Tick
     Dim errmsg As String = ""
-    yUpdateDeviceList(errmsg) REM scan for changes
+    YAPI.UpdateDeviceList(errmsg) REM scan for changes
   End Sub
 
-  
+
 
   Private Sub RefreshTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles RefreshTimer.Tick
     refreshUI()
@@ -120,7 +120,7 @@
     If Not (ComboBox1.Enabled) Then Return
     m = CType(ComboBox1.Items(ComboBox1.SelectedIndex), YModule)
     If Not (m.isOnline()) Then Return
-    led = yFindLed(m.get_serialNumber + ".led")
+    led = YLed.FindLed(m.get_serialNumber + ".led")
     If led.get_power() = Y_POWER_OFF Then
       led.set_power(Y_POWER_ON)
     Else

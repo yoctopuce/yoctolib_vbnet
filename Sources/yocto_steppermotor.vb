@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_steppermotor.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_steppermotor.vb 38913 2019-12-20 18:59:49Z mvuilleu $
 '
 '  Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '
@@ -87,7 +87,7 @@ Module yocto_steppermotor
 
   '''*
   ''' <summary>
-  '''   The YStepperMotor class allows you to drive a stepper motor.
+  '''   The <c>YStepperMotor</c> class allows you to drive a stepper motor.
   ''' <para>
   ''' </para>
   ''' </summary>

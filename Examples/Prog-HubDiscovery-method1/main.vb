@@ -27,7 +27,7 @@
       hardwareId = serial + "." + m.functionId(i)
       If hardwareId.IndexOf("anButton") >= 0 Then
         Console.WriteLine("- " + hardwareId)
-        anButton = yFindAnButton(hardwareId)
+        anButton = YAnButton.FindAnButton(hardwareId)
         anButton.registerValueCallback(AddressOf anButtonValueChangeCallBack)
       End If
     Next

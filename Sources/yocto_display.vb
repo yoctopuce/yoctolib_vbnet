@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'* $Id: yocto_display.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -98,8 +98,8 @@ end enum
 
   '''*
   ''' <summary>
-  '''   A DisplayLayer is an image layer containing objects to display
-  '''   (bitmaps, text, etc.).
+  '''   Each <c>DisplayLayer</c> represents an image layer containing objects
+  '''   to display (bitmaps, text, etc.).
   ''' <para>
   '''   The content is displayed only when
   '''   the layer is active on the screen (and not masked by other
@@ -904,13 +904,19 @@ end enum
 
   '''*
   ''' <summary>
-  '''   The YDisplay class allows to drive Yoctopuce displays, for instance using a Yocto-MaxiDisplay, a Yocto-MiniDisplay, a Yocto-MaxiDisplay-G or a Yocto-Display.
+  '''   The <c>YDisplay</c> class allows to drive Yoctopuce displays.
   ''' <para>
   '''   Yoctopuce display interface has been designed to easily
   '''   show information and images. The device provides built-in
   '''   multi-layer rendering. Layers can be drawn offline, individually,
   '''   and freely moved on the display. It can also replay recorded
   '''   sequences (animations).
+  ''' </para>
+  ''' <para>
+  '''   In order to draw on the screen, you should use the
+  '''   <c>display.get_displayLayer</c> method to retrieve the layer(s) on
+  '''   which you want to draw, and then use methods defined in
+  '''   <c>YDisplayLayer</c> to draw on the layers.
   ''' </para>
   ''' </summary>
   '''/
@@ -1457,7 +1463,7 @@ end enum
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the display, for instance
-    '''   <c>YD128X64.display</c>.
+    '''   <c>YD128X32.display</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YDisplay</c> object allowing you to drive the display.
@@ -1956,7 +1962,7 @@ end enum
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the display, for instance
-  '''   <c>YD128X64.display</c>.
+  '''   <c>YD128X32.display</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YDisplay</c> object allowing you to drive the display.

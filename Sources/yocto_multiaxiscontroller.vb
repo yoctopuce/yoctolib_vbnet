@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multiaxiscontroller.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_multiaxiscontroller.vb 38913 2019-12-20 18:59:49Z mvuilleu $
 '
 '  Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '
@@ -70,7 +70,7 @@ Module yocto_multiaxiscontroller
 
   '''*
   ''' <summary>
-  '''   The YMultiAxisController class allows you to drive multiple stepper motors
+  '''   The <c>YMultiAxisController</c> class allows you to drive multiple stepper motors
   '''   synchronously.
   ''' <para>
   ''' </para>

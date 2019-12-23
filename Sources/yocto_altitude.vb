@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_altitude.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_altitude.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindAltitude(), the high-level API for Altitude functions
 '
@@ -63,11 +63,10 @@ Module yocto_altitude
 
   '''*
   ''' <summary>
-  '''   The YAltitude class allows you to read and configure Yoctopuce altitude
-  '''   sensors, for instance using a Yocto-GPS or a Yocto-Altimeter-V2.
+  '''   The <c>YAltitude</c> class allows you to read and configure Yoctopuce altimeters.
   ''' <para>
-  '''   It inherits from the YSensor class the core functions to read measurements,
-  '''   to register callback functions, to access the autonomous datalogger.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
   '''   This class adds the ability to configure the barometric pressure adjusted to
   '''   sea level (QNH) for barometric sensors.
   ''' </para>
@@ -279,7 +278,7 @@ Module yocto_altitude
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the altimeter, for instance
-    '''   <c>YGNSSMK1.altitude</c>.
+    '''   <c>YALTIMK2.altitude</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YAltitude</c> object allowing you to drive the altimeter.
@@ -353,7 +352,7 @@ Module yocto_altitude
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>
@@ -497,7 +496,7 @@ Module yocto_altitude
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the altimeter, for instance
-  '''   <c>YGNSSMK1.altitude</c>.
+  '''   <c>YALTIMK2.altitude</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YAltitude</c> object allowing you to drive the altimeter.

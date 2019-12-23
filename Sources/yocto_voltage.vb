@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_voltage.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_voltage.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindVoltage(), the high-level API for Voltage functions
 '
@@ -64,11 +64,10 @@ Module yocto_voltage
 
   '''*
   ''' <summary>
-  '''   The YVoltage class allows you to read and configure Yoctopuce voltage
-  '''   sensors, for instance using a Yocto-Watt, a Yocto-Volt or a Yocto-Motor-DC.
+  '''   The <c>YVoltage</c> class allows you to read and configure Yoctopuce voltage sensors.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   to register callback functions, to access the autonomous datalogger.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
@@ -212,7 +211,7 @@ Module yocto_voltage
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the voltage sensor, for instance
-    '''   <c>YWATTMK1.voltage1</c>.
+    '''   <c>MOTORCTL.voltage</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YVoltage</c> object allowing you to drive the voltage sensor.
@@ -286,7 +285,7 @@ Module yocto_voltage
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>
@@ -430,7 +429,7 @@ Module yocto_voltage
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the voltage sensor, for instance
-  '''   <c>YWATTMK1.voltage1</c>.
+  '''   <c>MOTORCTL.voltage</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YVoltage</c> object allowing you to drive the voltage sensor.

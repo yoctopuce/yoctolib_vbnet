@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_gps.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_gps.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindGps(), the high-level API for Gps functions
 '
@@ -57,17 +57,19 @@ Module yocto_gps
   Public Const Y_ISFIXED_TRUE As Integer = 1
   Public Const Y_ISFIXED_INVALID As Integer = -1
   Public Const Y_SATCOUNT_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_SATPERCONST_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_GPSREFRESHRATE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_COORDSYSTEM_GPS_DMS As Integer = 0
   Public Const Y_COORDSYSTEM_GPS_DM As Integer = 1
   Public Const Y_COORDSYSTEM_GPS_D As Integer = 2
   Public Const Y_COORDSYSTEM_INVALID As Integer = -1
-  Public Const Y_CONSTELLATION_GPS As Integer = 0
-  Public Const Y_CONSTELLATION_GLONASS As Integer = 1
-  Public Const Y_CONSTELLATION_GALLILEO As Integer = 2
-  Public Const Y_CONSTELLATION_GNSS As Integer = 3
+  Public Const Y_CONSTELLATION_GNSS As Integer = 0
+  Public Const Y_CONSTELLATION_GPS As Integer = 1
+  Public Const Y_CONSTELLATION_GLONASS As Integer = 2
+  Public Const Y_CONSTELLATION_GALILEO As Integer = 3
   Public Const Y_CONSTELLATION_GPS_GLONASS As Integer = 4
-  Public Const Y_CONSTELLATION_GPS_GALLILEO As Integer = 5
-  Public Const Y_CONSTELLATION_GLONASS_GALLELIO As Integer = 6
+  Public Const Y_CONSTELLATION_GPS_GALILEO As Integer = 5
+  Public Const Y_CONSTELLATION_GLONASS_GALILEO As Integer = 6
   Public Const Y_CONSTELLATION_INVALID As Integer = -1
   Public Const Y_LATITUDE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_LONGITUDE_INVALID As String = YAPI.INVALID_STRING
@@ -87,14 +89,14 @@ Module yocto_gps
 
   '''*
   ''' <summary>
-  '''   The YGps class allows you to retrieve positioning
-  '''   data from a GPS sensor, for instance using a Yocto-GPS.
+  '''   The <c>YGps</c> class allows you to retrieve positioning
+  '''   data from a GPS/GNSS sensor.
   ''' <para>
   '''   This class can provides
   '''   complete positioning information. However, if you
   '''   wish to define callbacks on position changes or record
   '''   the position in the datalogger, you
-  '''   should use the YLatitude et YLongitude classes.
+  '''   should use the <c>YLatitude</c> et <c>YLongitude</c> classes.
   ''' </para>
   ''' </summary>
   '''/
@@ -107,17 +109,19 @@ Module yocto_gps
     Public Const ISFIXED_TRUE As Integer = 1
     Public Const ISFIXED_INVALID As Integer = -1
     Public Const SATCOUNT_INVALID As Long = YAPI.INVALID_LONG
+    Public Const SATPERCONST_INVALID As Long = YAPI.INVALID_LONG
+    Public Const GPSREFRESHRATE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const COORDSYSTEM_GPS_DMS As Integer = 0
     Public Const COORDSYSTEM_GPS_DM As Integer = 1
     Public Const COORDSYSTEM_GPS_D As Integer = 2
     Public Const COORDSYSTEM_INVALID As Integer = -1
-    Public Const CONSTELLATION_GPS As Integer = 0
-    Public Const CONSTELLATION_GLONASS As Integer = 1
-    Public Const CONSTELLATION_GALLILEO As Integer = 2
-    Public Const CONSTELLATION_GNSS As Integer = 3
+    Public Const CONSTELLATION_GNSS As Integer = 0
+    Public Const CONSTELLATION_GPS As Integer = 1
+    Public Const CONSTELLATION_GLONASS As Integer = 2
+    Public Const CONSTELLATION_GALILEO As Integer = 3
     Public Const CONSTELLATION_GPS_GLONASS As Integer = 4
-    Public Const CONSTELLATION_GPS_GALLILEO As Integer = 5
-    Public Const CONSTELLATION_GLONASS_GALLELIO As Integer = 6
+    Public Const CONSTELLATION_GPS_GALILEO As Integer = 5
+    Public Const CONSTELLATION_GLONASS_GALILEO As Integer = 6
     Public Const CONSTELLATION_INVALID As Integer = -1
     Public Const LATITUDE_INVALID As String = YAPI.INVALID_STRING
     Public Const LONGITUDE_INVALID As String = YAPI.INVALID_STRING
@@ -134,6 +138,8 @@ Module yocto_gps
     REM --- (YGps attributes declaration)
     Protected _isFixed As Integer
     Protected _satCount As Long
+    Protected _satPerConst As Long
+    Protected _gpsRefreshRate As Double
     Protected _coordSystem As Integer
     Protected _constellation As Integer
     Protected _latitude As String
@@ -155,6 +161,8 @@ Module yocto_gps
       REM --- (YGps attributes initialization)
       _isFixed = ISFIXED_INVALID
       _satCount = SATCOUNT_INVALID
+      _satPerConst = SATPERCONST_INVALID
+      _gpsRefreshRate = GPSREFRESHRATE_INVALID
       _coordSystem = COORDSYSTEM_INVALID
       _constellation = CONSTELLATION_INVALID
       _latitude = LATITUDE_INVALID
@@ -179,6 +187,12 @@ Module yocto_gps
       End If
       If json_val.has("satCount") Then
         _satCount = json_val.getLong("satCount")
+      End If
+      If json_val.has("satPerConst") Then
+        _satPerConst = json_val.getLong("satPerConst")
+      End If
+      If json_val.has("gpsRefreshRate") Then
+        _gpsRefreshRate = Math.Round(json_val.getDouble("gpsRefreshRate") * 1000.0 / 65536.0) / 1000.0
       End If
       If json_val.has("coordSystem") Then
         _coordSystem = CInt(json_val.getLong("coordSystem"))
@@ -251,14 +265,14 @@ Module yocto_gps
 
     '''*
     ''' <summary>
-    '''   Returns the count of visible satellites.
+    '''   Returns the total count of satellites used to compute GPS position.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the count of visible satellites
+    '''   an integer corresponding to the total count of satellites used to compute GPS position
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_SATCOUNT_INVALID</c>.
@@ -272,6 +286,63 @@ Module yocto_gps
         End If
       End If
       res = Me._satCount
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the count of visible satellites per constellation encoded
+    '''   on a 32 bit integer: bits 0..
+    ''' <para>
+    '''   5: GPS satellites count,  bits 6..11 : Glonass, bits 12..17 : Galileo.
+    '''   this value is refreshed every 5 seconds only.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the count of visible satellites per constellation encoded
+    '''   on a 32 bit integer: bits 0.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_SATPERCONST_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_satPerConst() As Long
+      Dim res As Long = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return SATPERCONST_INVALID
+        End If
+      End If
+      res = Me._satPerConst
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns effective GPS data refresh frequency.
+    ''' <para>
+    '''   this value is refreshed every 5 seconds only.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to effective GPS data refresh frequency
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_GPSREFRESHRATE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_gpsRefreshRate() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return GPSREFRESHRATE_INVALID
+        End If
+      End If
+      res = Me._gpsRefreshRate
       Return res
     End Function
 
@@ -341,10 +412,10 @@ Module yocto_gps
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_CONSTELLATION_GPS</c>, <c>Y_CONSTELLATION_GLONASS</c>,
-    '''   <c>Y_CONSTELLATION_GALLILEO</c>, <c>Y_CONSTELLATION_GNSS</c>, <c>Y_CONSTELLATION_GPS_GLONASS</c>,
-    '''   <c>Y_CONSTELLATION_GPS_GALLILEO</c> and <c>Y_CONSTELLATION_GLONASS_GALLELIO</c> corresponding to
-    '''   the the satellites constellation used to compute
+    '''   a value among <c>Y_CONSTELLATION_GNSS</c>, <c>Y_CONSTELLATION_GPS</c>,
+    '''   <c>Y_CONSTELLATION_GLONASS</c>, <c>Y_CONSTELLATION_GALILEO</c>, <c>Y_CONSTELLATION_GPS_GLONASS</c>,
+    '''   <c>Y_CONSTELLATION_GPS_GALILEO</c> and <c>Y_CONSTELLATION_GLONASS_GALILEO</c> corresponding to the
+    '''   the satellites constellation used to compute
     '''   positioning data
     ''' </returns>
     ''' <para>
@@ -368,17 +439,17 @@ Module yocto_gps
     '''   Changes the satellites constellation used to compute
     '''   positioning data.
     ''' <para>
-    '''   Possible  constellations are GPS, Glonass, Galileo ,
-    '''   GNSS ( = GPS + Glonass + Galileo) and the 3 possible pairs. This seeting has effect on Yocto-GPS rev A.
+    '''   Possible  constellations are GNSS ( = all supported constellations),
+    '''   GPS, Glonass, Galileo , and the 3 possible pairs. This setting has  no effect on Yocto-GPS (V1).
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_CONSTELLATION_GPS</c>, <c>Y_CONSTELLATION_GLONASS</c>,
-    '''   <c>Y_CONSTELLATION_GALLILEO</c>, <c>Y_CONSTELLATION_GNSS</c>, <c>Y_CONSTELLATION_GPS_GLONASS</c>,
-    '''   <c>Y_CONSTELLATION_GPS_GALLILEO</c> and <c>Y_CONSTELLATION_GLONASS_GALLELIO</c> corresponding to
-    '''   the satellites constellation used to compute
+    '''   a value among <c>Y_CONSTELLATION_GNSS</c>, <c>Y_CONSTELLATION_GPS</c>,
+    '''   <c>Y_CONSTELLATION_GLONASS</c>, <c>Y_CONSTELLATION_GALILEO</c>, <c>Y_CONSTELLATION_GPS_GLONASS</c>,
+    '''   <c>Y_CONSTELLATION_GPS_GALILEO</c> and <c>Y_CONSTELLATION_GLONASS_GALILEO</c> corresponding to the
+    '''   satellites constellation used to compute
     '''   positioning data
     ''' </param>
     ''' <para>
@@ -686,7 +757,7 @@ Module yocto_gps
     End Function
     '''*
     ''' <summary>
-    '''   Retrieves a GPS for a given identifier.
+    '''   Retrieves a geolocalization module for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -710,11 +781,11 @@ Module yocto_gps
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the GPS is online at the time
+    '''   This function does not require that the geolocalization module is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YGps.isOnline()</c> to test if the GPS is
+    '''   Use the method <c>YGps.isOnline()</c> to test if the geolocalization module is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a GPS by logical name, no error is notified: the first instance
+    '''   a geolocalization module by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -727,11 +798,11 @@ Module yocto_gps
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the GPS, for instance
+    '''   a string that uniquely characterizes the geolocalization module, for instance
     '''   <c>YGNSSMK1.gps</c>.
     ''' </param>
     ''' <returns>
-    '''   a <c>YGps</c> object allowing you to drive the GPS.
+    '''   a <c>YGps</c> object allowing you to drive the geolocalization module.
     ''' </returns>
     '''/
     Public Shared Function FindGps(func As String) As YGps
@@ -792,17 +863,17 @@ Module yocto_gps
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of GPS started using <c>yFirstGps()</c>.
+    '''   Continues the enumeration of geolocalization modules started using <c>yFirstGps()</c>.
     ''' <para>
-    '''   Caution: You can't make any assumption about the returned GPS order.
-    '''   If you want to find a specific a GPS, use <c>Gps.findGps()</c>
+    '''   Caution: You can't make any assumption about the returned geolocalization modules order.
+    '''   If you want to find a specific a geolocalization module, use <c>Gps.findGps()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YGps</c> object, corresponding to
-    '''   a GPS currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more GPS to enumerate.
+    '''   a geolocalization module currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more geolocalization modules to enumerate.
     ''' </returns>
     '''/
     Public Function nextGps() As YGps
@@ -818,15 +889,15 @@ Module yocto_gps
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of GPS currently accessible.
+    '''   Starts the enumeration of geolocalization modules currently accessible.
     ''' <para>
     '''   Use the method <c>YGps.nextGps()</c> to iterate on
-    '''   next GPS.
+    '''   next geolocalization modules.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YGps</c> object, corresponding to
-    '''   the first GPS currently online, or a <c>Nothing</c> pointer
+    '''   the first geolocalization module currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -865,7 +936,7 @@ Module yocto_gps
 
   '''*
   ''' <summary>
-  '''   Retrieves a GPS for a given identifier.
+  '''   Retrieves a geolocalization module for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -889,11 +960,11 @@ Module yocto_gps
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the GPS is online at the time
+  '''   This function does not require that the geolocalization module is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YGps.isOnline()</c> to test if the GPS is
+  '''   Use the method <c>YGps.isOnline()</c> to test if the geolocalization module is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a GPS by logical name, no error is notified: the first instance
+  '''   a geolocalization module by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -906,11 +977,11 @@ Module yocto_gps
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the GPS, for instance
+  '''   a string that uniquely characterizes the geolocalization module, for instance
   '''   <c>YGNSSMK1.gps</c>.
   ''' </param>
   ''' <returns>
-  '''   a <c>YGps</c> object allowing you to drive the GPS.
+  '''   a <c>YGps</c> object allowing you to drive the geolocalization module.
   ''' </returns>
   '''/
   Public Function yFindGps(ByVal func As String) As YGps
@@ -919,15 +990,15 @@ Module yocto_gps
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of GPS currently accessible.
+  '''   Starts the enumeration of geolocalization modules currently accessible.
   ''' <para>
   '''   Use the method <c>YGps.nextGps()</c> to iterate on
-  '''   next GPS.
+  '''   next geolocalization modules.
   ''' </para>
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YGps</c> object, corresponding to
-  '''   the first GPS currently online, or a <c>Nothing</c> pointer
+  '''   the first geolocalization module currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

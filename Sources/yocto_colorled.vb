@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorled.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_colorled.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindColorLed(), the high-level API for ColorLed functions
 '
@@ -76,7 +76,7 @@ End Class
 
   '''*
   ''' <summary>
-  '''   The YColorLed class allows you to drive a color LED, for instance using a Yocto-Color-V2 or a Yocto-PowerColor.
+  '''   The <c>ColorLed</c> class allows you to drive a color LED.
   ''' <para>
   '''   The color can be specified using RGB coordinates as well as HSL coordinates.
   '''   The module performs all conversions form RGB to HSL automatically. It is then

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_voltageoutput.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_voltageoutput.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindVoltageOutput(), the high-level API for VoltageOutput functions
 '
@@ -64,7 +64,7 @@ Module yocto_voltageoutput
 
   '''*
   ''' <summary>
-  '''   The YVoltageOutput class allows you to drive a voltage output, for instance using a Yocto-0-10V-Tx.
+  '''   The <c>YVoltageOutput</c> class allows you to drive a voltage output.
   ''' <para>
   ''' </para>
   ''' </summary>

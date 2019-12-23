@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_buzzer.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_buzzer.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindBuzzer(), the high-level API for Buzzer functions
 '
@@ -67,7 +67,7 @@ Module yocto_buzzer
 
   '''*
   ''' <summary>
-  '''   The YBuzzer class allows you to drive a buzzer, for instance using a Yocto-Buzzer.
+  '''   The <c>YBuzzer</c> class allows you to drive a buzzer.
   ''' <para>
   '''   You can
   '''   choose the frequency and the volume at which the buzzer must sound.

@@ -23,9 +23,9 @@ Module Module1
     End If
 
     If (argv.Length > 1) Then
-      serialPort = yFindSerialPort(argv(1))
+      serialPort = YSerialPort.FindSerialPort(argv(1))
     Else
-      serialPort = yFirstSerialPort()
+      serialPort = YSerialPort.FirstSerialPort()
       If serialPort Is Nothing Then
         Console.WriteLine("No module connected (check USB cable)")
         End

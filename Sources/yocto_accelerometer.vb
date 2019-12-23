@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_accelerometer.vb 38030 2019-11-04 17:56:01Z mvuilleu $
+'  $Id: yocto_accelerometer.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindAccelerometer(), the high-level API for Accelerometer functions
 '
@@ -68,11 +68,12 @@ Module yocto_accelerometer
 
   '''*
   ''' <summary>
-  '''   The YAccelerometer class allows you to read and configure Yoctopuce acceleration
-  '''   sensors, for instance using a Yocto-3D-V2.
+  '''   The <c>YAccelerometer</c> class allows you to read and configure Yoctopuce accelerometers.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   to register callback functions, to access the autonomous datalogger.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
+  '''   This class adds the possibility to access x, y and z components of the acceleration
+  '''   vector separately.
   ''' </para>
   ''' </summary>
   '''/
@@ -407,7 +408,7 @@ Module yocto_accelerometer
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>

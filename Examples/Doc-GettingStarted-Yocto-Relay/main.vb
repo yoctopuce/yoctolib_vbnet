@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-Relay
 '
@@ -37,19 +37,19 @@ Module Module1
     state = CChar(Mid(argv(2), 1, 1).ToUpper())
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      relay = yFirstRelay()
+      relay = YRelay.FirstRelay()
       If relay Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
     Else
-      relay = yFindRelay(target + ".relay1")
+      relay = YRelay.FindRelay(target + ".relay1")
     End If
 
     If (relay.isOnline()) Then
@@ -57,7 +57,7 @@ Module Module1
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If
-    yFreeAPI()
+    YAPI.FreeAPI()
   End Sub
 
 End Module

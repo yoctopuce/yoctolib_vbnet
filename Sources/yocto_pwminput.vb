@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwminput.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_pwminput.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindPwmInput(), the high-level API for PwmInput functions
 '
@@ -79,11 +79,10 @@ Module yocto_pwminput
 
   '''*
   ''' <summary>
-  '''   The YPwmInput class allows you to read and configure Yoctopuce PWM
-  '''   sensors, for instance using a Yocto-PWM-Rx.
+  '''   The <c>YPwmInput</c> class allows you to read and configure Yoctopuce PWM inputs.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   to register callback functions, to access the autonomous datalogger.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
   '''   This class adds the ability to configure the signal parameter used to transmit
   '''   information: the duty cycle, the frequency or the pulse width.
   ''' </para>
@@ -614,7 +613,7 @@ Module yocto_pwminput
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>

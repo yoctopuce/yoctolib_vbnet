@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_temperature.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -82,13 +82,12 @@ Module yocto_temperature
 
   '''*
   ''' <summary>
-  '''   The YTemperature class allows you to read and configure Yoctopuce temperature
-  '''   sensors, for instance using a Yocto-Meteo-V2, a Yocto-Thermocouple, a Yocto-PT100 or a Yocto-Temperature.
+  '''   The <c>YTemperature</c> class allows you to read and configure Yoctopuce temperature sensors.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements, to
-  '''   register callback functions, to access the autonomous datalogger.
-  '''   This class adds the ability to configure some specific parameters for some
-  '''   sensors (connection type, temperature mapping table).
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
+  '''   This class adds the ability to configure some specific parameters
+  '''   for some sensors (connection type, temperature mapping table).
   ''' </para>
   ''' </summary>
   '''/
@@ -452,7 +451,7 @@ Module yocto_temperature
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>

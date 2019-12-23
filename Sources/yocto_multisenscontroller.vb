@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multisenscontroller.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_multisenscontroller.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindMultiSensController(), the high-level API for MultiSensController functions
 '
@@ -67,8 +67,8 @@ Module yocto_multisenscontroller
 
   '''*
   ''' <summary>
-  '''   The YMultiSensController class allows you to setup a customized
-  '''   sensor chain on devices featuring that functionality, for instance using a Yocto-Temperature-IR.
+  '''   The <c>YMultiSensController</c> class allows you to setup a customized
+  '''   sensor chain on devices featuring that functionality.
   ''' <para>
   ''' </para>
   ''' </summary>

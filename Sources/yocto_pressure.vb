@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pressure.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_pressure.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindPressure(), the high-level API for Pressure functions
 '
@@ -61,11 +61,10 @@ Module yocto_pressure
 
   '''*
   ''' <summary>
-  '''   The YPressure class allows you to read and configure Yoctopuce pressure
-  '''   sensors, for instance using a Yocto-Meteo-V2, a Yocto-Pressure, a Yocto-CO2-V2 or a Yocto-Altimeter-V2.
+  '''   The <c>YPressure</c> class allows you to read and configure Yoctopuce pressure sensors.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   to register callback functions, to access the autonomous datalogger.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
@@ -143,7 +142,7 @@ Module yocto_pressure
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the pressure sensor, for instance
-    '''   <c>METEOMK2.pressure</c>.
+    '''   <c>YALTIMK2.pressure</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YPressure</c> object allowing you to drive the pressure sensor.
@@ -217,7 +216,7 @@ Module yocto_pressure
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>
@@ -361,7 +360,7 @@ Module yocto_pressure
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the pressure sensor, for instance
-  '''   <c>METEOMK2.pressure</c>.
+  '''   <c>YALTIMK2.pressure</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YPressure</c> object allowing you to drive the pressure sensor.

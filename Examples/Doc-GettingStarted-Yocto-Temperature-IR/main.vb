@@ -37,28 +37,28 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      tsensor = yFirstTemperature()
+      tsensor = YTemperature.FirstTemperature()
       If tsensor Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
       Console.WriteLine("using:" + tsensor.get_module().get_serialNumber())
     Else
-      tsensor = yFindTemperature(target + ".temperature1")
+      tsensor = YTemperature.FindTemperature(target + ".temperature1")
     End If
 
     REM retreive module serial number
     serial = tsensor.get_module().get_serialNumber()
 
     REM retreive both channels
-    ch1 = yFindTemperature(serial + ".temperature1")
-    ch2 = yFindTemperature(serial + ".temperature2")
+    ch1 = YTemperature.FindTemperature(serial + ".temperature1")
+    ch2 = YTemperature.FindTemperature(serial + ".temperature2")
 
     While (True)
       If Not (tsensor.isOnline()) Then
@@ -68,9 +68,9 @@ Module Module1
       Console.Write("Ambiant: " + Str(ch1.get_currentValue()) + " °C  ")
       Console.Write("Infrared: " + Str(ch2.get_currentValue()) + " °C  ")
       Console.WriteLine("  (press Ctrl-C to exit)")
-      ySleep(1000, errmsg)
+      YAPI.Sleep(1000, errmsg)
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
   End Sub
 
 End Module

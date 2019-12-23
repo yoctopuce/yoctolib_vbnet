@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_digitalio.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_digitalio.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '
@@ -72,14 +72,14 @@ Module yocto_digitalio
 
   '''*
   ''' <summary>
-  '''   The YDigitalIO class allows you drive a Yoctopuce digital input/output port, for instance using a Yocto-Maxi-IO-V2 or a Yocto-IO.
+  '''   The <c>YDigitalIO</c> class allows you drive a Yoctopuce digital input/output port.
   ''' <para>
   '''   It can be used to setup the direction of each channel, to read the state of each channel
   '''   and to switch the state of each channel configures as an output.
   '''   You can work on all channels at once, or one by one. Most functions
   '''   use a binary representation for channels where bit 0 matches channel #0 , bit 1 matches channel
   '''   #1 and so on. If you are not familiar with numbers binary representation, you will find more
-  '''   information here: en.wikipedia.org/wiki/Binary_number#Representation. It is also possible
+  '''   information here: <c>https://en.wikipedia.org/wiki/Binary_number#Representation</c>. It is also possible
   '''   to automatically generate short pulses of a determined duration. Electrical behavior
   '''   of each I/O can be modified (open drain and reverse polarity).
   ''' </para>
@@ -576,7 +576,7 @@ Module yocto_digitalio
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the digital IO port, for instance
-    '''   <c>MAXIIO02.digitalIO</c>.
+    '''   <c>YMINIIO0.digitalIO</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YDigitalIO</c> object allowing you to drive the digital IO port.
@@ -1053,7 +1053,7 @@ Module yocto_digitalio
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the digital IO port, for instance
-  '''   <c>MAXIIO02.digitalIO</c>.
+  '''   <c>YMINIIO0.digitalIO</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YDigitalIO</c> object allowing you to drive the digital IO port.

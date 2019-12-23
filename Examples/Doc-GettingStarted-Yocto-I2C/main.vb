@@ -35,26 +35,26 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      i2cPort = yFirstI2cPort()
+      i2cPort = YI2cPort.FirstI2cPort()
       If i2cPort Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
       target = i2cPort.get_module().get_serialNumber()
     End If
-    i2cPort = yFindI2cPort(target + ".i2cPort")
+    i2cPort = YI2cPort.FindI2cPort(target + ".i2cPort")
 
     If (i2cPort.isOnline()) Then
       i2cPort.set_i2cMode("400kbps")
       i2cPort.set_i2cVoltageLevel(YI2cPort.I2CVOLTAGELEVEL_3V3)
       i2cPort.reset()
-      REM do not forget to configure the powerOutput and 
+      REM do not forget to configure the powerOutput and
       REM of the Yocto-I2C as well if used
       Console.WriteLine("****************************")
       Console.WriteLine("* make sure voltage levels *")

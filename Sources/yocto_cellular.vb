@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'* $Id: yocto_cellular.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -56,6 +56,11 @@ Module yocto_cellular
 
   REM --- (generated code: YCellRecord class start)
 
+  '''*
+  ''' <c>YCellRecord</c> objects are used to describe a wireless network.
+  ''' These objects are used in particular in conjunction with the
+  ''' <c>YCellular</c> class.
+  '''/
   Public Class YCellRecord
     REM --- (end of generated code: YCellRecord class start)
 
@@ -95,30 +100,110 @@ Module yocto_cellular
     REM --- (end of generated code: YCellRecord private methods declaration)
 
     REM --- (generated code: YCellRecord public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the name of the the cell operator, as received from the network.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string with the name of the the cell operator.
+    ''' </returns>
+    '''/
     Public Overridable Function get_cellOperator() As String
       Return Me._oper
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the Mobile Country Code (MCC).
+    ''' <para>
+    '''   The MCC is a unique identifier for each country.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the Mobile Country Code (MCC).
+    ''' </returns>
+    '''/
     Public Overridable Function get_mobileCountryCode() As Integer
       Return Me._mcc
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the Mobile Network Code (MNC).
+    ''' <para>
+    '''   The MNC is a unique identifier for each phone
+    '''   operator within a country.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the Mobile Network Code (MNC).
+    ''' </returns>
+    '''/
     Public Overridable Function get_mobileNetworkCode() As Integer
       Return Me._mnc
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the Location Area Code (LAC).
+    ''' <para>
+    '''   The LAC is a unique identifier for each
+    '''   place within a country.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the Location Area Code (LAC).
+    ''' </returns>
+    '''/
     Public Overridable Function get_locationAreaCode() As Integer
       Return Me._lac
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the Cell ID.
+    ''' <para>
+    '''   The Cell ID is a unique identifier for each
+    '''   base transmission station within a LAC.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the Cell Id.
+    ''' </returns>
+    '''/
     Public Overridable Function get_cellId() As Integer
       Return Me._cid
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the signal strength, measured in dBm.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the signal strength.
+    ''' </returns>
+    '''/
     Public Overridable Function get_signalStrength() As Integer
       Return Me._dbm
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the Timing Advance (TA).
+    ''' <para>
+    '''   The TA corresponds to the time necessary
+    '''   for the signal to reach the base station from the device.
+    '''   Each increment corresponds about to 550m of distance.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the Timing Advance (TA).
+    ''' </returns>
+    '''/
     Public Overridable Function get_timingAdvance() As Integer
       Return Me._tad
     End Function
@@ -178,9 +263,10 @@ Module yocto_cellular
 
   '''*
   ''' <summary>
-  '''   The YCellular class provides control over cellular network parameters
-  '''   and status for devices that are GSM-enabled, for instance using a YoctoHub-GSM-3G-NA, a YoctoHub-GSM-3G-EU or a YoctoHub-GSM-2G.
+  '''   The <c>YCellular</c> class provides control over cellular network parameters
+  '''   and status for devices that are GSM-enabled.
   ''' <para>
+  '''   Note that TCP/IP parameters are configured separately, using class <c>YNetwork</c>.
   ''' </para>
   ''' </summary>
   '''/
@@ -1038,7 +1124,7 @@ Module yocto_cellular
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the cellular interface, for instance
-    '''   <c>YHUBGSM4.cellular</c>.
+    '''   <c>YHUBGSM1.cellular</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YCellular</c> object allowing you to drive the cellular interface.
@@ -1320,7 +1406,7 @@ Module yocto_cellular
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a list of YCellRecords.
+    '''   a list of <c>YCellRecords</c>.
     ''' </returns>
     '''/
     Public Overridable Function quickCellSurvey() As List(Of YCellRecord)
@@ -1510,7 +1596,7 @@ Module yocto_cellular
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the cellular interface, for instance
-  '''   <c>YHUBGSM4.cellular</c>.
+  '''   <c>YHUBGSM1.cellular</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YCellular</c> object allowing you to drive the cellular interface.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-PWM-Rx
 '
@@ -44,25 +44,25 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
       REM  retreive any pwm input available
-      pwm = yFirstPwmInput()
+      pwm = YPwmInput.FirstPwmInput()
       If pwm Is Nothing Then Die("No module connected")
     Else
       REM retreive the first pwm input from the device given on command line
-      pwm = yFindPwmInput(target + ".pwminput1")
+      pwm = YPwmInput.FindPwmInput(target + ".pwminput1")
     End If
 
     REM we need to retreive both channels from the device.
     If (pwm.isOnline()) Then
       m = pwm.get_module()
-      pwm1 = yFindPwmInput(m.get_serialNumber() + ".pwmInput1")
-      pwm2 = yFindPwmInput(m.get_serialNumber() + ".pwmInput2")
+      pwm1 = YPwmInput.FindPwmInput(m.get_serialNumber() + ".pwmInput1")
+      pwm2 = YPwmInput.FindPwmInput(m.get_serialNumber() + ".pwmInput2")
     Else
       Die("Module not connected")
     End If
@@ -77,9 +77,9 @@ Module Module1
                                  + pwm2.get_pulseCounter().ToString() _
                                  + " pulse edges")
       Console.WriteLine("  (press Ctrl-C to exit)")
-      ySleep(1000, errmsg)
+      YAPI.Sleep(1000, errmsg)
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
     Die("Module not connected")
   End Sub
 End Module

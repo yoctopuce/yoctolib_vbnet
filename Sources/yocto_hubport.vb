@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_hubport.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_hubport.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindHubPort(), the high-level API for HubPort functions
 '
@@ -71,8 +71,8 @@ Module yocto_hubport
 
   '''*
   ''' <summary>
-  '''   The YHubPort class provides control over the power supply for every port
-  '''   on a YoctoHub, for instance using a YoctoHub-Ethernet, a YoctoHub-Wireless-g, a YoctoHub-Shield or a YoctoHub-GSM-3G-NA.
+  '''   The <c>YHubPort</c> class provides control over the power supply for slave ports
+  '''   on a YoctoHub.
   ''' <para>
   '''   It provide information about the device connected to it.
   '''   The logical name of a YHubPort is always automatically set to the
@@ -135,14 +135,14 @@ Module yocto_hubport
     REM --- (YHubPort public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns true if the Yocto-hub port is powered, false otherwise.
+    '''   Returns true if the YoctoHub port is powered, false otherwise.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to true if the Yocto-hub port is
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to true if the YoctoHub port is
     '''   powered, false otherwise
     ''' </returns>
     ''' <para>
@@ -163,7 +163,7 @@ Module yocto_hubport
 
     '''*
     ''' <summary>
-    '''   Changes the activation of the Yocto-hub port.
+    '''   Changes the activation of the YoctoHub port.
     ''' <para>
     '''   If the port is enabled, the
     '''   connected module is powered. Otherwise, port power is shut down.
@@ -172,7 +172,7 @@ Module yocto_hubport
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the activation of the Yocto-hub port
+    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the activation of the YoctoHub port
     ''' </param>
     ''' <para>
     ''' </para>
@@ -190,7 +190,7 @@ Module yocto_hubport
     End Function
     '''*
     ''' <summary>
-    '''   Returns the current state of the Yocto-hub port.
+    '''   Returns the current state of the YoctoHub port.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -198,7 +198,7 @@ Module yocto_hubport
     ''' </summary>
     ''' <returns>
     '''   a value among <c>Y_PORTSTATE_OFF</c>, <c>Y_PORTSTATE_OVRLD</c>, <c>Y_PORTSTATE_ON</c>,
-    '''   <c>Y_PORTSTATE_RUN</c> and <c>Y_PORTSTATE_PROG</c> corresponding to the current state of the Yocto-hub port
+    '''   <c>Y_PORTSTATE_RUN</c> and <c>Y_PORTSTATE_PROG</c> corresponding to the current state of the YoctoHub port
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_PORTSTATE_INVALID</c>.
@@ -217,7 +217,7 @@ Module yocto_hubport
 
     '''*
     ''' <summary>
-    '''   Returns the current baud rate used by this Yocto-hub port, in kbps.
+    '''   Returns the current baud rate used by this YoctoHub port, in kbps.
     ''' <para>
     '''   The default value is 1000 kbps, but a slower rate may be used if communication
     '''   problems are encountered.
@@ -226,7 +226,7 @@ Module yocto_hubport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the current baud rate used by this Yocto-hub port, in kbps
+    '''   an integer corresponding to the current baud rate used by this YoctoHub port, in kbps
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_BAUDRATE_INVALID</c>.
@@ -245,7 +245,7 @@ Module yocto_hubport
 
     '''*
     ''' <summary>
-    '''   Retrieves a Yocto-hub port for a given identifier.
+    '''   Retrieves a YoctoHub slave port for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -269,11 +269,11 @@ Module yocto_hubport
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the Yocto-hub port is online at the time
+    '''   This function does not require that the YoctoHub slave port is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YHubPort.isOnline()</c> to test if the Yocto-hub port is
+    '''   Use the method <c>YHubPort.isOnline()</c> to test if the YoctoHub slave port is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a Yocto-hub port by logical name, no error is notified: the first instance
+    '''   a YoctoHub slave port by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -286,11 +286,11 @@ Module yocto_hubport
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the Yocto-hub port, for instance
+    '''   a string that uniquely characterizes the YoctoHub slave port, for instance
     '''   <c>YHUBETH1.hubPort1</c>.
     ''' </param>
     ''' <returns>
-    '''   a <c>YHubPort</c> object allowing you to drive the Yocto-hub port.
+    '''   a <c>YHubPort</c> object allowing you to drive the YoctoHub slave port.
     ''' </returns>
     '''/
     Public Shared Function FindHubPort(func As String) As YHubPort
@@ -351,17 +351,17 @@ Module yocto_hubport
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of Yocto-hub ports started using <c>yFirstHubPort()</c>.
+    '''   Continues the enumeration of YoctoHub slave ports started using <c>yFirstHubPort()</c>.
     ''' <para>
-    '''   Caution: You can't make any assumption about the returned Yocto-hub ports order.
-    '''   If you want to find a specific a Yocto-hub port, use <c>HubPort.findHubPort()</c>
+    '''   Caution: You can't make any assumption about the returned YoctoHub slave ports order.
+    '''   If you want to find a specific a YoctoHub slave port, use <c>HubPort.findHubPort()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YHubPort</c> object, corresponding to
-    '''   a Yocto-hub port currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more Yocto-hub ports to enumerate.
+    '''   a YoctoHub slave port currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more YoctoHub slave ports to enumerate.
     ''' </returns>
     '''/
     Public Function nextHubPort() As YHubPort
@@ -377,15 +377,15 @@ Module yocto_hubport
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of Yocto-hub ports currently accessible.
+    '''   Starts the enumeration of YoctoHub slave ports currently accessible.
     ''' <para>
     '''   Use the method <c>YHubPort.nextHubPort()</c> to iterate on
-    '''   next Yocto-hub ports.
+    '''   next YoctoHub slave ports.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YHubPort</c> object, corresponding to
-    '''   the first Yocto-hub port currently online, or a <c>Nothing</c> pointer
+    '''   the first YoctoHub slave port currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -424,7 +424,7 @@ Module yocto_hubport
 
   '''*
   ''' <summary>
-  '''   Retrieves a Yocto-hub port for a given identifier.
+  '''   Retrieves a YoctoHub slave port for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -448,11 +448,11 @@ Module yocto_hubport
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the Yocto-hub port is online at the time
+  '''   This function does not require that the YoctoHub slave port is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YHubPort.isOnline()</c> to test if the Yocto-hub port is
+  '''   Use the method <c>YHubPort.isOnline()</c> to test if the YoctoHub slave port is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a Yocto-hub port by logical name, no error is notified: the first instance
+  '''   a YoctoHub slave port by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -465,11 +465,11 @@ Module yocto_hubport
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the Yocto-hub port, for instance
+  '''   a string that uniquely characterizes the YoctoHub slave port, for instance
   '''   <c>YHUBETH1.hubPort1</c>.
   ''' </param>
   ''' <returns>
-  '''   a <c>YHubPort</c> object allowing you to drive the Yocto-hub port.
+  '''   a <c>YHubPort</c> object allowing you to drive the YoctoHub slave port.
   ''' </returns>
   '''/
   Public Function yFindHubPort(ByVal func As String) As YHubPort
@@ -478,15 +478,15 @@ Module yocto_hubport
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of Yocto-hub ports currently accessible.
+  '''   Starts the enumeration of YoctoHub slave ports currently accessible.
   ''' <para>
   '''   Use the method <c>YHubPort.nextHubPort()</c> to iterate on
-  '''   next Yocto-hub ports.
+  '''   next YoctoHub slave ports.
   ''' </para>
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YHubPort</c> object, corresponding to
-  '''   the first Yocto-hub port currently online, or a <c>Nothing</c> pointer
+  '''   the first YoctoHub slave port currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

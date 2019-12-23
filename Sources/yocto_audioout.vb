@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_audioout.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_audioout.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindAudioOut(), the high-level API for AudioOut functions
 '
@@ -68,7 +68,7 @@ Module yocto_audioout
 
   '''*
   ''' <summary>
-  '''   The YAudioOut class allows you to configure the volume of an audio outout.
+  '''   The <c>YAudioOut</c> class allows you to configure the volume of an audio output.
   ''' <para>
   ''' </para>
   ''' </summary>

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-Buzzer
 '
@@ -39,28 +39,28 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      buz = yFirstBuzzer()
+      buz = YBuzzer.FirstBuzzer()
       If buz Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
     Else
-      buz = yFindBuzzer(target + ".buzzer")
+      buz = YBuzzer.FindBuzzer(target + ".buzzer")
     End If
 
     If (buz.isOnline()) Then
       Console.WriteLine("press any test button or hit Ctrl-C")
       serial = buz.get_module().get_serialNumber()
-      led1 = yFindLed(serial + ".led1")
-      led2 = yFindLed(serial + ".led2")
-      button1 = yFindAnButton(serial + ".anButton1")
-      button2 = yFindAnButton(serial + ".anButton2")
+      led1 = YLed.FindLed(serial + ".led1")
+      led2 = YLed.FindLed(serial + ".led2")
+      button1 = YAnButton.FindAnButton(serial + ".anButton1")
+      button2 = YAnButton.FindAnButton(serial + ".anButton2")
 
       While (True)
         b1 = button1.get_isPressed() = YAnButton.ISPRESSED_TRUE
@@ -80,7 +80,7 @@ Module Module1
           For i = 0 To 4    REM this can be done using sequence as well
             buz.set_frequency(freq)
             buz.freqMove(2 * freq, 250)
-            ySleep(250, errmsg)
+            YAPI.Sleep(250, errmsg)
           Next i
           buz.set_frequency(0)
           led.set_power(Y_POWER_OFF)
@@ -89,7 +89,7 @@ Module Module1
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If
-    yFreeAPI()
+    YAPI.FreeAPI()
   End Sub
 
 End Module

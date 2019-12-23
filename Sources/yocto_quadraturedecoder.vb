@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_quadraturedecoder.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_quadraturedecoder.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '
@@ -65,11 +65,10 @@ Module yocto_quadraturedecoder
 
   '''*
   ''' <summary>
-  '''   The YQuadratureDecoder class allows you to decode a two-wire signal produced by a
-  '''   quadrature encoder, for instance using a Yocto-PWM-Rx.
+  '''   The <c>YQuadratureDecoder</c> class allows you to read and configure Yoctopuce quadrature decoders.
   ''' <para>
-  '''   It inherits from YSensor class the core functions to read measurements,
-  '''   to register callback functions, to access the autonomous datalogger.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
@@ -344,7 +343,7 @@ Module yocto_quadraturedecoder
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>

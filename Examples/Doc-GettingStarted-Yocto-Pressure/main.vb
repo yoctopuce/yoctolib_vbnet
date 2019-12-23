@@ -37,20 +37,20 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      psensor = yFirstPressure()
+      psensor = YPressure.FirstPressure()
 
       If psensor Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
     Else
-      psensor = yFindPressure(target + ".pressure")
+      psensor = YPressure.FindPressure(target + ".pressure")
     End If
 
     While (True)
@@ -61,9 +61,9 @@ Module Module1
       Console.WriteLine("Current pressure: " + Str(psensor.get_currentValue()) _
                         + " mbar")
       Console.WriteLine("  (press Ctrl-C to exit)")
-      ySleep(1000, errmsg)
+      YAPI.Sleep(1000, errmsg)
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
   End Sub
 
 End Module

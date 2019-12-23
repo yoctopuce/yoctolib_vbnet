@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_longitude.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_longitude.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindLongitude(), the high-level API for Longitude functions
 '
@@ -61,12 +61,10 @@ Module yocto_longitude
 
   '''*
   ''' <summary>
-  '''   The YLongitude class allows you to read the longitude from Yoctopuce
-  '''   geolocation sensors, for instance using a Yocto-GPS.
+  '''   The <c>YLongitude</c> class allows you to read and configure Yoctopuce longitude sensors.
   ''' <para>
-  '''   It inherits from the YSensor class the core functions to
-  '''   read measurements, register callback functions, access the autonomous
-  '''   datalogger.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
@@ -218,7 +216,7 @@ Module yocto_longitude
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>

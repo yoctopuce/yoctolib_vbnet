@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-Altimeter
 '
@@ -38,24 +38,24 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      asensor = yFirstAltitude()
-      tsensor = yFirstTemperature()
-      psensor = yFirstPressure()
+      asensor = YAltitude.FirstAltitude()
+      tsensor = YTemperature.FirstTemperature()
+      psensor = YPressure.FirstPressure()
 
       If asensor Is Nothing Or tsensor Is Nothing Or psensor Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
     Else
-      asensor = yFindAltitude(target + ".altitude")
-      tsensor = yFindTemperature(target + ".temperature")
-      psensor = yFindPressure(target + ".pressure")
+      asensor = YAltitude.FindAltitude(target + ".altitude")
+      tsensor = YTemperature.FindTemperature(target + ".temperature")
+      psensor = YPressure.FindPressure(target + ".pressure")
     End If
 
     While (True)
@@ -70,9 +70,9 @@ Module Module1
       Console.WriteLine("Current temperature: " + Str(tsensor.get_currentValue()) _
                         + " °C")
       Console.WriteLine("  (press Ctrl-C to exit)")
-      ySleep(1000, errmsg)
+      YAPI.Sleep(1000, errmsg)
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
   End Sub
 
 End Module

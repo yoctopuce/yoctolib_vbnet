@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-PWM-Tx
 '
@@ -42,21 +42,21 @@ Module Module1
     dutyCycle = CDbl(argv(3))
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      pwmoutput1 = yFirstPwmOutput()
+      pwmoutput1 = YPwmOutput.FirstPwmOutput()
       If pwmoutput1 Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
       target = pwmoutput1.get_Module().get_serialNumber()
     End If
-    pwmoutput1 = yFindPwmOutput(target + ".pwmOutput1")
-    pwmoutput2 = yFindPwmOutput(target + ".pwmOutput2")
+    pwmoutput1 = YPwmOutput.FindPwmOutput(target + ".pwmOutput1")
+    pwmoutput2 = YPwmOutput.FindPwmOutput(target + ".pwmOutput2")
 
     If (pwmoutput1.isOnline()) Then
       REM output 1 : immediate change
@@ -70,7 +70,7 @@ Module Module1
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If
-    yFreeAPI()
+    YAPI.FreeAPI()
   End Sub
 
 End Module

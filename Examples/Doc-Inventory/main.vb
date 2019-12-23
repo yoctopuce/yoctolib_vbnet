@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  Doc-Inventory example
 '
@@ -17,18 +17,18 @@ Module Module1
     Dim errmsg As String = ""
 
     REM Setup the API to use local USB devices
-    If yRegisterHub("usb", errmsg) <> YAPI_SUCCESS Then
+    If YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     Console.WriteLine("Device list")
-    M = yFirstModule()
+    M = YModule.FirstModule()
     While M IsNot Nothing
       Console.WriteLine(M.get_serialNumber() + " (" + M.get_productName() + ")")
       M = M.nextModule()
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
   End Sub
 
 End Module

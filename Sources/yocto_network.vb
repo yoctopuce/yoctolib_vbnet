@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_network.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -106,12 +106,8 @@ Module yocto_network
   REM --- (YNetwork class start)
 
   '''*
-  ''' <summary>
-  '''   YNetwork objects provide access to TCP/IP parameters of Yoctopuce
-  '''   devices that include a built-in network interface, for instance using a YoctoHub-Ethernet, a YoctoHub-Wireless-g, a YoctoHub-GSM-3G-NA or a YoctoHub-GSM-3G-EU.
-  ''' <para>
-  ''' </para>
-  ''' </summary>
+  ''' <c>YNetwork</c> objects provide access to TCP/IP parameters of Yoctopuce
+  ''' devices that include a built-in network interface.
   '''/
   Public Class YNetwork
     Inherits YFunction

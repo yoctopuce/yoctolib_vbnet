@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-SPI
 '
@@ -40,20 +40,20 @@ Module Module1
     value = CInt(argv(2))
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      spiPort = yFirstSpiPort()
+      spiPort = YSpiPort.FirstSpiPort()
       If spiPort Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
       target = spiPort.get_module().get_serialNumber()
     End If
-    spiPort = yFindSpiPort(target + ".spiPort")
+    spiPort = YSpiPort.FindSpiPort(target + ".spiPort")
 
     If (spiPort.isOnline()) Then
       spiPort.set_spiMode("250000,3,msb")

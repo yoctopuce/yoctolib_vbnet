@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_segmenteddisplay.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_segmenteddisplay.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindSegmentedDisplay(), the high-level API for SegmentedDisplay functions
 '
@@ -67,7 +67,7 @@ Module yocto_segmenteddisplay
 
   '''*
   ''' <summary>
-  '''   The SegmentedDisplay class allows you to drive segmented displays.
+  '''   The <c>SegmentedDisplay</c> class allows you to drive segmented displays.
   ''' <para>
   ''' </para>
   ''' </summary>
@@ -211,9 +211,9 @@ Module yocto_segmenteddisplay
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the segmented displays is online at the time
+    '''   This function does not require that the segmented display is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YSegmentedDisplay.isOnline()</c> to test if the segmented displays is
+    '''   Use the method <c>YSegmentedDisplay.isOnline()</c> to test if the segmented display is
     '''   indeed online at a given time. In case of ambiguity when looking for
     '''   a segmented display by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
@@ -228,11 +228,11 @@ Module yocto_segmenteddisplay
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the segmented displays, for instance
+    '''   a string that uniquely characterizes the segmented display, for instance
     '''   <c>MyDevice.segmentedDisplay</c>.
     ''' </param>
     ''' <returns>
-    '''   a <c>YSegmentedDisplay</c> object allowing you to drive the segmented displays.
+    '''   a <c>YSegmentedDisplay</c> object allowing you to drive the segmented display.
     ''' </returns>
     '''/
     Public Shared Function FindSegmentedDisplay(func As String) As YSegmentedDisplay
@@ -327,7 +327,7 @@ Module yocto_segmenteddisplay
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YSegmentedDisplay</c> object, corresponding to
-    '''   the first segmented displays currently online, or a <c>Nothing</c> pointer
+    '''   the first segmented display currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
@@ -390,9 +390,9 @@ Module yocto_segmenteddisplay
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the segmented displays is online at the time
+  '''   This function does not require that the segmented display is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YSegmentedDisplay.isOnline()</c> to test if the segmented displays is
+  '''   Use the method <c>YSegmentedDisplay.isOnline()</c> to test if the segmented display is
   '''   indeed online at a given time. In case of ambiguity when looking for
   '''   a segmented display by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
@@ -407,11 +407,11 @@ Module yocto_segmenteddisplay
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the segmented displays, for instance
+  '''   a string that uniquely characterizes the segmented display, for instance
   '''   <c>MyDevice.segmentedDisplay</c>.
   ''' </param>
   ''' <returns>
-  '''   a <c>YSegmentedDisplay</c> object allowing you to drive the segmented displays.
+  '''   a <c>YSegmentedDisplay</c> object allowing you to drive the segmented display.
   ''' </returns>
   '''/
   Public Function yFindSegmentedDisplay(ByVal func As String) As YSegmentedDisplay
@@ -428,7 +428,7 @@ Module yocto_segmenteddisplay
   ''' </summary>
   ''' <returns>
   '''   a pointer to a <c>YSegmentedDisplay</c> object, corresponding to
-  '''   the first segmented displays currently online, or a <c>Nothing</c> pointer
+  '''   the first segmented display currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/

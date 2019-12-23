@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_tilt.vb 38030 2019-11-04 17:56:01Z mvuilleu $
+'  $Id: yocto_tilt.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindTilt(), the high-level API for Tilt functions
 '
@@ -66,7 +66,7 @@ Module yocto_tilt
 
   '''*
   ''' <summary>
-  '''   The YSensor class is the parent class for all Yoctopuce sensor types.
+  '''   The <c>YSensor</c> class is the parent class for all Yoctopuce sensor types.
   ''' <para>
   '''   It can be
   '''   used to read the current value and unit of any sensor, read the min/max
@@ -75,8 +75,8 @@ Module yocto_tilt
   '''   observed value changes, or at a predefined interval. Using this class rather
   '''   than a specific subclass makes it possible to create generic applications
   '''   that work with any Yoctopuce sensor, even those that do not yet exist.
-  '''   Note: The YAnButton class is the only analog input which does not inherit
-  '''   from YSensor.
+  '''   Note: The <c>YAnButton</c> class is the only analog input which does not inherit
+  '''   from <c>YSensor</c>.
   ''' </para>
   ''' </summary>
   '''/
@@ -310,7 +310,7 @@ Module yocto_tilt
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>

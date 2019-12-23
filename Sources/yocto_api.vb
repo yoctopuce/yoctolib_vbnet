@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 38137 2019-11-14 10:23:36Z seb $
+'* $Id: yocto_api.vb 38914 2019-12-20 19:14:33Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "38168"
+  Public Const YOCTO_API_BUILD_NO As String = "38914"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -897,8 +897,8 @@ Module yocto_api
     ''' <para>
     '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
-    '''   but depending or you network you may want to change this delay.
-    '''   For example if your network infrastructure uses a GSM connection.
+    '''   but depending or you network you may want to change this delay,
+    '''   gor example if your network infrastructure is based on a GSM connection.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -918,8 +918,8 @@ Module yocto_api
     ''' <para>
     '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
-    '''   but depending or you network you may want to change this delay.
-    '''   For example if your network infrastructure uses a GSM connection.
+    '''   but depending or you network you may want to change this delay,
+    '''   for example if your network infrastructure is based on a GSM connection.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -943,8 +943,6 @@ Module yocto_api
     '''   does not affect value change callbacks
     '''   Note: This function must be called after <c>yInitAPI</c>.
     ''' </para>
-    ''' <para>
-    ''' </para>
     ''' </summary>
     ''' <param name="cacheValidityMs">
     '''   an integer corresponding to the validity attributed to the
@@ -963,8 +961,6 @@ Module yocto_api
     '''   This method returns the cache validity of all attributes
     '''   module functions.
     '''   Note: This function must be called after <c>yInitAPI </c>.
-    ''' </para>
-    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -1499,8 +1495,8 @@ Module yocto_api
     ''' <para>
     '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
-    '''   but depending or you network you may want to change this delay.
-    '''   For example if your network infrastructure uses a GSM connection.
+    '''   but depending or you network you may want to change this delay,
+    '''   gor example if your network infrastructure is based on a GSM connection.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -1519,8 +1515,8 @@ Module yocto_api
     ''' <para>
     '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
-    '''   but depending or you network you may want to change this delay.
-    '''   For example if your network infrastructure uses a GSM connection.
+    '''   but depending or you network you may want to change this delay,
+    '''   for example if your network infrastructure is based on a GSM connection.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -1541,8 +1537,6 @@ Module yocto_api
     '''   does not affect value change callbacks
     '''   Note: This function must be called after <c>yInitAPI</c>.
     ''' </para>
-    ''' <para>
-    ''' </para>
     ''' </summary>
     ''' <param name="cacheValidityMs">
     '''   an integer corresponding to the validity attributed to the
@@ -1560,8 +1554,6 @@ Module yocto_api
     '''   This method returns the cache validity of all attributes
     '''   module functions.
     '''   Note: This function must be called after <c>yInitAPI </c>.
-    ''' </para>
-    ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -1801,10 +1793,10 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Fault-tolerant alternative to <c>RegisterHub()</c>.
+    '''   Fault-tolerant alternative to <c>yRegisterHub()</c>.
     ''' <para>
     '''   This function has the same
-    '''   purpose and same arguments as <c>RegisterHub()</c>, but does not trigger
+    '''   purpose and same arguments as <c>yRegisterHub()</c>, but does not trigger
     '''   an error when the selected hub is not available at the time of the function call.
     '''   This makes it possible to register a network hub independently of the current
     '''   connectivity, and to try to contact it only when a device is actively needed.
@@ -1865,7 +1857,7 @@ Module yocto_api
     '''   Test if the hub is reachable.
     ''' <para>
     '''   This method do not register the hub, it only test if the
-    '''   hub is usable. The url parameter follow the same convention as the <c>RegisterHub</c>
+    '''   hub is usable. The url parameter follow the same convention as the <c>yRegisterHub</c>
     '''   method. This method is useful to verify the authentication parameters for a hub. It
     '''   is possible to force this method to return after mstimeout milliseconds.
     ''' </para>
@@ -2506,11 +2498,11 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   The YFirmwareUpdate class let you control the firmware update of a Yoctopuce
+  '''   The <c>YFirmwareUpdate</c> class let you control the firmware update of a Yoctopuce
   '''   module.
   ''' <para>
-  '''   This class should not be instantiate directly, instead the method
-  '''   <c>updateFirmware</c> should be called to get an instance of YFirmwareUpdate.
+  '''   This class should not be instantiate directly, but instances should be retrieved
+  '''   using the <c>YModule</c> method <c>module.updateFirmware</c>.
   ''' </para>
   ''' </summary>
   '''/
@@ -2830,20 +2822,16 @@ Module yocto_api
   REM --- (generated code: YDataStream class start)
 
   '''*
-  ''' <summary>
-  '''   YDataStream objects represent bare recorded measure sequences,
-  '''   exactly as found within the data logger present on Yoctopuce
-  '''   sensors.
+  ''' <c>DataStream</c> objects represent bare recorded measure sequences,
+  ''' exactly as found within the data logger present on Yoctopuce
+  ''' sensors.
   ''' <para>
-  ''' </para>
-  ''' <para>
-  '''   In most cases, it is not necessary to use YDataStream objects
-  '''   directly, as the YDataSet objects (returned by the
+  '''   In most cases, it is not necessary to use <c>DataStream</c> objects
+  '''   directly, as the <c>DataSet</c> objects (returned by the
   '''   <c>get_recordedData()</c> method from sensors and the
   '''   <c>get_dataSets()</c> method from the data logger) provide
   '''   a more convenient interface.
   ''' </para>
-  ''' </summary>
   '''/
   Public Class YDataStream
     REM --- (end of generated code: YDataStream class start)
@@ -3465,14 +3453,11 @@ Module yocto_api
   REM --- (generated code: YMeasure class start)
 
   '''*
-  ''' <summary>
-  '''   YMeasure objects are used within the API to represent
-  '''   a value measured at a specified time.
-  ''' <para>
-  '''   These objects are
-  '''   used in particular in conjunction with the YDataSet class.
-  ''' </para>
-  ''' </summary>
+  ''' <c>YMeasure</c> objects are used within the API to represent
+  ''' a value measured at a specified time. These objects are
+  ''' used in particular in conjunction with the <c>YDataSet</c> class,
+  ''' but also for sensors periodic timed reports
+  ''' (see <c>sensor.registerTimedReportCallback</c>).
   '''/
   Public Class YMeasure
     REM --- (end of generated code: YMeasure class start)
@@ -3525,7 +3510,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an floating point number corresponding to the number of seconds
+    '''   a floating point number corresponding to the number of seconds
     '''   between the Jan 1, 1970 UTC and the beginning of this measure.
     ''' </returns>
     '''/
@@ -3545,7 +3530,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an floating point number corresponding to the number of seconds
+    '''   a floating point number corresponding to the number of seconds
     '''   between the Jan 1, 1970 UTC and the end of this measure.
     ''' </returns>
     '''/
@@ -3626,17 +3611,13 @@ Module yocto_api
   REM --- (generated code: YDataSet class start)
 
   '''*
-  ''' <summary>
-  '''   YDataSet objects make it possible to retrieve a set of recorded measures
-  '''   for a given sensor and a specified time interval.
-  ''' <para>
-  '''   They can be used
-  '''   to load data points with a progress report. When the YDataSet object is
-  '''   instantiated by the <c>get_recordedData()</c>  function, no data is
-  '''   yet loaded from the module. It is only when the <c>loadMore()</c>
-  '''   method is called over and over than data will be effectively loaded
-  '''   from the dataLogger.
-  ''' </para>
+  ''' <c>YDataSet</c> objects make it possible to retrieve a set of recorded measures
+  ''' for a given sensor and a specified time interval. They can be used
+  ''' to load data points with a progress report. When the <c>YDataSet</c> object is
+  ''' instantiated by the <c>sensor.get_recordedData()</c>  function, no data is
+  ''' yet loaded from the module. It is only when the <c>loadMore()</c>
+  ''' method is called over and over than data will be effectively loaded
+  ''' from the dataLogger.
   ''' <para>
   '''   A preview of available measures is available using the function
   '''   <c>get_preview()</c> as soon as <c>loadMore()</c> has been called
@@ -3644,10 +3625,9 @@ Module yocto_api
   '''   when loaded by subsequent calls to <c>loadMore()</c>.
   ''' </para>
   ''' <para>
-  '''   This class can only be used on devices that use a recent firmware,
-  '''   as YDataSet objects are not supported by firmwares older than version 13000.
+  '''   This class can only be used on devices that use a relatively recent firmware,
+  '''   as <c>YDataSet</c> objects are not supported by firmwares older than version 13000.
   ''' </para>
-  ''' </summary>
   '''/
   Public Class YDataSet
     REM --- (end of generated code: YDataSet class start)
@@ -4083,7 +4063,7 @@ Module yocto_api
     ''' <summary>
     '''   Returns the start time of the dataset, relative to the Jan 1, 1970.
     ''' <para>
-    '''   When the YDataSet is created, the start time is the value passed
+    '''   When the <c>YDataSet</c> object is created, the start time is the value passed
     '''   in parameter to the <c>get_dataSet()</c> function. After the
     '''   very first call to <c>loadMore()</c>, the start time is updated
     '''   to reflect the timestamp of the first measure actually found in the
@@ -4091,7 +4071,7 @@ Module yocto_api
     ''' </para>
     ''' <para>
     '''   <b>DEPRECATED</b>: This method has been replaced by <c>get_summary()</c>
-    '''   which contain more precise informations on the YDataSet.
+    '''   which contain more precise informations.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -4114,7 +4094,7 @@ Module yocto_api
     ''' <summary>
     '''   Returns the end time of the dataset, relative to the Jan 1, 1970.
     ''' <para>
-    '''   When the YDataSet is created, the end time is the value passed
+    '''   When the <c>YDataSet</c> object is created, the end time is the value passed
     '''   in parameter to the <c>get_dataSet()</c> function. After the
     '''   very first call to <c>loadMore()</c>, the end time is updated
     '''   to reflect the timestamp of the last measure actually found in the
@@ -4122,9 +4102,7 @@ Module yocto_api
     ''' </para>
     ''' <para>
     '''   <b>DEPRECATED</b>: This method has been replaced by <c>get_summary()</c>
-    '''   which contain more precise informations on the YDataSet.
-    ''' </para>
-    ''' <para>
+    '''   which contain more precise informations.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -4215,8 +4193,8 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns an YMeasure object which summarizes the whole
-    '''   DataSet.
+    '''   Returns an <c>YMeasure</c> object which summarizes the whole
+    '''   <c>YDataSet</c>.
     ''' <para>
     '''   In includes the following information:
     '''   - the start of a time interval
@@ -4233,7 +4211,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an YMeasure object
+    '''   an <c>YMeasure</c> object
     ''' </returns>
     '''/
     Public Overridable Function get_summary() As YMeasure
@@ -4243,7 +4221,7 @@ Module yocto_api
     '''*
     ''' <summary>
     '''   Returns a condensed version of the measures that can
-    '''   retrieved in this YDataSet, as a list of YMeasure
+    '''   retrieved in this <c>YDataSet</c>, as a list of <c>YMeasure</c>
     '''   objects.
     ''' <para>
     '''   Each item includes:
@@ -4277,7 +4255,7 @@ Module yocto_api
     '''   Returns the detailed set of measures for the time interval corresponding
     '''   to a given condensed measures previously returned by <c>get_preview()</c>.
     ''' <para>
-    '''   The result is provided as a list of YMeasure objects.
+    '''   The result is provided as a list of <c>YMeasure</c> objects.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -4354,7 +4332,7 @@ Module yocto_api
     '''*
     ''' <summary>
     '''   Returns all measured values currently available for this DataSet,
-    '''   as a list of YMeasure objects.
+    '''   as a list of <c>YMeasure</c> objects.
     ''' <para>
     '''   Each item includes:
     '''   - the start of the measure time interval
@@ -4404,14 +4382,10 @@ Module yocto_api
   REM --- (generated code: YConsolidatedDataSet class start)
 
   '''*
-  ''' <summary>
-  '''   YConsolidatedDataSet objects make it possible to retrieve a set of
-  '''   recorded measures from multiple sensors, for a specified time interval.
-  ''' <para>
-  '''   They can be used to load data points progressively, and to receive
-  '''   data records by timestamp, one by one..
-  ''' </para>
-  ''' </summary>
+  ''' <c>YConsolidatedDataSet</c> objects make it possible to retrieve a set of
+  ''' recorded measures from multiple sensors, for a specified time interval.
+  ''' They can be used to load data points progressively, and to receive
+  ''' data records by timestamp, one by one..
   '''/
   Public Class YConsolidatedDataSet
     REM --- (end of generated code: YConsolidatedDataSet class start)
@@ -4459,7 +4433,63 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Extracts the next data record from the dataLogger of all sensors linked to this
+    '''   Returns an object holding historical data for multiple
+    '''   sensors, for a specified time interval.
+    ''' <para>
+    '''   The measures will be retrieved from the data logger, which must have been turned
+    '''   on at the desired time. The resulting object makes it possible to load progressively
+    '''   a large set of measures from multiple sensors, consolidating data on the fly
+    '''   to align records based on measurement timestamps.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="sensorNames">
+    '''   array of logical names or hardware identifiers of the sensors
+    '''   for which data must be loaded from their data logger.
+    ''' </param>
+    ''' <param name="startTime">
+    '''   the start of the desired measure time interval,
+    '''   as a Unix timestamp, i.e. the number of seconds since
+    '''   January 1, 1970 UTC. The special value 0 can be used
+    '''   to include any measure, without initial limit.
+    ''' </param>
+    ''' <param name="endTime">
+    '''   the end of the desired measure time interval,
+    '''   as a Unix timestamp, i.e. the number of seconds since
+    '''   January 1, 1970 UTC. The special value 0 can be used
+    '''   to include any measure, without ending limit.
+    ''' </param>
+    ''' <returns>
+    '''   an instance of <c>YConsolidatedDataSet</c>, providing access to
+    '''   consolidated historical data. Records can be loaded progressively
+    '''   using the <c>YConsolidatedDataSet.nextRecord()</c> method.
+    ''' </returns>
+    '''/
+    Public Shared Function Init(sensorNames As List(Of String), startTime As Double, endTime As Double) As YConsolidatedDataSet
+      Dim nSensors As Integer = 0
+      Dim sensorList As List(Of YSensor) = New List(Of YSensor)()
+      Dim idx As Integer = 0
+      Dim sensorName As String
+      Dim s As YSensor
+      Dim obj As YConsolidatedDataSet
+      nSensors = sensorNames.Count
+      sensorList.Clear()
+      idx = 0
+      While (idx < nSensors)
+        sensorName = sensorNames(idx)
+        s = YSensor.FindSensor(sensorName)
+        sensorList.Add(s)
+        idx = idx + 1
+      End While
+
+      obj = New YConsolidatedDataSet(startTime, endTime, sensorList)
+      Return obj
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Extracts the next data record from the data logger of all sensors linked to this
     '''   object.
     ''' <para>
     ''' </para>
@@ -6421,7 +6451,7 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   The YModule class can be used with all Yoctopuce USB devices.
+  '''   The <c>YModule</c> class can be used with all Yoctopuce USB devices.
   ''' <para>
   '''   It can be used to control the module global parameters, and
   '''   to enumerate the functions provided by each module.
@@ -8907,7 +8937,7 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   The YSensor class is the parent class for all Yoctopuce sensor types.
+  '''   The <c>YSensor</c> class is the parent class for all Yoctopuce sensor types.
   ''' <para>
   '''   It can be
   '''   used to read the current value and unit of any sensor, read the min/max
@@ -8916,8 +8946,8 @@ Module yocto_api
   '''   observed value changes, or at a predefined interval. Using this class rather
   '''   than a specific subclass makes it possible to create generic applications
   '''   that work with any Yoctopuce sensor, even those that do not yet exist.
-  '''   Note: The YAnButton class is the only analog input which does not inherit
-  '''   from YSensor.
+  '''   Note: The <c>YAnButton</c> class is the only analog input which does not inherit
+  '''   from <c>YSensor</c>.
   ''' </para>
   ''' </summary>
   '''/
@@ -9781,17 +9811,17 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the YDatalogger object of the device hosting the sensor.
+    '''   Returns the <c>YDatalogger</c> object of the device hosting the sensor.
     ''' <para>
-    '''   This method returns an object of
-    '''   class YDatalogger that can control global parameters of the data logger. The returned object
+    '''   This method returns an object
+    '''   that can control global parameters of the data logger. The returned object
     '''   should not be freed.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an YDataLogger object or Nothing on error.
+    '''   an <c>YDatalogger</c> object, or Nothing on error.
     ''' </returns>
     '''/
     Public Overridable Function get_dataLogger() As YDataLogger
@@ -9857,19 +9887,19 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Retrieves a DataSet object holding historical data for this
+    '''   Retrieves a <c>YDataSet</c> object holding historical data for this
     '''   sensor, for a specified time interval.
     ''' <para>
     '''   The measures will be
     '''   retrieved from the data logger, which must have been turned
-    '''   on at the desired time. See the documentation of the DataSet
+    '''   on at the desired time. See the documentation of the <c>YDataSet</c>
     '''   class for information on how to get an overview of the
     '''   recorded data, and how to load progressively a large set
     '''   of measures from the data logger.
     ''' </para>
     ''' <para>
     '''   This function only works if the device uses a recent firmware,
-    '''   as DataSet objects are not supported by firmwares older than
+    '''   as <c>YDataSet</c> objects are not supported by firmwares older than
     '''   version 13000.
     ''' </para>
     ''' <para>
@@ -9888,9 +9918,9 @@ Module yocto_api
     '''   to include any measure, without ending limit.
     ''' </param>
     ''' <returns>
-    '''   an instance of YDataSet, providing access to historical
+    '''   an instance of <c>YDataSet</c>, providing access to historical
     '''   data. Past measures can be loaded progressively
-    '''   using methods from the YDataSet object.
+    '''   using methods from the <c>YDataSet</c> object.
     ''' </returns>
     '''/
     Public Overridable Function get_recordedData(startTime As Double, endTime As Double) As YDataSet
@@ -9915,7 +9945,7 @@ Module yocto_api
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>
@@ -10378,11 +10408,11 @@ Module yocto_api
   '''*
   ''' <summary>
   '''   A non-volatile memory for storing ongoing measured data is available on most Yoctopuce
-  '''   sensors, for instance using a Yocto-Light-V3, a Yocto-Meteo-V2, a Yocto-Watt or a Yocto-3D-V2.
+  '''   sensors.
   ''' <para>
   '''   Recording can happen automatically, without requiring a permanent
   '''   connection to a computer.
-  '''   The YDataLogger class controls the global parameters of the internal data
+  '''   The <c>YDataLogger</c> class controls the global parameters of the internal data
   '''   logger. Recording control (start/stop) as well as data retreival is done at
   '''   sensor objects level.
   ''' </para>
@@ -10803,7 +10833,7 @@ Module yocto_api
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the data logger, for instance
-    '''   <c>LIGHTMK3.dataLogger</c>.
+    '''   <c>Y3DMK002.dataLogger</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YDataLogger</c> object allowing you to drive the data logger.
@@ -10884,20 +10914,20 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns a list of YDataSet objects that can be used to retrieve
+    '''   Returns a list of <c>YDataSet</c> objects that can be used to retrieve
     '''   all measures stored by the data logger.
     ''' <para>
     ''' </para>
     ''' <para>
     '''   This function only works if the device uses a recent firmware,
-    '''   as YDataSet objects are not supported by firmwares older than
+    '''   as <c>YDataSet</c> objects are not supported by firmwares older than
     '''   version 13000.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a list of YDataSet object.
+    '''   a list of <c>YDataSet</c> object.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns an empty list.
@@ -11108,7 +11138,7 @@ Module yocto_api
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the data logger, for instance
-  '''   <c>LIGHTMK3.dataLogger</c>.
+  '''   <c>Y3DMK002.dataLogger</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YDataLogger</c> object allowing you to drive the data logger.
@@ -11720,10 +11750,10 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   Fault-tolerant alternative to <c>RegisterHub()</c>.
+  '''   Fault-tolerant alternative to <c>yRegisterHub()</c>.
   ''' <para>
   '''   This function has the same
-  '''   purpose and same arguments as <c>RegisterHub()</c>, but does not trigger
+  '''   purpose and same arguments as <c>yRegisterHub()</c>, but does not trigger
   '''   an error when the selected hub is not available at the time of the function call.
   '''   This makes it possible to register a network hub independently of the current
   '''   connectivity, and to try to contact it only when a device is actively needed.
@@ -11770,7 +11800,7 @@ Module yocto_api
   '''   Test if the hub is reachable.
   ''' <para>
   '''   This method do not register the hub, it only test if the
-  '''   hub is usable. The url parameter follow the same convention as the <c>RegisterHub</c>
+  '''   hub is usable. The url parameter follow the same convention as the <c>yRegisterHub</c>
   '''   method. This method is useful to verify the authentication parameters for a hub. It
   '''   is possible to force this method to return after mstimeout milliseconds.
   ''' </para>

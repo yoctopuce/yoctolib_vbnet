@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_motor.vb 38030 2019-11-04 17:56:01Z mvuilleu $
+'  $Id: yocto_motor.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindMotor(), the high-level API for Motor functions
 '
@@ -78,7 +78,7 @@ Module yocto_motor
 
   '''*
   ''' <summary>
-  '''   The YMotor class allows you to drive a DC motor, for instance using a Yocto-Motor-DC.
+  '''   The <c>YMotor</c> class allows you to drive a DC motor.
   ''' <para>
   '''   It can be used to configure the
   '''   power sent to the motor to make it turn both ways, but also to drive accelerations

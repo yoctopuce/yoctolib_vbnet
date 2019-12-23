@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-Knob
 '
@@ -37,13 +37,13 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      input1 = yFirstAnButton()
+      input1 = YAnButton.FirstAnButton()
       If input1 Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
@@ -51,9 +51,9 @@ Module Module1
       target = input1.get_Module().get_serialNumber()
     End If
 
-    input1 = yFindAnButton(target + ".anButton1")
-    input5 = yFindAnButton(target + ".anButton5")
-    
+    input1 = YAnButton.FindAnButton(target + ".anButton1")
+    input5 = YAnButton.FindAnButton(target + ".anButton5")
+
     While (True)
       If Not (input1.isOnline()) Then
         Console.WriteLine("Module not connected (check identification and USB cable)")
@@ -73,10 +73,10 @@ Module Module1
       End If
       Console.WriteLine("- analog value:  " + Str(input5.get_calibratedValue()))
 
-      ySleep(1000, errmsg)
+      YAPI.Sleep(1000, errmsg)
 
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
 
   End Sub
 

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-Motor-DC
 '
@@ -43,13 +43,13 @@ Module Module1
     power = Convert.ToInt32(argv(2))
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      motor = yFirstMotor()
+      motor = YMotor.FirstMotor()
       If motor Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
@@ -57,10 +57,10 @@ Module Module1
       target = motor.get_module().get_serialNumber()
     End If
 
-    motor = yFindMotor(target + ".motor")
-    current = yFindCurrent(target + ".current")
-    voltage = yFindVoltage(target + ".voltage")
-    temperature = yFindTemperature(target + ".temperature")
+    motor = YMotor.FindMotor(target + ".motor")
+    current = YCurrent.FindCurrent(target + ".current")
+    voltage = YVoltage.FindVoltage(target + ".voltage")
+    temperature = YTemperature.FindTemperature(target + ".temperature")
 
     If (motor.isOnline()) Then
       If (motor.get_motorStatus() >= Y_MOTORSTATUS_LOVOLT) Then motor.resetStatus()
@@ -77,7 +77,7 @@ Module Module1
     Else
       Console.WriteLine("Module not connected (check USB cable) ")
     End If
-    yFreeAPI()
+    YAPI.FreeAPI()
   End Sub
 
 End Module

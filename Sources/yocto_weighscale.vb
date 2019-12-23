@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_weighscale.vb 37827 2019-10-25 13:07:48Z mvuilleu $
+'  $Id: yocto_weighscale.vb 38899 2019-12-20 17:21:03Z mvuilleu $
 '
 '  Implements yFindWeighScale(), the high-level API for WeighScale functions
 '
@@ -72,7 +72,7 @@ Module yocto_weighscale
 
   '''*
   ''' <summary>
-  '''   The YWeighScale class provides a weight measurement from a ratiometric sensor, for instance using a Yocto-Bridge or a Yocto-MaxiBridge.
+  '''   The <c>YWeighScale</c> class provides a weight measurement from a ratiometric sensor.
   ''' <para>
   '''   It can be used to control the bridge excitation parameters, in order to avoid
   '''   measure shifts caused by temperature variation in the electronics, and can also
@@ -641,7 +641,7 @@ Module yocto_weighscale
     ''' </summary>
     ''' <param name="callback">
     '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the function object of which the value has changed, and an YMeasure object describing
+    '''   arguments: the function object of which the value has changed, and an <c>YMeasure</c> object describing
     '''   the new advertised value.
     ''' @noreturn
     ''' </param>

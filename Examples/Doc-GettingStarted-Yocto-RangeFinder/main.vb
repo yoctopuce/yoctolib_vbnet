@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  An example that show how to use a  Yocto-RangeFinder
 '
@@ -37,24 +37,24 @@ Module Module1
     target = argv(1)
 
     REM Setup the API to use local USB devices
-    If (yRegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
+    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
     If target = "any" Then
-      rf = yFirstRangeFinder()
+      rf = YRangeFinder.FirstRangeFinder()
       If rf Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
       target = rf.get_module().get_serialNumber()
     Else
-      rf = yFindRangeFinder(target + ".rangeFinder1")
+      rf = YRangeFinder.FindRangeFinder(target + ".rangeFinder1")
     End If
 
-    ir = yFindLightSensor(target + ".lightSensor1")
-    tmp = yFindTemperature(target + ".temperature1")
+    ir = YLightSensor.FindLightSensor(target + ".lightSensor1")
+    tmp = YTemperature.FindTemperature(target + ".temperature1")
 
     While (True)
       If Not (rf.isOnline()) Then
@@ -65,9 +65,9 @@ Module Module1
       Console.WriteLine("Ambiant IR  : " + Str(ir.get_currentValue()))
       Console.WriteLine("Temperature : " + Str(tmp.get_currentValue()))
       Console.WriteLine("  (press Ctrl-C to exit)")
-      ySleep(1000, errmsg)
+      YAPI.Sleep(1000, errmsg)
     End While
-    yFreeAPI()
+    YAPI.FreeAPI()
 
   End Sub
 

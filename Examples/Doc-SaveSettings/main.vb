@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 32622 2018-10-10 13:11:04Z seb $
+'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
 '
 '  Doc-SaveSettings example
 '
@@ -28,15 +28,15 @@ Module Module1
     If (argv.Length <> 3) Then usage()
 
     REM Setup the API to use local USB devices
-    If yRegisterHub("usb", errmsg) <> YAPI_SUCCESS Then
+    If YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS Then
       Console.WriteLine("RegisterHub error: " + errmsg)
       End
     End If
 
-    m = yFindModule(argv(1)) REM use serial or logical name
+    m = YModule.FindModule(argv(1)) REM use serial or logical name
     If m.isOnline() Then
       newname = argv(2)
-      If (Not yCheckLogicalName(newname)) Then
+      If (Not YAPI.CheckLogicalName(newname)) Then
         Console.WriteLine("Invalid name (" + newname + ")")
         End
       End If
@@ -47,7 +47,7 @@ Module Module1
     Else
       Console.Write("not connected (check identification and USB cable")
     End If
-    yFreeAPI()
+    YAPI.FreeAPI()
 
   End Sub
 
