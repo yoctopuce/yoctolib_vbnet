@@ -1,3 +1,4 @@
-VBNet v1.10.38914
+VBNet v1.10.39486
 
-- Documentation improvements
+- Fix missing arguments in HTML documentation
+- Fix settings that where not preserved during version upgrade

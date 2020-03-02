@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_spiport.vb 39333 2020-01-30 10:05:40Z mvuilleu $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -1177,6 +1177,52 @@ Module yocto_spiport
       Dim res As String
 
       url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + Me._escapeAttr(query)
+      msgbin = Me._download(url)
+      msgarr = Me._json_get_array(msgbin)
+      msglen = msgarr.Count
+      If (msglen = 0) Then
+        Return ""
+      End If
+      REM // last element of array is the new position
+      msglen = msglen - 1
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      If (msglen = 0) Then
+        Return ""
+      End If
+      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends a binary message to the serial port, and reads the reply, if any.
+    ''' <para>
+    '''   This function is intended to be used when the serial port is configured for
+    '''   Frame-based protocol.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="hexString">
+    '''   the message to send, coded in hexadecimal
+    ''' </param>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a reply.
+    ''' </param>
+    ''' <returns>
+    '''   the next frame received after sending the message, as a hex string.
+    '''   Additional frames can be obtained by calling readHex or readMessages.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty string.
+    ''' </para>
+    '''/
+    Public Overridable Function queryHex(hexString As String, maxWait As Integer) As String
+      Dim url As String
+      Dim msgbin As Byte()
+      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msglen As Integer = 0
+      Dim res As String
+
+      url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=$" + hexString
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
