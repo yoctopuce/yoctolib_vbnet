@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 39333 2020-01-30 10:05:40Z mvuilleu $
+'  $Id: yocto_spiport.vb 40298 2020-05-05 08:37:49Z seb $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '

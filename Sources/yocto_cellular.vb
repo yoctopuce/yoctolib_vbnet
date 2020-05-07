@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'* $Id: yocto_cellular.vb 40298 2020-05-05 08:37:49Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -236,10 +236,14 @@ Module yocto_cellular
   Public Const Y_CELLTYPE_HSDPA As Integer = 3
   Public Const Y_CELLTYPE_NONE As Integer = 4
   Public Const Y_CELLTYPE_CDMA As Integer = 5
+  Public Const Y_CELLTYPE_LTE_M As Integer = 6
+  Public Const Y_CELLTYPE_NB_IOT As Integer = 7
+  Public Const Y_CELLTYPE_EC_GSM_IOT As Integer = 8
   Public Const Y_CELLTYPE_INVALID As Integer = -1
   Public Const Y_IMSI_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_MESSAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PIN_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_RADIOCONFIG_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_LOCKEDOPERATOR_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_AIRPLANEMODE_OFF As Integer = 0
   Public Const Y_AIRPLANEMODE_ON As Integer = 1
@@ -284,10 +288,14 @@ Module yocto_cellular
     Public Const CELLTYPE_HSDPA As Integer = 3
     Public Const CELLTYPE_NONE As Integer = 4
     Public Const CELLTYPE_CDMA As Integer = 5
+    Public Const CELLTYPE_LTE_M As Integer = 6
+    Public Const CELLTYPE_NB_IOT As Integer = 7
+    Public Const CELLTYPE_EC_GSM_IOT As Integer = 8
     Public Const CELLTYPE_INVALID As Integer = -1
     Public Const IMSI_INVALID As String = YAPI.INVALID_STRING
     Public Const MESSAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const PIN_INVALID As String = YAPI.INVALID_STRING
+    Public Const RADIOCONFIG_INVALID As String = YAPI.INVALID_STRING
     Public Const LOCKEDOPERATOR_INVALID As String = YAPI.INVALID_STRING
     Public Const AIRPLANEMODE_OFF As Integer = 0
     Public Const AIRPLANEMODE_ON As Integer = 1
@@ -313,6 +321,7 @@ Module yocto_cellular
     Protected _imsi As String
     Protected _message As String
     Protected _pin As String
+    Protected _radioConfig As String
     Protected _lockedOperator As String
     Protected _airplaneMode As Integer
     Protected _enableData As Integer
@@ -336,6 +345,7 @@ Module yocto_cellular
       _imsi = IMSI_INVALID
       _message = MESSAGE_INVALID
       _pin = PIN_INVALID
+      _radioConfig = RADIOCONFIG_INVALID
       _lockedOperator = LOCKEDOPERATOR_INVALID
       _airplaneMode = AIRPLANEMODE_INVALID
       _enableData = ENABLEDATA_INVALID
@@ -372,6 +382,9 @@ Module yocto_cellular
       End If
       If json_val.has("pin") Then
         _pin = json_val.getString("pin")
+      End If
+      If json_val.has("radioConfig") Then
+        _radioConfig = json_val.getString("radioConfig")
       End If
       If json_val.has("lockedOperator") Then
         _lockedOperator = json_val.getString("lockedOperator")
@@ -494,7 +507,8 @@ Module yocto_cellular
     ''' </summary>
     ''' <returns>
     '''   a value among <c>Y_CELLTYPE_GPRS</c>, <c>Y_CELLTYPE_EGPRS</c>, <c>Y_CELLTYPE_WCDMA</c>,
-    '''   <c>Y_CELLTYPE_HSDPA</c>, <c>Y_CELLTYPE_NONE</c> and <c>Y_CELLTYPE_CDMA</c>
+    '''   <c>Y_CELLTYPE_HSDPA</c>, <c>Y_CELLTYPE_NONE</c>, <c>Y_CELLTYPE_CDMA</c>, <c>Y_CELLTYPE_LTE_M</c>,
+    '''   <c>Y_CELLTYPE_NB_IOT</c> and <c>Y_CELLTYPE_EC_GSM_IOT</c>
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_CELLTYPE_INVALID</c>.
@@ -513,18 +527,19 @@ Module yocto_cellular
 
     '''*
     ''' <summary>
-    '''   Returns an opaque string if a PIN code has been configured in the device to access
-    '''   the SIM card, or an empty string if none has been configured or if the code provided
-    '''   was rejected by the SIM card.
+    '''   Returns the International Mobile Subscriber Identity (MSI) that uniquely identifies
+    '''   the SIM card.
     ''' <para>
+    '''   The first 3 digits represent the mobile country code (MCC), which
+    '''   is followed by the mobile network code (MNC), either 2-digit (European standard)
+    '''   or 3-digit (North American standard)
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to an opaque string if a PIN code has been configured in the device to access
-    '''   the SIM card, or an empty string if none has been configured or if the code provided
-    '''   was rejected by the SIM card
+    '''   a string corresponding to the International Mobile Subscriber Identity (MSI) that uniquely identifies
+    '''   the SIM card
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_IMSI_INVALID</c>.
@@ -633,6 +648,70 @@ Module yocto_cellular
       Dim rest_val As String
       rest_val = newval
       Return _setAttr("pin", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the type of protocol used over the serial line, as a string.
+    ''' <para>
+    '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
+    '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
+    '''   "Char" for a continuous ASCII stream or
+    '''   "Byte" for a continuous binary stream.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the type of protocol used over the serial line, as a string
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_RADIOCONFIG_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_radioConfig() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return RADIOCONFIG_INVALID
+        End If
+      End If
+      res = Me._radioConfig
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the type of protocol used over the serial line.
+    ''' <para>
+    '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
+    '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
+    '''   "Char" for a continuous ASCII stream or
+    '''   "Byte" for a continuous binary stream.
+    '''   The suffix "/[wait]ms" can be added to reduce the transmit rate so that there
+    '''   is always at lest the specified number of milliseconds between each bytes sent.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the type of protocol used over the serial line
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_radioConfig(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("radioConfig", rest_val)
     End Function
     '''*
     ''' <summary>

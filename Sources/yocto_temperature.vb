@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_temperature.vb 39648 2020-03-12 13:56:10Z mvuilleu $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -70,6 +70,7 @@ Module yocto_temperature
   Public Const Y_SENSORTYPE_RES_INTERNAL As Integer = 14
   Public Const Y_SENSORTYPE_IR As Integer = 15
   Public Const Y_SENSORTYPE_RES_PT1000 As Integer = 16
+  Public Const Y_SENSORTYPE_CHANNEL_OFF As Integer = 17
   Public Const Y_SENSORTYPE_INVALID As Integer = -1
   Public Const Y_SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
@@ -113,6 +114,7 @@ Module yocto_temperature
     Public Const SENSORTYPE_RES_INTERNAL As Integer = 14
     Public Const SENSORTYPE_IR As Integer = 15
     Public Const SENSORTYPE_RES_PT1000 As Integer = 16
+    Public Const SENSORTYPE_CHANNEL_OFF As Integer = 17
     Public Const SENSORTYPE_INVALID As Integer = -1
     Public Const SIGNALVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const SIGNALUNIT_INVALID As String = YAPI.INVALID_STRING
@@ -211,7 +213,8 @@ Module yocto_temperature
     '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
     '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
     '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c>, <c>Y_SENSORTYPE_RES_INTERNAL</c>,
-    '''   <c>Y_SENSORTYPE_IR</c> and <c>Y_SENSORTYPE_RES_PT1000</c> corresponding to the temperature sensor type
+    '''   <c>Y_SENSORTYPE_IR</c>, <c>Y_SENSORTYPE_RES_PT1000</c> and <c>Y_SENSORTYPE_CHANNEL_OFF</c>
+    '''   corresponding to the temperature sensor type
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_SENSORTYPE_INVALID</c>.
@@ -248,7 +251,8 @@ Module yocto_temperature
     '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
     '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
     '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c>, <c>Y_SENSORTYPE_RES_INTERNAL</c>,
-    '''   <c>Y_SENSORTYPE_IR</c> and <c>Y_SENSORTYPE_RES_PT1000</c> corresponding to the temperature sensor type
+    '''   <c>Y_SENSORTYPE_IR</c>, <c>Y_SENSORTYPE_RES_PT1000</c> and <c>Y_SENSORTYPE_CHANNEL_OFF</c>
+    '''   corresponding to the temperature sensor type
     ''' </param>
     ''' <para>
     ''' </para>

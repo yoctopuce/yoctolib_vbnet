@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_longitude.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_longitude.vb 39658 2020-03-12 15:36:29Z seb $
 '
 '  Implements yFindLongitude(), the high-level API for Longitude functions
 '
@@ -142,7 +142,7 @@ Module yocto_longitude
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the longitude sensor, for instance
-    '''   <c>YGNSSMK1.longitude</c>.
+    '''   <c>YGNSSMK2.longitude</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YLongitude</c> object allowing you to drive the longitude sensor.
@@ -360,7 +360,7 @@ Module yocto_longitude
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the longitude sensor, for instance
-  '''   <c>YGNSSMK1.longitude</c>.
+  '''   <c>YGNSSMK2.longitude</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YLongitude</c> object allowing you to drive the longitude sensor.
