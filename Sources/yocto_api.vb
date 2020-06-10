@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 38914 2019-12-20 19:14:33Z mvuilleu $
+'* $Id: yocto_api.vb 40882 2020-06-09 15:27:15Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "40411"
+  Public Const YOCTO_API_BUILD_NO As String = "40924"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1695,11 +1695,27 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Frees dynamically allocated memory blocks used by the Yoctopuce library.
+    '''   Waits for all pending communications with Yoctopuce devices to be
+    '''   completed then frees dynamically allocated resources used by
+    '''   the Yoctopuce library.
     ''' <para>
-    '''   It is generally not required to call this function, unless you
-    '''   want to free all dynamically allocated memory blocks in order to
-    '''   track a memory leak for instance.
+    ''' </para>
+    ''' <para>
+    '''   From an operating system standpoint, it is generally not required to call
+    '''   this function since the OS will automatically free allocated resources
+    '''   once your program is completed. However there are two situations when
+    '''   you may really want to use that function:
+    ''' </para>
+    ''' <para>
+    '''   - Free all dynamically allocated memory blocks in order to
+    '''   track a memory leak.
+    ''' </para>
+    ''' <para>
+    '''   - Send commands to devices right before the end
+    '''   of the program. Since commands are sent in an asynchronous way
+    '''   the program could exit before all commands are effectively sent.
+    ''' </para>
+    ''' <para>
     '''   You should not call any other library function after calling
     '''   <c>yFreeAPI()</c>, or your program will crash.
     ''' </para>
@@ -6164,7 +6180,9 @@ Module yocto_api
       Dim decoded_len As Integer
       len = json.Length
       buffer = New StringBuilder(len)
-      decoded_len = _yapiJsonDecodeString(New StringBuilder(json), buffer)
+      If len > 0 Then
+        decoded_len = _yapiJsonDecodeString(New StringBuilder(json), buffer)
+      End If
       Return buffer.ToString()
     End Function
 
@@ -7866,6 +7884,9 @@ Module yocto_api
       Dim json_api As String
       Dim json_files As String
       Dim json_extra As String
+      Dim fuperror As Integer = 0
+      Dim globalres As Integer = 0
+      fuperror = 0
       json = YAPI.DefaultEncoding.GetString(settings)
       json_api = Me._get_json_path(json, "api")
       If (json_api = "") Then
@@ -7895,11 +7916,20 @@ Module yocto_api
           name = Me._decode_json_string(name)
           data = Me._get_json_path( files(i_i), "data")
           data = Me._decode_json_string(data)
-          Me._upload(name, YAPI._hexStrToBin(data))
+          If (name = "") Then
+            fuperror = fuperror + 1
+          Else
+            Me._upload(name, YAPI._hexStrToBin(data))
+          End If
         Next i_i
       End If
       REM // Apply settings a second time for file-dependent settings and dynamic sensor nodes
-      Return Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
+      globalres = Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
+      If Not(fuperror = 0) Then
+        me._throw( YAPI.IO_ERROR,  "Error during file upload")
+        return YAPI.IO_ERROR
+      end if
+      Return globalres
     End Function
 
     '''*
@@ -11667,11 +11697,27 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   Frees dynamically allocated memory blocks used by the Yoctopuce library.
+  '''   Waits for all pending communications with Yoctopuce devices to be
+  '''   completed then frees dynamically allocated resources used by
+  '''   the Yoctopuce library.
   ''' <para>
-  '''   It is generally not required to call this function, unless you
-  '''   want to free all dynamically allocated memory blocks in order to
-  '''   track a memory leak for instance.
+  ''' </para>
+  ''' <para>
+  '''   From an operating system standpoint, it is generally not required to call
+  '''   this function since the OS will automatically free allocated resources
+  '''   once your program is completed. However there are two situations when
+  '''   you may really want to use that function:
+  ''' </para>
+  ''' <para>
+  '''   - Free all dynamically allocated memory blocks in order to
+  '''   track a memory leak.
+  ''' </para>
+  ''' <para>
+  '''   - Send commands to devices right before the end
+  '''   of the program. Since commands are sent in an asynchronous way
+  '''   the program could exit before all commands are effectively sent.
+  ''' </para>
+  ''' <para>
   '''   You should not call any other library function after calling
   '''   <c>yFreeAPI()</c>, or your program will crash.
   ''' </para>
