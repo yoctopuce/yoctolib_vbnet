@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multicellweighscale.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_multicellweighscale.vb 41108 2020-06-29 12:29:07Z seb $
 '
 '  Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '
@@ -734,6 +734,8 @@ Module yocto_multicellweighscale
     '''   Adapts the load cell signal bias (stored in the corresponding genericSensor)
     '''   so that the current signal corresponds to a zero weight.
     ''' <para>
+    '''   Remember to call the
+    '''   <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_relay.vb 39434 2020-02-25 08:53:55Z seb $
+'  $Id: yocto_relay.vb 41109 2020-06-29 12:40:42Z seb $
 '
 '  Implements yFindRelay(), the high-level API for Relay functions
 '
@@ -649,7 +649,7 @@ End Class
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the relay, for instance
-    '''   <c>MXCOUPL2.relay1</c>.
+    '''   <c>YLTCHRL1.relay1</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YRelay</c> object allowing you to drive the relay.
@@ -869,7 +869,7 @@ End Class
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the relay, for instance
-  '''   <c>MXCOUPL2.relay1</c>.
+  '''   <c>YLTCHRL1.relay1</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YRelay</c> object allowing you to drive the relay.
