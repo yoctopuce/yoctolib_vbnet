@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 40298 2020-05-05 08:37:49Z seb $
+'* $Id: yocto_serialport.vb 41171 2020-07-02 17:49:00Z mvuilleu $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -117,12 +117,12 @@ Module yocto_serialport
 
     '''*
     ''' <summary>
-    '''   Returns the message direction (RX=0 , TX=1) .
+    '''   Returns the message direction (RX=0, TX=1).
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   the message direction (RX=0 , TX=1) .
+    '''   the message direction (RX=0, TX=1).
     ''' </returns>
     '''/
     Public Overridable Function get_direction() As Integer
@@ -644,6 +644,7 @@ Module yocto_serialport
     '''   Returns the type of protocol used over the serial line, as a string.
     ''' <para>
     '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
+    '''   "StxEtx" for ASCII messages delimited by STX/ETX codes,
     '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
     '''   "Modbus-ASCII" for MODBUS messages in ASCII mode,
     '''   "Modbus-RTU" for MODBUS messages in RTU mode,
@@ -679,6 +680,7 @@ Module yocto_serialport
     '''   Changes the type of protocol used over the serial line.
     ''' <para>
     '''   Possible values are "Line" for ASCII messages separated by CR and/or LF,
+    '''   "StxEtx" for ASCII messages delimited by STX/ETX codes,
     '''   "Frame:[timeout]ms" for binary messages separated by a delay time,
     '''   "Modbus-ASCII" for MODBUS messages in ASCII mode,
     '''   "Modbus-RTU" for MODBUS messages in RTU mode,
@@ -1852,6 +1854,30 @@ Module yocto_serialport
       End While
 
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sends an ASCII string to the serial port, preceeded with an STX code and
+    '''   followed by an ETX code.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="text">
+    '''   the text string to send
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function writeStxEtx(text As String) As Integer
+      Dim buff As Byte()
+      buff = YAPI.DefaultEncoding.GetBytes("" + Chr( 2) + "" +  text + "" + Chr(3))
+      REM // send string using file upload
+      Return Me._upload("txdata", buff)
     End Function
 
     '''*

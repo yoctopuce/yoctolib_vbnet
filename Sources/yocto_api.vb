@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 40882 2020-06-09 15:27:15Z seb $
+'* $Id: yocto_api.vb 41171 2020-07-02 17:49:00Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "41115"
+  Public Const YOCTO_API_BUILD_NO As String = "42060"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -10863,7 +10863,7 @@ Module yocto_api
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the data logger, for instance
-    '''   <c>Y3DMK002.dataLogger</c>.
+    '''   <c>LIGHTMK3.dataLogger</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YDataLogger</c> object allowing you to drive the data logger.
@@ -11168,7 +11168,7 @@ Module yocto_api
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the data logger, for instance
-  '''   <c>Y3DMK002.dataLogger</c>.
+  '''   <c>LIGHTMK3.dataLogger</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YDataLogger</c> object allowing you to drive the data logger.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 40298 2020-05-05 08:37:49Z seb $
+'  $Id: yocto_spiport.vb 41171 2020-07-02 17:49:00Z mvuilleu $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -45,13 +45,13 @@ Imports System.Text
 
 Module yocto_spiport
 
-    REM --- (YSpiPort return codes)
-    REM --- (end of YSpiPort return codes)
-    REM --- (YSpiPort dlldef)
-    REM --- (end of YSpiPort dlldef)
-   REM --- (YSpiPort yapiwrapper)
-   REM --- (end of YSpiPort yapiwrapper)
-  REM --- (YSpiPort globals)
+    REM --- (generated code: YSpiPort return codes)
+    REM --- (end of generated code: YSpiPort return codes)
+    REM --- (generated code: YSpiPort dlldef)
+    REM --- (end of generated code: YSpiPort dlldef)
+   REM --- (generated code: YSpiPort yapiwrapper)
+   REM --- (end of generated code: YSpiPort yapiwrapper)
+  REM --- (generated code: YSpiPort globals)
 
   Public Const Y_RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -83,9 +83,91 @@ Module yocto_spiport
   Public Const Y_SHIFTSAMPLING_INVALID As Integer = -1
   Public Delegate Sub YSpiPortValueCallback(ByVal func As YSpiPort, ByVal value As String)
   Public Delegate Sub YSpiPortTimedReportCallback(ByVal func As YSpiPort, ByVal measure As YMeasure)
-  REM --- (end of YSpiPort globals)
+  REM --- (end of generated code: YSpiPort globals)
 
-  REM --- (YSpiPort class start)
+  REM --- (generated code: YSpiSnoopingRecord class start)
+
+  Public Class YSpiSnoopingRecord
+    REM --- (end of generated code: YSpiSnoopingRecord class start)
+    REM --- (generated code: YSpiSnoopingRecord definitions)
+    REM --- (end of generated code: YSpiSnoopingRecord definitions)
+    REM --- (generated code: YSpiSnoopingRecord attributes declaration)
+    Protected _tim As Integer
+    Protected _dir As Integer
+    Protected _msg As String
+    REM --- (end of generated code: YSpiSnoopingRecord attributes declaration)
+
+    REM --- (generated code: YSpiSnoopingRecord private methods declaration)
+
+    REM --- (end of generated code: YSpiSnoopingRecord private methods declaration)
+
+    REM --- (generated code: YSpiSnoopingRecord public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the elapsed time, in ms, since the beginning of the preceding message.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the elapsed time, in ms, since the beginning of the preceding message.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_time() As Integer
+      Return Me._tim
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the message direction (RX=0, TX=1).
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the message direction (RX=0, TX=1).
+    ''' </returns>
+    '''/
+    Public Overridable Function get_direction() As Integer
+      Return Me._dir
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the message content.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the message content.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_message() As String
+      Return Me._msg
+    End Function
+
+
+
+    REM --- (end of generated code: YSpiSnoopingRecord public methods declaration)
+
+
+
+    Public Sub New(ByVal data As String)
+      Dim m as string
+      Dim json As YJSONObject  = New YJSONObject(data)
+      json.parse()
+      Me._tim = CInt(json.getInt("t"))
+      m = json.getString("m")
+      IF m.Chars(0)="<" Then
+        Me._dir =1
+      Else
+        Me._dir=0
+      End If
+      Me._msg = m.Substring(1)
+    End Sub
+
+  End Class
+
+
+  REM --- (generated code: YSpiPort class start)
 
   '''*
   ''' <summary>
@@ -100,9 +182,9 @@ Module yocto_spiport
   '''/
   Public Class YSpiPort
     Inherits YFunction
-    REM --- (end of YSpiPort class start)
+    REM --- (end of generated code: YSpiPort class start)
 
-    REM --- (YSpiPort definitions)
+    REM --- (generated code: YSpiPort definitions)
     Public Const RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -131,9 +213,9 @@ Module yocto_spiport
     Public Const SHIFTSAMPLING_OFF As Integer = 0
     Public Const SHIFTSAMPLING_ON As Integer = 1
     Public Const SHIFTSAMPLING_INVALID As Integer = -1
-    REM --- (end of YSpiPort definitions)
+    REM --- (end of generated code: YSpiPort definitions)
 
-    REM --- (YSpiPort attributes declaration)
+    REM --- (generated code: YSpiPort attributes declaration)
     Protected _rxCount As Integer
     Protected _txCount As Integer
     Protected _errCount As Integer
@@ -154,12 +236,12 @@ Module yocto_spiport
     Protected _rxptr As Integer
     Protected _rxbuff As Byte()
     Protected _rxbuffptr As Integer
-    REM --- (end of YSpiPort attributes declaration)
+    REM --- (end of generated code: YSpiPort attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
       _classname = "SpiPort"
-      REM --- (YSpiPort attributes initialization)
+      REM --- (generated code: YSpiPort attributes initialization)
       _rxCount = RXCOUNT_INVALID
       _txCount = TXCOUNT_INVALID
       _errCount = ERRCOUNT_INVALID
@@ -179,10 +261,10 @@ Module yocto_spiport
       _valueCallbackSpiPort = Nothing
       _rxptr = 0
       _rxbuffptr = 0
-      REM --- (end of YSpiPort attributes initialization)
+      REM --- (end of generated code: YSpiPort attributes initialization)
     End Sub
 
-    REM --- (YSpiPort private methods declaration)
+    REM --- (generated code: YSpiPort private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("rxCount") Then
@@ -236,9 +318,9 @@ Module yocto_spiport
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YSpiPort private methods declaration)
+    REM --- (end of generated code: YSpiPort private methods declaration)
 
-    REM --- (YSpiPort public methods declaration)
+    REM --- (generated code: YSpiPort public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the total number of bytes received since last reset.
@@ -1801,6 +1883,55 @@ Module yocto_spiport
       Return Me.sendCommand("S" + Convert.ToString(val))
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Retrieves messages (both direction) in the SPI port buffer, starting at current position.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   If no message is found, the search waits for one up to the specified maximum timeout
+    '''   (in milliseconds).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a message if none is found
+    '''   in the receive buffer.
+    ''' </param>
+    ''' <returns>
+    '''   an array of <c>YSpiSnoopingRecord</c> objects containing the messages found, if any.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YSpiSnoopingRecord)
+      Dim url As String
+      Dim msgbin As Byte()
+      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msglen As Integer = 0
+      Dim res As List(Of YSpiSnoopingRecord) = New List(Of YSpiSnoopingRecord)()
+      Dim idx As Integer = 0
+
+      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0"
+      msgbin = Me._download(url)
+      msgarr = Me._json_get_array(msgbin)
+      msglen = msgarr.Count
+      If (msglen = 0) Then
+        Return res
+      End If
+      REM // last element of array is the new position
+      msglen = msglen - 1
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      idx = 0
+
+      While (idx < msglen)
+        res.Add(New YSpiSnoopingRecord(msgarr(idx)))
+        idx = idx + 1
+      End While
+
+      Return res
+    End Function
+
 
     '''*
     ''' <summary>
@@ -1869,11 +2000,11 @@ Module yocto_spiport
       Return YSpiPort.FindSpiPort(serial + "." + funcId)
     End Function
 
-    REM --- (end of YSpiPort public methods declaration)
+    REM --- (end of generated code: YSpiPort public methods declaration)
 
   End Class
 
-  REM --- (YSpiPort functions)
+  REM --- (generated code: YSpiPort functions)
 
   '''*
   ''' <summary>
@@ -1948,6 +2079,6 @@ Module yocto_spiport
   End Function
 
 
-  REM --- (end of YSpiPort functions)
+  REM --- (end of generated code: YSpiPort functions)
 
 End Module

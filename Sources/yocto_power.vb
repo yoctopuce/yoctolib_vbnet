@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_power.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_power.vb 41290 2020-07-24 10:02:23Z mvuilleu $
 '
 '  Implements yFindPower(), the high-level API for Power functions
 '
@@ -55,6 +55,8 @@ Module yocto_power
 
   Public Const Y_COSPHI_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_METER_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_DELIVEREDENERGYMETER_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_RECEIVEDENERGYMETER_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_METERTIMER_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YPowerValueCallback(ByVal func As YPower, ByVal value As String)
   Public Delegate Sub YPowerTimedReportCallback(ByVal func As YPower, ByVal measure As YMeasure)
@@ -79,12 +81,16 @@ Module yocto_power
     REM --- (YPower definitions)
     Public Const COSPHI_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const METER_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const DELIVEREDENERGYMETER_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const RECEIVEDENERGYMETER_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const METERTIMER_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YPower definitions)
 
     REM --- (YPower attributes declaration)
     Protected _cosPhi As Double
     Protected _meter As Double
+    Protected _deliveredEnergyMeter As Double
+    Protected _receivedEnergyMeter As Double
     Protected _meterTimer As Integer
     Protected _valueCallbackPower As YPowerValueCallback
     Protected _timedReportCallbackPower As YPowerTimedReportCallback
@@ -96,6 +102,8 @@ Module yocto_power
       REM --- (YPower attributes initialization)
       _cosPhi = COSPHI_INVALID
       _meter = METER_INVALID
+      _deliveredEnergyMeter = DELIVEREDENERGYMETER_INVALID
+      _receivedEnergyMeter = RECEIVEDENERGYMETER_INVALID
       _meterTimer = METERTIMER_INVALID
       _valueCallbackPower = Nothing
       _timedReportCallbackPower = Nothing
@@ -110,6 +118,12 @@ Module yocto_power
       End If
       If json_val.has("meter") Then
         _meter = Math.Round(json_val.getDouble("meter") * 1000.0 / 65536.0) / 1000.0
+      End If
+      If json_val.has("deliveredEnergyMeter") Then
+        _deliveredEnergyMeter = Math.Round(json_val.getDouble("deliveredEnergyMeter") * 1000.0 / 65536.0) / 1000.0
+      End If
+      If json_val.has("receivedEnergyMeter") Then
+        _receivedEnergyMeter = Math.Round(json_val.getDouble("receivedEnergyMeter") * 1000.0 / 65536.0) / 1000.0
       End If
       If json_val.has("meterTimer") Then
         _meterTimer = CInt(json_val.getLong("meterTimer"))
@@ -156,7 +170,8 @@ Module yocto_power
     End Function
     '''*
     ''' <summary>
-    '''   Returns the energy counter, maintained by the wattmeter by integrating the power consumption over time.
+    '''   Returns the energy counter, maintained by the wattmeter by integrating the power consumption over time,
+    '''   but only when positive.
     ''' <para>
     '''   Note that this counter is reset at each start of the device.
     ''' </para>
@@ -165,7 +180,8 @@ Module yocto_power
     ''' </summary>
     ''' <returns>
     '''   a floating point number corresponding to the energy counter, maintained by the wattmeter by
-    '''   integrating the power consumption over time
+    '''   integrating the power consumption over time,
+    '''   but only when positive
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_METER_INVALID</c>.
@@ -179,6 +195,66 @@ Module yocto_power
         End If
       End If
       res = Me._meter
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the energy counter, maintained by the wattmeter by integrating the power consumption over time,
+    '''   but only when positive.
+    ''' <para>
+    '''   Note that this counter is reset at each start of the device.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the energy counter, maintained by the wattmeter by
+    '''   integrating the power consumption over time,
+    '''   but only when positive
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_DELIVEREDENERGYMETER_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_deliveredEnergyMeter() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return DELIVEREDENERGYMETER_INVALID
+        End If
+      End If
+      res = Me._deliveredEnergyMeter
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the energy counter, maintained by the wattmeter by integrating the power consumption over time,
+    '''   but only when negative.
+    ''' <para>
+    '''   Note that this counter is reset at each start of the device.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the energy counter, maintained by the wattmeter by
+    '''   integrating the power consumption over time,
+    '''   but only when negative
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_RECEIVEDENERGYMETER_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_receivedEnergyMeter() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return RECEIVEDENERGYMETER_INVALID
+        End If
+      End If
+      res = Me._receivedEnergyMeter
       Return res
     End Function
 
@@ -354,7 +430,7 @@ Module yocto_power
 
     '''*
     ''' <summary>
-    '''   Resets the energy counter.
+    '''   Resets the energy counters.
     ''' <para>
     ''' </para>
     ''' </summary>

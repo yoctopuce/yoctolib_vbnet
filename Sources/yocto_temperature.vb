@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 39648 2020-03-12 13:56:10Z mvuilleu $
+'  $Id: yocto_temperature.vb 42054 2020-10-14 09:46:38Z seb $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -512,8 +512,8 @@ Module yocto_temperature
       Dim res100 As Double = 0
       Dim tempValues As List(Of Double) = New List(Of Double)()
       Dim resValues As List(Of Double) = New List(Of Double)()
-      t0 = 25.0+275.15
-      t1 = 100.0+275.15
+      t0 = 25.0+273.15
+      t1 = 100.0+273.15
       res100 = res25 * Math.exp(beta*(1.0/t1 - 1.0/t0))
       tempValues.Clear()
       resValues.Clear()

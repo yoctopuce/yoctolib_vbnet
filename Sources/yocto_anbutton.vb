@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_anbutton.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_anbutton.vb 42053 2020-10-14 09:46:00Z seb $
 '
 '  Implements yFindAnButton(), the high-level API for AnButton functions
 '
@@ -68,6 +68,9 @@ Module yocto_anbutton
   Public Const Y_LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_INPUTTYPE_ANALOG As Integer = 0
+  Public Const Y_INPUTTYPE_DIGITAL4 As Integer = 1
+  Public Const Y_INPUTTYPE_INVALID As Integer = -1
   Public Delegate Sub YAnButtonValueCallback(ByVal func As YAnButton, ByVal value As String)
   Public Delegate Sub YAnButtonTimedReportCallback(ByVal func As YAnButton, ByVal measure As YMeasure)
   REM --- (end of YAnButton globals)
@@ -107,6 +110,9 @@ Module yocto_anbutton
     Public Const LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
+    Public Const INPUTTYPE_ANALOG As Integer = 0
+    Public Const INPUTTYPE_DIGITAL4 As Integer = 1
+    Public Const INPUTTYPE_INVALID As Integer = -1
     REM --- (end of YAnButton definitions)
 
     REM --- (YAnButton attributes declaration)
@@ -121,6 +127,7 @@ Module yocto_anbutton
     Protected _lastTimeReleased As Long
     Protected _pulseCounter As Long
     Protected _pulseTimer As Long
+    Protected _inputType As Integer
     Protected _valueCallbackAnButton As YAnButtonValueCallback
     REM --- (end of YAnButton attributes declaration)
 
@@ -139,6 +146,7 @@ Module yocto_anbutton
       _lastTimeReleased = LASTTIMERELEASED_INVALID
       _pulseCounter = PULSECOUNTER_INVALID
       _pulseTimer = PULSETIMER_INVALID
+      _inputType = INPUTTYPE_INVALID
       _valueCallbackAnButton = Nothing
       REM --- (end of YAnButton attributes initialization)
     End Sub
@@ -178,6 +186,9 @@ Module yocto_anbutton
       End If
       If json_val.has("pulseTimer") Then
         _pulseTimer = json_val.getLong("pulseTimer")
+      End If
+      If json_val.has("inputType") Then
+        _inputType = CInt(json_val.getLong("inputType"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -606,6 +617,61 @@ Module yocto_anbutton
       Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the decoding method applied to the input (analog or multiplexed binary switches).
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>Y_INPUTTYPE_ANALOG</c> or <c>Y_INPUTTYPE_DIGITAL4</c>, according to the decoding method
+    '''   applied to the input (analog or multiplexed binary switches)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_INPUTTYPE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_inputType() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return INPUTTYPE_INVALID
+        End If
+      End If
+      res = Me._inputType
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the decoding method applied to the input (analog or multiplexed binary switches).
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>Y_INPUTTYPE_ANALOG</c> or <c>Y_INPUTTYPE_DIGITAL4</c>, according to the decoding method
+    '''   applied to the input (analog or multiplexed binary switches)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_inputType(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("inputType", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves an analog input for a given identifier.

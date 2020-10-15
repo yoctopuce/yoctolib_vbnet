@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_i2cport.vb 39333 2020-01-30 10:05:40Z mvuilleu $
+'  $Id: yocto_i2cport.vb 41171 2020-07-02 17:49:00Z mvuilleu $
 '
 '  Implements yFindI2cPort(), the high-level API for I2cPort functions
 '
@@ -45,13 +45,13 @@ Imports System.Text
 
 Module yocto_i2cport
 
-    REM --- (YI2cPort return codes)
-    REM --- (end of YI2cPort return codes)
-    REM --- (YI2cPort dlldef)
-    REM --- (end of YI2cPort dlldef)
-   REM --- (YI2cPort yapiwrapper)
-   REM --- (end of YI2cPort yapiwrapper)
-  REM --- (YI2cPort globals)
+    REM --- (generated code: YI2cPort return codes)
+    REM --- (end of generated code: YI2cPort return codes)
+    REM --- (generated code: YI2cPort dlldef)
+    REM --- (end of generated code: YI2cPort dlldef)
+   REM --- (generated code: YI2cPort yapiwrapper)
+   REM --- (end of generated code: YI2cPort yapiwrapper)
+  REM --- (generated code: YI2cPort globals)
 
   Public Const Y_RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -72,9 +72,91 @@ Module yocto_i2cport
   Public Const Y_I2CMODE_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YI2cPortValueCallback(ByVal func As YI2cPort, ByVal value As String)
   Public Delegate Sub YI2cPortTimedReportCallback(ByVal func As YI2cPort, ByVal measure As YMeasure)
-  REM --- (end of YI2cPort globals)
+  REM --- (end of generated code: YI2cPort globals)
 
-  REM --- (YI2cPort class start)
+  REM --- (generated code: YI2cSnoopingRecord class start)
+
+  Public Class YI2cSnoopingRecord
+    REM --- (end of generated code: YI2cSnoopingRecord class start)
+    REM --- (generated code: YI2cSnoopingRecord definitions)
+    REM --- (end of generated code: YI2cSnoopingRecord definitions)
+    REM --- (generated code: YI2cSnoopingRecord attributes declaration)
+    Protected _tim As Integer
+    Protected _dir As Integer
+    Protected _msg As String
+    REM --- (end of generated code: YI2cSnoopingRecord attributes declaration)
+
+    REM --- (generated code: YI2cSnoopingRecord private methods declaration)
+
+    REM --- (end of generated code: YI2cSnoopingRecord private methods declaration)
+
+    REM --- (generated code: YI2cSnoopingRecord public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the elapsed time, in ms, since the beginning of the preceding message.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the elapsed time, in ms, since the beginning of the preceding message.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_time() As Integer
+      Return Me._tim
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the message direction (RX=0, TX=1).
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the message direction (RX=0, TX=1).
+    ''' </returns>
+    '''/
+    Public Overridable Function get_direction() As Integer
+      Return Me._dir
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the message content.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the message content.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_message() As String
+      Return Me._msg
+    End Function
+
+
+
+    REM --- (end of generated code: YI2cSnoopingRecord public methods declaration)
+
+
+
+    Public Sub New(ByVal data As String)
+      Dim m as string
+      Dim json As YJSONObject  = New YJSONObject(data)
+      json.parse()
+      Me._tim = CInt(json.getInt("t"))
+      m = json.getString("m")
+      IF m.Chars(0)="<" Then
+        Me._dir =1
+      Else
+        Me._dir=0
+      End If
+      Me._msg = m.Substring(1)
+    End Sub
+
+  End Class
+
+
+  REM --- (generated code: YI2cPort class start)
 
   '''*
   ''' <summary>
@@ -89,9 +171,9 @@ Module yocto_i2cport
   '''/
   Public Class YI2cPort
     Inherits YFunction
-    REM --- (end of YI2cPort class start)
+    REM --- (end of generated code: YI2cPort class start)
 
-    REM --- (YI2cPort definitions)
+    REM --- (generated code: YI2cPort definitions)
     Public Const RXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const TXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ERRCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -109,9 +191,9 @@ Module yocto_i2cport
     Public Const I2CVOLTAGELEVEL_1V8 As Integer = 2
     Public Const I2CVOLTAGELEVEL_INVALID As Integer = -1
     Public Const I2CMODE_INVALID As String = YAPI.INVALID_STRING
-    REM --- (end of YI2cPort definitions)
+    REM --- (end of generated code: YI2cPort definitions)
 
-    REM --- (YI2cPort attributes declaration)
+    REM --- (generated code: YI2cPort attributes declaration)
     Protected _rxCount As Integer
     Protected _txCount As Integer
     Protected _errCount As Integer
@@ -130,12 +212,12 @@ Module yocto_i2cport
     Protected _rxptr As Integer
     Protected _rxbuff As Byte()
     Protected _rxbuffptr As Integer
-    REM --- (end of YI2cPort attributes declaration)
+    REM --- (end of generated code: YI2cPort attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
       _classname = "I2cPort"
-      REM --- (YI2cPort attributes initialization)
+      REM --- (generated code: YI2cPort attributes initialization)
       _rxCount = RXCOUNT_INVALID
       _txCount = TXCOUNT_INVALID
       _errCount = ERRCOUNT_INVALID
@@ -153,10 +235,10 @@ Module yocto_i2cport
       _valueCallbackI2cPort = Nothing
       _rxptr = 0
       _rxbuffptr = 0
-      REM --- (end of YI2cPort attributes initialization)
+      REM --- (end of generated code: YI2cPort attributes initialization)
     End Sub
 
-    REM --- (YI2cPort private methods declaration)
+    REM --- (generated code: YI2cPort private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("rxCount") Then
@@ -204,9 +286,9 @@ Module yocto_i2cport
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YI2cPort private methods declaration)
+    REM --- (end of generated code: YI2cPort private methods declaration)
 
-    REM --- (YI2cPort public methods declaration)
+    REM --- (generated code: YI2cPort public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the total number of bytes received since last reset.
@@ -1622,6 +1704,55 @@ Module yocto_i2cport
       Return Me.writeHex(msg)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Retrieves messages (both direction) in the I2C port buffer, starting at current position.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   If no message is found, the search waits for one up to the specified maximum timeout
+    '''   (in milliseconds).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a message if none is found
+    '''   in the receive buffer.
+    ''' </param>
+    ''' <returns>
+    '''   an array of <c>YI2cSnoopingRecord</c> objects containing the messages found, if any.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YI2cSnoopingRecord)
+      Dim url As String
+      Dim msgbin As Byte()
+      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msglen As Integer = 0
+      Dim res As List(Of YI2cSnoopingRecord) = New List(Of YI2cSnoopingRecord)()
+      Dim idx As Integer = 0
+
+      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0"
+      msgbin = Me._download(url)
+      msgarr = Me._json_get_array(msgbin)
+      msglen = msgarr.Count
+      If (msglen = 0) Then
+        Return res
+      End If
+      REM // last element of array is the new position
+      msglen = msglen - 1
+      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      idx = 0
+
+      While (idx < msglen)
+        res.Add(New YI2cSnoopingRecord(msgarr(idx)))
+        idx = idx + 1
+      End While
+
+      Return res
+    End Function
+
 
     '''*
     ''' <summary>
@@ -1690,11 +1821,11 @@ Module yocto_i2cport
       Return YI2cPort.FindI2cPort(serial + "." + funcId)
     End Function
 
-    REM --- (end of YI2cPort public methods declaration)
+    REM --- (end of generated code: YI2cPort public methods declaration)
 
   End Class
 
-  REM --- (YI2cPort functions)
+  REM --- (generated code: YI2cPort functions)
 
   '''*
   ''' <summary>
@@ -1769,6 +1900,6 @@ Module yocto_i2cport
   End Function
 
 
-  REM --- (end of YI2cPort functions)
+  REM --- (end of generated code: YI2cPort functions)
 
 End Module

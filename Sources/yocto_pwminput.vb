@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwminput.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_pwminput.vb 41348 2020-08-10 15:12:57Z seb $
 '
 '  Implements yFindPwmInput(), the high-level API for PwmInput functions
 '
@@ -69,8 +69,11 @@ Module yocto_pwminput
   Public Const Y_PWMREPORTMODE_PWM_STATE As Integer = 7
   Public Const Y_PWMREPORTMODE_PWM_FREQ_CPS As Integer = 8
   Public Const Y_PWMREPORTMODE_PWM_FREQ_CPM As Integer = 9
+  Public Const Y_PWMREPORTMODE_PWM_PERIODCOUNT As Integer = 10
   Public Const Y_PWMREPORTMODE_INVALID As Integer = -1
   Public Const Y_DEBOUNCEPERIOD_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_EDGESPERPERIOD_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YPwmInputValueCallback(ByVal func As YPwmInput, ByVal value As String)
   Public Delegate Sub YPwmInputTimedReportCallback(ByVal func As YPwmInput, ByVal measure As YMeasure)
   REM --- (end of YPwmInput globals)
@@ -109,8 +112,11 @@ Module yocto_pwminput
     Public Const PWMREPORTMODE_PWM_STATE As Integer = 7
     Public Const PWMREPORTMODE_PWM_FREQ_CPS As Integer = 8
     Public Const PWMREPORTMODE_PWM_FREQ_CPM As Integer = 9
+    Public Const PWMREPORTMODE_PWM_PERIODCOUNT As Integer = 10
     Public Const PWMREPORTMODE_INVALID As Integer = -1
     Public Const DEBOUNCEPERIOD_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const EDGESPERPERIOD_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YPwmInput definitions)
 
     REM --- (YPwmInput attributes declaration)
@@ -122,6 +128,8 @@ Module yocto_pwminput
     Protected _pulseTimer As Long
     Protected _pwmReportMode As Integer
     Protected _debouncePeriod As Integer
+    Protected _bandwidth As Integer
+    Protected _edgesPerPeriod As Integer
     Protected _valueCallbackPwmInput As YPwmInputValueCallback
     Protected _timedReportCallbackPwmInput As YPwmInputTimedReportCallback
     REM --- (end of YPwmInput attributes declaration)
@@ -138,6 +146,8 @@ Module yocto_pwminput
       _pulseTimer = PULSETIMER_INVALID
       _pwmReportMode = PWMREPORTMODE_INVALID
       _debouncePeriod = DEBOUNCEPERIOD_INVALID
+      _bandwidth = BANDWIDTH_INVALID
+      _edgesPerPeriod = EDGESPERPERIOD_INVALID
       _valueCallbackPwmInput = Nothing
       _timedReportCallbackPwmInput = Nothing
       REM --- (end of YPwmInput attributes initialization)
@@ -169,6 +179,12 @@ Module yocto_pwminput
       End If
       If json_val.has("debouncePeriod") Then
         _debouncePeriod = CInt(json_val.getLong("debouncePeriod"))
+      End If
+      If json_val.has("bandwidth") Then
+        _bandwidth = CInt(json_val.getLong("bandwidth"))
+      End If
+      If json_val.has("edgesPerPeriod") Then
+        _edgesPerPeriod = CInt(json_val.getLong("edgesPerPeriod"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -386,9 +402,9 @@ Module yocto_pwminput
     '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c>, <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c>,
     '''   <c>Y_PWMREPORTMODE_PWM_PULSECOUNT</c>, <c>Y_PWMREPORTMODE_PWM_CPS</c>,
     '''   <c>Y_PWMREPORTMODE_PWM_CPM</c>, <c>Y_PWMREPORTMODE_PWM_STATE</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_FREQ_CPS</c> and <c>Y_PWMREPORTMODE_PWM_FREQ_CPM</c> corresponding to the
-    '''   parameter (frequency/duty cycle, pulse width, edges count) returned by the get_currentValue
-    '''   function and callbacks
+    '''   <c>Y_PWMREPORTMODE_PWM_FREQ_CPS</c>, <c>Y_PWMREPORTMODE_PWM_FREQ_CPM</c> and
+    '''   <c>Y_PWMREPORTMODE_PWM_PERIODCOUNT</c> corresponding to the parameter (frequency/duty cycle, pulse
+    '''   width, edges count) returned by the get_currentValue function and callbacks
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_PWMREPORTMODE_INVALID</c>.
@@ -422,9 +438,9 @@ Module yocto_pwminput
     '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c>, <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c>,
     '''   <c>Y_PWMREPORTMODE_PWM_PULSECOUNT</c>, <c>Y_PWMREPORTMODE_PWM_CPS</c>,
     '''   <c>Y_PWMREPORTMODE_PWM_CPM</c>, <c>Y_PWMREPORTMODE_PWM_STATE</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_FREQ_CPS</c> and <c>Y_PWMREPORTMODE_PWM_FREQ_CPM</c> corresponding to the 
-    '''   parameter  type (frequency/duty cycle, pulse width, or edge count) returned by the get_currentValue
-    '''   function and callbacks
+    '''   <c>Y_PWMREPORTMODE_PWM_FREQ_CPS</c>, <c>Y_PWMREPORTMODE_PWM_FREQ_CPM</c> and
+    '''   <c>Y_PWMREPORTMODE_PWM_PERIODCOUNT</c> corresponding to the  parameter  type (frequency/duty cycle,
+    '''   pulse width, or edge count) returned by the get_currentValue function and callbacks
     ''' </param>
     ''' <para>
     ''' </para>
@@ -495,6 +511,90 @@ Module yocto_pwminput
       rest_val = Ltrim(Str(newval))
       Return _setAttr("debouncePeriod", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the input signal sampling rate, in kHz.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the input signal sampling rate, in kHz
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_bandwidth() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return BANDWIDTH_INVALID
+        End If
+      End If
+      res = Me._bandwidth
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the input signal sampling rate, measured in kHz.
+    ''' <para>
+    '''   A lower sampling frequency can be used to hide hide-frequency bounce effects,
+    '''   for instance on electromechanical contacts, but limits the measure resolution.
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the input signal sampling rate, measured in kHz
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_bandwidth(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("bandwidth", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the number of edges detected per preiod.
+    ''' <para>
+    '''   For a clean PWM signal, this should be exactly two,
+    '''   but in cas the signal is created by a mechanical contact with bounces, it can get higher.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the number of edges detected per preiod
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Y_EDGESPERPERIOD_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_edgesPerPeriod() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return EDGESPERPERIOD_INVALID
+        End If
+      End If
+      res = Me._edgesPerPeriod
+      Return res
+    End Function
+
     '''*
     ''' <summary>
     '''   Retrieves a PWM input for a given identifier.
