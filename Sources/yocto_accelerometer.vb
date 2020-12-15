@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_accelerometer.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_accelerometer.vb 42951 2020-12-14 09:43:29Z seb $
 '
 '  Implements yFindAccelerometer(), the high-level API for Accelerometer functions
 '
@@ -141,14 +141,14 @@ Module yocto_accelerometer
     REM --- (YAccelerometer public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    '''   Returns the measure update frequency, measured in Hz.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    '''   an integer corresponding to the measure update frequency, measured in Hz
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
@@ -168,7 +168,7 @@ Module yocto_accelerometer
 
     '''*
     ''' <summary>
-    '''   Changes the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    '''   Changes the measure update frequency, measured in Hz.
     ''' <para>
     '''   When the
     '''   frequency is lower, the device performs averaging.
@@ -179,7 +179,7 @@ Module yocto_accelerometer
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    '''   an integer corresponding to the measure update frequency, measured in Hz
     ''' </param>
     ''' <para>
     ''' </para>

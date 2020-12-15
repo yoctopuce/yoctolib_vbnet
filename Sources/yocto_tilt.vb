@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_tilt.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_tilt.vb 42951 2020-12-14 09:43:29Z seb $
 '
 '  Implements yFindTilt(), the high-level API for Tilt functions
 '
@@ -127,14 +127,14 @@ Module yocto_tilt
     REM --- (YTilt public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    '''   Returns the measure update frequency, measured in Hz.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    '''   an integer corresponding to the measure update frequency, measured in Hz
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
@@ -154,7 +154,7 @@ Module yocto_tilt
 
     '''*
     ''' <summary>
-    '''   Changes the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    '''   Changes the measure update frequency, measured in Hz.
     ''' <para>
     '''   When the
     '''   frequency is lower, the device performs averaging.
@@ -165,7 +165,7 @@ Module yocto_tilt
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    '''   an integer corresponding to the measure update frequency, measured in Hz
     ''' </param>
     ''' <para>
     ''' </para>
@@ -334,6 +334,54 @@ Module yocto_tilt
         MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Performs a zero calibration for the tilt measurement (Yocto-Inclinometer only).
+    ''' <para>
+    '''   When this method is invoked, a simple shift (translation)
+    '''   is applied so that the current position is reported as a zero angle.
+    '''   Be aware that this shift will also affect the measurement boundaries.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function calibrateToZero() As Integer
+      Dim currentRawVal As Double = 0
+      Dim rawVals As List(Of Double) = New List(Of Double)()
+      Dim refVals As List(Of Double) = New List(Of Double)()
+      currentRawVal = Me.get_currentRawValue()
+      rawVals.Clear()
+      refVals.Clear()
+      rawVals.Add(currentRawVal)
+      refVals.Add(0.0)
+
+
+      Return Me.calibrateFromPoints(rawVals, refVals)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Cancels any previous zero calibration for the tilt measurement (Yocto-Inclinometer only).
+    ''' <para>
+    '''   This function restores the factory zero calibration.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function restoreZeroCalibration() As Integer
+      Return Me._setAttr("calibrationParam", "0")
     End Function
 
 

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'* $Id: yocto_display.vb 42095 2020-10-16 18:10:08Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -886,9 +886,9 @@ end enum
       Return res
     End Function
 
-    Public Sub New(parent As YDisplay, id As String)
+    Public Sub New(parent As YDisplay, id As Integer)
       Me._display = parent
-      Me._id = CInt(id)
+      Me._id = id
     End Sub
 
   End Class
@@ -960,9 +960,9 @@ end enum
     Protected _layerCount As Integer
     Protected _command As String
     Protected _valueCallbackDisplay As YDisplayValueCallback
+    Protected _allDisplayLayers As List(Of YDisplayLayer)
     REM --- (end of generated code: YDisplay attributes declaration)
 
-    Protected _allDisplayLayers() As YDisplayLayer = Nothing
     Protected _recording As Boolean
     Protected _sequence As String
 
@@ -982,6 +982,7 @@ end enum
       _layerCount = LAYERCOUNT_INVALID
       _command = COMMAND_INVALID
       _valueCallbackDisplay = Nothing
+      _allDisplayLayers = New List(Of YDisplayLayer)()
       REM --- (end of generated code: YDisplay attributes initialization)
     End Sub
 
@@ -1775,6 +1776,43 @@ end enum
       Return Me.sendCommand("E" + Convert.ToString(layerIdA) + "," + Convert.ToString(layerIdB))
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns a YDisplayLayer object that can be used to draw on the specified
+    '''   layer.
+    ''' <para>
+    '''   The content is displayed only when the layer is active on the
+    '''   screen (and not masked by other overlapping layers).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="layerId">
+    '''   the identifier of the layer (a number in range 0..layerCount-1)
+    ''' </param>
+    ''' <returns>
+    '''   an <c>YDisplayLayer</c> object
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>Nothing</c>.
+    ''' </para>
+    '''/
+    Public Overridable Function get_displayLayer(layerId As Integer) As YDisplayLayer
+      Dim layercount As Integer = 0
+      Dim idx As Integer = 0
+      layercount = Me.get_layerCount()
+      If Not((layerId >= 0) AndAlso (layerId < layercount)) Then
+        me._throw( YAPI.INVALID_ARGUMENT,  "invalid DisplayLayer index")
+        return Nothing
+      end if
+      If (Me._allDisplayLayers.Count = 0) Then
+        idx = 0
+        While (idx < layercount)
+          Me._allDisplayLayers.Add(New YDisplayLayer(Me, idx))
+          idx = idx + 1
+        End While
+      End If
+      Return Me._allDisplayLayers(layerId)
+    End Function
+
 
     '''*
     ''' <summary>
@@ -1845,65 +1883,24 @@ end enum
 
     REM --- (end of generated code: YDisplay public methods declaration)
 
-
-    '''*
-    ''' <summary>
-    '''   Returns a YDisplayLayer object that can be used to draw on the specified
-    '''   layer.
-    ''' <para>
-    '''   The content is displayed only when the layer is active on the
-    '''   screen (and not masked by other overlapping layers).
-    ''' </para>
-    ''' </summary>
-    ''' <param name="layerId">
-    '''   the identifier of the layer (a number in range 0..layerCount-1)
-    ''' </param>
-    ''' <returns>
-    '''   an <c>YDisplayLayer</c> object
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>Nothing</c>.
-    ''' </para>
-    '''/
-
-    Public Function get_displayLayer(layerId As Integer) As YDisplayLayer
-      Dim i As Integer
-      Dim layercount As Integer = get_layerCount()
-
-      If ((layerId < 0) Or (layerId >= layercount)) Then
-        _throw(-1, "invalid DisplayLayer index, valid values are [0.." + (layercount - 1).ToString() + "]")
-        Return Nothing
-      End If
-
-      If (_allDisplayLayers Is Nothing) Then
-        ReDim _allDisplayLayers(layercount)
-        For i = 0 To layercount
-          _allDisplayLayers(i) = New YDisplayLayer(Me, CStr(i))
-
-        Next i
-      End If
-      Return _allDisplayLayers(layerId)
-    End Function
-
-
     Private Function flushLayers() As Integer
       Dim i As Integer
-      If Not (_allDisplayLayers Is Nothing) Then
-        For i = 0 To _allDisplayLayers.GetUpperBound(0)
-          _allDisplayLayers(i).flush_now()
-        Next i
-      End If
-      Return YAPI.SUCCESS
-    End Function
+            If (_allDisplayLayers.Count > 0) Then
+                For i = 0 To _allDisplayLayers.Count - 1
+                    _allDisplayLayers(i).flush_now()
+                Next i
+            End If
+            Return YAPI.SUCCESS
+        End Function
 
-    Private Sub resetHiddenLayerFlags()
-      Dim i As Integer
-      If Not (_allDisplayLayers Is Nothing) Then
-        For i = 0 To _allDisplayLayers.GetUpperBound(0)
-          _allDisplayLayers(i).resetHiddenFlag()
-        Next i
-      End If
-    End Sub
+        Private Sub resetHiddenLayerFlags()
+            Dim i As Integer
+            If (_allDisplayLayers.Count > 0) Then
+                For i = 0 To _allDisplayLayers.Count - 1
+                    _allDisplayLayers(i).resetHiddenFlag()
+                Next i
+            End If
+        End Sub
 
     Public Function sendCommand(ByVal cmd As String) As Integer
       If Not (_recording) Then

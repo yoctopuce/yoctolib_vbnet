@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_gyro.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'* $Id: yocto_gyro.vb 42951 2020-12-14 09:43:29Z seb $
 '*
 '* Implements yFindGyro(), the high-level API for Gyro functions
 '*
@@ -515,14 +515,14 @@ Module yocto_gyro
     REM --- (generated code: YGyro public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    '''   Returns the measure update frequency, measured in Hz.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    '''   an integer corresponding to the measure update frequency, measured in Hz
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
@@ -542,7 +542,7 @@ Module yocto_gyro
 
     '''*
     ''' <summary>
-    '''   Changes the measure update frequency, measured in Hz (Yocto-3D-V2 only).
+    '''   Changes the measure update frequency, measured in Hz.
     ''' <para>
     '''   When the
     '''   frequency is lower, the device performs averaging.
@@ -553,7 +553,7 @@ Module yocto_gyro
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the measure update frequency, measured in Hz (Yocto-3D-V2 only)
+    '''   an integer corresponding to the measure update frequency, measured in Hz
     ''' </param>
     ''' <para>
     ''' </para>

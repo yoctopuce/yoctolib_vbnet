@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_refframe.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_refframe.vb 42951 2020-12-14 09:43:29Z seb $
 '
 '  Implements yFindRefFrame(), the high-level API for RefFrame functions
 '
@@ -77,6 +77,9 @@ end enum
   Public Const Y_FUSIONMODE_M4G As Integer = 2
   Public Const Y_FUSIONMODE_COMPASS As Integer = 3
   Public Const Y_FUSIONMODE_IMU As Integer = 4
+  Public Const Y_FUSIONMODE_INCLIN_90DEG_1G8 As Integer = 5
+  Public Const Y_FUSIONMODE_INCLIN_90DEG_3G6 As Integer = 6
+  Public Const Y_FUSIONMODE_INCLIN_10DEG As Integer = 7
   Public Const Y_FUSIONMODE_INVALID As Integer = -1
   Public Delegate Sub YRefFrameValueCallback(ByVal func As YRefFrame, ByVal value As String)
   Public Delegate Sub YRefFrameTimedReportCallback(ByVal func As YRefFrame, ByVal measure As YMeasure)
@@ -90,8 +93,8 @@ end enum
   '''   sensors.
   ''' <para>
   '''   Thanks to this, orientation functions relative to the earth surface plane
-  '''   can use the proper reference frame. The class also implements a tridimensional
-  '''   sensor calibration process, which can compensate for local variations
+  '''   can use the proper reference frame. For some devices, the class also implements a
+  '''   tridimensional sensor calibration process, which can compensate for local variations
   '''   of standard gravity and improve the precision of the tilt sensors.
   ''' </para>
   ''' </summary>
@@ -109,6 +112,9 @@ end enum
     Public Const FUSIONMODE_M4G As Integer = 2
     Public Const FUSIONMODE_COMPASS As Integer = 3
     Public Const FUSIONMODE_IMU As Integer = 4
+    Public Const FUSIONMODE_INCLIN_90DEG_1G8 As Integer = 5
+    Public Const FUSIONMODE_INCLIN_90DEG_3G6 As Integer = 6
+    Public Const FUSIONMODE_INCLIN_10DEG As Integer = 7
     Public Const FUSIONMODE_INVALID As Integer = -1
     REM --- (end of YRefFrame definitions)
 
@@ -299,16 +305,18 @@ end enum
     End Function
     '''*
     ''' <summary>
-    '''   Returns the BNO055 fusion mode.
+    '''   Returns the sensor fusion mode.
     ''' <para>
-    '''   Note this feature is only availabe on Yocto-3D-V2.
+    '''   Note that available sensor fusion modes depend on the sensor type.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a value among <c>Y_FUSIONMODE_NDOF</c>, <c>Y_FUSIONMODE_NDOF_FMC_OFF</c>, <c>Y_FUSIONMODE_M4G</c>,
-    '''   <c>Y_FUSIONMODE_COMPASS</c> and <c>Y_FUSIONMODE_IMU</c> corresponding to the BNO055 fusion mode
+    '''   <c>Y_FUSIONMODE_COMPASS</c>, <c>Y_FUSIONMODE_IMU</c>, <c>Y_FUSIONMODE_INCLIN_90DEG_1G8</c>,
+    '''   <c>Y_FUSIONMODE_INCLIN_90DEG_3G6</c> and <c>Y_FUSIONMODE_INCLIN_10DEG</c> corresponding to the
+    '''   sensor fusion mode
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>Y_FUSIONMODE_INVALID</c>.
@@ -328,9 +336,9 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Change the BNO055 fusion mode.
+    '''   Change the sensor fusion mode.
     ''' <para>
-    '''   Note: this feature is only availabe on Yocto-3D-V2.
+    '''   Note that available sensor fusion modes depend on the sensor type.
     '''   Remember to call the matching module <c>saveToFlash()</c> method to save the setting permanently.
     ''' </para>
     ''' <para>
@@ -338,7 +346,8 @@ end enum
     ''' </summary>
     ''' <param name="newval">
     '''   a value among <c>Y_FUSIONMODE_NDOF</c>, <c>Y_FUSIONMODE_NDOF_FMC_OFF</c>, <c>Y_FUSIONMODE_M4G</c>,
-    '''   <c>Y_FUSIONMODE_COMPASS</c> and <c>Y_FUSIONMODE_IMU</c>
+    '''   <c>Y_FUSIONMODE_COMPASS</c>, <c>Y_FUSIONMODE_IMU</c>, <c>Y_FUSIONMODE_INCLIN_90DEG_1G8</c>,
+    '''   <c>Y_FUSIONMODE_INCLIN_90DEG_3G6</c> and <c>Y_FUSIONMODE_INCLIN_10DEG</c>
     ''' </param>
     ''' <para>
     ''' </para>
