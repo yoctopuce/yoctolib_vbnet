@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_anbutton.vb 42053 2020-10-14 09:46:00Z seb $
+'  $Id: yocto_anbutton.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindAnButton(), the high-level API for AnButton functions
 '
@@ -68,8 +68,9 @@ Module yocto_anbutton
   Public Const Y_LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
-  Public Const Y_INPUTTYPE_ANALOG As Integer = 0
+  Public Const Y_INPUTTYPE_ANALOG_FAST As Integer = 0
   Public Const Y_INPUTTYPE_DIGITAL4 As Integer = 1
+  Public Const Y_INPUTTYPE_ANALOG_SMOOTH As Integer = 2
   Public Const Y_INPUTTYPE_INVALID As Integer = -1
   Public Delegate Sub YAnButtonValueCallback(ByVal func As YAnButton, ByVal value As String)
   Public Delegate Sub YAnButtonTimedReportCallback(ByVal func As YAnButton, ByVal measure As YMeasure)
@@ -110,8 +111,9 @@ Module yocto_anbutton
     Public Const LASTTIMERELEASED_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSECOUNTER_INVALID As Long = YAPI.INVALID_LONG
     Public Const PULSETIMER_INVALID As Long = YAPI.INVALID_LONG
-    Public Const INPUTTYPE_ANALOG As Integer = 0
+    Public Const INPUTTYPE_ANALOG_FAST As Integer = 0
     Public Const INPUTTYPE_DIGITAL4 As Integer = 1
+    Public Const INPUTTYPE_ANALOG_SMOOTH As Integer = 2
     Public Const INPUTTYPE_INVALID As Integer = -1
     REM --- (end of YAnButton definitions)
 
@@ -208,7 +210,7 @@ Module yocto_anbutton
     '''   an integer corresponding to the current calibrated input value (between 0 and 1000, included)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CALIBRATEDVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.CALIBRATEDVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_calibratedValue() As Integer
@@ -234,7 +236,7 @@ Module yocto_anbutton
     '''   an integer corresponding to the current measured input value as-is (between 0 and 4095, included)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RAWVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.RAWVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rawValue() As Integer
@@ -257,10 +259,10 @@ Module yocto_anbutton
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ANALOGCALIBRATION_OFF</c> or <c>Y_ANALOGCALIBRATION_ON</c>
+    '''   either <c>YAnButton.ANALOGCALIBRATION_OFF</c> or <c>YAnButton.ANALOGCALIBRATION_ON</c>
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ANALOGCALIBRATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.ANALOGCALIBRATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_analogCalibration() As Integer
@@ -286,12 +288,12 @@ Module yocto_anbutton
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_ANALOGCALIBRATION_OFF</c> or <c>Y_ANALOGCALIBRATION_ON</c>
+    '''   either <c>YAnButton.ANALOGCALIBRATION_OFF</c> or <c>YAnButton.ANALOGCALIBRATION_ON</c>
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -314,7 +316,7 @@ Module yocto_anbutton
     '''   an integer corresponding to the maximal value measured during the calibration (between 0 and 4095, included)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CALIBRATIONMAX_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.CALIBRATIONMAX_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_calibrationMax() As Integer
@@ -348,7 +350,7 @@ Module yocto_anbutton
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -371,7 +373,7 @@ Module yocto_anbutton
     '''   an integer corresponding to the minimal value measured during the calibration (between 0 and 4095, included)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CALIBRATIONMIN_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.CALIBRATIONMIN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_calibrationMin() As Integer
@@ -405,7 +407,7 @@ Module yocto_anbutton
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -428,7 +430,7 @@ Module yocto_anbutton
     '''   an integer corresponding to the sensibility for the input (between 1 and 1000) for triggering user callbacks
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SENSITIVITY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.SENSITIVITY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_sensitivity() As Integer
@@ -462,7 +464,7 @@ Module yocto_anbutton
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -482,11 +484,11 @@ Module yocto_anbutton
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ISPRESSED_FALSE</c> or <c>Y_ISPRESSED_TRUE</c>, according to true if the input
-    '''   (considered as binary) is active (closed contact), and false otherwise
+    '''   either <c>YAnButton.ISPRESSED_FALSE</c> or <c>YAnButton.ISPRESSED_TRUE</c>, according to true if
+    '''   the input (considered as binary) is active (closed contact), and false otherwise
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ISPRESSED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.ISPRESSED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_isPressed() As Integer
@@ -514,7 +516,7 @@ Module yocto_anbutton
     '''   the input button was pressed (the input contact transitioned from open to closed)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LASTTIMEPRESSED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.LASTTIMEPRESSED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_lastTimePressed() As Long
@@ -542,7 +544,7 @@ Module yocto_anbutton
     '''   the input button was released (the input contact transitioned from closed to open)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LASTTIMERELEASED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.LASTTIMERELEASED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_lastTimeReleased() As Long
@@ -571,7 +573,7 @@ Module yocto_anbutton
     '''   an integer corresponding to the pulse counter value
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSECOUNTER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.PULSECOUNTER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseCounter() As Long
@@ -603,7 +605,7 @@ Module yocto_anbutton
     '''   an integer corresponding to the timer of the pulses counter (ms)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSETIMER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.PULSETIMER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseTimer() As Long
@@ -626,11 +628,12 @@ Module yocto_anbutton
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_INPUTTYPE_ANALOG</c> or <c>Y_INPUTTYPE_DIGITAL4</c>, according to the decoding method
-    '''   applied to the input (analog or multiplexed binary switches)
+    '''   a value among <c>YAnButton.INPUTTYPE_ANALOG_FAST</c>, <c>YAnButton.INPUTTYPE_DIGITAL4</c> and
+    '''   <c>YAnButton.INPUTTYPE_ANALOG_SMOOTH</c> corresponding to the decoding method applied to the input
+    '''   (analog or multiplexed binary switches)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_INPUTTYPE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAnButton.INPUTTYPE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_inputType() As Integer
@@ -655,13 +658,14 @@ Module yocto_anbutton
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_INPUTTYPE_ANALOG</c> or <c>Y_INPUTTYPE_DIGITAL4</c>, according to the decoding method
-    '''   applied to the input (analog or multiplexed binary switches)
+    '''   a value among <c>YAnButton.INPUTTYPE_ANALOG_FAST</c>, <c>YAnButton.INPUTTYPE_DIGITAL4</c> and
+    '''   <c>YAnButton.INPUTTYPE_ANALOG_SMOOTH</c> corresponding to the decoding method applied to the input
+    '''   (analog or multiplexed binary switches)
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -784,7 +788,7 @@ Module yocto_anbutton
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

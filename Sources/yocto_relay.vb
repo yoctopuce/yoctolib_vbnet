@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_relay.vb 41109 2020-06-29 12:40:42Z seb $
+'  $Id: yocto_relay.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindRelay(), the high-level API for Relay functions
 '
@@ -191,11 +191,11 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_STATE_A</c> or <c>Y_STATE_B</c>, according to the state of the relays (A for the idle
-    '''   position, B for the active position)
+    '''   either <c>YRelay.STATE_A</c> or <c>YRelay.STATE_B</c>, according to the state of the relays (A for
+    '''   the idle position, B for the active position)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_STATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRelay.STATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_state() As Integer
@@ -219,13 +219,13 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_STATE_A</c> or <c>Y_STATE_B</c>, according to the state of the relays (A for the idle
-    '''   position, B for the active position)
+    '''   either <c>YRelay.STATE_A</c> or <c>YRelay.STATE_B</c>, according to the state of the relays (A for
+    '''   the idle position, B for the active position)
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -246,12 +246,13 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_STATEATPOWERON_UNCHANGED</c>, <c>Y_STATEATPOWERON_A</c> and
-    '''   <c>Y_STATEATPOWERON_B</c> corresponding to the state of the relays at device startup (A for the idle position,
+    '''   a value among <c>YRelay.STATEATPOWERON_UNCHANGED</c>, <c>YRelay.STATEATPOWERON_A</c> and
+    '''   <c>YRelay.STATEATPOWERON_B</c> corresponding to the state of the relays at device startup (A for
+    '''   the idle position,
     '''   B for the active position, UNCHANGED to leave the relay state as is)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_STATEATPOWERON_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRelay.STATEATPOWERON_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_stateAtPowerOn() As Integer
@@ -278,14 +279,15 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_STATEATPOWERON_UNCHANGED</c>, <c>Y_STATEATPOWERON_A</c> and
-    '''   <c>Y_STATEATPOWERON_B</c> corresponding to the state of the relays at device startup (A for the idle position,
+    '''   a value among <c>YRelay.STATEATPOWERON_UNCHANGED</c>, <c>YRelay.STATEATPOWERON_A</c> and
+    '''   <c>YRelay.STATEATPOWERON_B</c> corresponding to the state of the relays at device startup (A for
+    '''   the idle position,
     '''   B for the active position, UNCHANGED to leave the relay state as is)
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -311,7 +313,7 @@ End Class
     '''   A before automatically switching back in to B state
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MAXTIMEONSTATEA_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRelay.MAXTIMEONSTATEA_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_maxTimeOnStateA() As Long
@@ -345,7 +347,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -370,7 +372,7 @@ End Class
     '''   an integer
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MAXTIMEONSTATEB_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRelay.MAXTIMEONSTATEB_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_maxTimeOnStateB() As Long
@@ -404,7 +406,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -424,11 +426,11 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_OUTPUT_OFF</c> or <c>Y_OUTPUT_ON</c>, according to the output state of the relays, when
-    '''   used as a simple switch (single throw)
+    '''   either <c>YRelay.OUTPUT_OFF</c> or <c>YRelay.OUTPUT_ON</c>, according to the output state of the
+    '''   relays, when used as a simple switch (single throw)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_OUTPUT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRelay.OUTPUT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_output() As Integer
@@ -452,13 +454,13 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_OUTPUT_OFF</c> or <c>Y_OUTPUT_ON</c>, according to the output state of the relays, when
-    '''   used as a simple switch (single throw)
+    '''   either <c>YRelay.OUTPUT_OFF</c> or <c>YRelay.OUTPUT_ON</c>, according to the output state of the
+    '''   relays, when used as a simple switch (single throw)
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -484,7 +486,7 @@ End Class
     '''   (state A), during a measured pulse generation
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSETIMER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRelay.PULSETIMER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseTimer() As Long
@@ -520,7 +522,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -566,7 +568,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -591,7 +593,7 @@ End Class
     '''   When there is no scheduled pulse, returns zero
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COUNTDOWN_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRelay.COUNTDOWN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_countdown() As Long
@@ -717,7 +719,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

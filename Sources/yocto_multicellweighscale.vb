@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multicellweighscale.vb 41108 2020-06-29 12:29:07Z seb $
+'  $Id: yocto_multicellweighscale.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '
@@ -54,6 +54,9 @@ Module yocto_multicellweighscale
   REM --- (YMultiCellWeighScale globals)
 
   Public Const Y_CELLCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_EXTERNALSENSE_FALSE As Integer = 0
+  Public Const Y_EXTERNALSENSE_TRUE As Integer = 1
+  Public Const Y_EXTERNALSENSE_INVALID As Integer = -1
   Public Const Y_EXCITATION_OFF As Integer = 0
   Public Const Y_EXCITATION_DC As Integer = 1
   Public Const Y_EXCITATION_AC As Integer = 2
@@ -89,6 +92,9 @@ Module yocto_multicellweighscale
 
     REM --- (YMultiCellWeighScale definitions)
     Public Const CELLCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const EXTERNALSENSE_FALSE As Integer = 0
+    Public Const EXTERNALSENSE_TRUE As Integer = 1
+    Public Const EXTERNALSENSE_INVALID As Integer = -1
     Public Const EXCITATION_OFF As Integer = 0
     Public Const EXCITATION_DC As Integer = 1
     Public Const EXCITATION_AC As Integer = 2
@@ -104,6 +110,7 @@ Module yocto_multicellweighscale
 
     REM --- (YMultiCellWeighScale attributes declaration)
     Protected _cellCount As Integer
+    Protected _externalSense As Integer
     Protected _excitation As Integer
     Protected _tempAvgAdaptRatio As Double
     Protected _tempChgAdaptRatio As Double
@@ -121,6 +128,7 @@ Module yocto_multicellweighscale
       _classname = "MultiCellWeighScale"
       REM --- (YMultiCellWeighScale attributes initialization)
       _cellCount = CELLCOUNT_INVALID
+      _externalSense = EXTERNALSENSE_INVALID
       _excitation = EXCITATION_INVALID
       _tempAvgAdaptRatio = TEMPAVGADAPTRATIO_INVALID
       _tempChgAdaptRatio = TEMPCHGADAPTRATIO_INVALID
@@ -139,6 +147,9 @@ Module yocto_multicellweighscale
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("cellCount") Then
         _cellCount = CInt(json_val.getLong("cellCount"))
+      End If
+      If json_val.has("externalSense") Then
+        If (json_val.getInt("externalSense") > 0) Then _externalSense = 1 Else _externalSense = 0
       End If
       If json_val.has("excitation") Then
         _excitation = CInt(json_val.getLong("excitation"))
@@ -187,7 +198,7 @@ Module yocto_multicellweighscale
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -210,7 +221,7 @@ Module yocto_multicellweighscale
     '''   an integer corresponding to the number of load cells in use
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CELLCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiCellWeighScale.CELLCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_cellCount() As Integer
@@ -241,7 +252,7 @@ Module yocto_multicellweighscale
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -254,6 +265,64 @@ Module yocto_multicellweighscale
     End Function
     '''*
     ''' <summary>
+    '''   Returns true if entry 4 is used as external sense for 6-wires load cells.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YMultiCellWeighScale.EXTERNALSENSE_FALSE</c> or <c>YMultiCellWeighScale.EXTERNALSENSE_TRUE</c>,
+    '''   according to true if entry 4 is used as external sense for 6-wires load cells
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMultiCellWeighScale.EXTERNALSENSE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_externalSense() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return EXTERNALSENSE_INVALID
+        End If
+      End If
+      res = Me._externalSense
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the configuration to tell if entry 4 is used as external sense for
+    '''   6-wires load cells.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the
+    '''   module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YMultiCellWeighScale.EXTERNALSENSE_FALSE</c> or <c>YMultiCellWeighScale.EXTERNALSENSE_TRUE</c>,
+    '''   according to the configuration to tell if entry 4 is used as external sense for
+    '''   6-wires load cells
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_externalSense(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("externalSense", rest_val)
+    End Function
+    '''*
+    ''' <summary>
     '''   Returns the current load cell bridge excitation method.
     ''' <para>
     ''' </para>
@@ -261,11 +330,11 @@ Module yocto_multicellweighscale
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_EXCITATION_OFF</c>, <c>Y_EXCITATION_DC</c> and <c>Y_EXCITATION_AC</c>
-    '''   corresponding to the current load cell bridge excitation method
+    '''   a value among <c>YMultiCellWeighScale.EXCITATION_OFF</c>, <c>YMultiCellWeighScale.EXCITATION_DC</c>
+    '''   and <c>YMultiCellWeighScale.EXCITATION_AC</c> corresponding to the current load cell bridge excitation method
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_EXCITATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiCellWeighScale.EXCITATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_excitation() As Integer
@@ -291,13 +360,13 @@ Module yocto_multicellweighscale
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_EXCITATION_OFF</c>, <c>Y_EXCITATION_DC</c> and <c>Y_EXCITATION_AC</c>
-    '''   corresponding to the current load cell bridge excitation method
+    '''   a value among <c>YMultiCellWeighScale.EXCITATION_OFF</c>, <c>YMultiCellWeighScale.EXCITATION_DC</c>
+    '''   and <c>YMultiCellWeighScale.EXCITATION_AC</c> corresponding to the current load cell bridge excitation method
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -329,7 +398,7 @@ Module yocto_multicellweighscale
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -356,7 +425,7 @@ Module yocto_multicellweighscale
     '''   a floating point number corresponding to the averaged temperature update rate, in per mille
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TEMPAVGADAPTRATIO_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiCellWeighScale.TEMPAVGADAPTRATIO_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_tempAvgAdaptRatio() As Double
@@ -390,7 +459,7 @@ Module yocto_multicellweighscale
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -416,7 +485,7 @@ Module yocto_multicellweighscale
     '''   a floating point number corresponding to the temperature change update rate, in per mille
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TEMPCHGADAPTRATIO_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiCellWeighScale.TEMPCHGADAPTRATIO_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_tempChgAdaptRatio() As Double
@@ -442,7 +511,7 @@ Module yocto_multicellweighscale
     '''   a floating point number corresponding to the current averaged temperature, used for thermal compensation
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COMPTEMPAVG_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiCellWeighScale.COMPTEMPAVG_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_compTempAvg() As Double
@@ -468,7 +537,7 @@ Module yocto_multicellweighscale
     '''   a floating point number corresponding to the current temperature variation, used for thermal compensation
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COMPTEMPCHG_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiCellWeighScale.COMPTEMPCHG_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_compTempChg() As Double
@@ -494,7 +563,7 @@ Module yocto_multicellweighscale
     '''   a floating point number corresponding to the current current thermal compensation value
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COMPENSATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiCellWeighScale.COMPENSATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_compensation() As Double
@@ -528,7 +597,7 @@ Module yocto_multicellweighscale
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -554,7 +623,7 @@ Module yocto_multicellweighscale
     '''   a floating point number corresponding to the zero tracking threshold value
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ZEROTRACKING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiCellWeighScale.ZEROTRACKING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_zeroTracking() As Double
@@ -741,7 +810,7 @@ Module yocto_multicellweighscale
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -767,7 +836,7 @@ Module yocto_multicellweighscale
     '''   maximum weight to be expected on the load cell.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

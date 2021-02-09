@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 42095 2020-10-16 18:10:08Z mvuilleu $
+'* $Id: yocto_display.vb 43619 2021-01-29 09:14:45Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -132,7 +132,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -153,7 +153,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -177,7 +177,7 @@ end enum
     '''   the desired pen color, as a 24-bit RGB value
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -203,7 +203,7 @@ end enum
     '''   the desired gray level, from 0 to 255
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -224,7 +224,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -251,7 +251,7 @@ end enum
     '''   disable it.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -274,7 +274,7 @@ end enum
     '''   the distance from top of layer, in pixels
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -303,7 +303,7 @@ end enum
     '''   the distance from top of layer to the bottom border of the rectangle, in pixels
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -332,7 +332,7 @@ end enum
     '''   the distance from top of layer to the bottom border of the rectangle, in pixels
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -358,7 +358,7 @@ end enum
     '''   the radius of the circle, in pixels
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -384,7 +384,7 @@ end enum
     '''   the radius of the disc, in pixels
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -410,7 +410,7 @@ end enum
     '''   Yocto-MiniDisplay).
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -436,21 +436,21 @@ end enum
     '''   the distance from top of layer to the text anchor point, in pixels
     ''' </param>
     ''' <param name="anchor">
-    '''   the text anchor point, chosen among the <c>Y_ALIGN</c> enumeration:
-    '''   <c>Y_ALIGN_TOP_LEFT</c>,    <c>Y_ALIGN_CENTER_LEFT</c>,    <c>Y_ALIGN_BASELINE_LEFT</c>,   
-    '''   <c>Y_ALIGN_BOTTOM_LEFT</c>,
-    '''   <c>Y_ALIGN_TOP_CENTER</c>,  <c>Y_ALIGN_CENTER</c>,         <c>Y_ALIGN_BASELINE_CENTER</c>, 
-    '''   <c>Y_ALIGN_BOTTOM_CENTER</c>,
-    '''   <c>Y_ALIGN_TOP_DECIMAL</c>, <c>Y_ALIGN_CENTER_DECIMAL</c>, <c>Y_ALIGN_BASELINE_DECIMAL</c>,
-    '''   <c>Y_ALIGN_BOTTOM_DECIMAL</c>,
-    '''   <c>Y_ALIGN_TOP_RIGHT</c>,   <c>Y_ALIGN_CENTER_RIGHT</c>,   <c>Y_ALIGN_BASELINE_RIGHT</c>,  
-    '''   <c>Y_ALIGN_BOTTOM_RIGHT</c>.
+    '''   the text anchor point, chosen among the <c>YDisplayLayer.ALIGN</c> enumeration:
+    '''   <c>YDisplayLayer.ALIGN_TOP_LEFT</c>,         <c>YDisplayLayer.ALIGN_CENTER_LEFT</c>,
+    '''   <c>YDisplayLayer.ALIGN_BASELINE_LEFT</c>,    <c>YDisplayLayer.ALIGN_BOTTOM_LEFT</c>,
+    '''   <c>YDisplayLayer.ALIGN_TOP_CENTER</c>,       <c>YDisplayLayer.ALIGN_CENTER</c>,
+    '''   <c>YDisplayLayer.ALIGN_BASELINE_CENTER</c>,  <c>YDisplayLayer.ALIGN_BOTTOM_CENTER</c>,
+    '''   <c>YDisplayLayer.ALIGN_TOP_DECIMAL</c>,      <c>YDisplayLayer.ALIGN_CENTER_DECIMAL</c>,
+    '''   <c>YDisplayLayer.ALIGN_BASELINE_DECIMAL</c>, <c>YDisplayLayer.ALIGN_BOTTOM_DECIMAL</c>,
+    '''   <c>YDisplayLayer.ALIGN_TOP_RIGHT</c>,        <c>YDisplayLayer.ALIGN_CENTER_RIGHT</c>,
+    '''   <c>YDisplayLayer.ALIGN_BASELINE_RIGHT</c>,   <c>YDisplayLayer.ALIGN_BOTTOM_RIGHT</c>.
     ''' </param>
     ''' <param name="text">
     '''   the text string to draw
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -480,7 +480,7 @@ end enum
     '''   the GIF file name
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -520,7 +520,7 @@ end enum
     '''   255 = white), or -1 to leave the pixels unchanged
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -545,7 +545,7 @@ end enum
     '''   the distance from top of layer, in pixels
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -570,7 +570,7 @@ end enum
     '''   the distance from top of layer to the end point of the line, in pixels
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -594,7 +594,7 @@ end enum
     '''   the message to display
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -623,7 +623,7 @@ end enum
     '''   the distance from top of layer to the bottom margin, in pixels
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -645,7 +645,7 @@ end enum
     '''   255 = white), or -1 for transparent
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -666,7 +666,7 @@ end enum
     '''   <c>false</c> to wrap on the last column anyway.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -684,7 +684,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -713,7 +713,7 @@ end enum
     '''   0 if the scrolling should be immediate.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -734,7 +734,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -754,7 +754,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -790,7 +790,7 @@ end enum
     '''   an integer corresponding to the display width, in pixels
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_DISPLAYWIDTH_INVALID.
+    '''   On failure, throws an exception or returns YDisplayLayer.DISPLAYWIDTH_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_displayWidth() As Integer
@@ -807,7 +807,7 @@ end enum
     '''   an integer corresponding to the display height, in pixels
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_DISPLAYHEIGHT_INVALID.
+    '''   On failure, throws an exception or returns YDisplayLayer.DISPLAYHEIGHT_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_displayHeight() As Integer
@@ -824,7 +824,7 @@ end enum
     '''   an integer corresponding to the width of the layers to draw on, in pixels
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_LAYERWIDTH_INVALID.
+    '''   On failure, throws an exception or returns YDisplayLayer.LAYERWIDTH_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_layerWidth() As Integer
@@ -841,7 +841,7 @@ end enum
     '''   an integer corresponding to the height of the layers to draw on, in pixels
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_LAYERHEIGHT_INVALID.
+    '''   On failure, throws an exception or returns YDisplayLayer.LAYERHEIGHT_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_layerHeight() As Integer
@@ -1037,11 +1037,11 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to true if the screen is powered,
-    '''   false otherwise
+    '''   either <c>YDisplay.ENABLED_FALSE</c> or <c>YDisplay.ENABLED_TRUE</c>, according to true if the
+    '''   screen is powered, false otherwise
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ENABLED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.ENABLED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_enabled() As Integer
@@ -1065,12 +1065,13 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the power state of the display
+    '''   either <c>YDisplay.ENABLED_FALSE</c> or <c>YDisplay.ENABLED_TRUE</c>, according to the power state
+    '''   of the display
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1093,7 +1094,7 @@ end enum
     '''   a string corresponding to the name of the sequence to play when the displayed is powered on
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_STARTUPSEQ_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.STARTUPSEQ_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_startupSeq() As String
@@ -1124,7 +1125,7 @@ end enum
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1147,7 +1148,7 @@ end enum
     '''   an integer corresponding to the luminosity of the  module informative LEDs (from 0 to 100)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BRIGHTNESS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.BRIGHTNESS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_brightness() As Integer
@@ -1179,7 +1180,7 @@ end enum
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1199,11 +1200,12 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_ORIENTATION_LEFT</c>, <c>Y_ORIENTATION_UP</c>, <c>Y_ORIENTATION_RIGHT</c> and
-    '''   <c>Y_ORIENTATION_DOWN</c> corresponding to the currently selected display orientation
+    '''   a value among <c>YDisplay.ORIENTATION_LEFT</c>, <c>YDisplay.ORIENTATION_UP</c>,
+    '''   <c>YDisplay.ORIENTATION_RIGHT</c> and <c>YDisplay.ORIENTATION_DOWN</c> corresponding to the
+    '''   currently selected display orientation
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ORIENTATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.ORIENTATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_orientation() As Integer
@@ -1229,13 +1231,13 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_ORIENTATION_LEFT</c>, <c>Y_ORIENTATION_UP</c>, <c>Y_ORIENTATION_RIGHT</c> and
-    '''   <c>Y_ORIENTATION_DOWN</c> corresponding to the display orientation
+    '''   a value among <c>YDisplay.ORIENTATION_LEFT</c>, <c>YDisplay.ORIENTATION_UP</c>,
+    '''   <c>YDisplay.ORIENTATION_RIGHT</c> and <c>YDisplay.ORIENTATION_DOWN</c> corresponding to the display orientation
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1258,7 +1260,7 @@ end enum
     '''   an integer corresponding to the display width, in pixels
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DISPLAYWIDTH_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.DISPLAYWIDTH_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_displayWidth() As Integer
@@ -1284,7 +1286,7 @@ end enum
     '''   an integer corresponding to the display height, in pixels
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DISPLAYHEIGHT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.DISPLAYHEIGHT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_displayHeight() As Integer
@@ -1307,11 +1309,11 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_DISPLAYTYPE_MONO</c>, <c>Y_DISPLAYTYPE_GRAY</c> and <c>Y_DISPLAYTYPE_RGB</c>
-    '''   corresponding to the display type: monochrome, gray levels or full color
+    '''   a value among <c>YDisplay.DISPLAYTYPE_MONO</c>, <c>YDisplay.DISPLAYTYPE_GRAY</c> and
+    '''   <c>YDisplay.DISPLAYTYPE_RGB</c> corresponding to the display type: monochrome, gray levels or full color
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DISPLAYTYPE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.DISPLAYTYPE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_displayType() As Integer
@@ -1337,7 +1339,7 @@ end enum
     '''   an integer corresponding to the width of the layers to draw on, in pixels
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LAYERWIDTH_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.LAYERWIDTH_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_layerWidth() As Integer
@@ -1363,7 +1365,7 @@ end enum
     '''   an integer corresponding to the height of the layers to draw on, in pixels
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LAYERHEIGHT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.LAYERHEIGHT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_layerHeight() As Integer
@@ -1389,7 +1391,7 @@ end enum
     '''   an integer corresponding to the number of available layers to draw on
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LAYERCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDisplay.LAYERCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_layerCount() As Integer
@@ -1536,7 +1538,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1562,7 +1564,7 @@ end enum
     '''   duration of the brightness transition, in milliseconds.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1582,7 +1584,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1608,7 +1610,7 @@ end enum
     '''   the name of the newly created sequence
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1634,7 +1636,7 @@ end enum
     '''   the name of the newly created sequence
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1661,7 +1663,7 @@ end enum
     '''   the duration to wait, in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1680,7 +1682,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1707,7 +1709,7 @@ end enum
     '''   binary buffer with the content to set
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1735,7 +1737,7 @@ end enum
     '''   the identifier of the destination layer (a number in range 0..layerCount-1)
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1765,7 +1767,7 @@ end enum
     '''   the second layer (a number in range 0..layerCount-1)
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

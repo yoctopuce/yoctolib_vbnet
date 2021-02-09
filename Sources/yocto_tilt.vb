@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_tilt.vb 42951 2020-12-14 09:43:29Z seb $
+'  $Id: yocto_tilt.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindTilt(), the high-level API for Tilt functions
 '
@@ -137,7 +137,7 @@ Module yocto_tilt
     '''   an integer corresponding to the measure update frequency, measured in Hz
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YTilt.BANDWIDTH_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_bandwidth() As Integer
@@ -170,7 +170,7 @@ Module yocto_tilt
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -346,7 +346,7 @@ Module yocto_tilt
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -374,7 +374,7 @@ Module yocto_tilt
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

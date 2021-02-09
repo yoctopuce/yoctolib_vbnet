@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_bluetoothlink.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_bluetoothlink.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindBluetoothLink(), the high-level API for BluetoothLink functions
 '
@@ -194,7 +194,7 @@ Module yocto_bluetoothlink
     '''   bluetooth network
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_OWNADDRESS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBluetoothLink.OWNADDRESS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_ownAddress() As String
@@ -224,7 +224,7 @@ Module yocto_bluetoothlink
     '''   was rejected by the SIM card
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PAIRINGPIN_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBluetoothLink.PAIRINGPIN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pairingPin() As String
@@ -255,7 +255,7 @@ Module yocto_bluetoothlink
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -278,7 +278,7 @@ Module yocto_bluetoothlink
     '''   a string corresponding to the MAC-48 address of the remote device to connect to
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_REMOTEADDRESS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBluetoothLink.REMOTEADDRESS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_remoteAddress() As String
@@ -309,7 +309,7 @@ Module yocto_bluetoothlink
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -332,7 +332,7 @@ Module yocto_bluetoothlink
     '''   a string corresponding to the bluetooth name the remote device, if found on the bluetooth network
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_REMOTENAME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBluetoothLink.REMOTENAME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_remoteName() As String
@@ -355,10 +355,11 @@ Module yocto_bluetoothlink
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_MUTE_FALSE</c> or <c>Y_MUTE_TRUE</c>, according to the state of the mute function
+    '''   either <c>YBluetoothLink.MUTE_FALSE</c> or <c>YBluetoothLink.MUTE_TRUE</c>, according to the state
+    '''   of the mute function
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MUTE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBluetoothLink.MUTE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_mute() As Integer
@@ -384,12 +385,13 @@ Module yocto_bluetoothlink
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_MUTE_FALSE</c> or <c>Y_MUTE_TRUE</c>, according to the state of the mute function
+    '''   either <c>YBluetoothLink.MUTE_FALSE</c> or <c>YBluetoothLink.MUTE_TRUE</c>, according to the state
+    '''   of the mute function
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -412,7 +414,7 @@ Module yocto_bluetoothlink
     '''   an integer corresponding to the audio pre-amplifier volume, in per cents
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PREAMPLIFIER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBluetoothLink.PREAMPLIFIER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_preAmplifier() As Integer
@@ -443,7 +445,7 @@ Module yocto_bluetoothlink
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -466,7 +468,7 @@ Module yocto_bluetoothlink
     '''   an integer corresponding to the connected headset volume, in per cents
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLUME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBluetoothLink.VOLUME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_volume() As Integer
@@ -495,7 +497,7 @@ Module yocto_bluetoothlink
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -515,12 +517,13 @@ Module yocto_bluetoothlink
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_LINKSTATE_DOWN</c>, <c>Y_LINKSTATE_FREE</c>, <c>Y_LINKSTATE_SEARCH</c>,
-    '''   <c>Y_LINKSTATE_EXISTS</c>, <c>Y_LINKSTATE_LINKED</c> and <c>Y_LINKSTATE_PLAY</c> corresponding to
+    '''   a value among <c>YBluetoothLink.LINKSTATE_DOWN</c>, <c>YBluetoothLink.LINKSTATE_FREE</c>,
+    '''   <c>YBluetoothLink.LINKSTATE_SEARCH</c>, <c>YBluetoothLink.LINKSTATE_EXISTS</c>,
+    '''   <c>YBluetoothLink.LINKSTATE_LINKED</c> and <c>YBluetoothLink.LINKSTATE_PLAY</c> corresponding to
     '''   the bluetooth link state
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LINKSTATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBluetoothLink.LINKSTATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_linkState() As Integer
@@ -547,7 +550,7 @@ Module yocto_bluetoothlink
     '''   connection is established
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LINKQUALITY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBluetoothLink.LINKQUALITY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_linkQuality() As Integer
@@ -692,7 +695,7 @@ Module yocto_bluetoothlink
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -711,7 +714,7 @@ Module yocto_bluetoothlink
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

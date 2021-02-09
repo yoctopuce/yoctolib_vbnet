@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 41171 2020-07-02 17:49:00Z mvuilleu $
+'* $Id: yocto_api.vb 43619 2021-01-29 09:14:45Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "42982"
+  Public Const YOCTO_API_BUILD_NO As String = "43781"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1608,7 +1608,7 @@ Module yocto_api
     '''   first time.
     ''' </para>
     ''' <para>
-    '''   When <c>Y_DETECT_NONE</c> is used as detection <c>mode</c>,
+    '''   When <c>YAPI.DETECT_NONE</c> is used as detection <c>mode</c>,
     '''   you must explicitly use <c>yRegisterHub()</c> to point the API to the
     '''   VirtualHub on which your devices are connected before trying to access them.
     ''' </para>
@@ -1616,14 +1616,14 @@ Module yocto_api
     ''' <param name="mode">
     '''   an integer corresponding to the type of automatic
     '''   device detection to use. Possible values are
-    '''   <c>Y_DETECT_NONE</c>, <c>Y_DETECT_USB</c>, <c>Y_DETECT_NET</c>,
-    '''   and <c>Y_DETECT_ALL</c>.
+    '''   <c>YAPI.DETECT_NONE</c>, <c>YAPI.DETECT_USB</c>, <c>YAPI.DETECT_NET</c>,
+    '''   and <c>YAPI.DETECT_ALL</c>.
     ''' </param>
     ''' <param name="errmsg">
     '''   a string passed by reference to receive any error message.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1785,7 +1785,7 @@ Module yocto_api
     '''   a string passed by reference to receive any error message.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1828,7 +1828,7 @@ Module yocto_api
     '''   a string passed by reference to receive any error message.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1891,7 +1891,7 @@ Module yocto_api
     '''   a string passed by reference to receive any error message.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure returns a negative error code.
@@ -1928,7 +1928,7 @@ Module yocto_api
     '''   a string passed by reference to receive any error message.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1984,7 +1984,7 @@ Module yocto_api
     '''   a string passed by reference to receive any error message.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -2044,7 +2044,7 @@ Module yocto_api
     '''   a string passed by reference to receive any error message.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -2092,7 +2092,7 @@ Module yocto_api
     '''   a string passed by reference to receive any error message.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -3315,17 +3315,17 @@ Module yocto_api
     '''   Returns the smallest measure observed within this stream.
     ''' <para>
     '''   If the device uses a firmware older than version 13000,
-    '''   this method will always return Y_DATA_INVALID.
+    '''   this method will always return YDataStream.DATA_INVALID.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a floating-point number corresponding to the smallest value,
-    '''   or Y_DATA_INVALID if the stream is not yet complete (still recording).
+    '''   or YDataStream.DATA_INVALID if the stream is not yet complete (still recording).
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_DATA_INVALID.
+    '''   On failure, throws an exception or returns YDataStream.DATA_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_minValue() As Double
@@ -3337,17 +3337,17 @@ Module yocto_api
     '''   Returns the average of all measures observed within this stream.
     ''' <para>
     '''   If the device uses a firmware older than version 13000,
-    '''   this method will always return Y_DATA_INVALID.
+    '''   this method will always return YDataStream.DATA_INVALID.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a floating-point number corresponding to the average value,
-    '''   or Y_DATA_INVALID if the stream is not yet complete (still recording).
+    '''   or YDataStream.DATA_INVALID if the stream is not yet complete (still recording).
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_DATA_INVALID.
+    '''   On failure, throws an exception or returns YDataStream.DATA_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_averageValue() As Double
@@ -3359,17 +3359,17 @@ Module yocto_api
     '''   Returns the largest measure observed within this stream.
     ''' <para>
     '''   If the device uses a firmware older than version 13000,
-    '''   this method will always return Y_DATA_INVALID.
+    '''   this method will always return YDataStream.DATA_INVALID.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a floating-point number corresponding to the largest value,
-    '''   or Y_DATA_INVALID if the stream is not yet complete (still recording).
+    '''   or YDataStream.DATA_INVALID if the stream is not yet complete (still recording).
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_DATA_INVALID.
+    '''   On failure, throws an exception or returns YDataStream.DATA_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_maxValue() As Double
@@ -3439,7 +3439,7 @@ Module yocto_api
     '''   a floating-point number
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_DATA_INVALID.
+    '''   On failure, throws an exception or returns YDataStream.DATA_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_data(row As Integer, col As Integer) As Double
@@ -4025,7 +4025,7 @@ Module yocto_api
     '''   a string that uniquely identifies the function (ex: <c>THRMCPL1-123456.temperature1</c>)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns  <c>Y_HARDWAREID_INVALID</c>.
+    '''   On failure, throws an exception or returns  <c>YDataSet.HARDWAREID_INVALID</c>.
     ''' </para>
     '''/
     Public Overridable Function get_hardwareId() As String
@@ -4068,7 +4068,7 @@ Module yocto_api
     '''   a string that represents a physical unit.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns  <c>Y_UNIT_INVALID</c>.
+    '''   On failure, throws an exception or returns  <c>YDataSet.UNIT_INVALID</c>.
     ''' </para>
     '''/
     Public Overridable Function get_unit() As String
@@ -5439,7 +5439,7 @@ Module yocto_api
     '''   a string corresponding to the logical name of the function
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGICALNAME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YFunction.LOGICALNAME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_logicalName() As String
@@ -5472,7 +5472,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -5499,7 +5499,7 @@ Module yocto_api
     '''   a string corresponding to a short string representing the current state of the function
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVERTISEDVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YFunction.ADVERTISEDVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_advertisedValue() As String
@@ -5633,7 +5633,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -5653,7 +5653,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -5730,7 +5730,7 @@ Module yocto_api
     '''   a string corresponding to the serial number of the module, as set by the factory.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+    '''   On failure, throws an exception or returns YFunction.SERIALNUMBER_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_serialNumber() As String
@@ -5854,7 +5854,7 @@ Module yocto_api
     '''   a string that uniquely identifies the function (ex: <c>RELAYLO1-123456.relay1</c>)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns  <c>Y_HARDWAREID_INVALID</c>.
+    '''   On failure, throws an exception or returns  <c>YFunction.HARDWAREID_INVALID</c>.
     ''' </para>
     '''/
 
@@ -5900,7 +5900,7 @@ Module yocto_api
     '''   a string that identifies the function (ex: <c>relay1</c>)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns  <c>Y_FUNCTIONID_INVALID</c>.
+    '''   On failure, throws an exception or returns  <c>YFunction.FUNCTIONID_INVALID</c>.
     ''' </para>
     '''/
 
@@ -6203,7 +6203,7 @@ Module yocto_api
     '''   loaded function parameters, in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -6348,7 +6348,7 @@ Module yocto_api
     '''   an identifier of type <c>YFUN_DESCR</c>.
     ''' </returns>
     ''' <para>
-    '''   If the function has never been contacted, the returned value is <c>Y_FUNCTIONDESCRIPTOR_INVALID</c>.
+    '''   If the function has never been contacted, the returned value is <c>Y$CLASSNAME$.FUNCTIONDESCRIPTOR_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_functionDescriptor() As YFUN_DESCR
@@ -6925,7 +6925,7 @@ Module yocto_api
     '''   a string corresponding to the commercial name of the module, as set by the factory
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PRODUCTNAME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.PRODUCTNAME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_productName() As String
@@ -6951,7 +6951,7 @@ Module yocto_api
     '''   a string corresponding to the serial number of the module, as set by the factory
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_SERIALNUMBER_INVALID.
+    '''   On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
     ''' </para>
     '''/
     Public Overrides Function get_serialNumber() As String
@@ -6977,7 +6977,7 @@ Module yocto_api
     '''   an integer corresponding to the USB device identifier of the module
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PRODUCTID_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.PRODUCTID_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_productId() As Integer
@@ -7004,7 +7004,7 @@ Module yocto_api
     '''   an integer corresponding to the release number of the module hardware, preprogrammed at the factory
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PRODUCTRELEASE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.PRODUCTRELEASE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_productRelease() As Integer
@@ -7030,7 +7030,7 @@ Module yocto_api
     '''   a string corresponding to the version of the firmware embedded in the module
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FIRMWARERELEASE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.FIRMWARERELEASE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_firmwareRelease() As String
@@ -7053,11 +7053,11 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_PERSISTENTSETTINGS_LOADED</c>, <c>Y_PERSISTENTSETTINGS_SAVED</c> and
-    '''   <c>Y_PERSISTENTSETTINGS_MODIFIED</c> corresponding to the current state of persistent module settings
+    '''   a value among <c>YModule.PERSISTENTSETTINGS_LOADED</c>, <c>YModule.PERSISTENTSETTINGS_SAVED</c> and
+    '''   <c>YModule.PERSISTENTSETTINGS_MODIFIED</c> corresponding to the current state of persistent module settings
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PERSISTENTSETTINGS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.PERSISTENTSETTINGS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_persistentSettings() As Integer
@@ -7089,7 +7089,7 @@ Module yocto_api
     '''   an integer corresponding to the luminosity of the  module informative LEDs (from 0 to 100)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LUMINOSITY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.LUMINOSITY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_luminosity() As Integer
@@ -7122,7 +7122,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -7142,10 +7142,10 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_BEACON_OFF</c> or <c>Y_BEACON_ON</c>, according to the state of the localization beacon
+    '''   either <c>YModule.BEACON_OFF</c> or <c>YModule.BEACON_ON</c>, according to the state of the localization beacon
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BEACON_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.BEACON_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_beacon() As Integer
@@ -7169,12 +7169,12 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_BEACON_OFF</c> or <c>Y_BEACON_ON</c>
+    '''   either <c>YModule.BEACON_OFF</c> or <c>YModule.BEACON_ON</c>
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -7197,7 +7197,7 @@ Module yocto_api
     '''   an integer corresponding to the number of milliseconds spent since the module was powered on
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_UPTIME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.UPTIME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_upTime() As Long
@@ -7223,7 +7223,7 @@ Module yocto_api
     '''   an integer corresponding to the current consumed by the module on the USB bus, in milli-amps
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_USBCURRENT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.USBCURRENT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_usbCurrent() As Integer
@@ -7251,7 +7251,7 @@ Module yocto_api
     '''   reboot has been scheduled
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_REBOOTCOUNTDOWN_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.REBOOTCOUNTDOWN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rebootCountdown() As Integer
@@ -7284,7 +7284,7 @@ Module yocto_api
     '''   an integer corresponding to the value previously stored in this attribute
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_USERVAR_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YModule.USERVAR_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_userVar() As Integer
@@ -7316,7 +7316,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -7446,7 +7446,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -7464,7 +7464,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -7484,7 +7484,7 @@ Module yocto_api
     '''   number of seconds before rebooting
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -7504,7 +7504,7 @@ Module yocto_api
     '''   number of seconds before rebooting
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -7871,7 +7871,7 @@ Module yocto_api
     '''   a binary buffer with all the settings.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -8296,7 +8296,7 @@ Module yocto_api
     '''   a binary buffer with all the settings.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -8652,7 +8652,7 @@ Module yocto_api
     '''   a binary buffer with the file content
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns  <c>YAPI_INVALID_STRING</c>.
+    '''   On failure, throws an exception or returns  <c>YAPI.INVALID_STRING</c>.
     ''' </para>
     '''/
     Public Overridable Function download(pathname As String) As Byte()
@@ -8671,7 +8671,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a binary buffer with module icon, in png format.
-    '''   On failure, throws an exception or returns  <c>YAPI_INVALID_STRING</c>.
+    '''   On failure, throws an exception or returns  <c>YAPI.INVALID_STRING</c>.
     ''' </returns>
     '''/
     Public Overridable Function get_icon2d() As Byte()
@@ -8690,7 +8690,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a string with last logs of the module.
-    '''   On failure, throws an exception or returns  <c>YAPI_INVALID_STRING</c>.
+    '''   On failure, throws an exception or returns  <c>YAPI.INVALID_STRING</c>.
     ''' </returns>
     '''/
     Public Overridable Function get_lastLogs() As String
@@ -8713,7 +8713,7 @@ Module yocto_api
     '''   the string to append to the logs.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -9113,7 +9113,7 @@ Module yocto_api
     '''   a string corresponding to the measuring unit for the measure
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_UNIT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.UNIT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_unit() As String
@@ -9148,7 +9148,7 @@ Module yocto_api
     '''   as a floating point number
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.CURRENTVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentValue() As Double
@@ -9184,7 +9184,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -9208,7 +9208,7 @@ Module yocto_api
     '''   a floating point number corresponding to the minimal value observed for the measure since the device was started
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOWESTVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.LOWESTVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_lowestValue() As Double
@@ -9240,7 +9240,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -9264,7 +9264,7 @@ Module yocto_api
     '''   a floating point number corresponding to the maximal value observed for the measure since the device was started
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_HIGHESTVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.HIGHESTVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_highestValue() As Double
@@ -9293,7 +9293,7 @@ Module yocto_api
     '''   sensor, in the specified unit, as a floating point number
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTRAWVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.CURRENTRAWVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentRawValue() As Double
@@ -9321,7 +9321,7 @@ Module yocto_api
     '''   when measures are not stored in the data logger flash memory
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOGFREQUENCY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.LOGFREQUENCY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_logFrequency() As String
@@ -9357,7 +9357,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -9382,7 +9382,7 @@ Module yocto_api
     '''   value notifications are disabled for this function
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_REPORTFREQUENCY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.REPORTFREQUENCY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_reportFrequency() As String
@@ -9419,7 +9419,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -9439,12 +9439,12 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_ADVMODE_IMMEDIATE</c>, <c>Y_ADVMODE_PERIOD_AVG</c>, <c>Y_ADVMODE_PERIOD_MIN</c>
-    '''   and <c>Y_ADVMODE_PERIOD_MAX</c> corresponding to the measuring mode used for the advertised value
-    '''   pushed to the parent hub
+    '''   a value among <c>YSensor.ADVMODE_IMMEDIATE</c>, <c>YSensor.ADVMODE_PERIOD_AVG</c>,
+    '''   <c>YSensor.ADVMODE_PERIOD_MIN</c> and <c>YSensor.ADVMODE_PERIOD_MAX</c> corresponding to the
+    '''   measuring mode used for the advertised value pushed to the parent hub
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ADVMODE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.ADVMODE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_advMode() As Integer
@@ -9469,14 +9469,14 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_ADVMODE_IMMEDIATE</c>, <c>Y_ADVMODE_PERIOD_AVG</c>, <c>Y_ADVMODE_PERIOD_MIN</c>
-    '''   and <c>Y_ADVMODE_PERIOD_MAX</c> corresponding to the measuring mode used for the advertised value
-    '''   pushed to the parent hub
+    '''   a value among <c>YSensor.ADVMODE_IMMEDIATE</c>, <c>YSensor.ADVMODE_PERIOD_AVG</c>,
+    '''   <c>YSensor.ADVMODE_PERIOD_MIN</c> and <c>YSensor.ADVMODE_PERIOD_MAX</c> corresponding to the
+    '''   measuring mode used for the advertised value pushed to the parent hub
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -9522,7 +9522,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -9548,7 +9548,7 @@ Module yocto_api
     '''   a floating point number corresponding to the resolution of the measured values
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RESOLUTION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.RESOLUTION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_resolution() As Double
@@ -9576,7 +9576,7 @@ Module yocto_api
     '''   available or a positive code if the sensor is not able to provide a measure right now
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SENSORSTATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSensor.SENSORSTATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_sensorState() As Integer
@@ -9880,7 +9880,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     '''/
     Public Overridable Function startDataLogger() As Integer
@@ -9901,7 +9901,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     '''/
     Public Overridable Function stopDataLogger() As Integer
@@ -10027,7 +10027,7 @@ Module yocto_api
     '''   values for the correction points.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -10060,7 +10060,7 @@ Module yocto_api
     '''   function with the desired values for the correction points.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -10542,7 +10542,7 @@ Module yocto_api
     '''   powered on with the dataLogger enabled at some point
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTRUNINDEX_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDataLogger.CURRENTRUNINDEX_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentRunIndex() As Integer
@@ -10568,7 +10568,7 @@ Module yocto_api
     '''   an integer corresponding to the Unix timestamp for current UTC time, if known
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TIMEUTC_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDataLogger.TIMEUTC_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_timeUTC() As Long
@@ -10597,7 +10597,7 @@ Module yocto_api
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -10617,11 +10617,11 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_RECORDING_OFF</c>, <c>Y_RECORDING_ON</c> and <c>Y_RECORDING_PENDING</c>
-    '''   corresponding to the current activation state of the data logger
+    '''   a value among <c>YDataLogger.RECORDING_OFF</c>, <c>YDataLogger.RECORDING_ON</c> and
+    '''   <c>YDataLogger.RECORDING_PENDING</c> corresponding to the current activation state of the data logger
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RECORDING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDataLogger.RECORDING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_recording() As Integer
@@ -10645,13 +10645,14 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_RECORDING_OFF</c>, <c>Y_RECORDING_ON</c> and <c>Y_RECORDING_PENDING</c>
-    '''   corresponding to the activation state of the data logger to start/stop recording data
+    '''   a value among <c>YDataLogger.RECORDING_OFF</c>, <c>YDataLogger.RECORDING_ON</c> and
+    '''   <c>YDataLogger.RECORDING_PENDING</c> corresponding to the activation state of the data logger to
+    '''   start/stop recording data
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -10671,11 +10672,11 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_AUTOSTART_OFF</c> or <c>Y_AUTOSTART_ON</c>, according to the default activation state
-    '''   of the data logger on power up
+    '''   either <c>YDataLogger.AUTOSTART_OFF</c> or <c>YDataLogger.AUTOSTART_ON</c>, according to the
+    '''   default activation state of the data logger on power up
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_AUTOSTART_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDataLogger.AUTOSTART_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_autoStart() As Integer
@@ -10703,13 +10704,13 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_AUTOSTART_OFF</c> or <c>Y_AUTOSTART_ON</c>, according to the default activation state
-    '''   of the data logger on power up
+    '''   either <c>YDataLogger.AUTOSTART_OFF</c> or <c>YDataLogger.AUTOSTART_ON</c>, according to the
+    '''   default activation state of the data logger on power up
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -10729,11 +10730,11 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_BEACONDRIVEN_OFF</c> or <c>Y_BEACONDRIVEN_ON</c>, according to true if the data logger
-    '''   is synchronised with the localization beacon
+    '''   either <c>YDataLogger.BEACONDRIVEN_OFF</c> or <c>YDataLogger.BEACONDRIVEN_ON</c>, according to true
+    '''   if the data logger is synchronised with the localization beacon
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BEACONDRIVEN_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDataLogger.BEACONDRIVEN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_beaconDriven() As Integer
@@ -10759,13 +10760,13 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_BEACONDRIVEN_OFF</c> or <c>Y_BEACONDRIVEN_ON</c>, according to the type of
-    '''   synchronisation of the data logger
+    '''   either <c>YDataLogger.BEACONDRIVEN_OFF</c> or <c>YDataLogger.BEACONDRIVEN_ON</c>, according to the
+    '''   type of synchronisation of the data logger
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -10788,7 +10789,7 @@ Module yocto_api
     '''   an integer corresponding to the percentage of datalogger memory in use
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_USAGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDataLogger.USAGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_usage() As Integer
@@ -10863,7 +10864,7 @@ Module yocto_api
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the data logger, for instance
-    '''   <c>LIGHTMK3.dataLogger</c>.
+    '''   <c>RX420MA1.dataLogger</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YDataLogger</c> object allowing you to drive the data logger.
@@ -10932,7 +10933,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -11168,7 +11169,7 @@ Module yocto_api
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the data logger, for instance
-  '''   <c>LIGHTMK3.dataLogger</c>.
+  '''   <c>RX420MA1.dataLogger</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YDataLogger</c> object allowing you to drive the data logger.
@@ -11784,7 +11785,7 @@ Module yocto_api
   '''   a string passed by reference to receive any error message.
   ''' </param>
   ''' <returns>
-  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
   '''   On failure, throws an exception or returns a negative error code.
@@ -11815,7 +11816,7 @@ Module yocto_api
   '''   a string passed by reference to receive any error message.
   ''' </param>
   ''' <returns>
-  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
   '''   On failure, throws an exception or returns a negative error code.
@@ -11864,7 +11865,7 @@ Module yocto_api
   '''   a string passed by reference to receive any error message.
   ''' </param>
   ''' <returns>
-  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
   '''   On failure returns a negative error code.
@@ -11893,7 +11894,7 @@ Module yocto_api
   '''   a string passed by reference to receive any error message.
   ''' </param>
   ''' <returns>
-  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
   '''   On failure, throws an exception or returns a negative error code.
@@ -11922,7 +11923,7 @@ Module yocto_api
   '''   a string passed by reference to receive any error message.
   ''' </param>
   ''' <returns>
-  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
   '''   On failure, throws an exception or returns a negative error code.
@@ -11955,7 +11956,7 @@ Module yocto_api
   '''   a string passed by reference to receive any error message.
   ''' </param>
   ''' <returns>
-  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
   '''   On failure, throws an exception or returns a negative error code.
@@ -11976,7 +11977,7 @@ Module yocto_api
   '''   a string passed by reference to receive any error message.
   ''' </param>
   ''' <returns>
-  '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+  '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   '''   On failure, throws an exception or returns a negative error code.
   ''' </returns>
   '''/

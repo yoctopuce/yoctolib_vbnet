@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_magnetometer.vb 42951 2020-12-14 09:43:29Z seb $
+'  $Id: yocto_magnetometer.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindMagnetometer(), the high-level API for Magnetometer functions
 '
@@ -145,7 +145,7 @@ Module yocto_magnetometer
     '''   an integer corresponding to the measure update frequency, measured in Hz
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMagnetometer.BANDWIDTH_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_bandwidth() As Integer
@@ -178,7 +178,7 @@ Module yocto_magnetometer
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -201,7 +201,7 @@ Module yocto_magnetometer
     '''   a floating point number corresponding to the X component of the magnetic field, as a floating point number
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_XVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMagnetometer.XVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_xValue() As Double
@@ -227,7 +227,7 @@ Module yocto_magnetometer
     '''   a floating point number corresponding to the Y component of the magnetic field, as a floating point number
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_YVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMagnetometer.YVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_yValue() As Double
@@ -253,7 +253,7 @@ Module yocto_magnetometer
     '''   a floating point number corresponding to the Z component of the magnetic field, as a floating point number
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ZVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMagnetometer.ZVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_zValue() As Double

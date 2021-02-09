@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_power.vb 41290 2020-07-24 10:02:23Z mvuilleu $
+'  $Id: yocto_power.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindPower(), the high-level API for Power functions
 '
@@ -148,7 +148,7 @@ Module yocto_power
     '''   measured in W, and the apparent power provided, measured in VA)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COSPHI_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPower.COSPHI_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_cosPhi() As Double
@@ -184,7 +184,7 @@ Module yocto_power
     '''   but only when positive
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_METER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPower.METER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_meter() As Double
@@ -214,7 +214,7 @@ Module yocto_power
     '''   but only when positive
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DELIVEREDENERGYMETER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPower.DELIVEREDENERGYMETER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_deliveredEnergyMeter() As Double
@@ -244,7 +244,7 @@ Module yocto_power
     '''   but only when negative
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RECEIVEDENERGYMETER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPower.RECEIVEDENERGYMETER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_receivedEnergyMeter() As Double
@@ -270,7 +270,7 @@ Module yocto_power
     '''   an integer corresponding to the elapsed time since last energy counter reset, in seconds
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_METERTIMER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPower.METERTIMER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_meterTimer() As Integer
@@ -435,7 +435,7 @@ Module yocto_power
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

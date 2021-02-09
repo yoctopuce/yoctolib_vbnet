@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_lightsensor.vb 42951 2020-12-14 09:43:29Z seb $
+'  $Id: yocto_lightsensor.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindLightSensor(), the high-level API for LightSensor functions
 '
@@ -147,7 +147,7 @@ Module yocto_lightsensor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -167,12 +167,13 @@ Module yocto_lightsensor
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_MEASURETYPE_HUMAN_EYE</c>, <c>Y_MEASURETYPE_WIDE_SPECTRUM</c>,
-    '''   <c>Y_MEASURETYPE_INFRARED</c>, <c>Y_MEASURETYPE_HIGH_RATE</c>, <c>Y_MEASURETYPE_HIGH_ENERGY</c> and
-    '''   <c>Y_MEASURETYPE_HIGH_RESOLUTION</c> corresponding to the type of light measure
+    '''   a value among <c>YLightSensor.MEASURETYPE_HUMAN_EYE</c>, <c>YLightSensor.MEASURETYPE_WIDE_SPECTRUM</c>,
+    '''   <c>YLightSensor.MEASURETYPE_INFRARED</c>, <c>YLightSensor.MEASURETYPE_HIGH_RATE</c>,
+    '''   <c>YLightSensor.MEASURETYPE_HIGH_ENERGY</c> and <c>YLightSensor.MEASURETYPE_HIGH_RESOLUTION</c>
+    '''   corresponding to the type of light measure
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MEASURETYPE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YLightSensor.MEASURETYPE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_measureType() As Integer
@@ -201,14 +202,15 @@ Module yocto_lightsensor
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_MEASURETYPE_HUMAN_EYE</c>, <c>Y_MEASURETYPE_WIDE_SPECTRUM</c>,
-    '''   <c>Y_MEASURETYPE_INFRARED</c>, <c>Y_MEASURETYPE_HIGH_RATE</c>, <c>Y_MEASURETYPE_HIGH_ENERGY</c> and
-    '''   <c>Y_MEASURETYPE_HIGH_RESOLUTION</c> corresponding to the light sensor type used in the device
+    '''   a value among <c>YLightSensor.MEASURETYPE_HUMAN_EYE</c>, <c>YLightSensor.MEASURETYPE_WIDE_SPECTRUM</c>,
+    '''   <c>YLightSensor.MEASURETYPE_INFRARED</c>, <c>YLightSensor.MEASURETYPE_HIGH_RATE</c>,
+    '''   <c>YLightSensor.MEASURETYPE_HIGH_ENERGY</c> and <c>YLightSensor.MEASURETYPE_HIGH_RESOLUTION</c>
+    '''   corresponding to the light sensor type used in the device
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

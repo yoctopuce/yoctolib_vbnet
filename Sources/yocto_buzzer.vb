@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_buzzer.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_buzzer.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindBuzzer(), the high-level API for Buzzer functions
 '
@@ -155,7 +155,7 @@ Module yocto_buzzer
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -178,7 +178,7 @@ Module yocto_buzzer
     '''   a floating point number corresponding to the  frequency of the signal sent to the buzzer/speaker
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FREQUENCY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBuzzer.FREQUENCY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_frequency() As Double
@@ -204,7 +204,7 @@ Module yocto_buzzer
     '''   an integer corresponding to the volume of the signal sent to the buzzer/speaker
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLUME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBuzzer.VOLUME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_volume() As Integer
@@ -235,7 +235,7 @@ Module yocto_buzzer
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -258,7 +258,7 @@ Module yocto_buzzer
     '''   an integer corresponding to the current length of the playing sequence
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PLAYSEQSIZE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBuzzer.PLAYSEQSIZE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_playSeqSize() As Integer
@@ -284,7 +284,7 @@ Module yocto_buzzer
     '''   an integer corresponding to the maximum length of the playing sequence
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PLAYSEQMAXSIZE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBuzzer.PLAYSEQMAXSIZE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_playSeqMaxSize() As Integer
@@ -314,7 +314,7 @@ Module yocto_buzzer
     '''   an integer corresponding to the playing sequence signature
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PLAYSEQSIGNATURE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YBuzzer.PLAYSEQSIGNATURE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_playSeqSignature() As Integer
@@ -467,7 +467,7 @@ Module yocto_buzzer
     '''   duration of the frequency transition, in milliseconds.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -488,7 +488,7 @@ Module yocto_buzzer
     '''   pulse duration, in milliseconds.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -513,7 +513,7 @@ Module yocto_buzzer
     '''   duration of the volume transition, in milliseconds.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -537,7 +537,7 @@ Module yocto_buzzer
     '''   notes to be played, as a text string.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -710,7 +710,7 @@ Module yocto_buzzer
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -725,7 +725,7 @@ Module yocto_buzzer
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -740,7 +740,7 @@ Module yocto_buzzer
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -755,7 +755,7 @@ Module yocto_buzzer
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -770,7 +770,7 @@ Module yocto_buzzer
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -785,7 +785,7 @@ Module yocto_buzzer
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -806,7 +806,7 @@ Module yocto_buzzer
     '''   pulse duration in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -829,7 +829,7 @@ Module yocto_buzzer
     '''   pulse duration in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -852,7 +852,7 @@ Module yocto_buzzer
     '''   change duration in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -878,7 +878,7 @@ Module yocto_buzzer
     '''   notes to be played, as a text string.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/

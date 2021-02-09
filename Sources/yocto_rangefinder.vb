@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_rangefinder.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_rangefinder.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindRangeFinder(), the high-level API for RangeFinder functions
 '
@@ -170,7 +170,7 @@ Module yocto_rangefinder
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -192,12 +192,12 @@ Module yocto_rangefinder
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_RANGEFINDERMODE_DEFAULT</c>, <c>Y_RANGEFINDERMODE_LONG_RANGE</c>,
-    '''   <c>Y_RANGEFINDERMODE_HIGH_ACCURACY</c> and <c>Y_RANGEFINDERMODE_HIGH_SPEED</c> corresponding to the
-    '''   range finder running mode
+    '''   a value among <c>YRangeFinder.RANGEFINDERMODE_DEFAULT</c>, <c>YRangeFinder.RANGEFINDERMODE_LONG_RANGE</c>,
+    '''   <c>YRangeFinder.RANGEFINDERMODE_HIGH_ACCURACY</c> and <c>YRangeFinder.RANGEFINDERMODE_HIGH_SPEED</c>
+    '''   corresponding to the range finder running mode
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RANGEFINDERMODE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRangeFinder.RANGEFINDERMODE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rangeFinderMode() As Integer
@@ -223,15 +223,15 @@ Module yocto_rangefinder
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_RANGEFINDERMODE_DEFAULT</c>, <c>Y_RANGEFINDERMODE_LONG_RANGE</c>,
-    '''   <c>Y_RANGEFINDERMODE_HIGH_ACCURACY</c> and <c>Y_RANGEFINDERMODE_HIGH_SPEED</c> corresponding to the
-    '''   rangefinder running mode, allowing you to put priority on
+    '''   a value among <c>YRangeFinder.RANGEFINDERMODE_DEFAULT</c>, <c>YRangeFinder.RANGEFINDERMODE_LONG_RANGE</c>,
+    '''   <c>YRangeFinder.RANGEFINDERMODE_HIGH_ACCURACY</c> and <c>YRangeFinder.RANGEFINDERMODE_HIGH_SPEED</c>
+    '''   corresponding to the rangefinder running mode, allowing you to put priority on
     '''   precision, speed or maximum range
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -257,7 +257,7 @@ Module yocto_rangefinder
     '''   reliability
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TIMEFRAME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRangeFinder.TIMEFRAME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_timeFrame() As Long
@@ -292,7 +292,7 @@ Module yocto_rangefinder
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -315,7 +315,7 @@ Module yocto_rangefinder
     '''   an integer corresponding to a measure quality estimate, based on measured dispersion
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_QUALITY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRangeFinder.QUALITY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_quality() As Integer
@@ -358,7 +358,7 @@ Module yocto_rangefinder
     '''   a floating point number corresponding to the current sensor temperature, as a floating point number
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTTEMPERATURE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRangeFinder.CURRENTTEMPERATURE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentTemperature() As Double
@@ -543,7 +543,7 @@ Module yocto_rangefinder
     ''' </summary>
     ''' <returns>
     '''   a temperature, as a floating point number.
-    '''   On failure, throws an exception or return YAPI_INVALID_DOUBLE.
+    '''   On failure, throws an exception or return YAPI.INVALID_DOUBLE.
     ''' </returns>
     '''/
     Public Overridable Function get_hardwareCalibrationTemperature() As Double
@@ -566,7 +566,7 @@ Module yocto_rangefinder
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -584,7 +584,7 @@ Module yocto_rangefinder
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -606,7 +606,7 @@ Module yocto_rangefinder
     '''   on the unit selected in the device
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -634,7 +634,7 @@ Module yocto_rangefinder
     '''   on the unit selected in the device
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -657,7 +657,7 @@ Module yocto_rangefinder
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/

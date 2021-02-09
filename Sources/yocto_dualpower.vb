@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_dualpower.vb 38913 2019-12-20 18:59:49Z mvuilleu $
+'  $Id: yocto_dualpower.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindDualPower(), the high-level API for DualPower functions
 '
@@ -142,12 +142,12 @@ Module yocto_dualpower
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_POWERSTATE_OFF</c>, <c>Y_POWERSTATE_FROM_USB</c> and
-    '''   <c>Y_POWERSTATE_FROM_EXT</c> corresponding to the current power source for module functions that
-    '''   require lots of current
+    '''   a value among <c>YDualPower.POWERSTATE_OFF</c>, <c>YDualPower.POWERSTATE_FROM_USB</c> and
+    '''   <c>YDualPower.POWERSTATE_FROM_EXT</c> corresponding to the current power source for module
+    '''   functions that require lots of current
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_POWERSTATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDualPower.POWERSTATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_powerState() As Integer
@@ -170,12 +170,12 @@ Module yocto_dualpower
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_POWERCONTROL_AUTO</c>, <c>Y_POWERCONTROL_FROM_USB</c>,
-    '''   <c>Y_POWERCONTROL_FROM_EXT</c> and <c>Y_POWERCONTROL_OFF</c> corresponding to the selected power
-    '''   source for module functions that require lots of current
+    '''   a value among <c>YDualPower.POWERCONTROL_AUTO</c>, <c>YDualPower.POWERCONTROL_FROM_USB</c>,
+    '''   <c>YDualPower.POWERCONTROL_FROM_EXT</c> and <c>YDualPower.POWERCONTROL_OFF</c> corresponding to the
+    '''   selected power source for module functions that require lots of current
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_POWERCONTROL_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDualPower.POWERCONTROL_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_powerControl() As Integer
@@ -200,14 +200,14 @@ Module yocto_dualpower
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_POWERCONTROL_AUTO</c>, <c>Y_POWERCONTROL_FROM_USB</c>,
-    '''   <c>Y_POWERCONTROL_FROM_EXT</c> and <c>Y_POWERCONTROL_OFF</c> corresponding to the selected power
-    '''   source for module functions that require lots of current
+    '''   a value among <c>YDualPower.POWERCONTROL_AUTO</c>, <c>YDualPower.POWERCONTROL_FROM_USB</c>,
+    '''   <c>YDualPower.POWERCONTROL_FROM_EXT</c> and <c>YDualPower.POWERCONTROL_OFF</c> corresponding to the
+    '''   selected power source for module functions that require lots of current
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -230,7 +230,7 @@ Module yocto_dualpower
     '''   an integer corresponding to the measured voltage on the external power source, in millivolts
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_EXTVOLTAGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDualPower.EXTVOLTAGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_extVoltage() As Integer

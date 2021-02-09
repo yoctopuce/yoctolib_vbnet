@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_humidity.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_humidity.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindHumidity(), the high-level API for Humidity functions
 '
@@ -135,7 +135,7 @@ Module yocto_humidity
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -158,7 +158,7 @@ Module yocto_humidity
     '''   a floating point number corresponding to the current relative humidity, in per cents
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RELHUM_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YHumidity.RELHUM_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_relHum() As Double
@@ -184,7 +184,7 @@ Module yocto_humidity
     '''   a floating point number corresponding to the current absolute humidity, in grams per cubic meter of air
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ABSHUM_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YHumidity.ABSHUM_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_absHum() As Double

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 38913 2019-12-20 18:59:49Z mvuilleu $
+'* $Id: yocto_messagebox.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -397,7 +397,7 @@ Module yocto_messagebox
     '''   the text to be sent in the message
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     '''/
     Public Overridable Function addText(val As String) As Integer
@@ -470,7 +470,7 @@ Module yocto_messagebox
     '''   an array of special unicode characters
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     '''/
     Public Overridable Function addUnicodeData(val As List(Of Integer)) As Integer
@@ -1263,7 +1263,7 @@ Module yocto_messagebox
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1434,7 +1434,7 @@ Module yocto_messagebox
     '''   an integer corresponding to the number of message storage slots currently in use
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SLOTSINUSE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMessageBox.SLOTSINUSE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_slotsInUse() As Integer
@@ -1460,7 +1460,7 @@ Module yocto_messagebox
     '''   an integer corresponding to the total number of message storage slots on the SIM card
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SLOTSCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMessageBox.SLOTSCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_slotsCount() As Integer
@@ -1497,7 +1497,7 @@ Module yocto_messagebox
     '''   an integer corresponding to the number of SMS units sent so far
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PDUSENT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMessageBox.PDUSENT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pduSent() As Integer
@@ -1526,7 +1526,7 @@ Module yocto_messagebox
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1549,7 +1549,7 @@ Module yocto_messagebox
     '''   an integer corresponding to the number of SMS units received so far
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PDURECEIVED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMessageBox.PDURECEIVED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pduReceived() As Integer
@@ -1578,7 +1578,7 @@ Module yocto_messagebox
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -2209,7 +2209,7 @@ Module yocto_messagebox
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -2245,7 +2245,7 @@ Module yocto_messagebox
     '''   the text to be sent in the message
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -2280,7 +2280,7 @@ Module yocto_messagebox
     '''   the text to be sent in the message
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -2307,7 +2307,7 @@ Module yocto_messagebox
     '''   national number, or in international format starting with a plus sign
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

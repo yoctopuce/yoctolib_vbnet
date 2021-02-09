@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 41171 2020-07-02 17:49:00Z mvuilleu $
+'  $Id: yocto_spiport.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -333,7 +333,7 @@ Module yocto_spiport
     '''   an integer corresponding to the total number of bytes received since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RXCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.RXCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rxCount() As Integer
@@ -359,7 +359,7 @@ Module yocto_spiport
     '''   an integer corresponding to the total number of bytes transmitted since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TXCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.TXCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_txCount() As Integer
@@ -385,7 +385,7 @@ Module yocto_spiport
     '''   an integer corresponding to the total number of communication errors detected since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ERRCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.ERRCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_errCount() As Integer
@@ -411,7 +411,7 @@ Module yocto_spiport
     '''   an integer corresponding to the total number of messages received since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RXMSGCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.RXMSGCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rxMsgCount() As Integer
@@ -437,7 +437,7 @@ Module yocto_spiport
     '''   an integer corresponding to the total number of messages send since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TXMSGCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.TXMSGCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_txMsgCount() As Integer
@@ -463,7 +463,7 @@ Module yocto_spiport
     '''   a string corresponding to the latest message fully received (for Line and Frame protocols)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LASTMSG_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.LASTMSG_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_lastMsg() As String
@@ -489,7 +489,7 @@ Module yocto_spiport
     '''   a string corresponding to the name of the job file currently in use
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTJOB_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.CURRENTJOB_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentJob() As String
@@ -520,7 +520,7 @@ Module yocto_spiport
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -543,7 +543,7 @@ Module yocto_spiport
     '''   a string corresponding to the job file to use when the device is powered on
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_STARTUPJOB_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.STARTUPJOB_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_startupJob() As String
@@ -574,7 +574,7 @@ Module yocto_spiport
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -597,7 +597,7 @@ Module yocto_spiport
     '''   an integer corresponding to the maximum number of tasks in a job that the device can handle
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_JOBMAXTASK_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.JOBMAXTASK_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_jobMaxTask() As Integer
@@ -623,7 +623,7 @@ Module yocto_spiport
     '''   an integer corresponding to maximum size allowed for job files
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_JOBMAXSIZE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.JOBMAXSIZE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_jobMaxSize() As Integer
@@ -670,7 +670,7 @@ Module yocto_spiport
     '''   a string corresponding to the type of protocol used over the serial line, as a string
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PROTOCOL_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.PROTOCOL_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_protocol() As String
@@ -707,7 +707,7 @@ Module yocto_spiport
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -727,13 +727,14 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
-    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c>,
-    '''   <c>Y_VOLTAGELEVEL_RS485</c> and <c>Y_VOLTAGELEVEL_TTL1V8</c> corresponding to the voltage level
-    '''   used on the serial line
+    '''   a value among <c>YSpiPort.VOLTAGELEVEL_OFF</c>, <c>YSpiPort.VOLTAGELEVEL_TTL3V</c>,
+    '''   <c>YSpiPort.VOLTAGELEVEL_TTL3VR</c>, <c>YSpiPort.VOLTAGELEVEL_TTL5V</c>,
+    '''   <c>YSpiPort.VOLTAGELEVEL_TTL5VR</c>, <c>YSpiPort.VOLTAGELEVEL_RS232</c>,
+    '''   <c>YSpiPort.VOLTAGELEVEL_RS485</c> and <c>YSpiPort.VOLTAGELEVEL_TTL1V8</c> corresponding to the
+    '''   voltage level used on the serial line
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLTAGELEVEL_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.VOLTAGELEVEL_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_voltageLevel() As Integer
@@ -764,15 +765,16 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_VOLTAGELEVEL_OFF</c>, <c>Y_VOLTAGELEVEL_TTL3V</c>, <c>Y_VOLTAGELEVEL_TTL3VR</c>,
-    '''   <c>Y_VOLTAGELEVEL_TTL5V</c>, <c>Y_VOLTAGELEVEL_TTL5VR</c>, <c>Y_VOLTAGELEVEL_RS232</c>,
-    '''   <c>Y_VOLTAGELEVEL_RS485</c> and <c>Y_VOLTAGELEVEL_TTL1V8</c> corresponding to the voltage type used
-    '''   on the serial line
+    '''   a value among <c>YSpiPort.VOLTAGELEVEL_OFF</c>, <c>YSpiPort.VOLTAGELEVEL_TTL3V</c>,
+    '''   <c>YSpiPort.VOLTAGELEVEL_TTL3VR</c>, <c>YSpiPort.VOLTAGELEVEL_TTL5V</c>,
+    '''   <c>YSpiPort.VOLTAGELEVEL_TTL5VR</c>, <c>YSpiPort.VOLTAGELEVEL_RS232</c>,
+    '''   <c>YSpiPort.VOLTAGELEVEL_RS485</c> and <c>YSpiPort.VOLTAGELEVEL_TTL1V8</c> corresponding to the
+    '''   voltage type used on the serial line
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -799,7 +801,7 @@ Module yocto_spiport
     '''   "125000,0,msb"
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SPIMODE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.SPIMODE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_spiMode() As String
@@ -834,7 +836,7 @@ Module yocto_spiport
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -854,10 +856,11 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_SSPOLARITY_ACTIVE_LOW</c> or <c>Y_SSPOLARITY_ACTIVE_HIGH</c>, according to the SS line polarity
+    '''   either <c>YSpiPort.SSPOLARITY_ACTIVE_LOW</c> or <c>YSpiPort.SSPOLARITY_ACTIVE_HIGH</c>, according
+    '''   to the SS line polarity
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SSPOLARITY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.SSPOLARITY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_ssPolarity() As Integer
@@ -883,12 +886,13 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_SSPOLARITY_ACTIVE_LOW</c> or <c>Y_SSPOLARITY_ACTIVE_HIGH</c>, according to the SS line polarity
+    '''   either <c>YSpiPort.SSPOLARITY_ACTIVE_LOW</c> or <c>YSpiPort.SSPOLARITY_ACTIVE_HIGH</c>, according
+    '''   to the SS line polarity
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -908,11 +912,11 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_SHIFTSAMPLING_OFF</c> or <c>Y_SHIFTSAMPLING_ON</c>, according to true when the SDI line
-    '''   phase is shifted with regards to the SDO line
+    '''   either <c>YSpiPort.SHIFTSAMPLING_OFF</c> or <c>YSpiPort.SHIFTSAMPLING_ON</c>, according to true
+    '''   when the SDI line phase is shifted with regards to the SDO line
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SHIFTSAMPLING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpiPort.SHIFTSAMPLING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_shiftSampling() As Integer
@@ -941,12 +945,13 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_SHIFTSAMPLING_OFF</c> or <c>Y_SHIFTSAMPLING_ON</c>, according to the SDI line sampling shift
+    '''   either <c>YSpiPort.SHIFTSAMPLING_OFF</c> or <c>YSpiPort.SHIFTSAMPLING_ON</c>, according to the SDI
+    '''   line sampling shift
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1335,7 +1340,7 @@ Module yocto_spiport
     '''   a string containing a JSON definition of the job
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1361,7 +1366,7 @@ Module yocto_spiport
     '''   name of the job file (on the device filesystem)
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1380,7 +1385,7 @@ Module yocto_spiport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1404,7 +1409,7 @@ Module yocto_spiport
     '''   the byte to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1424,7 +1429,7 @@ Module yocto_spiport
     '''   the text string to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1467,7 +1472,7 @@ Module yocto_spiport
     '''   the binary buffer to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1487,7 +1492,7 @@ Module yocto_spiport
     '''   a list of byte codes
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1522,7 +1527,7 @@ Module yocto_spiport
     '''   a string of hexadecimal byte codes
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1561,7 +1566,7 @@ Module yocto_spiport
     '''   the text string to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1599,7 +1604,7 @@ Module yocto_spiport
     '''   Reads one byte from the receive buffer, starting at current stream position.
     ''' <para>
     '''   If data at current stream position is not available anymore in the receive buffer,
-    '''   or if there is no data available yet, the function returns YAPI_NO_MORE_DATA.
+    '''   or if there is no data available yet, the function returns YAPI.NO_MORE_DATA.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -1873,7 +1878,7 @@ Module yocto_spiport
     '''   1 to turn SS active, 0 to release SS.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

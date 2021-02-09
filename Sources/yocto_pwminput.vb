@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwminput.vb 41348 2020-08-10 15:12:57Z seb $
+'  $Id: yocto_pwminput.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindPwmInput(), the high-level API for PwmInput functions
 '
@@ -212,7 +212,7 @@ Module yocto_pwminput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -235,7 +235,7 @@ Module yocto_pwminput
     '''   a floating point number corresponding to the PWM duty cycle, in per cents
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DUTYCYCLE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.DUTYCYCLE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_dutyCycle() As Double
@@ -261,7 +261,7 @@ Module yocto_pwminput
     '''   a floating point number corresponding to the PWM pulse length in milliseconds, as a floating point number
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSEDURATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.PULSEDURATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseDuration() As Double
@@ -287,7 +287,7 @@ Module yocto_pwminput
     '''   a floating point number corresponding to the PWM frequency in Hz
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FREQUENCY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.FREQUENCY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_frequency() As Double
@@ -313,7 +313,7 @@ Module yocto_pwminput
     '''   a floating point number corresponding to the PWM period in milliseconds
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PERIOD_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.PERIOD_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_period() As Double
@@ -342,7 +342,7 @@ Module yocto_pwminput
     '''   an integer corresponding to the pulse counter value
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSECOUNTER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.PULSECOUNTER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseCounter() As Long
@@ -374,7 +374,7 @@ Module yocto_pwminput
     '''   an integer corresponding to the timer of the pulses counter (ms)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSETIMER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.PULSETIMER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseTimer() As Long
@@ -398,16 +398,16 @@ Module yocto_pwminput
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_PWMREPORTMODE_PWM_DUTYCYCLE</c>, <c>Y_PWMREPORTMODE_PWM_FREQUENCY</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c>, <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_PULSECOUNT</c>, <c>Y_PWMREPORTMODE_PWM_CPS</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_CPM</c>, <c>Y_PWMREPORTMODE_PWM_STATE</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_FREQ_CPS</c>, <c>Y_PWMREPORTMODE_PWM_FREQ_CPM</c> and
-    '''   <c>Y_PWMREPORTMODE_PWM_PERIODCOUNT</c> corresponding to the parameter (frequency/duty cycle, pulse
-    '''   width, edges count) returned by the get_currentValue function and callbacks
+    '''   a value among <c>YPwmInput.PWMREPORTMODE_PWM_DUTYCYCLE</c>, <c>YPwmInput.PWMREPORTMODE_PWM_FREQUENCY</c>,
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_PULSEDURATION</c>, <c>YPwmInput.PWMREPORTMODE_PWM_EDGECOUNT</c>,
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_PULSECOUNT</c>, <c>YPwmInput.PWMREPORTMODE_PWM_CPS</c>,
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_CPM</c>, <c>YPwmInput.PWMREPORTMODE_PWM_STATE</c>,
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_FREQ_CPS</c>, <c>YPwmInput.PWMREPORTMODE_PWM_FREQ_CPM</c> and
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_PERIODCOUNT</c> corresponding to the parameter (frequency/duty
+    '''   cycle, pulse width, edges count) returned by the get_currentValue function and callbacks
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PWMREPORTMODE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.PWMREPORTMODE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pwmReportMode() As Integer
@@ -434,18 +434,18 @@ Module yocto_pwminput
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_PWMREPORTMODE_PWM_DUTYCYCLE</c>, <c>Y_PWMREPORTMODE_PWM_FREQUENCY</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_PULSEDURATION</c>, <c>Y_PWMREPORTMODE_PWM_EDGECOUNT</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_PULSECOUNT</c>, <c>Y_PWMREPORTMODE_PWM_CPS</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_CPM</c>, <c>Y_PWMREPORTMODE_PWM_STATE</c>,
-    '''   <c>Y_PWMREPORTMODE_PWM_FREQ_CPS</c>, <c>Y_PWMREPORTMODE_PWM_FREQ_CPM</c> and
-    '''   <c>Y_PWMREPORTMODE_PWM_PERIODCOUNT</c> corresponding to the  parameter  type (frequency/duty cycle,
-    '''   pulse width, or edge count) returned by the get_currentValue function and callbacks
+    '''   a value among <c>YPwmInput.PWMREPORTMODE_PWM_DUTYCYCLE</c>, <c>YPwmInput.PWMREPORTMODE_PWM_FREQUENCY</c>,
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_PULSEDURATION</c>, <c>YPwmInput.PWMREPORTMODE_PWM_EDGECOUNT</c>,
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_PULSECOUNT</c>, <c>YPwmInput.PWMREPORTMODE_PWM_CPS</c>,
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_CPM</c>, <c>YPwmInput.PWMREPORTMODE_PWM_STATE</c>,
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_FREQ_CPS</c>, <c>YPwmInput.PWMREPORTMODE_PWM_FREQ_CPM</c> and
+    '''   <c>YPwmInput.PWMREPORTMODE_PWM_PERIODCOUNT</c> corresponding to the  parameter  type
+    '''   (frequency/duty cycle, pulse width, or edge count) returned by the get_currentValue function and callbacks
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -469,7 +469,7 @@ Module yocto_pwminput
     '''   an integer corresponding to the shortest expected pulse duration, in ms
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DEBOUNCEPERIOD_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.DEBOUNCEPERIOD_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_debouncePeriod() As Integer
@@ -500,7 +500,7 @@ Module yocto_pwminput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -523,7 +523,7 @@ Module yocto_pwminput
     '''   an integer corresponding to the input signal sampling rate, in kHz
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.BANDWIDTH_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_bandwidth() As Integer
@@ -556,7 +556,7 @@ Module yocto_pwminput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -581,7 +581,7 @@ Module yocto_pwminput
     '''   an integer corresponding to the number of edges detected per preiod
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_EDGESPERPERIOD_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmInput.EDGESPERPERIOD_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_edgesPerPeriod() As Integer
@@ -746,7 +746,7 @@ Module yocto_pwminput
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_quadraturedecoder.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_quadraturedecoder.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '
@@ -132,7 +132,7 @@ Module yocto_quadraturedecoder
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -155,7 +155,7 @@ Module yocto_quadraturedecoder
     '''   a floating point number corresponding to the increments frequency, in Hz
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SPEED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YQuadratureDecoder.SPEED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_speed() As Double
@@ -178,11 +178,11 @@ Module yocto_quadraturedecoder
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_DECODING_OFF</c> or <c>Y_DECODING_ON</c>, according to the current activation state of
-    '''   the quadrature decoder
+    '''   either <c>YQuadratureDecoder.DECODING_OFF</c> or <c>YQuadratureDecoder.DECODING_ON</c>, according
+    '''   to the current activation state of the quadrature decoder
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DECODING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YQuadratureDecoder.DECODING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_decoding() As Integer
@@ -208,13 +208,13 @@ Module yocto_quadraturedecoder
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_DECODING_OFF</c> or <c>Y_DECODING_ON</c>, according to the activation state of the
-    '''   quadrature decoder
+    '''   either <c>YQuadratureDecoder.DECODING_OFF</c> or <c>YQuadratureDecoder.DECODING_ON</c>, according
+    '''   to the activation state of the quadrature decoder
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

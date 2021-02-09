@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_realtimeclock.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_realtimeclock.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '
@@ -143,7 +143,7 @@ Module yocto_realtimeclock
     '''   an integer corresponding to the current time in Unix format (number of elapsed seconds since Jan 1st, 1970)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_UNIXTIME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRealTimeClock.UNIXTIME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_unixTime() As Long
@@ -173,7 +173,7 @@ Module yocto_realtimeclock
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -196,7 +196,7 @@ Module yocto_realtimeclock
     '''   a string corresponding to the current time in the form "YYYY/MM/DD hh:mm:ss"
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DATETIME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRealTimeClock.DATETIME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_dateTime() As String
@@ -222,7 +222,7 @@ Module yocto_realtimeclock
     '''   an integer corresponding to the number of seconds between current time and UTC time (time zone)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_UTCOFFSET_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRealTimeClock.UTCOFFSET_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_utcOffset() As Integer
@@ -254,7 +254,7 @@ Module yocto_realtimeclock
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -274,11 +274,11 @@ Module yocto_realtimeclock
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_TIMESET_FALSE</c> or <c>Y_TIMESET_TRUE</c>, according to true if the clock has been
-    '''   set, and false otherwise
+    '''   either <c>YRealTimeClock.TIMESET_FALSE</c> or <c>YRealTimeClock.TIMESET_TRUE</c>, according to true
+    '''   if the clock has been set, and false otherwise
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TIMESET_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRealTimeClock.TIMESET_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_timeSet() As Integer

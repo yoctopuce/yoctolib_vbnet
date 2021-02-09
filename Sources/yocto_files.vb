@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 38934 2019-12-23 09:29:53Z seb $
+'* $Id: yocto_files.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -207,7 +207,7 @@ Module yocto_files
     '''   an integer corresponding to the number of files currently loaded in the filesystem
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FILESCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YFiles.FILESCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_filesCount() As Integer
@@ -233,7 +233,7 @@ Module yocto_files
     '''   an integer corresponding to the free space for uploading new files to the filesystem, in bytes
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FREESPACE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YFiles.FREESPACE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_freeSpace() As Integer
@@ -291,7 +291,7 @@ Module yocto_files
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the filesystem, for instance
-    '''   <c>YBUZZER2.files</c>.
+    '''   <c>YRGBLED2.files</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YFiles</c> object allowing you to drive the filesystem.
@@ -367,7 +367,7 @@ Module yocto_files
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -483,7 +483,7 @@ Module yocto_files
     '''   binary buffer with the content to set
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -508,7 +508,7 @@ Module yocto_files
     '''   path and name of the file to remove.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -644,7 +644,7 @@ Module yocto_files
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the filesystem, for instance
-  '''   <c>YBUZZER2.files</c>.
+  '''   <c>YRGBLED2.files</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YFiles</c> object allowing you to drive the filesystem.

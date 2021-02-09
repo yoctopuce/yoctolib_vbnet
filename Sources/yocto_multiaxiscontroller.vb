@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multiaxiscontroller.vb 38913 2019-12-20 18:59:49Z mvuilleu $
+'  $Id: yocto_multiaxiscontroller.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '
@@ -140,7 +140,7 @@ Module yocto_multiaxiscontroller
     '''   an integer corresponding to the number of synchronized controllers
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_NAXIS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiAxisController.NAXIS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_nAxis() As Integer
@@ -169,7 +169,7 @@ Module yocto_multiaxiscontroller
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -189,12 +189,13 @@ Module yocto_multiaxiscontroller
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_GLOBALSTATE_ABSENT</c>, <c>Y_GLOBALSTATE_ALERT</c>, <c>Y_GLOBALSTATE_HI_Z</c>,
-    '''   <c>Y_GLOBALSTATE_STOP</c>, <c>Y_GLOBALSTATE_RUN</c> and <c>Y_GLOBALSTATE_BATCH</c> corresponding to
-    '''   the stepper motor set overall state
+    '''   a value among <c>YMultiAxisController.GLOBALSTATE_ABSENT</c>,
+    '''   <c>YMultiAxisController.GLOBALSTATE_ALERT</c>, <c>YMultiAxisController.GLOBALSTATE_HI_Z</c>,
+    '''   <c>YMultiAxisController.GLOBALSTATE_STOP</c>, <c>YMultiAxisController.GLOBALSTATE_RUN</c> and
+    '''   <c>YMultiAxisController.GLOBALSTATE_BATCH</c> corresponding to the stepper motor set overall state
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_GLOBALSTATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiAxisController.GLOBALSTATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_globalState() As Integer
@@ -338,7 +339,7 @@ Module yocto_multiaxiscontroller
       REM //may throw an exception
       retBin = Me._download(url)
       res = retBin(0)
-      If (res = 49) Then
+      If (res < 58) Then
         If Not(res = 48) Then
           me._throw( YAPI.DEVICE_BUSY,  "Motor command pipeline is full, try again later")
           return YAPI.DEVICE_BUSY
@@ -359,7 +360,7 @@ Module yocto_multiaxiscontroller
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -377,7 +378,7 @@ Module yocto_multiaxiscontroller
     '''   desired speed for all axis, in steps per second.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -408,7 +409,7 @@ Module yocto_multiaxiscontroller
     '''   absolute position, measured in steps from each origin.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -439,7 +440,7 @@ Module yocto_multiaxiscontroller
     '''   relative position, measured in steps from the current position.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -467,7 +468,7 @@ Module yocto_multiaxiscontroller
     '''   wait time, specified in milliseconds.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -482,7 +483,7 @@ Module yocto_multiaxiscontroller
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -497,7 +498,7 @@ Module yocto_multiaxiscontroller
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -512,7 +513,7 @@ Module yocto_multiaxiscontroller
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/

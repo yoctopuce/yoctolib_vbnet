@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_compass.vb 42951 2020-12-14 09:43:29Z seb $
+'  $Id: yocto_compass.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindCompass(), the high-level API for Compass functions
 '
@@ -137,7 +137,7 @@ Module yocto_compass
     '''   an integer corresponding to the measure update frequency, measured in Hz
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BANDWIDTH_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YCompass.BANDWIDTH_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_bandwidth() As Integer
@@ -170,7 +170,7 @@ Module yocto_compass
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -204,7 +204,7 @@ Module yocto_compass
     '''   a floating point number corresponding to the magnetic heading, regardless of the configured bearing
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MAGNETICHEADING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YCompass.MAGNETICHEADING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_magneticHeading() As Double

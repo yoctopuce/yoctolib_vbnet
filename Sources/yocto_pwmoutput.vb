@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwmoutput.vb 38913 2019-12-20 18:59:49Z mvuilleu $
+'  $Id: yocto_pwmoutput.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '
@@ -169,10 +169,11 @@ Module yocto_pwmoutput
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the state of the PWM generators
+    '''   either <c>YPwmOutput.ENABLED_FALSE</c> or <c>YPwmOutput.ENABLED_TRUE</c>, according to the state of
+    '''   the PWM generators
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ENABLED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmOutput.ENABLED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_enabled() As Integer
@@ -196,12 +197,12 @@ Module yocto_pwmoutput
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>
+    '''   either <c>YPwmOutput.ENABLED_FALSE</c> or <c>YPwmOutput.ENABLED_TRUE</c>
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -234,7 +235,7 @@ Module yocto_pwmoutput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -257,7 +258,7 @@ Module yocto_pwmoutput
     '''   a floating point number corresponding to the PWM frequency in Hz
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FREQUENCY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmOutput.FREQUENCY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_frequency() As Double
@@ -291,7 +292,7 @@ Module yocto_pwmoutput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -314,7 +315,7 @@ Module yocto_pwmoutput
     '''   a floating point number corresponding to the PWM period in milliseconds
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PERIOD_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmOutput.PERIOD_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_period() As Double
@@ -343,7 +344,7 @@ Module yocto_pwmoutput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -366,7 +367,7 @@ Module yocto_pwmoutput
     '''   a floating point number corresponding to the PWM duty cycle, in per cents
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DUTYCYCLE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmOutput.DUTYCYCLE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_dutyCycle() As Double
@@ -396,7 +397,7 @@ Module yocto_pwmoutput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -419,7 +420,7 @@ Module yocto_pwmoutput
     '''   a floating point number corresponding to the PWM pulse length in milliseconds, as a floating point number
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSEDURATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmOutput.PULSEDURATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseDuration() As Double
@@ -459,11 +460,11 @@ Module yocto_pwmoutput
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ENABLEDATPOWERON_FALSE</c> or <c>Y_ENABLEDATPOWERON_TRUE</c>, according to the state of
-    '''   the PWM at device power on
+    '''   either <c>YPwmOutput.ENABLEDATPOWERON_FALSE</c> or <c>YPwmOutput.ENABLEDATPOWERON_TRUE</c>,
+    '''   according to the state of the PWM at device power on
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ENABLEDATPOWERON_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmOutput.ENABLEDATPOWERON_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_enabledAtPowerOn() As Integer
@@ -489,13 +490,13 @@ Module yocto_pwmoutput
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_ENABLEDATPOWERON_FALSE</c> or <c>Y_ENABLEDATPOWERON_TRUE</c>, according to the state of
-    '''   the PWM at device power on
+    '''   either <c>YPwmOutput.ENABLEDATPOWERON_FALSE</c> or <c>YPwmOutput.ENABLEDATPOWERON_TRUE</c>,
+    '''   according to the state of the PWM at device power on
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -523,7 +524,7 @@ Module yocto_pwmoutput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -547,7 +548,7 @@ Module yocto_pwmoutput
     '''   floating point number between 0 and 100
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DUTYCYCLEATPOWERON_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPwmOutput.DUTYCYCLEATPOWERON_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_dutyCycleAtPowerOn() As Double
@@ -681,7 +682,7 @@ Module yocto_pwmoutput
     '''   total duration of the transition, in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -711,7 +712,7 @@ Module yocto_pwmoutput
     '''   total duration of the transition, in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -743,7 +744,7 @@ Module yocto_pwmoutput
     '''   total duration of the transition, in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -776,7 +777,7 @@ Module yocto_pwmoutput
     '''   total duration of the transition, in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -803,7 +804,7 @@ Module yocto_pwmoutput
     '''   desired pulse count
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -833,7 +834,7 @@ Module yocto_pwmoutput
     '''   desired pulse count
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -865,7 +866,7 @@ Module yocto_pwmoutput
     '''   desired pulse count
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

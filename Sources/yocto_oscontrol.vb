@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_oscontrol.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_oscontrol.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindOsControl(), the high-level API for OsControl functions
 '
@@ -117,7 +117,7 @@ Module yocto_oscontrol
     '''   shutdown has been scheduled
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SHUTDOWNCOUNTDOWN_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YOsControl.SHUTDOWNCOUNTDOWN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_shutdownCountdown() As Integer
@@ -252,7 +252,7 @@ Module yocto_oscontrol
     '''   number of seconds before shutdown
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

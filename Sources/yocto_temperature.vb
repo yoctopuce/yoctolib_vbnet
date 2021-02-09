@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 42054 2020-10-14 09:46:38Z seb $
+'  $Id: yocto_temperature.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -188,7 +188,7 @@ Module yocto_temperature
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -208,16 +208,19 @@ Module yocto_temperature
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_SENSORTYPE_DIGITAL</c>, <c>Y_SENSORTYPE_TYPE_K</c>, <c>Y_SENSORTYPE_TYPE_E</c>,
-    '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
-    '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
-    '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
-    '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c>, <c>Y_SENSORTYPE_RES_INTERNAL</c>,
-    '''   <c>Y_SENSORTYPE_IR</c>, <c>Y_SENSORTYPE_RES_PT1000</c> and <c>Y_SENSORTYPE_CHANNEL_OFF</c>
+    '''   a value among <c>YTemperature.SENSORTYPE_DIGITAL</c>, <c>YTemperature.SENSORTYPE_TYPE_K</c>,
+    '''   <c>YTemperature.SENSORTYPE_TYPE_E</c>, <c>YTemperature.SENSORTYPE_TYPE_J</c>,
+    '''   <c>YTemperature.SENSORTYPE_TYPE_N</c>, <c>YTemperature.SENSORTYPE_TYPE_R</c>,
+    '''   <c>YTemperature.SENSORTYPE_TYPE_S</c>, <c>YTemperature.SENSORTYPE_TYPE_T</c>,
+    '''   <c>YTemperature.SENSORTYPE_PT100_4WIRES</c>, <c>YTemperature.SENSORTYPE_PT100_3WIRES</c>,
+    '''   <c>YTemperature.SENSORTYPE_PT100_2WIRES</c>, <c>YTemperature.SENSORTYPE_RES_OHM</c>,
+    '''   <c>YTemperature.SENSORTYPE_RES_NTC</c>, <c>YTemperature.SENSORTYPE_RES_LINEAR</c>,
+    '''   <c>YTemperature.SENSORTYPE_RES_INTERNAL</c>, <c>YTemperature.SENSORTYPE_IR</c>,
+    '''   <c>YTemperature.SENSORTYPE_RES_PT1000</c> and <c>YTemperature.SENSORTYPE_CHANNEL_OFF</c>
     '''   corresponding to the temperature sensor type
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SENSORTYPE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YTemperature.SENSORTYPE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_sensorType() As Integer
@@ -246,18 +249,21 @@ Module yocto_temperature
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_SENSORTYPE_DIGITAL</c>, <c>Y_SENSORTYPE_TYPE_K</c>, <c>Y_SENSORTYPE_TYPE_E</c>,
-    '''   <c>Y_SENSORTYPE_TYPE_J</c>, <c>Y_SENSORTYPE_TYPE_N</c>, <c>Y_SENSORTYPE_TYPE_R</c>,
-    '''   <c>Y_SENSORTYPE_TYPE_S</c>, <c>Y_SENSORTYPE_TYPE_T</c>, <c>Y_SENSORTYPE_PT100_4WIRES</c>,
-    '''   <c>Y_SENSORTYPE_PT100_3WIRES</c>, <c>Y_SENSORTYPE_PT100_2WIRES</c>, <c>Y_SENSORTYPE_RES_OHM</c>,
-    '''   <c>Y_SENSORTYPE_RES_NTC</c>, <c>Y_SENSORTYPE_RES_LINEAR</c>, <c>Y_SENSORTYPE_RES_INTERNAL</c>,
-    '''   <c>Y_SENSORTYPE_IR</c>, <c>Y_SENSORTYPE_RES_PT1000</c> and <c>Y_SENSORTYPE_CHANNEL_OFF</c>
+    '''   a value among <c>YTemperature.SENSORTYPE_DIGITAL</c>, <c>YTemperature.SENSORTYPE_TYPE_K</c>,
+    '''   <c>YTemperature.SENSORTYPE_TYPE_E</c>, <c>YTemperature.SENSORTYPE_TYPE_J</c>,
+    '''   <c>YTemperature.SENSORTYPE_TYPE_N</c>, <c>YTemperature.SENSORTYPE_TYPE_R</c>,
+    '''   <c>YTemperature.SENSORTYPE_TYPE_S</c>, <c>YTemperature.SENSORTYPE_TYPE_T</c>,
+    '''   <c>YTemperature.SENSORTYPE_PT100_4WIRES</c>, <c>YTemperature.SENSORTYPE_PT100_3WIRES</c>,
+    '''   <c>YTemperature.SENSORTYPE_PT100_2WIRES</c>, <c>YTemperature.SENSORTYPE_RES_OHM</c>,
+    '''   <c>YTemperature.SENSORTYPE_RES_NTC</c>, <c>YTemperature.SENSORTYPE_RES_LINEAR</c>,
+    '''   <c>YTemperature.SENSORTYPE_RES_INTERNAL</c>, <c>YTemperature.SENSORTYPE_IR</c>,
+    '''   <c>YTemperature.SENSORTYPE_RES_PT1000</c> and <c>YTemperature.SENSORTYPE_CHANNEL_OFF</c>
     '''   corresponding to the temperature sensor type
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -280,7 +286,7 @@ Module yocto_temperature
     '''   a floating point number corresponding to the current value of the electrical signal measured by the sensor
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SIGNALVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YTemperature.SIGNALVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_signalValue() As Double
@@ -306,7 +312,7 @@ Module yocto_temperature
     '''   a string corresponding to the measuring unit of the electrical signal used by the sensor
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SIGNALUNIT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YTemperature.SIGNALUNIT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_signalUnit() As String
@@ -500,7 +506,7 @@ Module yocto_temperature
     '''   Beta value
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -548,7 +554,7 @@ Module yocto_temperature
     '''   argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -629,7 +635,7 @@ Module yocto_temperature
     '''   first argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

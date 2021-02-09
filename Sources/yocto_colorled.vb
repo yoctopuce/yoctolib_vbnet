@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorled.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_colorled.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindColorLed(), the high-level API for ColorLed functions
 '
@@ -198,7 +198,7 @@ End Class
     '''   an integer corresponding to the current RGB color of the LED
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RGBCOLOR_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLed.RGBCOLOR_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rgbColor() As Integer
@@ -228,7 +228,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -251,7 +251,7 @@ End Class
     '''   an integer corresponding to the current HSL color of the LED
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_HSLCOLOR_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLed.HSLCOLOR_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_hslColor() As Integer
@@ -281,7 +281,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -327,7 +327,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -373,7 +373,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -396,7 +396,7 @@ End Class
     '''   an integer corresponding to the configured color to be displayed when the module is turned on
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RGBCOLORATPOWERON_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLed.RGBCOLORATPOWERON_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rgbColorAtPowerOn() As Integer
@@ -427,7 +427,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -450,7 +450,7 @@ End Class
     '''   an integer corresponding to the current length of the blinking sequence
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BLINKSEQSIZE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLed.BLINKSEQSIZE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_blinkSeqSize() As Integer
@@ -476,7 +476,7 @@ End Class
     '''   an integer corresponding to the maximum length of the blinking sequence
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BLINKSEQMAXSIZE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLed.BLINKSEQMAXSIZE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_blinkSeqMaxSize() As Integer
@@ -506,7 +506,7 @@ End Class
     '''   an integer
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BLINKSEQSIGNATURE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLed.BLINKSEQSIGNATURE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_blinkSeqSignature() As Integer
@@ -660,7 +660,7 @@ End Class
     '''   duration of the color transition, in milliseconds.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -682,7 +682,7 @@ End Class
     '''   duration of the color transition, in milliseconds.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -700,7 +700,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -715,7 +715,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/
@@ -730,7 +730,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/

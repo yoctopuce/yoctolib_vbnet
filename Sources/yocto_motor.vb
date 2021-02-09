@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_motor.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_motor.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindMotor(), the high-level API for Motor functions
 '
@@ -200,12 +200,13 @@ Module yocto_motor
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_MOTORSTATUS_IDLE</c>, <c>Y_MOTORSTATUS_BRAKE</c>, <c>Y_MOTORSTATUS_FORWD</c>,
-    '''   <c>Y_MOTORSTATUS_BACKWD</c>, <c>Y_MOTORSTATUS_LOVOLT</c>, <c>Y_MOTORSTATUS_HICURR</c>,
-    '''   <c>Y_MOTORSTATUS_HIHEAT</c> and <c>Y_MOTORSTATUS_FAILSF</c>
+    '''   a value among <c>YMotor.MOTORSTATUS_IDLE</c>, <c>YMotor.MOTORSTATUS_BRAKE</c>,
+    '''   <c>YMotor.MOTORSTATUS_FORWD</c>, <c>YMotor.MOTORSTATUS_BACKWD</c>,
+    '''   <c>YMotor.MOTORSTATUS_LOVOLT</c>, <c>YMotor.MOTORSTATUS_HICURR</c>,
+    '''   <c>YMotor.MOTORSTATUS_HIHEAT</c> and <c>YMotor.MOTORSTATUS_FAILSF</c>
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MOTORSTATUS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMotor.MOTORSTATUS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_motorStatus() As Integer
@@ -245,7 +246,7 @@ Module yocto_motor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -268,7 +269,7 @@ Module yocto_motor
     '''   a floating point number corresponding to the power sent to the motor, as a percentage between -100% and +100%
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DRIVINGFORCE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMotor.DRIVINGFORCE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_drivingForce() As Double
@@ -299,7 +300,7 @@ Module yocto_motor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -323,7 +324,7 @@ Module yocto_motor
     '''   a floating point number corresponding to the braking force applied to the motor, as a percentage
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BRAKINGFORCE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMotor.BRAKINGFORCE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_brakingForce() As Double
@@ -361,7 +362,7 @@ Module yocto_motor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -389,7 +390,7 @@ Module yocto_motor
     '''   and prevents further current draw
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CUTOFFVOLTAGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMotor.CUTOFFVOLTAGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_cutOffVoltage() As Double
@@ -418,7 +419,7 @@ Module yocto_motor
     '''   switches to error state
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_OVERCURRENTLIMIT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMotor.OVERCURRENTLIMIT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_overCurrentLimit() As Integer
@@ -453,7 +454,7 @@ Module yocto_motor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -484,7 +485,7 @@ Module yocto_motor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -507,7 +508,7 @@ Module yocto_motor
     '''   a floating point number corresponding to the PWM frequency used to control the motor
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FREQUENCY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMotor.FREQUENCY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_frequency() As Double
@@ -535,7 +536,7 @@ Module yocto_motor
     '''   it start up
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_STARTERTIME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMotor.STARTERTIME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_starterTime() As Integer
@@ -568,7 +569,7 @@ Module yocto_motor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -596,7 +597,7 @@ Module yocto_motor
     '''   receiving any instruction from the control process
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FAILSAFETIMEOUT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMotor.FAILSAFETIMEOUT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_failSafeTimeout() As Integer
@@ -632,7 +633,7 @@ Module yocto_motor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -806,7 +807,7 @@ Module yocto_motor
     '''   duration (in ms) of the transition
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -829,7 +830,7 @@ Module yocto_motor
     '''   duration (in ms) of the transition
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

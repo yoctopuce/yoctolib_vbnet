@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_proximity.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_proximity.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindProximity(), the high-level API for Proximity functions
 '
@@ -199,7 +199,7 @@ Module yocto_proximity
     '''   a floating point number corresponding to the current value of signal measured by the proximity sensor
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SIGNALVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.SIGNALVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_signalValue() As Double
@@ -228,7 +228,7 @@ Module yocto_proximity
     '''   as a binary input (on/off)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DETECTIONTHRESHOLD_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.DETECTIONTHRESHOLD_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_detectionThreshold() As Integer
@@ -261,7 +261,7 @@ Module yocto_proximity
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -287,7 +287,7 @@ Module yocto_proximity
     '''   as a binary input (on/off)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DETECTIONHYSTERESIS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.DETECTIONHYSTERESIS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_detectionHysteresis() As Integer
@@ -320,7 +320,7 @@ Module yocto_proximity
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -345,7 +345,7 @@ Module yocto_proximity
     '''   an integer corresponding to the minimal detection duration before signalling a presence event
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PRESENCEMINTIME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.PRESENCEMINTIME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_presenceMinTime() As Integer
@@ -377,7 +377,7 @@ Module yocto_proximity
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -402,7 +402,7 @@ Module yocto_proximity
     '''   an integer corresponding to the minimal detection duration before signalling a removal event
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_REMOVALMINTIME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.REMOVALMINTIME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_removalMinTime() As Integer
@@ -434,7 +434,7 @@ Module yocto_proximity
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -454,12 +454,12 @@ Module yocto_proximity
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ISPRESENT_FALSE</c> or <c>Y_ISPRESENT_TRUE</c>, according to true if the input
-    '''   (considered as binary) is active (detection value is smaller than the specified <c>threshold</c>),
-    '''   and false otherwise
+    '''   either <c>YProximity.ISPRESENT_FALSE</c> or <c>YProximity.ISPRESENT_TRUE</c>, according to true if
+    '''   the input (considered as binary) is active (detection value is smaller than the specified
+    '''   <c>threshold</c>), and false otherwise
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ISPRESENT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.ISPRESENT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_isPresent() As Integer
@@ -487,7 +487,7 @@ Module yocto_proximity
     '''   detection (the input contact transitioned from absent to present)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LASTTIMEAPPROACHED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.LASTTIMEAPPROACHED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_lastTimeApproached() As Long
@@ -515,7 +515,7 @@ Module yocto_proximity
     '''   detection (the input contact transitioned from present to absent)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LASTTIMEREMOVED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.LASTTIMEREMOVED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_lastTimeRemoved() As Long
@@ -544,7 +544,7 @@ Module yocto_proximity
     '''   an integer corresponding to the pulse counter value
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSECOUNTER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.PULSECOUNTER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseCounter() As Long
@@ -576,7 +576,7 @@ Module yocto_proximity
     '''   an integer corresponding to the timer of the pulse counter (ms)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSETIMER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.PULSETIMER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseTimer() As Long
@@ -599,12 +599,13 @@ Module yocto_proximity
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_PROXIMITYREPORTMODE_NUMERIC</c>, <c>Y_PROXIMITYREPORTMODE_PRESENCE</c> and
-    '''   <c>Y_PROXIMITYREPORTMODE_PULSECOUNT</c> corresponding to the parameter (sensor value, presence or
-    '''   pulse count) returned by the get_currentValue function and callbacks
+    '''   a value among <c>YProximity.PROXIMITYREPORTMODE_NUMERIC</c>,
+    '''   <c>YProximity.PROXIMITYREPORTMODE_PRESENCE</c> and <c>YProximity.PROXIMITYREPORTMODE_PULSECOUNT</c>
+    '''   corresponding to the parameter (sensor value, presence or pulse count) returned by the
+    '''   get_currentValue function and callbacks
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PROXIMITYREPORTMODE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YProximity.PROXIMITYREPORTMODE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_proximityReportMode() As Integer
@@ -631,14 +632,15 @@ Module yocto_proximity
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_PROXIMITYREPORTMODE_NUMERIC</c>, <c>Y_PROXIMITYREPORTMODE_PRESENCE</c> and
-    '''   <c>Y_PROXIMITYREPORTMODE_PULSECOUNT</c> corresponding to the  parameter  type (sensor value,
-    '''   presence or pulse count) returned by the get_currentValue function and callbacks
+    '''   a value among <c>YProximity.PROXIMITYREPORTMODE_NUMERIC</c>,
+    '''   <c>YProximity.PROXIMITYREPORTMODE_PRESENCE</c> and <c>YProximity.PROXIMITYREPORTMODE_PULSECOUNT</c>
+    '''   corresponding to the  parameter  type (sensor value, presence or pulse count) returned by the
+    '''   get_currentValue function and callbacks
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -800,7 +802,7 @@ Module yocto_proximity
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

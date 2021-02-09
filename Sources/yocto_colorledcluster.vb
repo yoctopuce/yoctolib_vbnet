@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorledcluster.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_colorledcluster.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '
@@ -160,7 +160,7 @@ Module yocto_colorledcluster
     '''   an integer corresponding to the number of LEDs currently handled by the device
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ACTIVELEDCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLedCluster.ACTIVELEDCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_activeLedCount() As Integer
@@ -191,7 +191,7 @@ Module yocto_colorledcluster
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -211,11 +211,11 @@ Module yocto_colorledcluster
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_LEDTYPE_RGB</c> or <c>Y_LEDTYPE_RGBW</c>, according to the RGB LED type currently
-    '''   handled by the device
+    '''   either <c>YColorLedCluster.LEDTYPE_RGB</c> or <c>YColorLedCluster.LEDTYPE_RGBW</c>, according to
+    '''   the RGB LED type currently handled by the device
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LEDTYPE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLedCluster.LEDTYPE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_ledType() As Integer
@@ -241,13 +241,13 @@ Module yocto_colorledcluster
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_LEDTYPE_RGB</c> or <c>Y_LEDTYPE_RGBW</c>, according to the RGB LED type currently
-    '''   handled by the device
+    '''   either <c>YColorLedCluster.LEDTYPE_RGB</c> or <c>YColorLedCluster.LEDTYPE_RGBW</c>, according to
+    '''   the RGB LED type currently handled by the device
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -270,7 +270,7 @@ Module yocto_colorledcluster
     '''   an integer corresponding to the maximum number of LEDs that the device can handle
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MAXLEDCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLedCluster.MAXLEDCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_maxLedCount() As Integer
@@ -296,7 +296,7 @@ Module yocto_colorledcluster
     '''   an integer corresponding to the maximum number of sequences that the device can handle
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BLINKSEQMAXCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLedCluster.BLINKSEQMAXCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_blinkSeqMaxCount() As Integer
@@ -322,7 +322,7 @@ Module yocto_colorledcluster
     '''   an integer corresponding to the maximum length of sequences
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BLINKSEQMAXSIZE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorLedCluster.BLINKSEQMAXSIZE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_blinkSeqMaxSize() As Integer
@@ -479,7 +479,7 @@ Module yocto_colorledcluster
     '''   new color.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -507,7 +507,7 @@ Module yocto_colorledcluster
     '''   new color.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -535,7 +535,7 @@ Module yocto_colorledcluster
     '''   new color.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -564,7 +564,7 @@ Module yocto_colorledcluster
     '''   new color.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -595,7 +595,7 @@ Module yocto_colorledcluster
     '''   transition duration in ms
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -630,7 +630,7 @@ Module yocto_colorledcluster
     '''   transition duration in ms
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -659,7 +659,7 @@ Module yocto_colorledcluster
     '''   transition duration in ms
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -688,7 +688,7 @@ Module yocto_colorledcluster
     '''   transition duration in ms
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -713,7 +713,7 @@ Module yocto_colorledcluster
     '''   sequence index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -739,7 +739,7 @@ Module yocto_colorledcluster
     '''   index of the sequence to chain.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -762,7 +762,7 @@ Module yocto_colorledcluster
     '''   sequence index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -795,7 +795,7 @@ Module yocto_colorledcluster
     '''   execution offset in ms.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -828,7 +828,7 @@ Module yocto_colorledcluster
     '''   execution offset in ms.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -861,7 +861,7 @@ Module yocto_colorledcluster
     '''   number of periods to show on LEDs.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -884,7 +884,7 @@ Module yocto_colorledcluster
     '''   affected LED count.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -906,7 +906,7 @@ Module yocto_colorledcluster
     '''   index of the sequence to start.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -928,7 +928,7 @@ Module yocto_colorledcluster
     '''   index of the sequence to stop.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -950,7 +950,7 @@ Module yocto_colorledcluster
     '''   index of the sequence to reset
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -977,7 +977,7 @@ Module yocto_colorledcluster
     '''   0 to keep the sequence turned off and 1 to start it automatically.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1003,7 +1003,7 @@ Module yocto_colorledcluster
     '''   sequence running speed (-1000...1000).
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1023,7 +1023,7 @@ Module yocto_colorledcluster
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1050,7 +1050,7 @@ Module yocto_colorledcluster
     '''   index of the sequence to start.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1075,7 +1075,7 @@ Module yocto_colorledcluster
     '''   the binary buffer to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1100,7 +1100,7 @@ Module yocto_colorledcluster
     '''   a list of 24bit RGB codes, in the form 0xRRGGBB
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1146,7 +1146,7 @@ Module yocto_colorledcluster
     '''   transition duration in ms
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1189,7 +1189,7 @@ Module yocto_colorledcluster
     '''   transition duration in ms
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1217,7 +1217,7 @@ Module yocto_colorledcluster
     '''   the binary buffer to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1242,7 +1242,7 @@ Module yocto_colorledcluster
     '''   a list of 24bit HSL codes, in the form 0xHHSSLL
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1285,7 +1285,7 @@ Module yocto_colorledcluster
     '''   transition duration in ms
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1317,7 +1317,7 @@ Module yocto_colorledcluster
     '''   transition duration in ms
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

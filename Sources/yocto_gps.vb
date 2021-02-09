@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_gps.vb 39658 2020-03-12 15:36:29Z seb $
+'  $Id: yocto_gps.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindGps(), the high-level API for Gps functions
 '
@@ -245,11 +245,11 @@ Module yocto_gps
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ISFIXED_FALSE</c> or <c>Y_ISFIXED_TRUE</c>, according to TRUE if the receiver has found
-    '''   enough satellites to work
+    '''   either <c>YGps.ISFIXED_FALSE</c> or <c>YGps.ISFIXED_TRUE</c>, according to TRUE if the receiver has
+    '''   found enough satellites to work
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ISFIXED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.ISFIXED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_isFixed() As Integer
@@ -275,7 +275,7 @@ Module yocto_gps
     '''   an integer corresponding to the total count of satellites used to compute GPS position
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SATCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.SATCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_satCount() As Long
@@ -305,7 +305,7 @@ Module yocto_gps
     '''   on a 32 bit integer: bits 0.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SATPERCONST_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.SATPERCONST_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_satPerConst() As Long
@@ -332,7 +332,7 @@ Module yocto_gps
     '''   a floating point number corresponding to effective GPS data refresh frequency
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_GPSREFRESHRATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.GPSREFRESHRATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_gpsRefreshRate() As Double
@@ -355,11 +355,11 @@ Module yocto_gps
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_COORDSYSTEM_GPS_DMS</c>, <c>Y_COORDSYSTEM_GPS_DM</c> and
-    '''   <c>Y_COORDSYSTEM_GPS_D</c> corresponding to the representation system used for positioning data
+    '''   a value among <c>YGps.COORDSYSTEM_GPS_DMS</c>, <c>YGps.COORDSYSTEM_GPS_DM</c> and
+    '''   <c>YGps.COORDSYSTEM_GPS_D</c> corresponding to the representation system used for positioning data
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COORDSYSTEM_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.COORDSYSTEM_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_coordSystem() As Integer
@@ -385,13 +385,13 @@ Module yocto_gps
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_COORDSYSTEM_GPS_DMS</c>, <c>Y_COORDSYSTEM_GPS_DM</c> and
-    '''   <c>Y_COORDSYSTEM_GPS_D</c> corresponding to the representation system used for positioning data
+    '''   a value among <c>YGps.COORDSYSTEM_GPS_DMS</c>, <c>YGps.COORDSYSTEM_GPS_DM</c> and
+    '''   <c>YGps.COORDSYSTEM_GPS_D</c> corresponding to the representation system used for positioning data
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -412,14 +412,14 @@ Module yocto_gps
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_CONSTELLATION_GNSS</c>, <c>Y_CONSTELLATION_GPS</c>,
-    '''   <c>Y_CONSTELLATION_GLONASS</c>, <c>Y_CONSTELLATION_GALILEO</c>, <c>Y_CONSTELLATION_GPS_GLONASS</c>,
-    '''   <c>Y_CONSTELLATION_GPS_GALILEO</c> and <c>Y_CONSTELLATION_GLONASS_GALILEO</c> corresponding to the
-    '''   the satellites constellation used to compute
+    '''   a value among <c>YGps.CONSTELLATION_GNSS</c>, <c>YGps.CONSTELLATION_GPS</c>,
+    '''   <c>YGps.CONSTELLATION_GLONASS</c>, <c>YGps.CONSTELLATION_GALILEO</c>,
+    '''   <c>YGps.CONSTELLATION_GPS_GLONASS</c>, <c>YGps.CONSTELLATION_GPS_GALILEO</c> and
+    '''   <c>YGps.CONSTELLATION_GLONASS_GALILEO</c> corresponding to the the satellites constellation used to compute
     '''   positioning data
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CONSTELLATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.CONSTELLATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_constellation() As Integer
@@ -446,16 +446,16 @@ Module yocto_gps
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_CONSTELLATION_GNSS</c>, <c>Y_CONSTELLATION_GPS</c>,
-    '''   <c>Y_CONSTELLATION_GLONASS</c>, <c>Y_CONSTELLATION_GALILEO</c>, <c>Y_CONSTELLATION_GPS_GLONASS</c>,
-    '''   <c>Y_CONSTELLATION_GPS_GALILEO</c> and <c>Y_CONSTELLATION_GLONASS_GALILEO</c> corresponding to the
-    '''   satellites constellation used to compute
+    '''   a value among <c>YGps.CONSTELLATION_GNSS</c>, <c>YGps.CONSTELLATION_GPS</c>,
+    '''   <c>YGps.CONSTELLATION_GLONASS</c>, <c>YGps.CONSTELLATION_GALILEO</c>,
+    '''   <c>YGps.CONSTELLATION_GPS_GLONASS</c>, <c>YGps.CONSTELLATION_GPS_GALILEO</c> and
+    '''   <c>YGps.CONSTELLATION_GLONASS_GALILEO</c> corresponding to the satellites constellation used to compute
     '''   positioning data
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -478,7 +478,7 @@ Module yocto_gps
     '''   a string corresponding to the current latitude
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LATITUDE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.LATITUDE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_latitude() As String
@@ -504,7 +504,7 @@ Module yocto_gps
     '''   a string corresponding to the current longitude
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LONGITUDE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.LONGITUDE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_longitude() As String
@@ -532,7 +532,7 @@ Module yocto_gps
     '''   the smaller that number is, the better
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DILUTION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.DILUTION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_dilution() As Double
@@ -560,7 +560,7 @@ Module yocto_gps
     '''   a floating point number corresponding to the current altitude
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ALTITUDE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.ALTITUDE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_altitude() As Double
@@ -586,7 +586,7 @@ Module yocto_gps
     '''   a floating point number corresponding to the current ground speed in Km/h
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_GROUNDSPEED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.GROUNDSPEED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_groundSpeed() As Double
@@ -614,7 +614,7 @@ Module yocto_gps
     '''   is the true (geographic) north
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DIRECTION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.DIRECTION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_direction() As Double
@@ -642,7 +642,7 @@ Module yocto_gps
     '''   seconds elapsed since Jan 1st, 1970)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_UNIXTIME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.UNIXTIME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_unixTime() As Long
@@ -668,7 +668,7 @@ Module yocto_gps
     '''   a string corresponding to the current time in the form "YYYY/MM/DD hh:mm:ss"
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DATETIME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.DATETIME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_dateTime() As String
@@ -694,7 +694,7 @@ Module yocto_gps
     '''   an integer corresponding to the number of seconds between current time and UTC time (time zone)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_UTCOFFSET_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGps.UTCOFFSET_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_utcOffset() As Integer
@@ -727,7 +727,7 @@ Module yocto_gps
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

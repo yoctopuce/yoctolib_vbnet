@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_voltageoutput.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_voltageoutput.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindVoltageOutput(), the high-level API for VoltageOutput functions
 '
@@ -131,7 +131,7 @@ Module yocto_voltageoutput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -154,7 +154,7 @@ Module yocto_voltageoutput
     '''   a floating point number corresponding to the output voltage set point, in V
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTVOLTAGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YVoltageOutput.CURRENTVOLTAGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentVoltage() As Double
@@ -202,7 +202,7 @@ Module yocto_voltageoutput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -225,7 +225,7 @@ Module yocto_voltageoutput
     '''   a floating point number corresponding to the selected voltage output at device startup, in V
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLTAGEATSTARTUP_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YVoltageOutput.VOLTAGEATSTARTUP_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_voltageAtStartUp() As Double
@@ -360,7 +360,7 @@ Module yocto_voltageoutput
     '''   total duration of the transition, in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     '''/
     Public Overridable Function voltageMove(V_target As Double, ms_duration As Integer) As Integer

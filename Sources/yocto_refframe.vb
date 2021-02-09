@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_refframe.vb 42951 2020-12-14 09:43:29Z seb $
+'  $Id: yocto_refframe.vb 43619 2021-01-29 09:14:45Z mvuilleu $
 '
 '  Implements yFindRefFrame(), the high-level API for RefFrame functions
 '
@@ -246,7 +246,7 @@ end enum
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -272,7 +272,7 @@ end enum
     '''   a floating point number corresponding to the reference bearing used by the compass
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BEARING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRefFrame.BEARING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_bearing() As Double
@@ -313,13 +313,14 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_FUSIONMODE_NDOF</c>, <c>Y_FUSIONMODE_NDOF_FMC_OFF</c>, <c>Y_FUSIONMODE_M4G</c>,
-    '''   <c>Y_FUSIONMODE_COMPASS</c>, <c>Y_FUSIONMODE_IMU</c>, <c>Y_FUSIONMODE_INCLIN_90DEG_1G8</c>,
-    '''   <c>Y_FUSIONMODE_INCLIN_90DEG_3G6</c> and <c>Y_FUSIONMODE_INCLIN_10DEG</c> corresponding to the
-    '''   sensor fusion mode
+    '''   a value among <c>YRefFrame.FUSIONMODE_NDOF</c>, <c>YRefFrame.FUSIONMODE_NDOF_FMC_OFF</c>,
+    '''   <c>YRefFrame.FUSIONMODE_M4G</c>, <c>YRefFrame.FUSIONMODE_COMPASS</c>,
+    '''   <c>YRefFrame.FUSIONMODE_IMU</c>, <c>YRefFrame.FUSIONMODE_INCLIN_90DEG_1G8</c>,
+    '''   <c>YRefFrame.FUSIONMODE_INCLIN_90DEG_3G6</c> and <c>YRefFrame.FUSIONMODE_INCLIN_10DEG</c>
+    '''   corresponding to the sensor fusion mode
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_FUSIONMODE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YRefFrame.FUSIONMODE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_fusionMode() As Integer
@@ -345,14 +346,15 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_FUSIONMODE_NDOF</c>, <c>Y_FUSIONMODE_NDOF_FMC_OFF</c>, <c>Y_FUSIONMODE_M4G</c>,
-    '''   <c>Y_FUSIONMODE_COMPASS</c>, <c>Y_FUSIONMODE_IMU</c>, <c>Y_FUSIONMODE_INCLIN_90DEG_1G8</c>,
-    '''   <c>Y_FUSIONMODE_INCLIN_90DEG_3G6</c> and <c>Y_FUSIONMODE_INCLIN_10DEG</c>
+    '''   a value among <c>YRefFrame.FUSIONMODE_NDOF</c>, <c>YRefFrame.FUSIONMODE_NDOF_FMC_OFF</c>,
+    '''   <c>YRefFrame.FUSIONMODE_M4G</c>, <c>YRefFrame.FUSIONMODE_COMPASS</c>,
+    '''   <c>YRefFrame.FUSIONMODE_IMU</c>, <c>YRefFrame.FUSIONMODE_INCLIN_90DEG_1G8</c>,
+    '''   <c>YRefFrame.FUSIONMODE_INCLIN_90DEG_3G6</c> and <c>YRefFrame.FUSIONMODE_INCLIN_10DEG</c>
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -479,14 +481,14 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among the <c>Y_MOUNTPOSITION</c> enumeration
-    '''   (<c>Y_MOUNTPOSITION_BOTTOM</c>,   <c>Y_MOUNTPOSITION_TOP</c>,
-    '''   <c>Y_MOUNTPOSITION_FRONT</c>,    <c>Y_MOUNTPOSITION_RIGHT</c>,
-    '''   <c>Y_MOUNTPOSITION_REAR</c>,     <c>Y_MOUNTPOSITION_LEFT</c>),
+    '''   a value among the <c>YRefFrame.MOUNTPOSITION</c> enumeration
+    '''   (<c>YRefFrame.MOUNTPOSITION_BOTTOM</c>,  <c>YRefFrame.MOUNTPOSITION_TOP</c>,
+    '''   <c>YRefFrame.MOUNTPOSITION_FRONT</c>,    <c>YRefFrame.MOUNTPOSITION_RIGHT</c>,
+    '''   <c>YRefFrame.MOUNTPOSITION_REAR</c>,     <c>YRefFrame.MOUNTPOSITION_LEFT</c>),
     '''   corresponding to the installation in a box, on one of the six faces.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_MOUNTPOSITION_INVALID.
+    '''   On failure, throws an exception or returns YRefFrame.MOUNTPOSITION_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_mountPosition() As Y_MOUNTPOSITION
@@ -509,16 +511,16 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among the enumeration <c>Y_MOUNTORIENTATION</c>
-    '''   (<c>Y_MOUNTORIENTATION_TWELVE</c>, <c>Y_MOUNTORIENTATION_THREE</c>,
-    '''   <c>Y_MOUNTORIENTATION_SIX</c>,     <c>Y_MOUNTORIENTATION_NINE</c>)
+    '''   a value among the enumeration <c>YRefFrame.MOUNTORIENTATION</c>
+    '''   (<c>YRefFrame.MOUNTORIENTATION_TWELVE</c>, <c>YRefFrame.MOUNTORIENTATION_THREE</c>,
+    '''   <c>YRefFrame.MOUNTORIENTATION_SIX</c>,     <c>YRefFrame.MOUNTORIENTATION_NINE</c>)
     '''   corresponding to the orientation of the "X" arrow on the device,
     '''   as on a clock dial seen from an observer in the center of the box.
     '''   On the bottom face, the 12H orientation points to the front, while
     '''   on the top face, the 12H orientation points to the rear.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns Y_MOUNTORIENTATION_INVALID.
+    '''   On failure, throws an exception or returns YRefFrame.MOUNTORIENTATION_INVALID.
     ''' </para>
     '''/
     Public Overridable Function get_mountOrientation() As Y_MOUNTORIENTATION
@@ -544,16 +546,16 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <param name="position">
-    '''   a value among the <c>Y_MOUNTPOSITION</c> enumeration
-    '''   (<c>Y_MOUNTPOSITION_BOTTOM</c>,   <c>Y_MOUNTPOSITION_TOP</c>,
-    '''   <c>Y_MOUNTPOSITION_FRONT</c>,    <c>Y_MOUNTPOSITION_RIGHT</c>,
-    '''   <c>Y_MOUNTPOSITION_REAR</c>,     <c>Y_MOUNTPOSITION_LEFT</c>),
+    '''   a value among the <c>YRefFrame.MOUNTPOSITION</c> enumeration
+    '''   (<c>YRefFrame.MOUNTPOSITION_BOTTOM</c>,  <c>YRefFrame.MOUNTPOSITION_TOP</c>,
+    '''   <c>YRefFrame.MOUNTPOSITION_FRONT</c>,    <c>YRefFrame.MOUNTPOSITION_RIGHT</c>,
+    '''   <c>YRefFrame.MOUNTPOSITION_REAR</c>,     <c>YRefFrame.MOUNTPOSITION_LEFT</c>),
     '''   corresponding to the installation in a box, on one of the six faces.
     ''' </param>
     ''' <param name="orientation">
-    '''   a value among the enumeration <c>Y_MOUNTORIENTATION</c>
-    '''   (<c>Y_MOUNTORIENTATION_TWELVE</c>, <c>Y_MOUNTORIENTATION_THREE</c>,
-    '''   <c>Y_MOUNTORIENTATION_SIX</c>,     <c>Y_MOUNTORIENTATION_NINE</c>)
+    '''   a value among the enumeration <c>YRefFrame.MOUNTORIENTATION</c>
+    '''   (<c>YRefFrame.MOUNTORIENTATION_TWELVE</c>, <c>YRefFrame.MOUNTORIENTATION_THREE</c>,
+    '''   <c>YRefFrame.MOUNTORIENTATION_SIX</c>,     <c>YRefFrame.MOUNTORIENTATION_NINE</c>)
     '''   corresponding to the orientation of the "X" arrow on the device,
     '''   as on a clock dial seen from an observer in the center of the box.
     '''   On the bottom face, the 12H orientation points to the front, while

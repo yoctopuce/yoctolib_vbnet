@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_digitalio.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_digitalio.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '
@@ -184,7 +184,7 @@ Module yocto_digitalio
     '''   representing a channel
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PORTSTATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDigitalIO.PORTSTATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_portState() As Integer
@@ -223,7 +223,7 @@ Module yocto_digitalio
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -247,7 +247,7 @@ Module yocto_digitalio
     '''   an input, 1 makes it an output
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PORTDIRECTION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDigitalIO.PORTDIRECTION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_portDirection() As Integer
@@ -278,7 +278,7 @@ Module yocto_digitalio
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -303,7 +303,7 @@ Module yocto_digitalio
     '''   an integer corresponding to the electrical interface for each bit of the port
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PORTOPENDRAIN_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDigitalIO.PORTOPENDRAIN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_portOpenDrain() As Integer
@@ -335,7 +335,7 @@ Module yocto_digitalio
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -360,7 +360,7 @@ Module yocto_digitalio
     '''   an integer corresponding to the polarity of all the bits of the port
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PORTPOLARITY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDigitalIO.PORTPOLARITY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_portPolarity() As Integer
@@ -393,7 +393,7 @@ Module yocto_digitalio
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -419,7 +419,7 @@ Module yocto_digitalio
     '''   an integer corresponding to the port state diagnostics (Yocto-IO and Yocto-MaxiIO-V2 only)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PORTDIAGS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDigitalIO.PORTDIAGS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_portDiags() As Integer
@@ -446,7 +446,7 @@ Module yocto_digitalio
     '''   an integer corresponding to the number of bits (i.e
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PORTSIZE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDigitalIO.PORTSIZE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_portSize() As Integer
@@ -469,11 +469,11 @@ Module yocto_digitalio
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_OUTPUTVOLTAGE_USB_5V</c>, <c>Y_OUTPUTVOLTAGE_USB_3V</c> and
-    '''   <c>Y_OUTPUTVOLTAGE_EXT_V</c> corresponding to the voltage source used to drive output bits
+    '''   a value among <c>YDigitalIO.OUTPUTVOLTAGE_USB_5V</c>, <c>YDigitalIO.OUTPUTVOLTAGE_USB_3V</c> and
+    '''   <c>YDigitalIO.OUTPUTVOLTAGE_EXT_V</c> corresponding to the voltage source used to drive output bits
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_OUTPUTVOLTAGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YDigitalIO.OUTPUTVOLTAGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_outputVoltage() As Integer
@@ -498,13 +498,13 @@ Module yocto_digitalio
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_OUTPUTVOLTAGE_USB_5V</c>, <c>Y_OUTPUTVOLTAGE_USB_3V</c> and
-    '''   <c>Y_OUTPUTVOLTAGE_EXT_V</c> corresponding to the voltage source used to drive output bits
+    '''   a value among <c>YDigitalIO.OUTPUTVOLTAGE_USB_5V</c>, <c>YDigitalIO.OUTPUTVOLTAGE_USB_3V</c> and
+    '''   <c>YDigitalIO.OUTPUTVOLTAGE_EXT_V</c> corresponding to the voltage source used to drive output bits
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -651,7 +651,7 @@ Module yocto_digitalio
     '''   the state of the bit (1 or 0)
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -703,7 +703,7 @@ Module yocto_digitalio
     '''   the bit number; lowest bit has index 0
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -728,7 +728,7 @@ Module yocto_digitalio
     '''   Remember to call the   <c>saveToFlash()</c> method to make sure the setting is kept after a reboot.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -757,7 +757,7 @@ Module yocto_digitalio
     '''   the bit number; lowest bit has index 0
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -783,7 +783,7 @@ Module yocto_digitalio
     '''   Remember to call the   <c>saveToFlash()</c> method to make sure the setting is kept after a reboot.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -811,7 +811,7 @@ Module yocto_digitalio
     '''   the bit number; lowest bit has index 0
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -838,7 +838,7 @@ Module yocto_digitalio
     '''   <c>saveToFlash()</c> method to make sure the setting is kept after a reboot.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -896,7 +896,7 @@ Module yocto_digitalio
     '''   resolution is not guaranteed up to the millisecond.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -925,7 +925,7 @@ Module yocto_digitalio
     '''   resolution is not guaranteed up to the millisecond.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

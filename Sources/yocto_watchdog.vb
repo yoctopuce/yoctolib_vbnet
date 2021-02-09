@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_watchdog.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_watchdog.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindWatchdog(), the high-level API for Watchdog functions
 '
@@ -225,11 +225,11 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_STATE_A</c> or <c>Y_STATE_B</c>, according to the state of the watchdog (A for the idle
-    '''   position, B for the active position)
+    '''   either <c>YWatchdog.STATE_A</c> or <c>YWatchdog.STATE_B</c>, according to the state of the watchdog
+    '''   (A for the idle position, B for the active position)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_STATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.STATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_state() As Integer
@@ -253,13 +253,13 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_STATE_A</c> or <c>Y_STATE_B</c>, according to the state of the watchdog (A for the idle
-    '''   position, B for the active position)
+    '''   either <c>YWatchdog.STATE_A</c> or <c>YWatchdog.STATE_B</c>, according to the state of the watchdog
+    '''   (A for the idle position, B for the active position)
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -280,12 +280,13 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_STATEATPOWERON_UNCHANGED</c>, <c>Y_STATEATPOWERON_A</c> and
-    '''   <c>Y_STATEATPOWERON_B</c> corresponding to the state of the watchdog at device startup (A for the idle position,
+    '''   a value among <c>YWatchdog.STATEATPOWERON_UNCHANGED</c>, <c>YWatchdog.STATEATPOWERON_A</c> and
+    '''   <c>YWatchdog.STATEATPOWERON_B</c> corresponding to the state of the watchdog at device startup (A
+    '''   for the idle position,
     '''   B for the active position, UNCHANGED to leave the relay state as is)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_STATEATPOWERON_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.STATEATPOWERON_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_stateAtPowerOn() As Integer
@@ -312,14 +313,15 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_STATEATPOWERON_UNCHANGED</c>, <c>Y_STATEATPOWERON_A</c> and
-    '''   <c>Y_STATEATPOWERON_B</c> corresponding to the state of the watchdog at device startup (A for the idle position,
+    '''   a value among <c>YWatchdog.STATEATPOWERON_UNCHANGED</c>, <c>YWatchdog.STATEATPOWERON_A</c> and
+    '''   <c>YWatchdog.STATEATPOWERON_B</c> corresponding to the state of the watchdog at device startup (A
+    '''   for the idle position,
     '''   B for the active position, UNCHANGED to leave the relay state as is)
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -345,7 +347,7 @@ End Class
     '''   A before automatically switching back in to B state
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MAXTIMEONSTATEA_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.MAXTIMEONSTATEA_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_maxTimeOnStateA() As Long
@@ -379,7 +381,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -404,7 +406,7 @@ End Class
     '''   an integer
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MAXTIMEONSTATEB_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.MAXTIMEONSTATEB_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_maxTimeOnStateB() As Long
@@ -438,7 +440,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -458,11 +460,11 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_OUTPUT_OFF</c> or <c>Y_OUTPUT_ON</c>, according to the output state of the watchdog,
-    '''   when used as a simple switch (single throw)
+    '''   either <c>YWatchdog.OUTPUT_OFF</c> or <c>YWatchdog.OUTPUT_ON</c>, according to the output state of
+    '''   the watchdog, when used as a simple switch (single throw)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_OUTPUT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.OUTPUT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_output() As Integer
@@ -486,13 +488,13 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_OUTPUT_OFF</c> or <c>Y_OUTPUT_ON</c>, according to the output state of the watchdog,
-    '''   when used as a simple switch (single throw)
+    '''   either <c>YWatchdog.OUTPUT_OFF</c> or <c>YWatchdog.OUTPUT_ON</c>, according to the output state of
+    '''   the watchdog, when used as a simple switch (single throw)
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -519,7 +521,7 @@ End Class
     '''   (state A), during a measured pulse generation
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PULSETIMER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.PULSETIMER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_pulseTimer() As Long
@@ -555,7 +557,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -601,7 +603,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -626,7 +628,7 @@ End Class
     '''   When there is no scheduled pulse, returns zero
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COUNTDOWN_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.COUNTDOWN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_countdown() As Long
@@ -649,11 +651,11 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_AUTOSTART_OFF</c> or <c>Y_AUTOSTART_ON</c>, according to the watchdog running state at
-    '''   module power on
+    '''   either <c>YWatchdog.AUTOSTART_OFF</c> or <c>YWatchdog.AUTOSTART_ON</c>, according to the watchdog
+    '''   running state at module power on
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_AUTOSTART_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.AUTOSTART_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_autoStart() As Integer
@@ -679,13 +681,13 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_AUTOSTART_OFF</c> or <c>Y_AUTOSTART_ON</c>, according to the watchdog running state at
-    '''   module power on
+    '''   either <c>YWatchdog.AUTOSTART_OFF</c> or <c>YWatchdog.AUTOSTART_ON</c>, according to the watchdog
+    '''   running state at module power on
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -705,10 +707,10 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_RUNNING_OFF</c> or <c>Y_RUNNING_ON</c>, according to the watchdog running state
+    '''   either <c>YWatchdog.RUNNING_OFF</c> or <c>YWatchdog.RUNNING_ON</c>, according to the watchdog running state
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RUNNING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.RUNNING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_running() As Integer
@@ -732,12 +734,13 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_RUNNING_OFF</c> or <c>Y_RUNNING_ON</c>, according to the running state of the watchdog
+    '''   either <c>YWatchdog.RUNNING_OFF</c> or <c>YWatchdog.RUNNING_ON</c>, according to the running state
+    '''   of the watchdog
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -761,7 +764,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -785,7 +788,7 @@ End Class
     '''   watchdog, in milliseconds
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TRIGGERDELAY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.TRIGGERDELAY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_triggerDelay() As Long
@@ -818,7 +821,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -841,7 +844,7 @@ End Class
     '''   an integer corresponding to the duration of resets caused by the watchdog, in milliseconds
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TRIGGERDURATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWatchdog.TRIGGERDURATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_triggerDuration() As Long
@@ -872,7 +875,7 @@ End Class
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -995,7 +998,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

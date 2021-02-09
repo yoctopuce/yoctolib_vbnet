@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_genericsensor.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_genericsensor.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '
@@ -181,7 +181,7 @@ Module yocto_genericsensor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -204,7 +204,7 @@ Module yocto_genericsensor
     '''   a floating point number corresponding to the current value of the electrical signal measured by the sensor
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SIGNALVALUE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGenericSensor.SIGNALVALUE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_signalValue() As Double
@@ -230,7 +230,7 @@ Module yocto_genericsensor
     '''   a string corresponding to the measuring unit of the electrical signal used by the sensor
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SIGNALUNIT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGenericSensor.SIGNALUNIT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_signalUnit() As String
@@ -256,7 +256,7 @@ Module yocto_genericsensor
     '''   a string corresponding to the input signal range used by the sensor
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SIGNALRANGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGenericSensor.SIGNALRANGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_signalRange() As String
@@ -298,7 +298,7 @@ Module yocto_genericsensor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -321,7 +321,7 @@ Module yocto_genericsensor
     '''   a string corresponding to the physical value range measured by the sensor
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VALUERANGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGenericSensor.VALUERANGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_valueRange() As String
@@ -360,7 +360,7 @@ Module yocto_genericsensor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -390,7 +390,7 @@ Module yocto_genericsensor
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -415,7 +415,7 @@ Module yocto_genericsensor
     '''   a floating point number corresponding to the electric signal bias for zero shift adjustment
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SIGNALBIAS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGenericSensor.SIGNALBIAS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_signalBias() As Double
@@ -443,12 +443,13 @@ Module yocto_genericsensor
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_SIGNALSAMPLING_HIGH_RATE</c>, <c>Y_SIGNALSAMPLING_HIGH_RATE_FILTERED</c>,
-    '''   <c>Y_SIGNALSAMPLING_LOW_NOISE</c>, <c>Y_SIGNALSAMPLING_LOW_NOISE_FILTERED</c> and
-    '''   <c>Y_SIGNALSAMPLING_HIGHEST_RATE</c> corresponding to the electric signal sampling method to use
+    '''   a value among <c>YGenericSensor.SIGNALSAMPLING_HIGH_RATE</c>,
+    '''   <c>YGenericSensor.SIGNALSAMPLING_HIGH_RATE_FILTERED</c>, <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE</c>,
+    '''   <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE_FILTERED</c> and <c>YGenericSensor.SIGNALSAMPLING_HIGHEST_RATE</c>
+    '''   corresponding to the electric signal sampling method to use
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_SIGNALSAMPLING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGenericSensor.SIGNALSAMPLING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_signalSampling() As Integer
@@ -479,14 +480,15 @@ Module yocto_genericsensor
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_SIGNALSAMPLING_HIGH_RATE</c>, <c>Y_SIGNALSAMPLING_HIGH_RATE_FILTERED</c>,
-    '''   <c>Y_SIGNALSAMPLING_LOW_NOISE</c>, <c>Y_SIGNALSAMPLING_LOW_NOISE_FILTERED</c> and
-    '''   <c>Y_SIGNALSAMPLING_HIGHEST_RATE</c> corresponding to the electric signal sampling method to use
+    '''   a value among <c>YGenericSensor.SIGNALSAMPLING_HIGH_RATE</c>,
+    '''   <c>YGenericSensor.SIGNALSAMPLING_HIGH_RATE_FILTERED</c>, <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE</c>,
+    '''   <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE_FILTERED</c> and <c>YGenericSensor.SIGNALSAMPLING_HIGHEST_RATE</c>
+    '''   corresponding to the electric signal sampling method to use
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -506,10 +508,11 @@ Module yocto_genericsensor
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the activation state of this input
+    '''   either <c>YGenericSensor.ENABLED_FALSE</c> or <c>YGenericSensor.ENABLED_TRUE</c>, according to the
+    '''   activation state of this input
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ENABLED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YGenericSensor.ENABLED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_enabled() As Integer
@@ -538,12 +541,13 @@ Module yocto_genericsensor
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the activation state of this input
+    '''   either <c>YGenericSensor.ENABLED_FALSE</c> or <c>YGenericSensor.ENABLED_TRUE</c>, according to the
+    '''   activation state of this input
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -708,7 +712,7 @@ Module yocto_genericsensor
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

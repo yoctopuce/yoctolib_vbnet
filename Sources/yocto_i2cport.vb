@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_i2cport.vb 41171 2020-07-02 17:49:00Z mvuilleu $
+'  $Id: yocto_i2cport.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindI2cPort(), the high-level API for I2cPort functions
 '
@@ -301,7 +301,7 @@ Module yocto_i2cport
     '''   an integer corresponding to the total number of bytes received since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RXCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.RXCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rxCount() As Integer
@@ -327,7 +327,7 @@ Module yocto_i2cport
     '''   an integer corresponding to the total number of bytes transmitted since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TXCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.TXCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_txCount() As Integer
@@ -353,7 +353,7 @@ Module yocto_i2cport
     '''   an integer corresponding to the total number of communication errors detected since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ERRCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.ERRCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_errCount() As Integer
@@ -379,7 +379,7 @@ Module yocto_i2cport
     '''   an integer corresponding to the total number of messages received since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_RXMSGCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.RXMSGCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_rxMsgCount() As Integer
@@ -405,7 +405,7 @@ Module yocto_i2cport
     '''   an integer corresponding to the total number of messages send since last reset
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TXMSGCOUNT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.TXMSGCOUNT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_txMsgCount() As Integer
@@ -431,7 +431,7 @@ Module yocto_i2cport
     '''   a string corresponding to the latest message fully received (for Line and Frame protocols)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LASTMSG_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.LASTMSG_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_lastMsg() As String
@@ -457,7 +457,7 @@ Module yocto_i2cport
     '''   a string corresponding to the name of the job file currently in use
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTJOB_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.CURRENTJOB_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentJob() As String
@@ -488,7 +488,7 @@ Module yocto_i2cport
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -511,7 +511,7 @@ Module yocto_i2cport
     '''   a string corresponding to the job file to use when the device is powered on
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_STARTUPJOB_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.STARTUPJOB_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_startupJob() As String
@@ -542,7 +542,7 @@ Module yocto_i2cport
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -565,7 +565,7 @@ Module yocto_i2cport
     '''   an integer corresponding to the maximum number of tasks in a job that the device can handle
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_JOBMAXTASK_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.JOBMAXTASK_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_jobMaxTask() As Integer
@@ -591,7 +591,7 @@ Module yocto_i2cport
     '''   an integer corresponding to maximum size allowed for job files
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_JOBMAXSIZE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.JOBMAXSIZE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_jobMaxSize() As Integer
@@ -637,7 +637,7 @@ Module yocto_i2cport
     '''   a string corresponding to the type of protocol used to send I2C messages, as a string
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PROTOCOL_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.PROTOCOL_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_protocol() As String
@@ -673,7 +673,7 @@ Module yocto_i2cport
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -693,11 +693,11 @@ Module yocto_i2cport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_I2CVOLTAGELEVEL_OFF</c>, <c>Y_I2CVOLTAGELEVEL_3V3</c> and
-    '''   <c>Y_I2CVOLTAGELEVEL_1V8</c> corresponding to the voltage level used on the I2C bus
+    '''   a value among <c>YI2cPort.I2CVOLTAGELEVEL_OFF</c>, <c>YI2cPort.I2CVOLTAGELEVEL_3V3</c> and
+    '''   <c>YI2cPort.I2CVOLTAGELEVEL_1V8</c> corresponding to the voltage level used on the I2C bus
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_I2CVOLTAGELEVEL_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.I2CVOLTAGELEVEL_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_i2cVoltageLevel() As Integer
@@ -723,13 +723,13 @@ Module yocto_i2cport
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_I2CVOLTAGELEVEL_OFF</c>, <c>Y_I2CVOLTAGELEVEL_3V3</c> and
-    '''   <c>Y_I2CVOLTAGELEVEL_1V8</c> corresponding to the voltage level used on the I2C bus
+    '''   a value among <c>YI2cPort.I2CVOLTAGELEVEL_OFF</c>, <c>YI2cPort.I2CVOLTAGELEVEL_3V3</c> and
+    '''   <c>YI2cPort.I2CVOLTAGELEVEL_1V8</c> corresponding to the voltage level used on the I2C bus
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -758,7 +758,7 @@ Module yocto_i2cport
     '''   "400kbps,2000ms,NoRestart"
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_I2CMODE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YI2cPort.I2CMODE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_i2cMode() As String
@@ -795,7 +795,7 @@ Module yocto_i2cport
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1184,7 +1184,7 @@ Module yocto_i2cport
     '''   a string containing a JSON definition of the job
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1210,7 +1210,7 @@ Module yocto_i2cport
     '''   name of the job file (on the device filesystem)
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1229,7 +1229,7 @@ Module yocto_i2cport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1257,7 +1257,7 @@ Module yocto_i2cport
     '''   the binary buffer to be sent
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1310,7 +1310,7 @@ Module yocto_i2cport
     '''   a list of data bytes to be sent
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1510,7 +1510,7 @@ Module yocto_i2cport
     '''   the code stream to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1564,7 +1564,7 @@ Module yocto_i2cport
     '''   the code stream to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1594,7 +1594,7 @@ Module yocto_i2cport
     '''   the byte to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1616,7 +1616,7 @@ Module yocto_i2cport
     '''   a string of hexadecimal byte codes
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1646,7 +1646,7 @@ Module yocto_i2cport
     '''   the binary buffer to send
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1681,7 +1681,7 @@ Module yocto_i2cport
     '''   a list of byte codes
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

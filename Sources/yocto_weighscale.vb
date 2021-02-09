@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_weighscale.vb 41112 2020-06-29 13:21:58Z seb $
+'  $Id: yocto_weighscale.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindWeighScale(), the high-level API for WeighScale functions
 '
@@ -179,7 +179,7 @@ Module yocto_weighscale
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -199,11 +199,11 @@ Module yocto_weighscale
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_EXCITATION_OFF</c>, <c>Y_EXCITATION_DC</c> and <c>Y_EXCITATION_AC</c>
-    '''   corresponding to the current load cell bridge excitation method
+    '''   a value among <c>YWeighScale.EXCITATION_OFF</c>, <c>YWeighScale.EXCITATION_DC</c> and
+    '''   <c>YWeighScale.EXCITATION_AC</c> corresponding to the current load cell bridge excitation method
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_EXCITATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWeighScale.EXCITATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_excitation() As Integer
@@ -229,13 +229,13 @@ Module yocto_weighscale
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_EXCITATION_OFF</c>, <c>Y_EXCITATION_DC</c> and <c>Y_EXCITATION_AC</c>
-    '''   corresponding to the current load cell bridge excitation method
+    '''   a value among <c>YWeighScale.EXCITATION_OFF</c>, <c>YWeighScale.EXCITATION_DC</c> and
+    '''   <c>YWeighScale.EXCITATION_AC</c> corresponding to the current load cell bridge excitation method
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -267,7 +267,7 @@ Module yocto_weighscale
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -294,7 +294,7 @@ Module yocto_weighscale
     '''   a floating point number corresponding to the averaged temperature update rate, in per mille
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TEMPAVGADAPTRATIO_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWeighScale.TEMPAVGADAPTRATIO_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_tempAvgAdaptRatio() As Double
@@ -328,7 +328,7 @@ Module yocto_weighscale
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -354,7 +354,7 @@ Module yocto_weighscale
     '''   a floating point number corresponding to the temperature change update rate, in per mille
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TEMPCHGADAPTRATIO_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWeighScale.TEMPCHGADAPTRATIO_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_tempChgAdaptRatio() As Double
@@ -380,7 +380,7 @@ Module yocto_weighscale
     '''   a floating point number corresponding to the current averaged temperature, used for thermal compensation
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COMPTEMPAVG_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWeighScale.COMPTEMPAVG_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_compTempAvg() As Double
@@ -406,7 +406,7 @@ Module yocto_weighscale
     '''   a floating point number corresponding to the current temperature variation, used for thermal compensation
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COMPTEMPCHG_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWeighScale.COMPTEMPCHG_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_compTempChg() As Double
@@ -432,7 +432,7 @@ Module yocto_weighscale
     '''   a floating point number corresponding to the current current thermal compensation value
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_COMPENSATION_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWeighScale.COMPENSATION_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_compensation() As Double
@@ -466,7 +466,7 @@ Module yocto_weighscale
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -492,7 +492,7 @@ Module yocto_weighscale
     '''   a floating point number corresponding to the zero tracking threshold value
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ZEROTRACKING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YWeighScale.ZEROTRACKING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_zeroTracking() As Double
@@ -679,7 +679,7 @@ Module yocto_weighscale
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -705,7 +705,7 @@ Module yocto_weighscale
     '''   maximum weight to be expected on the load cell.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -818,7 +818,7 @@ Module yocto_weighscale
     '''   argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -848,7 +848,7 @@ Module yocto_weighscale
     '''   included in the first argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -878,7 +878,7 @@ Module yocto_weighscale
     '''   argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -908,7 +908,7 @@ Module yocto_weighscale
     '''   variation included in the first argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -938,7 +938,7 @@ Module yocto_weighscale
     '''   argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -968,7 +968,7 @@ Module yocto_weighscale
     '''   included in the first argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -998,7 +998,7 @@ Module yocto_weighscale
     '''   in the first argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -1028,7 +1028,7 @@ Module yocto_weighscale
     '''   included in the first argument, index by index.
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

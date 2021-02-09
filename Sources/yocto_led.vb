@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_led.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_led.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindLed(), the high-level API for Led functions
 '
@@ -142,10 +142,10 @@ Module yocto_led
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_POWER_OFF</c> or <c>Y_POWER_ON</c>, according to the current LED state
+    '''   either <c>YLed.POWER_OFF</c> or <c>YLed.POWER_ON</c>, according to the current LED state
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_POWER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YLed.POWER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_power() As Integer
@@ -169,12 +169,12 @@ Module yocto_led
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_POWER_OFF</c> or <c>Y_POWER_ON</c>, according to the state of the LED
+    '''   either <c>YLed.POWER_OFF</c> or <c>YLed.POWER_ON</c>, according to the state of the LED
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -197,7 +197,7 @@ Module yocto_led
     '''   an integer corresponding to the current LED intensity (in per cent)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LUMINOSITY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YLed.LUMINOSITY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_luminosity() As Integer
@@ -228,7 +228,7 @@ Module yocto_led
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -248,12 +248,12 @@ Module yocto_led
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_BLINKING_STILL</c>, <c>Y_BLINKING_RELAX</c>, <c>Y_BLINKING_AWARE</c>,
-    '''   <c>Y_BLINKING_RUN</c>, <c>Y_BLINKING_CALL</c> and <c>Y_BLINKING_PANIC</c> corresponding to the
-    '''   current LED signaling mode
+    '''   a value among <c>YLed.BLINKING_STILL</c>, <c>YLed.BLINKING_RELAX</c>, <c>YLed.BLINKING_AWARE</c>,
+    '''   <c>YLed.BLINKING_RUN</c>, <c>YLed.BLINKING_CALL</c> and <c>YLed.BLINKING_PANIC</c> corresponding to
+    '''   the current LED signaling mode
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BLINKING_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YLed.BLINKING_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_blinking() As Integer
@@ -277,14 +277,14 @@ Module yocto_led
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>Y_BLINKING_STILL</c>, <c>Y_BLINKING_RELAX</c>, <c>Y_BLINKING_AWARE</c>,
-    '''   <c>Y_BLINKING_RUN</c>, <c>Y_BLINKING_CALL</c> and <c>Y_BLINKING_PANIC</c> corresponding to the
-    '''   current LED signaling mode
+    '''   a value among <c>YLed.BLINKING_STILL</c>, <c>YLed.BLINKING_RELAX</c>, <c>YLed.BLINKING_AWARE</c>,
+    '''   <c>YLed.BLINKING_RUN</c>, <c>YLed.BLINKING_CALL</c> and <c>YLed.BLINKING_PANIC</c> corresponding to
+    '''   the current LED signaling mode
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

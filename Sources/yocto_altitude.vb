@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_altitude.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_altitude.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindAltitude(), the high-level API for Altitude functions
 '
@@ -133,7 +133,7 @@ Module yocto_altitude
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -165,7 +165,7 @@ Module yocto_altitude
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -191,7 +191,7 @@ Module yocto_altitude
     '''   the altitude (QNH)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_QNH_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAltitude.QNH_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_qnh() As Double
@@ -220,7 +220,7 @@ Module yocto_altitude
     '''   altitude
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_TECHNOLOGY_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YAltitude.TECHNOLOGY_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_technology() As String

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_segmenteddisplay.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_segmenteddisplay.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindSegmentedDisplay(), the high-level API for SegmentedDisplay functions
 '
@@ -128,7 +128,7 @@ Module yocto_segmenteddisplay
     '''   a string corresponding to the text currently displayed on the screen
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_DISPLAYEDTEXT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSegmentedDisplay.DISPLAYEDTEXT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_displayedText() As String
@@ -157,7 +157,7 @@ Module yocto_segmenteddisplay
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.

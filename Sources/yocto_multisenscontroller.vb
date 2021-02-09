@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multisenscontroller.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_multisenscontroller.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindMultiSensController(), the high-level API for MultiSensController functions
 '
@@ -139,7 +139,7 @@ Module yocto_multisenscontroller
     '''   an integer corresponding to the number of sensors to poll
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_NSENSORS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiSensController.NSENSORS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_nSensors() As Integer
@@ -173,7 +173,7 @@ Module yocto_multisenscontroller
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -196,7 +196,7 @@ Module yocto_multisenscontroller
     '''   an integer corresponding to the maximum configurable sensor count allowed on this device
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MAXSENSORS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiSensController.MAXSENSORS_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_maxSensors() As Integer
@@ -219,11 +219,11 @@ Module yocto_multisenscontroller
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_MAINTENANCEMODE_FALSE</c> or <c>Y_MAINTENANCEMODE_TRUE</c>, according to true when the
-    '''   device is in maintenance mode
+    '''   either <c>YMultiSensController.MAINTENANCEMODE_FALSE</c> or <c>YMultiSensController.MAINTENANCEMODE_TRUE</c>,
+    '''   according to true when the device is in maintenance mode
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MAINTENANCEMODE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YMultiSensController.MAINTENANCEMODE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_maintenanceMode() As Integer
@@ -249,13 +249,13 @@ Module yocto_multisenscontroller
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_MAINTENANCEMODE_FALSE</c> or <c>Y_MAINTENANCEMODE_TRUE</c>, according to the device
-    '''   mode to enable maintenance and to stop sensor polling
+    '''   either <c>YMultiSensController.MAINTENANCEMODE_FALSE</c> or <c>YMultiSensController.MAINTENANCEMODE_TRUE</c>,
+    '''   according to the device mode to enable maintenance and to stop sensor polling
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -404,7 +404,7 @@ Module yocto_multisenscontroller
     '''   new address of the connected sensor
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </returns>
     '''/

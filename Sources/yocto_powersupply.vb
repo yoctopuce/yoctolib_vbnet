@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_powersupply.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_powersupply.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindPowerSupply(), the high-level API for PowerSupply functions
 '
@@ -210,7 +210,7 @@ Module yocto_powersupply
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -233,7 +233,7 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the voltage set point, in V
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLTAGESETPOINT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.VOLTAGESETPOINT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_voltageSetPoint() As Double
@@ -262,7 +262,7 @@ Module yocto_powersupply
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -285,7 +285,7 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the current limit, in mA
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTLIMIT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.CURRENTLIMIT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentLimit() As Double
@@ -308,10 +308,11 @@ Module yocto_powersupply
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_POWEROUTPUT_OFF</c> or <c>Y_POWEROUTPUT_ON</c>, according to the power supply output switch state
+    '''   either <c>YPowerSupply.POWEROUTPUT_OFF</c> or <c>YPowerSupply.POWEROUTPUT_ON</c>, according to the
+    '''   power supply output switch state
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_POWEROUTPUT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.POWEROUTPUT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_powerOutput() As Integer
@@ -335,12 +336,13 @@ Module yocto_powersupply
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_POWEROUTPUT_OFF</c> or <c>Y_POWEROUTPUT_ON</c>, according to the power supply output switch state
+    '''   either <c>YPowerSupply.POWEROUTPUT_OFF</c> or <c>YPowerSupply.POWEROUTPUT_ON</c>, according to the
+    '''   power supply output switch state
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -360,10 +362,11 @@ Module yocto_powersupply
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_VOLTAGESENSE_INT</c> or <c>Y_VOLTAGESENSE_EXT</c>, according to the output voltage control point
+    '''   either <c>YPowerSupply.VOLTAGESENSE_INT</c> or <c>YPowerSupply.VOLTAGESENSE_EXT</c>, according to
+    '''   the output voltage control point
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLTAGESENSE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.VOLTAGESENSE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_voltageSense() As Integer
@@ -387,12 +390,13 @@ Module yocto_powersupply
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_VOLTAGESENSE_INT</c> or <c>Y_VOLTAGESENSE_EXT</c>, according to the voltage control point
+    '''   either <c>YPowerSupply.VOLTAGESENSE_INT</c> or <c>YPowerSupply.VOLTAGESENSE_EXT</c>, according to
+    '''   the voltage control point
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -415,7 +419,7 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the measured output voltage, in V
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MEASUREDVOLTAGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.MEASUREDVOLTAGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_measuredVoltage() As Double
@@ -441,7 +445,7 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the measured output current, in mA
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_MEASUREDCURRENT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.MEASUREDCURRENT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_measuredCurrent() As Double
@@ -467,7 +471,7 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the measured input voltage, in V
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_INPUTVOLTAGE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.INPUTVOLTAGE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_inputVoltage() As Double
@@ -493,7 +497,7 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the internal voltage, in V
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VINT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.VINT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_vInt() As Double
@@ -519,7 +523,7 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the LDO temperature, in Celsius
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LDOTEMPERATURE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.LDOTEMPERATURE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_ldoTemperature() As Double
@@ -567,7 +571,7 @@ Module yocto_powersupply
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -590,7 +594,7 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the selected voltage set point at device startup, in V
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_VOLTAGEATSTARTUP_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.VOLTAGEATSTARTUP_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_voltageAtStartUp() As Double
@@ -621,7 +625,7 @@ Module yocto_powersupply
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -644,7 +648,7 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the selected current limit at device startup, in mA
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTATSTARTUP_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.CURRENTATSTARTUP_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentAtStartUp() As Double
@@ -796,7 +800,7 @@ Module yocto_powersupply
     '''   total duration of the transition, in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     '''/
     Public Overridable Function voltageMove(V_target As Double, ms_duration As Integer) As Integer

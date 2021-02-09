@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_hubport.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: yocto_hubport.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindHubPort(), the high-level API for HubPort functions
 '
@@ -142,11 +142,11 @@ Module yocto_hubport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to true if the YoctoHub port is
-    '''   powered, false otherwise
+    '''   either <c>YHubPort.ENABLED_FALSE</c> or <c>YHubPort.ENABLED_TRUE</c>, according to true if the
+    '''   YoctoHub port is powered, false otherwise
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_ENABLED_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YHubPort.ENABLED_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_enabled() As Integer
@@ -172,12 +172,13 @@ Module yocto_hubport
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>Y_ENABLED_FALSE</c> or <c>Y_ENABLED_TRUE</c>, according to the activation of the YoctoHub port
+    '''   either <c>YHubPort.ENABLED_FALSE</c> or <c>YHubPort.ENABLED_TRUE</c>, according to the activation
+    '''   of the YoctoHub port
     ''' </param>
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -197,11 +198,12 @@ Module yocto_hubport
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_PORTSTATE_OFF</c>, <c>Y_PORTSTATE_OVRLD</c>, <c>Y_PORTSTATE_ON</c>,
-    '''   <c>Y_PORTSTATE_RUN</c> and <c>Y_PORTSTATE_PROG</c> corresponding to the current state of the YoctoHub port
+    '''   a value among <c>YHubPort.PORTSTATE_OFF</c>, <c>YHubPort.PORTSTATE_OVRLD</c>,
+    '''   <c>YHubPort.PORTSTATE_ON</c>, <c>YHubPort.PORTSTATE_RUN</c> and <c>YHubPort.PORTSTATE_PROG</c>
+    '''   corresponding to the current state of the YoctoHub port
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_PORTSTATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YHubPort.PORTSTATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_portState() As Integer
@@ -229,7 +231,7 @@ Module yocto_hubport
     '''   an integer corresponding to the current baud rate used by this YoctoHub port, in kbps
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_BAUDRATE_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YHubPort.BAUDRATE_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_baudRate() As Integer

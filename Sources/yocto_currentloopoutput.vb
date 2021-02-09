@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_currentloopoutput.vb 38913 2019-12-20 18:59:49Z mvuilleu $
+'  $Id: yocto_currentloopoutput.vb 43580 2021-01-26 17:46:01Z mvuilleu $
 '
 '  Implements yFindCurrentLoopOutput(), the high-level API for CurrentLoopOutput functions
 '
@@ -148,7 +148,7 @@ Module yocto_currentloopoutput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -171,7 +171,7 @@ Module yocto_currentloopoutput
     '''   a floating point number corresponding to the loop current set point in mA
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YCurrentLoopOutput.CURRENT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_current() As Double
@@ -219,7 +219,7 @@ Module yocto_currentloopoutput
     ''' <para>
     ''' </para>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
@@ -242,7 +242,7 @@ Module yocto_currentloopoutput
     '''   a floating point number corresponding to the current in the loop at device startup, in mA
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_CURRENTATSTARTUP_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YCurrentLoopOutput.CURRENTATSTARTUP_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_currentAtStartUp() As Double
@@ -268,11 +268,11 @@ Module yocto_currentloopoutput
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>Y_LOOPPOWER_NOPWR</c>, <c>Y_LOOPPOWER_LOWPWR</c> and <c>Y_LOOPPOWER_POWEROK</c>
-    '''   corresponding to the loop powerstate
+    '''   a value among <c>YCurrentLoopOutput.LOOPPOWER_NOPWR</c>, <c>YCurrentLoopOutput.LOOPPOWER_LOWPWR</c>
+    '''   and <c>YCurrentLoopOutput.LOOPPOWER_POWEROK</c> corresponding to the loop powerstate
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>Y_LOOPPOWER_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YCurrentLoopOutput.LOOPPOWER_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_loopPower() As Integer
@@ -407,7 +407,7 @@ Module yocto_currentloopoutput
     '''   total duration of the transition, in milliseconds
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI_SUCCESS</c> when the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     '''/
     Public Overridable Function currentMove(mA_target As Double, ms_duration As Integer) As Integer
