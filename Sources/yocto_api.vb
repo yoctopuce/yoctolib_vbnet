@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 43619 2021-01-29 09:14:45Z mvuilleu $
+'* $Id: yocto_api.vb 44025 2021-02-25 09:38:14Z web $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "43781"
+  Public Const YOCTO_API_BUILD_NO As String = "44029"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -889,6 +889,44 @@ Module yocto_api
       Dim res As Integer = 0
       res = _yapiGetNetDevListValidity()
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Adds a UDEV rule which authorizes all users to access Yoctopuce modules
+    '''   connected to the USB ports.
+    ''' <para>
+    '''   This function works only under Linux. The process that
+    '''   calls this method must have root privileges because this method changes the Linux configuration.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="force">
+    '''   if true, overwrites any existing rule.
+    ''' </param>
+    ''' <returns>
+    '''   an empty string if the rule has been added.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, returns a string that starts with "error:".
+    ''' </para>
+    '''/
+    Public Overridable Function AddUdevRule(force As Boolean) As String
+      Dim msg As String
+      Dim res As Integer = 0
+      Dim c_force As Integer = 0
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      If (force) Then
+        c_force = 1
+      Else
+        c_force = 0
+      End If
+      res = _yapiAddUdevRulesForYocto(c_force, errmsg)
+      If (res < 0) Then
+        msg = "error: " + errmsg.ToString()
+      Else
+        msg = ""
+      End If
+      Return msg
     End Function
 
     '''*
@@ -1488,6 +1526,28 @@ Module yocto_api
     '''/
     Public Shared Function GetDeviceListValidity() As Integer
         return _yapiContext.GetDeviceListValidity()
+    End Function
+    '''*
+    ''' <summary>
+    '''   Adds a UDEV rule which authorizes all users to access Yoctopuce modules
+    '''   connected to the USB ports.
+    ''' <para>
+    '''   This function works only under Linux. The process that
+    '''   calls this method must have root privileges because this method changes the Linux configuration.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="force">
+    '''   if true, overwrites any existing rule.
+    ''' </param>
+    ''' <returns>
+    '''   an empty string if the rule has been added.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, returns a string that starts with "error:".
+    ''' </para>
+    '''/
+    Public Shared Function AddUdevRule(force As Boolean) As String
+        return _yapiContext.AddUdevRule(force)
     End Function
     '''*
     ''' <summary>
@@ -12335,6 +12395,9 @@ Module yocto_api
   End Sub
   <DllImport("yapi.dll", EntryPoint:="yapiGetNetworkTimeout", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetNetworkTimeout() As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiAddUdevRulesForYocto", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiAddUdevRulesForYocto(ByVal force As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
     REM --- (end of generated code: YFunction dlldef)
 

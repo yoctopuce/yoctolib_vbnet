@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_quadraturedecoder.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_quadraturedecoder.vb 44023 2021-02-25 09:23:38Z web $
 '
 '  Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '
@@ -56,6 +56,8 @@ Module yocto_quadraturedecoder
   Public Const Y_SPEED_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_DECODING_OFF As Integer = 0
   Public Const Y_DECODING_ON As Integer = 1
+  Public Const Y_DECODING_DIV2 As Integer = 2
+  Public Const Y_DECODING_DIV4 As Integer = 3
   Public Const Y_DECODING_INVALID As Integer = -1
   Public Delegate Sub YQuadratureDecoderValueCallback(ByVal func As YQuadratureDecoder, ByVal value As String)
   Public Delegate Sub YQuadratureDecoderTimedReportCallback(ByVal func As YQuadratureDecoder, ByVal measure As YMeasure)
@@ -80,6 +82,8 @@ Module yocto_quadraturedecoder
     Public Const SPEED_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const DECODING_OFF As Integer = 0
     Public Const DECODING_ON As Integer = 1
+    Public Const DECODING_DIV2 As Integer = 2
+    Public Const DECODING_DIV4 As Integer = 3
     Public Const DECODING_INVALID As Integer = -1
     REM --- (end of YQuadratureDecoder definitions)
 
@@ -108,7 +112,7 @@ Module yocto_quadraturedecoder
         _speed = Math.Round(json_val.getDouble("speed") * 1000.0 / 65536.0) / 1000.0
       End If
       If json_val.has("decoding") Then
-        If (json_val.getInt("decoding") > 0) Then _decoding = 1 Else _decoding = 0
+        _decoding = CInt(json_val.getLong("decoding"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -178,7 +182,8 @@ Module yocto_quadraturedecoder
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>YQuadratureDecoder.DECODING_OFF</c> or <c>YQuadratureDecoder.DECODING_ON</c>, according
+    '''   a value among <c>YQuadratureDecoder.DECODING_OFF</c>, <c>YQuadratureDecoder.DECODING_ON</c>,
+    '''   <c>YQuadratureDecoder.DECODING_DIV2</c> and <c>YQuadratureDecoder.DECODING_DIV4</c> corresponding
     '''   to the current activation state of the quadrature decoder
     ''' </returns>
     ''' <para>
@@ -208,7 +213,8 @@ Module yocto_quadraturedecoder
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>YQuadratureDecoder.DECODING_OFF</c> or <c>YQuadratureDecoder.DECODING_ON</c>, according
+    '''   a value among <c>YQuadratureDecoder.DECODING_OFF</c>, <c>YQuadratureDecoder.DECODING_ON</c>,
+    '''   <c>YQuadratureDecoder.DECODING_DIV2</c> and <c>YQuadratureDecoder.DECODING_DIV4</c> corresponding
     '''   to the activation state of the quadrature decoder
     ''' </param>
     ''' <para>
@@ -222,7 +228,7 @@ Module yocto_quadraturedecoder
     '''/
     Public Function set_decoding(ByVal newval As Integer) As Integer
       Dim rest_val As String
-      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      rest_val = Ltrim(Str(newval))
       Return _setAttr("decoding", rest_val)
     End Function
     '''*
