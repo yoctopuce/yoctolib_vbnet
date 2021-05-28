@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_watchdog.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_watchdog.vb 44548 2021-04-13 09:56:42Z mvuilleu $
 '
 '  Implements yFindWatchdog(), the high-level API for Watchdog functions
 '
@@ -73,6 +73,7 @@ End Class
   REM Y_RUNNING is defined in yocto_api.vb
   Public Const Y_TRIGGERDELAY_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_TRIGGERDURATION_INVALID As Long = YAPI.INVALID_LONG
+  Public Const Y_LASTTRIGGER_INVALID As Integer = YAPI.INVALID_UINT
   Public ReadOnly Y_DELAYEDPULSETIMER_INVALID As YWatchdogDelayedPulse = Nothing
   Public Delegate Sub YWatchdogValueCallback(ByVal func As YWatchdog, ByVal value As String)
   Public Delegate Sub YWatchdogTimedReportCallback(ByVal func As YWatchdog, ByVal measure As YMeasure)
@@ -122,6 +123,7 @@ End Class
     Public Const RUNNING_INVALID As Integer = -1
     Public Const TRIGGERDELAY_INVALID As Long = YAPI.INVALID_LONG
     Public Const TRIGGERDURATION_INVALID As Long = YAPI.INVALID_LONG
+    Public Const LASTTRIGGER_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YWatchdog definitions)
 
     REM --- (YWatchdog attributes declaration)
@@ -137,6 +139,7 @@ End Class
     Protected _running As Integer
     Protected _triggerDelay As Long
     Protected _triggerDuration As Long
+    Protected _lastTrigger As Integer
     Protected _valueCallbackWatchdog As YWatchdogValueCallback
     Protected _firm As Integer
     REM --- (end of YWatchdog attributes declaration)
@@ -157,6 +160,7 @@ End Class
       _running = RUNNING_INVALID
       _triggerDelay = TRIGGERDELAY_INVALID
       _triggerDuration = TRIGGERDURATION_INVALID
+      _lastTrigger = LASTTRIGGER_INVALID
       _valueCallbackWatchdog = Nothing
       _firm = 0
       REM --- (end of YWatchdog attributes initialization)
@@ -209,6 +213,9 @@ End Class
       End If
       If json_val.has("triggerDuration") Then
         _triggerDuration = json_val.getLong("triggerDuration")
+      End If
+      If json_val.has("lastTrigger") Then
+        _lastTrigger = CInt(json_val.getLong("lastTrigger"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -886,6 +893,32 @@ End Class
       rest_val = Ltrim(Str(newval))
       Return _setAttr("triggerDuration", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the number of seconds spent since the last output power-up event.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the number of seconds spent since the last output power-up event
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YWatchdog.LASTTRIGGER_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_lastTrigger() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return LASTTRIGGER_INVALID
+        End If
+      End If
+      res = Me._lastTrigger
+      Return res
+    End Function
+
     '''*
     ''' <summary>
     '''   Retrieves a watchdog for a given identifier.

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_lightsensor.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_lightsensor.vb 45292 2021-05-25 23:27:54Z mvuilleu $
 '
 '  Implements yFindLightSensor(), the high-level API for LightSensor functions
 '
@@ -265,7 +265,7 @@ Module yocto_lightsensor
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the light sensor, for instance
-    '''   <c>LIGHTMK3.lightSensor</c>.
+    '''   <c>LIGHTMK4.lightSensor</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YLightSensor</c> object allowing you to drive the light sensor.
@@ -483,7 +483,7 @@ Module yocto_lightsensor
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the light sensor, for instance
-  '''   <c>LIGHTMK3.lightSensor</c>.
+  '''   <c>LIGHTMK4.lightSensor</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YLightSensor</c> object allowing you to drive the light sensor.

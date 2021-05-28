@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorledcluster.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_colorledcluster.vb 44921 2021-05-06 08:03:05Z mvuilleu $
 '
 '  Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '
@@ -56,6 +56,7 @@ Module yocto_colorledcluster
   Public Const Y_ACTIVELEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LEDTYPE_RGB As Integer = 0
   Public Const Y_LEDTYPE_RGBW As Integer = 1
+  Public Const Y_LEDTYPE_WS2811 As Integer = 2
   Public Const Y_LEDTYPE_INVALID As Integer = -1
   Public Const Y_MAXLEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BLINKSEQMAXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -90,6 +91,7 @@ Module yocto_colorledcluster
     Public Const ACTIVELEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LEDTYPE_RGB As Integer = 0
     Public Const LEDTYPE_RGBW As Integer = 1
+    Public Const LEDTYPE_WS2811 As Integer = 2
     Public Const LEDTYPE_INVALID As Integer = -1
     Public Const MAXLEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BLINKSEQMAXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
@@ -211,8 +213,8 @@ Module yocto_colorledcluster
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>YColorLedCluster.LEDTYPE_RGB</c> or <c>YColorLedCluster.LEDTYPE_RGBW</c>, according to
-    '''   the RGB LED type currently handled by the device
+    '''   a value among <c>YColorLedCluster.LEDTYPE_RGB</c>, <c>YColorLedCluster.LEDTYPE_RGBW</c> and
+    '''   <c>YColorLedCluster.LEDTYPE_WS2811</c> corresponding to the RGB LED type currently handled by the device
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorLedCluster.LEDTYPE_INVALID</c>.
@@ -241,8 +243,8 @@ Module yocto_colorledcluster
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>YColorLedCluster.LEDTYPE_RGB</c> or <c>YColorLedCluster.LEDTYPE_RGBW</c>, according to
-    '''   the RGB LED type currently handled by the device
+    '''   a value among <c>YColorLedCluster.LEDTYPE_RGB</c>, <c>YColorLedCluster.LEDTYPE_RGBW</c> and
+    '''   <c>YColorLedCluster.LEDTYPE_WS2811</c> corresponding to the RGB LED type currently handled by the device
     ''' </param>
     ''' <para>
     ''' </para>

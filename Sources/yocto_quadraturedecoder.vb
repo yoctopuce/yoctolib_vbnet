@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_quadraturedecoder.vb 44023 2021-02-25 09:23:38Z web $
+'  $Id: yocto_quadraturedecoder.vb 45292 2021-05-25 23:27:54Z mvuilleu $
 '
 '  Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '
@@ -56,9 +56,8 @@ Module yocto_quadraturedecoder
   Public Const Y_SPEED_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_DECODING_OFF As Integer = 0
   Public Const Y_DECODING_ON As Integer = 1
-  Public Const Y_DECODING_DIV2 As Integer = 2
-  Public Const Y_DECODING_DIV4 As Integer = 3
   Public Const Y_DECODING_INVALID As Integer = -1
+  Public Const Y_EDGESPERCYCLE_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YQuadratureDecoderValueCallback(ByVal func As YQuadratureDecoder, ByVal value As String)
   Public Delegate Sub YQuadratureDecoderTimedReportCallback(ByVal func As YQuadratureDecoder, ByVal measure As YMeasure)
   REM --- (end of YQuadratureDecoder globals)
@@ -82,14 +81,14 @@ Module yocto_quadraturedecoder
     Public Const SPEED_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const DECODING_OFF As Integer = 0
     Public Const DECODING_ON As Integer = 1
-    Public Const DECODING_DIV2 As Integer = 2
-    Public Const DECODING_DIV4 As Integer = 3
     Public Const DECODING_INVALID As Integer = -1
+    Public Const EDGESPERCYCLE_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YQuadratureDecoder definitions)
 
     REM --- (YQuadratureDecoder attributes declaration)
     Protected _speed As Double
     Protected _decoding As Integer
+    Protected _edgesPerCycle As Integer
     Protected _valueCallbackQuadratureDecoder As YQuadratureDecoderValueCallback
     Protected _timedReportCallbackQuadratureDecoder As YQuadratureDecoderTimedReportCallback
     REM --- (end of YQuadratureDecoder attributes declaration)
@@ -100,6 +99,7 @@ Module yocto_quadraturedecoder
       REM --- (YQuadratureDecoder attributes initialization)
       _speed = SPEED_INVALID
       _decoding = DECODING_INVALID
+      _edgesPerCycle = EDGESPERCYCLE_INVALID
       _valueCallbackQuadratureDecoder = Nothing
       _timedReportCallbackQuadratureDecoder = Nothing
       REM --- (end of YQuadratureDecoder attributes initialization)
@@ -112,7 +112,10 @@ Module yocto_quadraturedecoder
         _speed = Math.Round(json_val.getDouble("speed") * 1000.0 / 65536.0) / 1000.0
       End If
       If json_val.has("decoding") Then
-        _decoding = CInt(json_val.getLong("decoding"))
+        If (json_val.getInt("decoding") > 0) Then _decoding = 1 Else _decoding = 0
+      End If
+      If json_val.has("edgesPerCycle") Then
+        _edgesPerCycle = CInt(json_val.getLong("edgesPerCycle"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -149,14 +152,14 @@ Module yocto_quadraturedecoder
     End Function
     '''*
     ''' <summary>
-    '''   Returns the increments frequency, in Hz.
+    '''   Returns the cycle frequency, in Hz.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the increments frequency, in Hz
+    '''   a floating point number corresponding to the cycle frequency, in Hz
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YQuadratureDecoder.SPEED_INVALID</c>.
@@ -182,8 +185,7 @@ Module yocto_quadraturedecoder
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>YQuadratureDecoder.DECODING_OFF</c>, <c>YQuadratureDecoder.DECODING_ON</c>,
-    '''   <c>YQuadratureDecoder.DECODING_DIV2</c> and <c>YQuadratureDecoder.DECODING_DIV4</c> corresponding
+    '''   either <c>YQuadratureDecoder.DECODING_OFF</c> or <c>YQuadratureDecoder.DECODING_ON</c>, according
     '''   to the current activation state of the quadrature decoder
     ''' </returns>
     ''' <para>
@@ -213,8 +215,7 @@ Module yocto_quadraturedecoder
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>YQuadratureDecoder.DECODING_OFF</c>, <c>YQuadratureDecoder.DECODING_ON</c>,
-    '''   <c>YQuadratureDecoder.DECODING_DIV2</c> and <c>YQuadratureDecoder.DECODING_DIV4</c> corresponding
+    '''   either <c>YQuadratureDecoder.DECODING_OFF</c> or <c>YQuadratureDecoder.DECODING_ON</c>, according
     '''   to the activation state of the quadrature decoder
     ''' </param>
     ''' <para>
@@ -228,8 +229,62 @@ Module yocto_quadraturedecoder
     '''/
     Public Function set_decoding(ByVal newval As Integer) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("decoding", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the edge count per full cycle configuration setting.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the edge count per full cycle configuration setting
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YQuadratureDecoder.EDGESPERCYCLE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_edgesPerCycle() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return EDGESPERCYCLE_INVALID
+        End If
+      End If
+      res = Me._edgesPerCycle
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the edge count per full cycle configuration setting.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the edge count per full cycle configuration setting
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_edgesPerCycle(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("edgesPerCycle", rest_val)
     End Function
     '''*
     ''' <summary>
