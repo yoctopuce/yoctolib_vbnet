@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 45292 2021-05-25 23:27:54Z mvuilleu $
+'* $Id: yocto_api.vb 45551 2021-06-14 13:51:37Z web $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "45343"
+  Public Const YOCTO_API_BUILD_NO As String = "45664"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1068,6 +1068,7 @@ Module yocto_api
     Public Const UNAUTHORIZED As Integer = -12  REM unauthorized access to password-protected device
     Public Const RTC_NOT_READY As Integer = -13 REM real-time clock has not been initialized (or time was lost)
     Public Const FILE_NOT_FOUND As Integer = -14 REM the file is not found
+    Public Const SSL_ERROR As Integer = -15     REM Error reported by mbedSSL
 
     REM --- (end of generated code: YFunction return codes)
     Public Shared _yapiContext As YAPIContext = new YAPIContext()
@@ -2425,6 +2426,7 @@ Module yocto_api
   Public Const YAPI_UNAUTHORIZED As Integer = -12  REM unauthorized access to password-protected device
   Public Const YAPI_RTC_NOT_READY As Integer = -13 REM real-time clock has not been initialized (or time was lost)
   Public Const YAPI_FILE_NOT_FOUND As Integer = -14 REM the file is not found
+  Public Const YAPI_SSL_ERROR As Integer = -15     REM Error reported by mbedSSL
 
   Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
