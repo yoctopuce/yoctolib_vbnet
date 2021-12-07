@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 45551 2021-06-14 13:51:37Z web $
+'* $Id: yocto_api.vb 46904 2021-10-25 15:34:15Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "45664"
+  Public Const YOCTO_API_BUILD_NO As String = "47582"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1793,7 +1793,8 @@ Module yocto_api
     ''' <summary>
     '''   Setup the Yoctopuce library to use modules connected on a given machine.
     ''' <para>
-    '''   The
+    '''   Idealy this
+    '''   call will be made once at the begining of your application.  The
     '''   parameter will determine how the API will work. Use the following values:
     ''' </para>
     ''' <para>
@@ -1833,7 +1834,9 @@ Module yocto_api
     '''   <c>http://username:password@address:port</c>
     ''' </para>
     ''' <para>
-    '''   You can call <i>RegisterHub</i> several times to connect to several machines.
+    '''   You can call <i>RegisterHub</i> several times to connect to several machines. On
+    '''   the other hand, it is useless and even counterproductive to call <i>RegisterHub</i>
+    '''   with to same address multiple times during the life of the application.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -2008,13 +2011,12 @@ Module yocto_api
       res = _yapiUpdateDeviceList(0, errbuffer)
       If (YISERR(res)) Then
         errmsg = errbuffer.ToString()
-        Return res
-      End If
-
-      res = _yapiHandleEvents(errbuffer)
-      If (YISERR(res)) Then
-        errmsg = errbuffer.ToString()
-        Return res
+      Else
+        res = _yapiHandleEvents(errbuffer)
+        If (YISERR(res)) Then
+          errmsg = errbuffer.ToString()
+          Return res
+        End If
       End If
       While (_PlugEvents.Count > 0)
         yapiLockDeviceCallBack(errmsg)
@@ -2023,7 +2025,7 @@ Module yocto_api
         yapiUnlockDeviceCallBack(errmsg)
         p.invoke()
       End While
-      Return YAPI_SUCCESS
+      Return res
     End Function
 
     '''*
@@ -3106,16 +3108,26 @@ Module yocto_api
       If (Me._isAvg) Then
         While (idx + 3 < udat.Count)
           dat.Clear()
-          dat.Add(Me._decodeVal(udat(idx + 2) + (((udat(idx + 3)) << (16)))))
-          dat.Add(Me._decodeAvg(udat(idx) + (((((udat(idx + 1)) Xor (&H8000))) << (16))), 1))
-          dat.Add(Me._decodeVal(udat(idx + 4) + (((udat(idx + 5)) << (16)))))
+          If ((udat(idx) = 65535) AndAlso (udat(idx + 1) = 65535)) Then
+            dat.Add(Double.NaN)
+            dat.Add(Double.NaN)
+            dat.Add(Double.NaN)
+          Else
+            dat.Add(Me._decodeVal(udat(idx + 2) + (((udat(idx + 3)) << (16)))))
+            dat.Add(Me._decodeAvg(udat(idx) + (((((udat(idx + 1)) Xor (&H8000))) << (16))), 1))
+            dat.Add(Me._decodeVal(udat(idx + 4) + (((udat(idx + 5)) << (16)))))
+          End If
           idx = idx + 6
           Me._values.Add(New List(Of Double)(dat))
         End While
       Else
         While (idx + 1 < udat.Count)
           dat.Clear()
-          dat.Add(Me._decodeAvg(udat(idx) + (((((udat(idx + 1)) Xor (&H8000))) << (16))), 1))
+          If ((udat(idx) = 65535) AndAlso (udat(idx + 1) = 65535)) Then
+            dat.Add(Double.NaN)
+          Else
+            dat.Add(Me._decodeAvg(udat(idx) + (((((udat(idx + 1)) Xor (&H8000))) << (16))), 1))
+          End If
           Me._values.Add(New List(Of Double)(dat))
           idx = idx + 2
         End While
@@ -4008,6 +4020,7 @@ Module yocto_api
       Dim tim As Double = 0
       Dim itv As Double = 0
       Dim fitv As Double = 0
+      Dim avgv As Double = 0
       Dim end_ As Double = 0
       Dim nCols As Integer = 0
       Dim minCol As Integer = 0
@@ -4058,8 +4071,9 @@ Module yocto_api
         Else
           end_ = tim + itv
         End If
-        If ((end_ > Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (tim < Me._endTimeMs))) Then
-          Me._measures.Add(New YMeasure(tim / 1000, end_ / 1000, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
+        avgv = dataRows(i_i)(avgCol)
+        If ((end_ > Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (tim < Me._endTimeMs)) AndAlso Not (Double.IsNaN(avgv))) Then
+          Me._measures.Add(New YMeasure(tim / 1000, end_ / 1000, dataRows(i_i)(minCol), avgv, dataRows(i_i)(maxCol)))
         End If
         tim = end_
       Next i_i
@@ -10926,7 +10940,7 @@ Module yocto_api
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the data logger, for instance
-    '''   <c>RX420MA1.dataLogger</c>.
+    '''   <c>LIGHTMK4.dataLogger</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YDataLogger</c> object allowing you to drive the data logger.
@@ -11231,7 +11245,7 @@ Module yocto_api
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the data logger, for instance
-  '''   <c>RX420MA1.dataLogger</c>.
+  '''   <c>LIGHTMK4.dataLogger</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YDataLogger</c> object allowing you to drive the data logger.
@@ -11794,7 +11808,8 @@ Module yocto_api
   ''' <summary>
   '''   Setup the Yoctopuce library to use modules connected on a given machine.
   ''' <para>
-  '''   The
+  '''   Idealy this
+  '''   call will be made once at the begining of your application.  The
   '''   parameter will determine how the API will work. Use the following values:
   ''' </para>
   ''' <para>
@@ -11834,7 +11849,9 @@ Module yocto_api
   '''   <c>http://username:password@address:port</c>
   ''' </para>
   ''' <para>
-  '''   You can call <i>RegisterHub</i> several times to connect to several machines.
+  '''   You can call <i>RegisterHub</i> several times to connect to several machines. On
+  '''   the other hand, it is useless and even counterproductive to call <i>RegisterHub</i>
+  '''   with to same address multiple times during the life of the application.
   ''' </para>
   ''' <para>
   ''' </para>

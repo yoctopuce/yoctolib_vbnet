@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupmonitor.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_wakeupmonitor.vb 45843 2021-08-04 07:51:59Z mvuilleu $
 '
 '  Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '
@@ -430,7 +430,7 @@ Module yocto_wakeupmonitor
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the wake-up monitor, for instance
-    '''   <c>YHUBGSM3.wakeUpMonitor</c>.
+    '''   <c>YHUBGSM1.wakeUpMonitor</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YWakeUpMonitor</c> object allowing you to drive the wake-up monitor.
@@ -734,7 +734,7 @@ Module yocto_wakeupmonitor
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the wake-up monitor, for instance
-  '''   <c>YHUBGSM3.wakeUpMonitor</c>.
+  '''   <c>YHUBGSM1.wakeUpMonitor</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YWakeUpMonitor</c> object allowing you to drive the wake-up monitor.
