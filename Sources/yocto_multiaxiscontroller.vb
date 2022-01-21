@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multiaxiscontroller.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_multiaxiscontroller.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '
@@ -333,7 +333,7 @@ Module yocto_multiaxiscontroller
 
     Public Overridable Function sendCommand(command As String) As Integer
       Dim url As String
-      Dim retBin As Byte()
+      Dim retBin As Byte() = New Byte(){}
       Dim res As Integer = 0
       url = "cmd.txt?X=" + command
       REM //may throw an exception

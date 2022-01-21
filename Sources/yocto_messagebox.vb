@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'* $Id: yocto_messagebox.vb 48024 2022-01-12 08:38:48Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -95,7 +95,10 @@ Module yocto_messagebox
       _pid = 0
       _alphab = 0
       _mclass = 0
+      _udh = New Byte(){}
+      _udata = New Byte(){}
       _npdu = 0
+      _pdu = New Byte(){}
       _parts = New List(Of YSms)()
       _aggIdx = 0
       _aggCnt = 0
@@ -176,7 +179,7 @@ Module yocto_messagebox
     ''' </returns>
     '''/
     Public Overridable Function get_textData() As String
-      Dim isolatin As Byte()
+      Dim isolatin As Byte() = New Byte(){}
       Dim isosize As Integer = 0
       Dim i As Integer = 0
       If (Me._alphab = 0) Then
@@ -401,9 +404,9 @@ Module yocto_messagebox
     ''' </returns>
     '''/
     Public Overridable Function addText(val As String) As Integer
-      Dim udata As Byte()
+      Dim udata As Byte() = New Byte(){}
       Dim udatalen As Integer = 0
-      Dim newdata As Byte()
+      Dim newdata As Byte() = New Byte(){}
       Dim newdatalen As Integer = 0
       Dim i As Integer = 0
       If ((val).Length = 0) Then
@@ -478,7 +481,7 @@ Module yocto_messagebox
       Dim newdatalen As Integer = 0
       Dim i As Integer = 0
       Dim uni As Integer = 0
-      Dim udata As Byte()
+      Dim udata As Byte() = New Byte(){}
       Dim udatalen As Integer = 0
       Dim surrogate As Integer = 0
       If (Me._alphab <> 2) Then
@@ -536,8 +539,8 @@ Module yocto_messagebox
       Dim retcode As Integer = 0
       Dim totsize As Integer = 0
       Dim subsms As YSms
-      Dim subdata As Byte()
-      Dim res As Byte()
+      Dim subdata As Byte() = New Byte(){}
+      Dim res As Byte() = New Byte(){}
       Me._npdu = parts.Count
       If (Me._npdu = 0) Then
         Return YAPI.INVALID_ARGUMENT
@@ -596,13 +599,13 @@ Module yocto_messagebox
     End Function
 
     Public Overridable Function encodeAddress(addr As String) As Byte()
-      Dim bytes As Byte()
+      Dim bytes As Byte() = New Byte(){}
       Dim srclen As Integer = 0
       Dim numlen As Integer = 0
       Dim i As Integer = 0
       Dim val As Integer = 0
       Dim digit As Integer = 0
-      Dim res As Byte()
+      Dim res As Byte() = New Byte(){}
       bytes = YAPI.DefaultEncoding.GetBytes(addr)
       srclen = (bytes).Length
       numlen = 0
@@ -650,7 +653,7 @@ Module yocto_messagebox
 
     Public Overridable Function decodeAddress(addr As Byte(), ofs As Integer, siz As Integer) As String
       Dim addrType As Integer = 0
-      Dim gsm7 As Byte()
+      Dim gsm7 As Byte() = New Byte(){}
       Dim res As String
       Dim i As Integer = 0
       Dim rpos As Integer = 0
@@ -708,9 +711,9 @@ Module yocto_messagebox
     Public Overridable Function encodeTimeStamp(exp As String) As Byte()
       Dim explen As Integer = 0
       Dim i As Integer = 0
-      Dim res As Byte()
+      Dim res As Byte() = New Byte(){}
       Dim n As Integer = 0
-      Dim expasc As Byte()
+      Dim expasc As Byte() = New Byte(){}
       Dim v1 As Integer = 0
       Dim v2 As Integer = 0
       explen = (exp).Length
@@ -779,7 +782,7 @@ Module yocto_messagebox
             n = n - 1
             v2 = 4 * res(n) + v1
             If (expasc(i-3) = 45) Then
-              v2 += 128
+              v2 = v2 + 128
             End If
             res( n) = Convert.ToByte(v2 And &HFF)
           End If
@@ -878,7 +881,7 @@ Module yocto_messagebox
       Dim udlen As Integer = 0
       Dim udhsize As Integer = 0
       Dim udhlen As Integer = 0
-      Dim res As Byte()
+      Dim res As Byte() = New Byte(){}
       Dim i As Integer = 0
       Dim wpos As Integer = 0
       Dim carry As Integer = 0
@@ -954,8 +957,8 @@ Module yocto_messagebox
       Dim mss As Integer = 0
       Dim partno As Integer = 0
       Dim partlen As Integer = 0
-      Dim newud As Byte()
-      Dim newudh As Byte()
+      Dim newud As Byte() = New Byte(){}
+      Dim newudh As Byte() = New Byte(){}
       Dim newpdu As YSms
       Dim i As Integer = 0
       Dim wpos As Integer = 0
@@ -1013,11 +1016,11 @@ Module yocto_messagebox
     End Function
 
     Public Overridable Function generatePdu() As Integer
-      Dim sca As Byte()
-      Dim hdr As Byte()
-      Dim addr As Byte()
-      Dim stamp As Byte()
-      Dim udata As Byte()
+      Dim sca As Byte() = New Byte(){}
+      Dim hdr As Byte() = New Byte(){}
+      Dim addr As Byte() = New Byte(){}
+      Dim stamp As Byte() = New Byte(){}
+      Dim udata As Byte() = New Byte(){}
       Dim pdutyp As Integer = 0
       Dim pdulen As Integer = 0
       Dim i As Integer = 0
@@ -1392,6 +1395,7 @@ Module yocto_messagebox
       _pdus = New List(Of YSms)()
       _messages = New List(Of YSms)()
       _gsm2unicode = New List(Of Integer)()
+      _iso2gsm = New Byte(){}
       REM --- (end of generated code: YMessageBox attributes initialization)
     End Sub
 
@@ -1722,7 +1726,7 @@ Module yocto_messagebox
     End Function
 
     Public Overridable Function fetchPdu(slot As Integer) As YSms
-      Dim binPdu As Byte()
+      Dim binPdu As Byte() = New Byte(){}
       Dim arrPdu As List(Of String) = New List(Of String)()
       Dim hexPdu As String
       Dim sms As YSms
@@ -1908,7 +1912,7 @@ Module yocto_messagebox
       Dim i As Integer = 0
       Dim gsmlen As Integer = 0
       Dim reslen As Integer = 0
-      Dim resbin As Byte()
+      Dim resbin As Byte() = New Byte(){}
       Dim resstr As String
       Dim uni As Integer = 0
       If (Not (Me._gsm2unicodeReady)) Then
@@ -1995,13 +1999,13 @@ Module yocto_messagebox
     End Function
 
     Public Overridable Function str2gsm(msg As String) As Byte()
-      Dim asc As Byte()
+      Dim asc As Byte() = New Byte(){}
       Dim asclen As Integer = 0
       Dim i As Integer = 0
       Dim ch As Integer = 0
       Dim gsm7 As Integer = 0
       Dim extra As Integer = 0
-      Dim res As Byte()
+      Dim res As Byte() = New Byte(){}
       Dim wpos As Integer = 0
       If (Not (Me._gsm2unicodeReady)) Then
         Me.initGsm2Unicode()
@@ -2071,8 +2075,8 @@ Module yocto_messagebox
 
     Public Overridable Function checkNewMessages() As Integer
       Dim bitmapStr As String
-      Dim prevBitmap As Byte()
-      Dim newBitmap As Byte()
+      Dim prevBitmap As Byte() = New Byte(){}
+      Dim newBitmap As Byte() = New Byte(){}
       Dim slot As Integer = 0
       Dim nslots As Integer = 0
       Dim pduIdx As Integer = 0

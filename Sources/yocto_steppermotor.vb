@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_steppermotor.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_steppermotor.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '
@@ -943,7 +943,7 @@ Module yocto_steppermotor
     Public Overridable Function sendCommand(command As String) As Integer
       Dim id As String
       Dim url As String
-      Dim retBin As Byte()
+      Dim retBin As Byte() = New Byte(){}
       Dim res As Integer = 0
       id = Me.get_functionId()
       id = (id).Substring( 12, 1)

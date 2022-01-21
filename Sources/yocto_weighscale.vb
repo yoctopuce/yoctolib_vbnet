@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_weighscale.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_weighscale.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindWeighScale(), the high-level API for WeighScale functions
 '
@@ -770,7 +770,7 @@ Module yocto_weighscale
 
     Public Overridable Function loadCompensationTable(tableIndex As Integer, tempValues As List(Of Double), compValues As List(Of Double)) As Integer
       Dim id As String
-      Dim bin_json As Byte()
+      Dim bin_json As Byte() = New Byte(){}
       Dim paramlist As List(Of String) = New List(Of String)()
       Dim siz As Integer = 0
       Dim idx As Integer = 0

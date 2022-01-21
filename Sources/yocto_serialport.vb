@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'* $Id: yocto_serialport.vb 48024 2022-01-12 08:38:48Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -251,6 +251,7 @@ Module yocto_serialport
       _serialMode = SERIALMODE_INVALID
       _valueCallbackSerialPort = Nothing
       _rxptr = 0
+      _rxbuff = New Byte(){}
       _rxbuffptr = 0
       REM --- (end of generated code: YSerialPort attributes initialization)
     End Sub
@@ -979,7 +980,7 @@ Module yocto_serialport
     '''/
     Public Overridable Function readLine() As String
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
@@ -1035,7 +1036,7 @@ Module yocto_serialport
     '''/
     Public Overridable Function readMessages(pattern As String, maxWait As Integer) As List(Of String)
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As List(Of String) = New List(Of String)()
@@ -1108,7 +1109,7 @@ Module yocto_serialport
     ''' </returns>
     '''/
     Public Overridable Function read_avail() As Integer
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim res As Integer = 0
 
@@ -1144,7 +1145,7 @@ Module yocto_serialport
     '''/
     Public Overridable Function queryLine(query As String, maxWait As Integer) As String
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
@@ -1190,7 +1191,7 @@ Module yocto_serialport
     '''/
     Public Overridable Function queryHex(hexString As String, maxWait As Integer) As String
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
@@ -1322,7 +1323,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function writeStr(text As String) As Integer
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim idx As Integer = 0
       Dim ch As Integer = 0
@@ -1385,7 +1386,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function writeArray(byteList As List(Of Integer)) As Integer
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim idx As Integer = 0
       Dim hexb As Integer = 0
@@ -1420,7 +1421,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function writeHex(hexString As String) As Integer
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim idx As Integer = 0
       Dim hexb As Integer = 0
@@ -1459,7 +1460,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function writeLine(text As String) As Integer
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim idx As Integer = 0
       Dim ch As Integer = 0
@@ -1503,7 +1504,7 @@ Module yocto_serialport
     Public Overridable Function readByte() As Integer
       Dim currpos As Integer = 0
       Dim reqlen As Integer = 0
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
@@ -1578,7 +1579,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function readStr(nChars As Integer) As String
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
@@ -1620,12 +1621,12 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function readBin(nChars As Integer) As Byte()
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
       Dim idx As Integer = 0
-      Dim res As Byte()
+      Dim res As Byte() = New Byte(){}
       If (nChars > 65535) Then
         nChars = 65535
       End If
@@ -1668,7 +1669,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function readArray(nChars As Integer) As List(Of Integer)
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
@@ -1719,7 +1720,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function readHex(nBytes As Integer) As String
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim mult As Integer = 0
       Dim endpos As Integer = 0
@@ -1794,7 +1795,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function get_CTS() As Integer
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim res As Integer = 0
 
       buff = Me._download("cts.txt")
@@ -1832,7 +1833,7 @@ Module yocto_serialport
     '''/
     Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YSnoopingRecord)
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As List(Of YSnoopingRecord) = New List(Of YSnoopingRecord)()
@@ -1876,7 +1877,7 @@ Module yocto_serialport
     ''' </para>
     '''/
     Public Overridable Function writeStxEtx(text As String) As Integer
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       buff = YAPI.DefaultEncoding.GetBytes("" + Chr( 2) + "" +  text + "" + Chr(3))
       REM // send string using file upload
       Return Me._upload("txdata", buff)
@@ -1933,7 +1934,7 @@ Module yocto_serialport
       Dim cmd As String
       Dim url As String
       Dim pat As String
-      Dim msgs As Byte()
+      Dim msgs As Byte() = New Byte(){}
       Dim reps As List(Of String) = New List(Of String)()
       Dim rep As String
       Dim res As List(Of Integer) = New List(Of Integer)()

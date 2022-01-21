@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 46904 2021-10-25 15:34:15Z seb $
+'* $Id: yocto_api.vb 48024 2022-01-12 08:38:48Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "47660"
+  Public Const YOCTO_API_BUILD_NO As String = "48220"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2609,6 +2609,7 @@ Module yocto_api
       _settings = settings
       _force = force
       REM --- (generated code: YFirmwareUpdate attributes initialization)
+      _settings = New Byte(){}
       _progress_c = 0
       _progress = 0
       _restore_step = 0
@@ -2621,6 +2622,7 @@ Module yocto_api
       _settings = settings
       _force = False
       REM --- (generated code: YFirmwareUpdate attributes initialization)
+      _settings = New Byte(){}
       _progress_c = 0
       _progress = 0
       _restore_step = 0
@@ -5760,7 +5762,7 @@ Module yocto_api
     '''/
     Public Overridable Function loadAttribute(attrName As String) As String
       Dim url As String
-      Dim attrVal As Byte()
+      Dim attrVal As Byte() = New Byte(){}
       url = "api/" +  Me.get_functionId() + "/" + attrName
       attrVal = Me._download(url)
       Return YAPI.DefaultEncoding.GetString(attrVal)
@@ -7775,7 +7777,7 @@ Module yocto_api
     '''/
     Public Overridable Function updateFirmwareEx(path As String, force As Boolean) As YFirmwareUpdate
       Dim serial As String
-      Dim settings As Byte()
+      Dim settings As Byte() = New Byte(){}
 
       serial = Me.get_serialNumber()
       settings = Me.get_allSettings()
@@ -7826,9 +7828,9 @@ Module yocto_api
     '''/
     Public Overridable Function get_allSettings() As Byte()
       Dim i_i As Integer
-      Dim settings As Byte()
-      Dim json As Byte()
-      Dim res As Byte()
+      Dim settings As Byte() = New Byte(){}
+      Dim json As Byte() = New Byte(){}
+      Dim res As Byte() = New Byte(){}
       Dim sep As String
       Dim name As String
       Dim item As String
@@ -7836,8 +7838,8 @@ Module yocto_api
       Dim id As String
       Dim url As String
       Dim file_data As String
-      Dim file_data_bin As Byte()
-      Dim temp_data_bin As Byte()
+      Dim file_data_bin As Byte() = New Byte(){}
+      Dim temp_data_bin As Byte() = New Byte(){}
       Dim ext_settings As String
       Dim filelist As List(Of String) = New List(Of String)()
       Dim templist As List(Of String) = New List(Of String)()
@@ -7955,7 +7957,7 @@ Module yocto_api
     '''/
     Public Overridable Function set_allSettingsAndFiles(settings As Byte()) As Integer
       Dim i_i As Integer
-      Dim down As Byte()
+      Dim down As Byte() = New Byte(){}
       Dim json As String
       Dim json_api As String
       Dim json_files As String
@@ -8381,12 +8383,12 @@ Module yocto_api
     Public Overridable Function set_allSettings(settings As Byte()) As Integer
       Dim i_i As Integer
       Dim restoreLast As List(Of String) = New List(Of String)()
-      Dim old_json_flat As Byte()
+      Dim old_json_flat As Byte() = New Byte(){}
       Dim old_dslist As List(Of String) = New List(Of String)()
       Dim old_jpath As List(Of String) = New List(Of String)()
       Dim old_jpath_len As List(Of Integer) = New List(Of Integer)()
       Dim old_val_arr As List(Of String) = New List(Of String)()
-      Dim actualSettings As Byte()
+      Dim actualSettings As Byte() = New Byte(){}
       Dim new_dslist As List(Of String) = New List(Of String)()
       Dim new_jpath As List(Of String) = New List(Of String)()
       Dim new_jpath_len As List(Of Integer) = New List(Of Integer)()
@@ -8770,7 +8772,7 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Overridable Function get_lastLogs() As String
-      Dim content As Byte()
+      Dim content As Byte() = New Byte(){}
 
       content = Me._download("logs.txt")
       Return YAPI.DefaultEncoding.GetString(content)
@@ -9960,7 +9962,7 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Overridable Function startDataLogger() As Integer
-      Dim res As Byte()
+      Dim res As Byte() = New Byte(){}
 
       res = Me._download("api/dataLogger/recording?recording=1")
       If Not((res).Length>0) Then
@@ -9981,7 +9983,7 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Overridable Function stopDataLogger() As Integer
-      Dim res As Byte()
+      Dim res As Byte() = New Byte(){}
 
       res = Me._download("api/dataLogger/recording?recording=0")
       If Not((res).Length>0) Then

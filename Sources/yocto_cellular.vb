@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'* $Id: yocto_cellular.vb 48024 2022-01-12 08:38:48Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -1379,7 +1379,7 @@ Module yocto_cellular
       Dim cmdLen As Integer = 0
       Dim waitMore As Integer = 0
       Dim res As String
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim buffstr As String
       Dim buffstrlen As Integer = 0

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_temperature.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -643,7 +643,7 @@ Module yocto_temperature
     '''/
     Public Overridable Function loadThermistorResponseTable(tempValues As List(Of Double), resValues As List(Of Double)) As Integer
       Dim id As String
-      Dim bin_json As Byte()
+      Dim bin_json As Byte() = New Byte(){}
       Dim paramlist As List(Of String) = New List(Of String)()
       Dim templist As List(Of Double) = New List(Of Double)()
       Dim siz As Integer = 0

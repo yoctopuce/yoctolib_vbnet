@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_buzzer.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_buzzer.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindBuzzer(), the high-level API for Buzzer functions
 '
@@ -549,7 +549,7 @@ Module yocto_buzzer
       Dim note As Integer = 0
       Dim num As Integer = 0
       Dim typ As Integer = 0
-      Dim ascNotes As Byte()
+      Dim ascNotes As Byte() = New Byte(){}
       Dim notesLen As Integer = 0
       Dim i As Integer = 0
       Dim ch As Integer = 0

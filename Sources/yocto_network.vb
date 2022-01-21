@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_network.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -1745,7 +1745,7 @@ Module yocto_network
     ''' </returns>
     '''/
     Public Overridable Function ping(host As String) As String
-      Dim content As Byte()
+      Dim content As Byte() = New Byte(){}
 
       content = Me._download("ping.txt?host=" + host)
       Return YAPI.DefaultEncoding.GetString(content)

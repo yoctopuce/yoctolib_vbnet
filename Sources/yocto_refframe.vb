@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_refframe.vb 43619 2021-01-29 09:14:45Z mvuilleu $
+'  $Id: yocto_refframe.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindRefFrame(), the high-level API for RefFrame functions
 '
@@ -759,7 +759,7 @@ end enum
 
     Public Overridable Function more3DCalibrationV1() As Integer
       Dim currTick As Integer = 0
-      Dim jsonData As Byte()
+      Dim jsonData As Byte() = New Byte(){}
       Dim xVal As Double = 0
       Dim yVal As Double = 0
       Dim zVal As Double = 0
@@ -959,7 +959,7 @@ end enum
 
     Public Overridable Function more3DCalibrationV2() As Integer
       Dim currTick As Integer = 0
-      Dim calibParam As Byte()
+      Dim calibParam As Byte() = New Byte(){}
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
       Dim cal3 As Integer = 0
       Dim calAcc As Integer = 0

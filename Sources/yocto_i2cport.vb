@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_i2cport.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_i2cport.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindI2cPort(), the high-level API for I2cPort functions
 '
@@ -234,6 +234,7 @@ Module yocto_i2cport
       _i2cMode = I2CMODE_INVALID
       _valueCallbackI2cPort = Nothing
       _rxptr = 0
+      _rxbuff = New Byte(){}
       _rxbuffptr = 0
       REM --- (end of generated code: YI2cPort attributes initialization)
     End Sub
@@ -937,7 +938,7 @@ Module yocto_i2cport
     '''/
     Public Overridable Function readLine() As String
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
@@ -993,7 +994,7 @@ Module yocto_i2cport
     '''/
     Public Overridable Function readMessages(pattern As String, maxWait As Integer) As List(Of String)
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As List(Of String) = New List(Of String)()
@@ -1066,7 +1067,7 @@ Module yocto_i2cport
     ''' </returns>
     '''/
     Public Overridable Function read_avail() As Integer
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim res As Integer = 0
 
@@ -1102,7 +1103,7 @@ Module yocto_i2cport
     '''/
     Public Overridable Function queryLine(query As String, maxWait As Integer) As String
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
@@ -1148,7 +1149,7 @@ Module yocto_i2cport
     '''/
     Public Overridable Function queryHex(hexString As String, maxWait As Integer) As String
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
@@ -1379,7 +1380,7 @@ Module yocto_i2cport
       Dim val As Integer = 0
       Dim msg As String
       Dim reply As String
-      Dim rcvbytes As Byte()
+      Dim rcvbytes As Byte() = New Byte(){}
       msg = "@" + (slaveAddr).ToString("x02") + ":"
       nBytes = (buff).Length
       idx = 0
@@ -1445,7 +1446,7 @@ Module yocto_i2cport
       Dim val As Integer = 0
       Dim msg As String
       Dim reply As String
-      Dim rcvbytes As Byte()
+      Dim rcvbytes As Byte() = New Byte(){}
       Dim res As List(Of Integer) = New List(Of Integer)()
       msg = "@" + (slaveAddr).ToString("x02") + ":"
       nBytes = values.Count
@@ -1518,7 +1519,7 @@ Module yocto_i2cport
     '''/
     Public Overridable Function writeStr(codes As String) As Integer
       Dim bufflen As Integer = 0
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim idx As Integer = 0
       Dim ch As Integer = 0
       buff = YAPI.DefaultEncoding.GetBytes(codes)
@@ -1572,7 +1573,7 @@ Module yocto_i2cport
     '''/
     Public Overridable Function writeLine(codes As String) As Integer
       Dim bufflen As Integer = 0
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       bufflen = (codes).Length
       If (bufflen < 100) Then
         Return Me.sendCommand("!" + codes)
@@ -1624,7 +1625,7 @@ Module yocto_i2cport
     '''/
     Public Overridable Function writeHex(hexString As String) As Integer
       Dim bufflen As Integer = 0
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       bufflen = (hexString).Length
       If (bufflen < 100) Then
         Return Me.sendCommand("+" + hexString)
@@ -1727,7 +1728,7 @@ Module yocto_i2cport
     '''/
     Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YI2cSnoopingRecord)
       Dim url As String
-      Dim msgbin As Byte()
+      Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As List(Of YI2cSnoopingRecord) = New List(Of YI2cSnoopingRecord)()

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'* $Id: yocto_files.vb 48024 2022-01-12 08:38:48Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -374,7 +374,7 @@ Module yocto_files
     ''' </para>
     '''/
     Public Overridable Function format_fs() As Integer
-      Dim json As Byte()
+      Dim json As Byte() = New Byte(){}
       Dim res As String
       json = Me.sendCommand("format")
       res = Me._json_get_key(json, "res")
@@ -407,7 +407,7 @@ Module yocto_files
     '''/
     Public Overridable Function get_list(pattern As String) As List(Of YFileRecord)
       Dim i_i As Integer
-      Dim json As Byte()
+      Dim json As Byte() = New Byte(){}
       Dim filelist As List(Of String) = New List(Of String)()
       Dim res As List(Of YFileRecord) = New List(Of YFileRecord)()
       json = Me.sendCommand("dir&f=" + pattern)
@@ -436,7 +436,7 @@ Module yocto_files
     ''' </para>
     '''/
     Public Overridable Function fileExist(filename As String) As Boolean
-      Dim json As Byte()
+      Dim json As Byte() = New Byte(){}
       Dim filelist As List(Of String) = New List(Of String)()
       If ((filename).Length = 0) Then
         Return False
@@ -515,7 +515,7 @@ Module yocto_files
     ''' </para>
     '''/
     Public Overridable Function remove(pathname As String) As Integer
-      Dim json As Byte()
+      Dim json As Byte() = New Byte(){}
       Dim res As String
       json = Me.sendCommand("del&f=" + pathname)
       res  = Me._json_get_key(json, "res")

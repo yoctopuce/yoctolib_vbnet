@@ -772,7 +772,7 @@ Module yocto_inputchain
     ''' </para>
     '''/
     Public Overridable Function get_lastEvents() As String
-      Dim content As Byte()
+      Dim content As Byte() = New Byte(){}
 
       content = Me._download("events.txt")
       Return YAPI.DefaultEncoding.GetString(content)
@@ -809,7 +809,7 @@ Module yocto_inputchain
     Public Overridable Function _internalEventHandler(cbpos As String) As Integer
       Dim newPos As Integer = 0
       Dim url As String
-      Dim content As Byte()
+      Dim content As Byte() = New Byte(){}
       Dim contentStr As String
       Dim eventArr As List(Of String) = New List(Of String)()
       Dim arrLen As Integer = 0

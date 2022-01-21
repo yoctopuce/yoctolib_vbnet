@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'* $Id: yocto_wireless.vb 48024 2022-01-12 08:38:48Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -704,7 +704,7 @@ Module yocto_wireless
     '''/
     Public Overridable Function get_detectedWlans() As List(Of YWlanRecord)
       Dim i_i As Integer
-      Dim json As Byte()
+      Dim json As Byte() = New Byte(){}
       Dim wlanlist As List(Of String) = New List(Of String)()
       Dim res As List(Of YWlanRecord) = New List(Of YWlanRecord)()
 

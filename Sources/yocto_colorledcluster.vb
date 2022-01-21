@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorledcluster.vb 44921 2021-05-06 08:03:05Z mvuilleu $
+'  $Id: yocto_colorledcluster.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '
@@ -1110,7 +1110,7 @@ Module yocto_colorledcluster
     '''/
     Public Overridable Function set_rgbColorArray(ledIndex As Integer, rgbList As List(Of Integer)) As Integer
       Dim listlen As Integer = 0
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim idx As Integer = 0
       Dim rgb As Integer = 0
       Dim res As Integer = 0
@@ -1156,7 +1156,7 @@ Module yocto_colorledcluster
     '''/
     Public Overridable Function rgbArrayOfs_move(ledIndex As Integer, rgbList As List(Of Integer), delay As Integer) As Integer
       Dim listlen As Integer = 0
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim idx As Integer = 0
       Dim rgb As Integer = 0
       Dim res As Integer = 0
@@ -1252,7 +1252,7 @@ Module yocto_colorledcluster
     '''/
     Public Overridable Function set_hslColorArray(ledIndex As Integer, hslList As List(Of Integer)) As Integer
       Dim listlen As Integer = 0
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim idx As Integer = 0
       Dim hsl As Integer = 0
       Dim res As Integer = 0
@@ -1327,7 +1327,7 @@ Module yocto_colorledcluster
     '''/
     Public Overridable Function hslArrayOfs_move(ledIndex As Integer, hslList As List(Of Integer), delay As Integer) As Integer
       Dim listlen As Integer = 0
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim idx As Integer = 0
       Dim hsl As Integer = 0
       Dim res As Integer = 0
@@ -1394,7 +1394,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function get_rgbColorArray(ledIndex As Integer, count As Integer) As List(Of Integer)
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim r As Integer = 0
@@ -1438,7 +1438,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function get_rgbColorArrayAtPowerOn(ledIndex As Integer, count As Integer) As List(Of Integer)
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim r As Integer = 0
@@ -1483,7 +1483,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function get_linkedSeqArray(ledIndex As Integer, count As Integer) As List(Of Integer)
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim seq As Integer = 0
@@ -1523,7 +1523,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function get_blinkSeqSignatures(seqIndex As Integer, count As Integer) As List(Of Integer)
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim hh As Integer = 0
@@ -1567,7 +1567,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function get_blinkSeqStateSpeed(seqIndex As Integer, count As Integer) As List(Of Integer)
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim lh As Integer = 0
@@ -1607,7 +1607,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function get_blinkSeqStateAtPowerOn(seqIndex As Integer, count As Integer) As List(Of Integer)
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim started As Integer = 0
@@ -1645,7 +1645,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function get_blinkSeqState(seqIndex As Integer, count As Integer) As List(Of Integer)
-      Dim buff As Byte()
+      Dim buff As Byte() = New Byte(){}
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim idx As Integer = 0
       Dim started As Integer = 0

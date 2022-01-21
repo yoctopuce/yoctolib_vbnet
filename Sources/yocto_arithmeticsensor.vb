@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_arithmeticsensor.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_arithmeticsensor.vb 48024 2022-01-12 08:38:48Z seb $
 '
 '  Implements yFindArithmeticSensor(), the high-level API for ArithmeticSensor functions
 '
@@ -355,7 +355,7 @@ Module yocto_arithmeticsensor
       Dim id As String
       Dim fname As String
       Dim content As String
-      Dim data As Byte()
+      Dim data As Byte() = New Byte(){}
       Dim diags As String
       Dim resval As Double = 0
       id = Me.get_functionId()
@@ -489,7 +489,7 @@ Module yocto_arithmeticsensor
     '''/
     Public Overridable Function loadAuxiliaryFunction(name As String, inputValues As List(Of Double), outputValues As List(Of Double)) As Integer
       Dim fname As String
-      Dim defbin As Byte()
+      Dim defbin As Byte() = New Byte(){}
       Dim siz As Integer = 0
 
       fname = "userMap" + name + ".txt"
