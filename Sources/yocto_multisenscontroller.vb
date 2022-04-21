@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multisenscontroller.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_multisenscontroller.vb 49501 2022-04-21 07:09:25Z mvuilleu $
 '
 '  Implements yFindMultiSensController(), the high-level API for MultiSensController functions
 '
@@ -58,6 +58,7 @@ Module yocto_multisenscontroller
   Public Const Y_MAINTENANCEMODE_FALSE As Integer = 0
   Public Const Y_MAINTENANCEMODE_TRUE As Integer = 1
   Public Const Y_MAINTENANCEMODE_INVALID As Integer = -1
+  Public Const Y_LASTADDRESSDETECTED_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YMultiSensControllerValueCallback(ByVal func As YMultiSensController, ByVal value As String)
   Public Delegate Sub YMultiSensControllerTimedReportCallback(ByVal func As YMultiSensController, ByVal measure As YMeasure)
@@ -83,6 +84,7 @@ Module yocto_multisenscontroller
     Public Const MAINTENANCEMODE_FALSE As Integer = 0
     Public Const MAINTENANCEMODE_TRUE As Integer = 1
     Public Const MAINTENANCEMODE_INVALID As Integer = -1
+    Public Const LASTADDRESSDETECTED_INVALID As Integer = YAPI.INVALID_UINT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YMultiSensController definitions)
 
@@ -90,6 +92,7 @@ Module yocto_multisenscontroller
     Protected _nSensors As Integer
     Protected _maxSensors As Integer
     Protected _maintenanceMode As Integer
+    Protected _lastAddressDetected As Integer
     Protected _command As String
     Protected _valueCallbackMultiSensController As YMultiSensControllerValueCallback
     REM --- (end of YMultiSensController attributes declaration)
@@ -101,6 +104,7 @@ Module yocto_multisenscontroller
       _nSensors = NSENSORS_INVALID
       _maxSensors = MAXSENSORS_INVALID
       _maintenanceMode = MAINTENANCEMODE_INVALID
+      _lastAddressDetected = LASTADDRESSDETECTED_INVALID
       _command = COMMAND_INVALID
       _valueCallbackMultiSensController = Nothing
       REM --- (end of YMultiSensController attributes initialization)
@@ -117,6 +121,9 @@ Module yocto_multisenscontroller
       End If
       If json_val.has("maintenanceMode") Then
         If (json_val.getInt("maintenanceMode") > 0) Then _maintenanceMode = 1 Else _maintenanceMode = 0
+      End If
+      If json_val.has("lastAddressDetected") Then
+        _lastAddressDetected = CInt(json_val.getLong("lastAddressDetected"))
       End If
       If json_val.has("command") Then
         _command = json_val.getString("command")
@@ -162,7 +169,7 @@ Module yocto_multisenscontroller
     '''   <c>saveToFlash()</c> method of the module if the
     '''   modification must be kept. It is recommended to restart the
     '''   device with  <c>module->reboot()</c> after modifying
-    '''   (and saving) this settings
+    '''   (and saving) this settings.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -266,6 +273,36 @@ Module yocto_multisenscontroller
       If (newval > 0) Then rest_val = "1" Else rest_val = "0"
       Return _setAttr("maintenanceMode", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the I2C address of the most recently detected sensor.
+    ''' <para>
+    '''   This method can
+    '''   be used to in case of I2C communication error to determine what is the
+    '''   last sensor that can be reached, or after a call to <c>setupAddress</c>
+    '''   to make sure that the address change was properly processed.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the I2C address of the most recently detected sensor
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMultiSensController.LASTADDRESSDETECTED_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_lastAddressDetected() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return LASTADDRESSDETECTED_INVALID
+        End If
+      End If
+      res = Me._lastAddressDetected
+      Return res
+    End Function
+
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -394,9 +431,11 @@ Module yocto_multisenscontroller
     ''' <para>
     '''   It is recommended to put the the device in maintenance mode before
     '''   changing sensor addresses.  This method is only intended to work with a single
-    '''   sensor connected to the device, if several sensors are connected, the result
+    '''   sensor connected to the device. If several sensors are connected, the result
     '''   is unpredictable.
-    '''   Note that the device is probably expecting to find a string of sensors with specific
+    ''' </para>
+    ''' <para>
+    '''   Note that the device is expecting to find a sensor or a string of sensors with specific
     '''   addresses. Check the device documentation to find out which addresses should be used.
     ''' </para>
     ''' </summary>
@@ -410,8 +449,51 @@ Module yocto_multisenscontroller
     '''/
     Public Overridable Function setupAddress(addr As Integer) As Integer
       Dim cmd As String
+      Dim res As Integer = 0
       cmd = "A" + Convert.ToString(addr)
-      Return Me.set_command(cmd)
+      res = Me.set_command(cmd)
+      If Not(res = YAPI.SUCCESS) Then
+        me._throw( YAPI.IO_ERROR,  "unable to trigger address change")
+        return YAPI.IO_ERROR
+      end if
+      YAPI.Sleep(1500, Nothing)
+      res = Me.get_lastAddressDetected()
+      If Not(res > 0) Then
+        me._throw( YAPI.IO_ERROR,  "IR sensor not found")
+        return YAPI.IO_ERROR
+      end if
+      If Not(res = addr) Then
+        me._throw( YAPI.IO_ERROR,  "address change failed")
+        return YAPI.IO_ERROR
+      end if
+      Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Triggers the I2C address detection procedure for the only sensor connected to the device.
+    ''' <para>
+    '''   This method is only intended to work with a single sensor connected to the device.
+    '''   If several sensors are connected, the result is unpredictable.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the I2C address of the detected sensor, or 0 if none is found
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function get_sensorAddress() As Integer
+      Dim res As Integer = 0
+      res = Me.set_command("a")
+      If Not(res = YAPI.SUCCESS) Then
+        me._throw( YAPI.IO_ERROR,  "unable to trigger address detection")
+        return res
+      end if
+      YAPI.Sleep(1000, Nothing)
+      res = Me.get_lastAddressDetected()
+      Return res
     End Function
 
 

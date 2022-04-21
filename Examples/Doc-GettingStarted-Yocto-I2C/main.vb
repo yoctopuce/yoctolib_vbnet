@@ -51,7 +51,7 @@ Module Module1
     i2cPort = YI2cPort.FindI2cPort(target + ".i2cPort")
 
     If (i2cPort.isOnline()) Then
-      i2cPort.set_i2cMode("400kbps")
+      i2cPort.set_i2cMode("100kbps")
       i2cPort.set_i2cVoltageLevel(YI2cPort.I2CVOLTAGELEVEL_3V3)
       i2cPort.reset()
       REM do not forget to configure the powerOutput and

@@ -55,6 +55,9 @@ Module yocto_inputchain
 
   Public Const Y_EXPECTEDNODES_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_DETECTEDNODES_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_LOOPBACKTEST_OFF As Integer = 0
+  Public Const Y_LOOPBACKTEST_ON As Integer = 1
+  Public Const Y_LOOPBACKTEST_INVALID As Integer = -1
   Public Const Y_REFRESHRATE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BITCHAIN1_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_BITCHAIN2_INVALID As String = YAPI.INVALID_STRING
@@ -91,6 +94,9 @@ Module yocto_inputchain
     REM --- (YInputChain definitions)
     Public Const EXPECTEDNODES_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DETECTEDNODES_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const LOOPBACKTEST_OFF As Integer = 0
+    Public Const LOOPBACKTEST_ON As Integer = 1
+    Public Const LOOPBACKTEST_INVALID As Integer = -1
     Public Const REFRESHRATE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BITCHAIN1_INVALID As String = YAPI.INVALID_STRING
     Public Const BITCHAIN2_INVALID As String = YAPI.INVALID_STRING
@@ -106,6 +112,7 @@ Module yocto_inputchain
     REM --- (YInputChain attributes declaration)
     Protected _expectedNodes As Integer
     Protected _detectedNodes As Integer
+    Protected _loopbackTest As Integer
     Protected _refreshRate As Integer
     Protected _bitChain1 As String
     Protected _bitChain2 As String
@@ -130,6 +137,7 @@ Module yocto_inputchain
       REM --- (YInputChain attributes initialization)
       _expectedNodes = EXPECTEDNODES_INVALID
       _detectedNodes = DETECTEDNODES_INVALID
+      _loopbackTest = LOOPBACKTEST_INVALID
       _refreshRate = REFRESHRATE_INVALID
       _bitChain1 = BITCHAIN1_INVALID
       _bitChain2 = BITCHAIN2_INVALID
@@ -156,6 +164,9 @@ Module yocto_inputchain
       End If
       If json_val.has("detectedNodes") Then
         _detectedNodes = CInt(json_val.getLong("detectedNodes"))
+      End If
+      If json_val.has("loopbackTest") Then
+        If (json_val.getInt("loopbackTest") > 0) Then _loopbackTest = 1 Else _loopbackTest = 0
       End If
       If json_val.has("refreshRate") Then
         _refreshRate = CInt(json_val.getLong("refreshRate"))
@@ -273,6 +284,64 @@ Module yocto_inputchain
       Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the activation state of the exhaustive chain connectivity test.
+    ''' <para>
+    '''   The connectivity test requires a cable connecting the end of the chain
+    '''   to the loopback test connector.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YInputChain.LOOPBACKTEST_OFF</c> or <c>YInputChain.LOOPBACKTEST_ON</c>, according to the
+    '''   activation state of the exhaustive chain connectivity test
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YInputChain.LOOPBACKTEST_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_loopbackTest() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return LOOPBACKTEST_INVALID
+        End If
+      End If
+      res = Me._loopbackTest
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the activation state of the exhaustive chain connectivity test.
+    ''' <para>
+    '''   The connectivity test requires a cable connecting the end of the chain
+    '''   to the loopback test connector.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YInputChain.LOOPBACKTEST_OFF</c> or <c>YInputChain.LOOPBACKTEST_ON</c>, according to the
+    '''   activation state of the exhaustive chain connectivity test
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_loopbackTest(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("loopbackTest", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Returns the desired refresh rate, measured in Hz.

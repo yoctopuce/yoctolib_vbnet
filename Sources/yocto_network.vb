@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 48024 2022-01-12 08:38:48Z seb $
+'  $Id: yocto_network.vb 48692 2022-02-24 22:30:52Z mvuilleu $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -63,6 +63,7 @@ Module yocto_network
   Public Const Y_IPADDRESS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SUBNETMASK_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ROUTER_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_CURRENTDNS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_IPCONFIG_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PRIMARYDNS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SECONDARYDNS_INVALID As String = YAPI.INVALID_STRING
@@ -125,6 +126,7 @@ Module yocto_network
     Public Const IPADDRESS_INVALID As String = YAPI.INVALID_STRING
     Public Const SUBNETMASK_INVALID As String = YAPI.INVALID_STRING
     Public Const ROUTER_INVALID As String = YAPI.INVALID_STRING
+    Public Const CURRENTDNS_INVALID As String = YAPI.INVALID_STRING
     Public Const IPCONFIG_INVALID As String = YAPI.INVALID_STRING
     Public Const PRIMARYDNS_INVALID As String = YAPI.INVALID_STRING
     Public Const SECONDARYDNS_INVALID As String = YAPI.INVALID_STRING
@@ -170,6 +172,7 @@ Module yocto_network
     Protected _ipAddress As String
     Protected _subnetMask As String
     Protected _router As String
+    Protected _currentDNS As String
     Protected _ipConfig As String
     Protected _primaryDNS As String
     Protected _secondaryDNS As String
@@ -201,6 +204,7 @@ Module yocto_network
       _ipAddress = IPADDRESS_INVALID
       _subnetMask = SUBNETMASK_INVALID
       _router = ROUTER_INVALID
+      _currentDNS = CURRENTDNS_INVALID
       _ipConfig = IPCONFIG_INVALID
       _primaryDNS = PRIMARYDNS_INVALID
       _secondaryDNS = SECONDARYDNS_INVALID
@@ -241,6 +245,9 @@ Module yocto_network
       End If
       If json_val.has("router") Then
         _router = json_val.getString("router")
+      End If
+      If json_val.has("currentDNS") Then
+        _currentDNS = json_val.getString("currentDNS")
       End If
       If json_val.has("ipConfig") Then
         _ipConfig = json_val.getString("ipConfig")
@@ -451,6 +458,32 @@ Module yocto_network
         End If
       End If
       res = Me._router
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the IP address of the DNS server currently used by the device.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the IP address of the DNS server currently used by the device
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YNetwork.CURRENTDNS_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_currentDNS() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return CURRENTDNS_INVALID
+        End If
+      End If
+      res = Me._currentDNS
       Return res
     End Function
 
