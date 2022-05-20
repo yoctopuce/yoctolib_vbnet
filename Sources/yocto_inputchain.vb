@@ -70,7 +70,7 @@ Module yocto_inputchain
   Public Const Y_CHAINDIAGS_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YInputChainValueCallback(ByVal func As YInputChain, ByVal value As String)
   Public Delegate Sub YInputChainTimedReportCallback(ByVal func As YInputChain, ByVal measure As YMeasure)
-  Public Delegate Sub YEventCallback(ByVal inputChain As YInputChain, ByVal timestamp As Integer, ByVal eventType As String, ByVal eventData As String, ByVal eventChange As String)
+  Public Delegate Sub YEventCallback(ByVal func As YInputChain, ByVal timestamp As Integer, ByVal eventType As String, ByVal eventData As String, ByVal eventChange As String)
 
   Sub yInternalEventCallback(ByVal func As YInputChain, ByVal value As String)
     func._internalEventHandler(value)

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 48024 2022-01-12 08:38:48Z seb $
+'* $Id: yocto_files.vb 49755 2022-05-13 09:48:35Z mvuilleu $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -291,7 +291,7 @@ Module yocto_files
     ''' </summary>
     ''' <param name="func">
     '''   a string that uniquely characterizes the filesystem, for instance
-    '''   <c>YRGBLED2.files</c>.
+    '''   <c>YMAXBUZ1.files</c>.
     ''' </param>
     ''' <returns>
     '''   a <c>YFiles</c> object allowing you to drive the filesystem.
@@ -644,7 +644,7 @@ Module yocto_files
   ''' </summary>
   ''' <param name="func">
   '''   a string that uniquely characterizes the filesystem, for instance
-  '''   <c>YRGBLED2.files</c>.
+  '''   <c>YMAXBUZ1.files</c>.
   ''' </param>
   ''' <returns>
   '''   a <c>YFiles</c> object allowing you to drive the filesystem.

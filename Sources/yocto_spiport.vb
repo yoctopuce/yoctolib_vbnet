@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 48024 2022-01-12 08:38:48Z seb $
+'  $Id: yocto_spiport.vb 49744 2022-05-11 15:13:45Z mvuilleu $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -73,6 +73,7 @@ Module yocto_spiport
   Public Const Y_VOLTAGELEVEL_RS232 As Integer = 5
   Public Const Y_VOLTAGELEVEL_RS485 As Integer = 6
   Public Const Y_VOLTAGELEVEL_TTL1V8 As Integer = 7
+  Public Const Y_VOLTAGELEVEL_SDI12 As Integer = 8
   Public Const Y_VOLTAGELEVEL_INVALID As Integer = -1
   Public Const Y_SPIMODE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SSPOLARITY_ACTIVE_LOW As Integer = 0
@@ -205,6 +206,7 @@ Module yocto_spiport
     Public Const VOLTAGELEVEL_RS232 As Integer = 5
     Public Const VOLTAGELEVEL_RS485 As Integer = 6
     Public Const VOLTAGELEVEL_TTL1V8 As Integer = 7
+    Public Const VOLTAGELEVEL_SDI12 As Integer = 8
     Public Const VOLTAGELEVEL_INVALID As Integer = -1
     Public Const SPIMODE_INVALID As String = YAPI.INVALID_STRING
     Public Const SSPOLARITY_ACTIVE_LOW As Integer = 0
@@ -731,8 +733,8 @@ Module yocto_spiport
     '''   a value among <c>YSpiPort.VOLTAGELEVEL_OFF</c>, <c>YSpiPort.VOLTAGELEVEL_TTL3V</c>,
     '''   <c>YSpiPort.VOLTAGELEVEL_TTL3VR</c>, <c>YSpiPort.VOLTAGELEVEL_TTL5V</c>,
     '''   <c>YSpiPort.VOLTAGELEVEL_TTL5VR</c>, <c>YSpiPort.VOLTAGELEVEL_RS232</c>,
-    '''   <c>YSpiPort.VOLTAGELEVEL_RS485</c> and <c>YSpiPort.VOLTAGELEVEL_TTL1V8</c> corresponding to the
-    '''   voltage level used on the serial line
+    '''   <c>YSpiPort.VOLTAGELEVEL_RS485</c>, <c>YSpiPort.VOLTAGELEVEL_TTL1V8</c> and
+    '''   <c>YSpiPort.VOLTAGELEVEL_SDI12</c> corresponding to the voltage level used on the serial line
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YSpiPort.VOLTAGELEVEL_INVALID</c>.
@@ -769,8 +771,8 @@ Module yocto_spiport
     '''   a value among <c>YSpiPort.VOLTAGELEVEL_OFF</c>, <c>YSpiPort.VOLTAGELEVEL_TTL3V</c>,
     '''   <c>YSpiPort.VOLTAGELEVEL_TTL3VR</c>, <c>YSpiPort.VOLTAGELEVEL_TTL5V</c>,
     '''   <c>YSpiPort.VOLTAGELEVEL_TTL5VR</c>, <c>YSpiPort.VOLTAGELEVEL_RS232</c>,
-    '''   <c>YSpiPort.VOLTAGELEVEL_RS485</c> and <c>YSpiPort.VOLTAGELEVEL_TTL1V8</c> corresponding to the
-    '''   voltage type used on the serial line
+    '''   <c>YSpiPort.VOLTAGELEVEL_RS485</c>, <c>YSpiPort.VOLTAGELEVEL_TTL1V8</c> and
+    '''   <c>YSpiPort.VOLTAGELEVEL_SDI12</c> corresponding to the voltage type used on the serial line
     ''' </param>
     ''' <para>
     ''' </para>

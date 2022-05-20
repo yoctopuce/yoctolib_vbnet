@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 48954 2022-03-14 09:55:13Z seb $
+'* $Id: yocto_serialport.vb 49818 2022-05-19 09:57:42Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -76,10 +76,16 @@ Module yocto_serialport
   Public Const Y_VOLTAGELEVEL_RS232 As Integer = 5
   Public Const Y_VOLTAGELEVEL_RS485 As Integer = 6
   Public Const Y_VOLTAGELEVEL_TTL1V8 As Integer = 7
+  Public Const Y_VOLTAGELEVEL_SDI12 As Integer = 8
   Public Const Y_VOLTAGELEVEL_INVALID As Integer = -1
   Public Const Y_SERIALMODE_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YSerialPortValueCallback(ByVal func As YSerialPort, ByVal value As String)
   Public Delegate Sub YSerialPortTimedReportCallback(ByVal func As YSerialPort, ByVal measure As YMeasure)
+  Public Delegate Sub YSnoopingCallback(ByVal func As YSerialPort, ByVal rec As YSnoopingRecord)
+
+  Sub yInternalEventCallback(ByVal func As YSerialPort, ByVal value As String)
+    func._internalEventHandler(value)
+  End Sub
   REM --- (end of generated code: YSerialPort globals)
 
 
@@ -206,6 +212,7 @@ Module yocto_serialport
     Public Const VOLTAGELEVEL_RS232 As Integer = 5
     Public Const VOLTAGELEVEL_RS485 As Integer = 6
     Public Const VOLTAGELEVEL_TTL1V8 As Integer = 7
+    Public Const VOLTAGELEVEL_SDI12 As Integer = 8
     Public Const VOLTAGELEVEL_INVALID As Integer = -1
     Public Const SERIALMODE_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of generated code: YSerialPort definitions)
@@ -229,6 +236,8 @@ Module yocto_serialport
     Protected _rxptr As Integer
     Protected _rxbuff As Byte()
     Protected _rxbuffptr As Integer
+    Protected _eventCallback As YSnoopingCallback
+    Protected _eventPos As Integer
     REM --- (end of generated code: YSerialPort attributes declaration)
 
     Public Sub New(ByVal func As String)
@@ -253,6 +262,7 @@ Module yocto_serialport
       _rxptr = 0
       _rxbuff = New Byte(){}
       _rxbuffptr = 0
+      _eventPos = 0
       REM --- (end of generated code: YSerialPort attributes initialization)
     End Sub
 
@@ -726,8 +736,8 @@ Module yocto_serialport
     '''   a value among <c>YSerialPort.VOLTAGELEVEL_OFF</c>, <c>YSerialPort.VOLTAGELEVEL_TTL3V</c>,
     '''   <c>YSerialPort.VOLTAGELEVEL_TTL3VR</c>, <c>YSerialPort.VOLTAGELEVEL_TTL5V</c>,
     '''   <c>YSerialPort.VOLTAGELEVEL_TTL5VR</c>, <c>YSerialPort.VOLTAGELEVEL_RS232</c>,
-    '''   <c>YSerialPort.VOLTAGELEVEL_RS485</c> and <c>YSerialPort.VOLTAGELEVEL_TTL1V8</c> corresponding to
-    '''   the voltage level used on the serial line
+    '''   <c>YSerialPort.VOLTAGELEVEL_RS485</c>, <c>YSerialPort.VOLTAGELEVEL_TTL1V8</c> and
+    '''   <c>YSerialPort.VOLTAGELEVEL_SDI12</c> corresponding to the voltage level used on the serial line
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YSerialPort.VOLTAGELEVEL_INVALID</c>.
@@ -764,8 +774,8 @@ Module yocto_serialport
     '''   a value among <c>YSerialPort.VOLTAGELEVEL_OFF</c>, <c>YSerialPort.VOLTAGELEVEL_TTL3V</c>,
     '''   <c>YSerialPort.VOLTAGELEVEL_TTL3VR</c>, <c>YSerialPort.VOLTAGELEVEL_TTL5V</c>,
     '''   <c>YSerialPort.VOLTAGELEVEL_TTL5VR</c>, <c>YSerialPort.VOLTAGELEVEL_RS232</c>,
-    '''   <c>YSerialPort.VOLTAGELEVEL_RS485</c> and <c>YSerialPort.VOLTAGELEVEL_TTL1V8</c> corresponding to
-    '''   the voltage type used on the serial line
+    '''   <c>YSerialPort.VOLTAGELEVEL_RS485</c>, <c>YSerialPort.VOLTAGELEVEL_TTL1V8</c> and
+    '''   <c>YSerialPort.VOLTAGELEVEL_SDI12</c> corresponding to the voltage type used on the serial line
     ''' </param>
     ''' <para>
     ''' </para>
@@ -1883,6 +1893,68 @@ Module yocto_serialport
       End While
 
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers a callback function to be called each time that a message is sent or
+    '''   received by the serial port.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a Nothing pointer.
+    '''   The callback function should take four arguments:
+    '''   the <c>YSerialPort</c> object that emitted the event, and
+    '''   the <c>SnoopingRecord</c> object that describes the message
+    '''   sent or received.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </param>
+    '''/
+    Public Overridable Function registerSnoopingCallback(callback As YSnoopingCallback) As Integer
+      If (Not (callback Is Nothing)) Then
+        Me.registerValueCallback(AddressOf yInternalEventCallback)
+      Else
+        Me.registerValueCallback(CType(Nothing, YSerialPortValueCallback))
+      End If
+      REM // register user callback AFTER the internal pseudo-event,
+      REM // to make sure we start with future events only
+      Me._eventCallback = callback
+      Return 0
+    End Function
+
+    Public Overridable Function _internalEventHandler(advstr As String) As Integer
+      Dim url As String
+      Dim msgbin As Byte() = New Byte(){}
+      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msglen As Integer = 0
+      Dim idx As Integer = 0
+      If (Not (Not (Me._eventCallback Is Nothing))) Then
+        REM // first simulated event, use it only to initialize reference values
+        Me._eventPos = 0
+      End If
+
+      url = "rxmsg.json?pos=" + Convert.ToString(Me._eventPos) + "&maxw=0&t=0"
+      msgbin = Me._download(url)
+      msgarr = Me._json_get_array(msgbin)
+      msglen = msgarr.Count
+      If (msglen = 0) Then
+        Return YAPI.SUCCESS
+      End If
+      REM // last element of array is the new position
+      msglen = msglen - 1
+      If (Not (Not (Me._eventCallback Is Nothing))) Then
+        REM // first simulated event, use it only to initialize reference values
+        Me._eventPos = YAPI._atoi(msgarr(msglen))
+        Return YAPI.SUCCESS
+      End If
+      Me._eventPos = YAPI._atoi(msgarr(msglen))
+      idx = 0
+      While (idx < msglen)
+        Me._eventCallback(Me, New YSnoopingRecord(msgarr(idx)))
+        idx = idx + 1
+      End While
+      Return YAPI.SUCCESS
     End Function
 
     '''*

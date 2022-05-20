@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 48024 2022-01-12 08:38:48Z seb $
+'* $Id: yocto_api.vb 49750 2022-05-13 07:10:42Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "49504"
+  Public Const YOCTO_API_BUILD_NO As String = "49822"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2708,9 +2708,6 @@ Module yocto_api
     ''' <summary>
     '''   Returns a list of all the modules in "firmware update" mode.
     ''' <para>
-    '''   Only devices
-    '''   connected over USB are listed. For devices connected to a YoctoHub, you
-    '''   must connect yourself to the YoctoHub web interface.
     ''' </para>
     ''' <para>
     ''' </para>
