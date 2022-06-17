@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_genericsensor.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_genericsensor.vb 49904 2022-05-25 14:18:55Z mvuilleu $
 '
 '  Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '
@@ -63,6 +63,7 @@ Module yocto_genericsensor
   Public Const Y_SIGNALSAMPLING_LOW_NOISE As Integer = 2
   Public Const Y_SIGNALSAMPLING_LOW_NOISE_FILTERED As Integer = 3
   Public Const Y_SIGNALSAMPLING_HIGHEST_RATE As Integer = 4
+  Public Const Y_SIGNALSAMPLING_AC As Integer = 5
   Public Const Y_SIGNALSAMPLING_INVALID As Integer = -1
   Public Const Y_ENABLED_FALSE As Integer = 0
   Public Const Y_ENABLED_TRUE As Integer = 1
@@ -100,6 +101,7 @@ Module yocto_genericsensor
     Public Const SIGNALSAMPLING_LOW_NOISE As Integer = 2
     Public Const SIGNALSAMPLING_LOW_NOISE_FILTERED As Integer = 3
     Public Const SIGNALSAMPLING_HIGHEST_RATE As Integer = 4
+    Public Const SIGNALSAMPLING_AC As Integer = 5
     Public Const SIGNALSAMPLING_INVALID As Integer = -1
     Public Const ENABLED_FALSE As Integer = 0
     Public Const ENABLED_TRUE As Integer = 1
@@ -445,8 +447,8 @@ Module yocto_genericsensor
     ''' <returns>
     '''   a value among <c>YGenericSensor.SIGNALSAMPLING_HIGH_RATE</c>,
     '''   <c>YGenericSensor.SIGNALSAMPLING_HIGH_RATE_FILTERED</c>, <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE</c>,
-    '''   <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE_FILTERED</c> and <c>YGenericSensor.SIGNALSAMPLING_HIGHEST_RATE</c>
-    '''   corresponding to the electric signal sampling method to use
+    '''   <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE_FILTERED</c>, <c>YGenericSensor.SIGNALSAMPLING_HIGHEST_RATE</c>
+    '''   and <c>YGenericSensor.SIGNALSAMPLING_AC</c> corresponding to the electric signal sampling method to use
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YGenericSensor.SIGNALSAMPLING_INVALID</c>.
@@ -482,8 +484,8 @@ Module yocto_genericsensor
     ''' <param name="newval">
     '''   a value among <c>YGenericSensor.SIGNALSAMPLING_HIGH_RATE</c>,
     '''   <c>YGenericSensor.SIGNALSAMPLING_HIGH_RATE_FILTERED</c>, <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE</c>,
-    '''   <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE_FILTERED</c> and <c>YGenericSensor.SIGNALSAMPLING_HIGHEST_RATE</c>
-    '''   corresponding to the electric signal sampling method to use
+    '''   <c>YGenericSensor.SIGNALSAMPLING_LOW_NOISE_FILTERED</c>, <c>YGenericSensor.SIGNALSAMPLING_HIGHEST_RATE</c>
+    '''   and <c>YGenericSensor.SIGNALSAMPLING_AC</c> corresponding to the electric signal sampling method to use
     ''' </param>
     ''' <para>
     ''' </para>

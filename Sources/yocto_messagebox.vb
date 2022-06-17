@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 48024 2022-01-12 08:38:48Z seb $
+'* $Id: yocto_messagebox.vb 50144 2022-06-17 06:59:52Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -91,15 +91,20 @@ Module yocto_messagebox
     Public Sub New(ByVal mbox As YMessageBox)
       REM --- (generated code: YSms attributes initialization)
       _slot = 0
+      _smsc = ""
       _mref = 0
+      _orig = ""
+      _dest = ""
       _pid = 0
       _alphab = 0
       _mclass = 0
+      _stamp = ""
       _udh = New Byte(){}
       _udata = New Byte(){}
       _npdu = 0
       _pdu = New Byte(){}
       _parts = New List(Of YSms)()
+      _aggSig = ""
       _aggIdx = 0
       _aggCnt = 0
       REM --- (end of generated code: YSms attributes initialization)
@@ -564,13 +569,13 @@ Module yocto_messagebox
       End While
 
       Me._parts = sorted
-      Me._npdu = sorted.Count
       REM // inherit header fields from first part
       subsms = Me._parts(0)
       retcode = Me.parsePdu(subsms.get_pdu())
       If (retcode <> YAPI.SUCCESS) Then
         Return retcode
       End If
+      Me._npdu = sorted.Count
       REM // concatenate user data from all parts
       totsize = 0
       partno = 0
@@ -1298,7 +1303,7 @@ Module yocto_messagebox
       Dim retcode As Integer = 0
       Dim pdu As YSms
 
-      If (Me._slot > 0) Then
+      If (Me._npdu < 2) Then
         Return Me._mbox.clearSIMSlot(Me._slot)
       End If
       retcode = YAPI.SUCCESS
@@ -1392,6 +1397,7 @@ Module yocto_messagebox
       _command = COMMAND_INVALID
       _valueCallbackMessageBox = Nothing
       _nextMsgRef = 0
+      _prevBitmapStr = ""
       _pdus = New List(Of YSms)()
       _messages = New List(Of YSms)()
       _gsm2unicode = New List(Of Integer)()
@@ -1721,8 +1727,98 @@ Module yocto_messagebox
     End Function
 
     Public Overridable Function clearSIMSlot(slot As Integer) As Integer
-      Me._prevBitmapStr = ""
-      Return Me.set_command("DS" + Convert.ToString(slot))
+      Dim retry As Integer = 0
+      Dim idx As Integer = 0
+      Dim res As String
+      Dim bitmapStr As String
+      Dim int_res As Integer = 0
+      Dim newBitmap As Byte() = New Byte(){}
+      Dim bitVal As Integer = 0
+
+      retry = 5
+      While (retry > 0)
+        Me.clearCache()
+        bitmapStr = Me.get_slotsBitmap()
+        newBitmap = YAPI._hexStrToBin(bitmapStr)
+        idx = ((slot) >> (3))
+        If (idx < (newBitmap).Length) Then
+          bitVal = ((1) << ((((slot) And (7)))))
+          If ((((newBitmap(idx)) And (bitVal))) <> 0) Then
+            Me._prevBitmapStr = ""
+            int_res = Me.set_command("DS" + Convert.ToString(slot))
+            If (int_res < 0) Then
+              Return int_res
+            End If
+          Else
+            Return YAPI.SUCCESS
+          End If
+        Else
+          Return YAPI.INVALID_ARGUMENT
+        End If
+        res = Me._AT("")
+        retry = retry - 1
+      End While
+      Return YAPI.IO_ERROR
+    End Function
+
+    Public Overridable Function _AT(cmd As String) As String
+      Dim chrPos As Integer = 0
+      Dim cmdLen As Integer = 0
+      Dim waitMore As Integer = 0
+      Dim res As String
+      Dim buff As Byte() = New Byte(){}
+      Dim bufflen As Integer = 0
+      Dim buffstr As String
+      Dim buffstrlen As Integer = 0
+      Dim idx As Integer = 0
+      Dim suffixlen As Integer = 0
+      REM // copied form the YCellular class
+      REM // quote dangerous characters used in AT commands
+      cmdLen = (cmd).Length
+      chrPos = cmd.IndexOf("#")
+      While (chrPos >= 0)
+        cmd = "" +  (cmd).Substring( 0, chrPos) + "" + Chr( 37) + "23" + (cmd).Substring( chrPos+1, cmdLen-chrPos-1)
+        cmdLen = cmdLen + 2
+        chrPos = cmd.IndexOf("#")
+      End While
+      chrPos = cmd.IndexOf("+")
+      While (chrPos >= 0)
+        cmd = "" +  (cmd).Substring( 0, chrPos) + "" + Chr( 37) + "2B" + (cmd).Substring( chrPos+1, cmdLen-chrPos-1)
+        cmdLen = cmdLen + 2
+        chrPos = cmd.IndexOf("+")
+      End While
+      chrPos = cmd.IndexOf("=")
+      While (chrPos >= 0)
+        cmd = "" +  (cmd).Substring( 0, chrPos) + "" + Chr( 37) + "3D" + (cmd).Substring( chrPos+1, cmdLen-chrPos-1)
+        cmdLen = cmdLen + 2
+        chrPos = cmd.IndexOf("=")
+      End While
+      cmd = "at.txt?cmd=" + cmd
+      res = ""
+      REM // max 2 minutes (each iteration may take up to 5 seconds if waiting)
+      waitMore = 24
+      While (waitMore > 0)
+        buff = Me._download(cmd)
+        bufflen = (buff).Length
+        buffstr = YAPI.DefaultEncoding.GetString(buff)
+        buffstrlen = (buffstr).Length
+        idx = bufflen - 1
+        While ((idx > 0) AndAlso (buff(idx) <> 64) AndAlso (buff(idx) <> 10) AndAlso (buff(idx) <> 13))
+          idx = idx - 1
+        End While
+        If (buff(idx) = 64) Then
+          REM // continuation detected
+          suffixlen = bufflen - idx
+          cmd = "at.txt?cmd=" + (buffstr).Substring( buffstrlen - suffixlen, suffixlen)
+          buffstr = (buffstr).Substring( 0, buffstrlen - suffixlen)
+          waitMore = waitMore - 1
+        Else
+          REM // request complete
+          waitMore = 0
+        End If
+        res = "" +  res + "" + buffstr
+      End While
+      Return res
     End Function
 
     Public Overridable Function fetchPdu(slot As Integer) As YSms

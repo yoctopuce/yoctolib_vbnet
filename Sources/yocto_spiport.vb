@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 49744 2022-05-11 15:13:45Z mvuilleu $
+'  $Id: yocto_spiport.vb 49904 2022-05-25 14:18:55Z mvuilleu $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -238,6 +238,7 @@ Module yocto_spiport
     Protected _rxptr As Integer
     Protected _rxbuff As Byte()
     Protected _rxbuffptr As Integer
+    Protected _eventPos As Integer
     REM --- (end of generated code: YSpiPort attributes declaration)
 
     Public Sub New(ByVal func As String)
@@ -264,6 +265,7 @@ Module yocto_spiport
       _rxptr = 0
       _rxbuff = New Byte(){}
       _rxbuffptr = 0
+      _eventPos = 0
       REM --- (end of generated code: YSpiPort attributes initialization)
     End Sub
 
@@ -1395,6 +1397,7 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function reset() As Integer
+      Me._eventPos = 0
       Me._rxptr = 0
       Me._rxbuffptr = 0
       ReDim Me._rxbuff(0-1)
