@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorledcluster.vb 48024 2022-01-12 08:38:48Z seb $
+'  $Id: yocto_colorledcluster.vb 50281 2022-06-30 07:21:14Z mvuilleu $
 '
 '  Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '
@@ -59,6 +59,7 @@ Module yocto_colorledcluster
   Public Const Y_LEDTYPE_WS2811 As Integer = 2
   Public Const Y_LEDTYPE_INVALID As Integer = -1
   Public Const Y_MAXLEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_DYNAMICLEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BLINKSEQMAXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_BLINKSEQMAXSIZE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
@@ -94,6 +95,7 @@ Module yocto_colorledcluster
     Public Const LEDTYPE_WS2811 As Integer = 2
     Public Const LEDTYPE_INVALID As Integer = -1
     Public Const MAXLEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const DYNAMICLEDCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BLINKSEQMAXCOUNT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const BLINKSEQMAXSIZE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
@@ -103,6 +105,7 @@ Module yocto_colorledcluster
     Protected _activeLedCount As Integer
     Protected _ledType As Integer
     Protected _maxLedCount As Integer
+    Protected _dynamicLedCount As Integer
     Protected _blinkSeqMaxCount As Integer
     Protected _blinkSeqMaxSize As Integer
     Protected _command As String
@@ -116,6 +119,7 @@ Module yocto_colorledcluster
       _activeLedCount = ACTIVELEDCOUNT_INVALID
       _ledType = LEDTYPE_INVALID
       _maxLedCount = MAXLEDCOUNT_INVALID
+      _dynamicLedCount = DYNAMICLEDCOUNT_INVALID
       _blinkSeqMaxCount = BLINKSEQMAXCOUNT_INVALID
       _blinkSeqMaxSize = BLINKSEQMAXSIZE_INVALID
       _command = COMMAND_INVALID
@@ -134,6 +138,9 @@ Module yocto_colorledcluster
       End If
       If json_val.has("maxLedCount") Then
         _maxLedCount = CInt(json_val.getLong("maxLedCount"))
+      End If
+      If json_val.has("dynamicLedCount") Then
+        _dynamicLedCount = CInt(json_val.getLong("dynamicLedCount"))
       End If
       If json_val.has("blinkSeqMaxCount") Then
         _blinkSeqMaxCount = CInt(json_val.getLong("blinkSeqMaxCount"))
@@ -283,6 +290,32 @@ Module yocto_colorledcluster
         End If
       End If
       res = Me._maxLedCount
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the maximum number of LEDs that can perform autonomous transitions and sequences.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the maximum number of LEDs that can perform autonomous transitions and sequences
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorLedCluster.DYNAMICLEDCOUNT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_dynamicLedCount() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration = 0) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return DYNAMICLEDCOUNT_INVALID
+        End If
+      End If
+      res = Me._dynamicLedCount
       Return res
     End Function
 

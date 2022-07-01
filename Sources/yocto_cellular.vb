@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 48024 2022-01-12 08:38:48Z seb $
+'* $Id: yocto_cellular.vb 50281 2022-06-30 07:21:14Z mvuilleu $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -6013,6 +6013,53 @@ Module yocto_cellular
     '''/
     Public Overridable Function decodePLMN(mccmnc As String) As String
       Return Me.imm_decodePLMN(mccmnc)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the list available radio communication profiles, as a string array
+    '''   (YoctoHub-GSM-4G only).
+    ''' <para>
+    '''   Each string is a made of a numerical ID, followed by a colon,
+    '''   followed by the profile description.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a list of string describing available radio communication profiles.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_communicationProfiles() As List(Of String)
+      Dim profiles As String
+      Dim lines As List(Of String) = New List(Of String)()
+      Dim nlines As Integer = 0
+      Dim idx As Integer = 0
+      Dim line As String
+      Dim cpos As Integer = 0
+      Dim profno As Integer = 0
+      Dim res As List(Of String) = New List(Of String)()
+
+      profiles = Me._AT("+UMNOPROF=?")
+      lines = New List(Of String)(profiles.Split(vbLf.ToCharArray()))
+      nlines = lines.Count
+      If Not(nlines > 0) Then
+        me._throw( YAPI.IO_ERROR,  "fail to retrieve profile list")
+        return res
+      end if
+      res.Clear()
+      idx = 0
+      While (idx < nlines)
+        line = lines(idx)
+        cpos = line.IndexOf(":")
+        If (cpos > 0) Then
+          profno = YAPI._atoi((line).Substring( 0, cpos))
+          If (profno > 0) Then
+            res.Add(line)
+          End If
+        End If
+        idx = idx + 1
+      End While
+
+      Return res
     End Function
 
 
