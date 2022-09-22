@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_quadraturedecoder.vb 45843 2021-08-04 07:51:59Z mvuilleu $
+'  $Id: yocto_quadraturedecoder.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindQuadratureDecoder(), the high-level API for QuadratureDecoder functions
 '
@@ -109,7 +109,7 @@ Module yocto_quadraturedecoder
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("speed") Then
-        _speed = Math.Round(json_val.getDouble("speed") * 1000.0 / 65536.0) / 1000.0
+        _speed = Math.Round(json_val.getDouble("speed") / 65.536) / 1000.0
       End If
       If json_val.has("decoding") Then
         If (json_val.getInt("decoding") > 0) Then _decoding = 1 Else _decoding = 0

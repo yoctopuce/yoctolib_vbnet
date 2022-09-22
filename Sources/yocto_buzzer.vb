@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_buzzer.vb 48024 2022-01-12 08:38:48Z seb $
+'  $Id: yocto_buzzer.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindBuzzer(), the high-level API for Buzzer functions
 '
@@ -116,7 +116,7 @@ Module yocto_buzzer
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("frequency") Then
-        _frequency = Math.Round(json_val.getDouble("frequency") * 1000.0 / 65536.0) / 1000.0
+        _frequency = Math.Round(json_val.getDouble("frequency") / 65.536) / 1000.0
       End If
       If json_val.has("volume") Then
         _volume = CInt(json_val.getLong("volume"))

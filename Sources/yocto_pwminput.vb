@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwminput.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_pwminput.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindPwmInput(), the high-level API for PwmInput functions
 '
@@ -157,16 +157,16 @@ Module yocto_pwminput
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("dutyCycle") Then
-        _dutyCycle = Math.Round(json_val.getDouble("dutyCycle") * 1000.0 / 65536.0) / 1000.0
+        _dutyCycle = Math.Round(json_val.getDouble("dutyCycle") / 65.536) / 1000.0
       End If
       If json_val.has("pulseDuration") Then
-        _pulseDuration = Math.Round(json_val.getDouble("pulseDuration") * 1000.0 / 65536.0) / 1000.0
+        _pulseDuration = Math.Round(json_val.getDouble("pulseDuration") / 65.536) / 1000.0
       End If
       If json_val.has("frequency") Then
-        _frequency = Math.Round(json_val.getDouble("frequency") * 1000.0 / 65536.0) / 1000.0
+        _frequency = Math.Round(json_val.getDouble("frequency") / 65.536) / 1000.0
       End If
       If json_val.has("period") Then
-        _period = Math.Round(json_val.getDouble("period") * 1000.0 / 65536.0) / 1000.0
+        _period = Math.Round(json_val.getDouble("period") / 65.536) / 1000.0
       End If
       If json_val.has("pulseCounter") Then
         _pulseCounter = json_val.getLong("pulseCounter")

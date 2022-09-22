@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_realtimeclock.vb 48183 2022-01-20 10:26:11Z mvuilleu $
+'  $Id: yocto_realtimeclock.vb 50595 2022-07-28 07:54:15Z mvuilleu $
 '
 '  Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '
@@ -59,6 +59,9 @@ Module yocto_realtimeclock
   Public Const Y_TIMESET_FALSE As Integer = 0
   Public Const Y_TIMESET_TRUE As Integer = 1
   Public Const Y_TIMESET_INVALID As Integer = -1
+  Public Const Y_DISABLEHOSTSYNC_FALSE As Integer = 0
+  Public Const Y_DISABLEHOSTSYNC_TRUE As Integer = 1
+  Public Const Y_DISABLEHOSTSYNC_INVALID As Integer = -1
   Public Delegate Sub YRealTimeClockValueCallback(ByVal func As YRealTimeClock, ByVal value As String)
   Public Delegate Sub YRealTimeClockTimedReportCallback(ByVal func As YRealTimeClock, ByVal measure As YMeasure)
   REM --- (end of YRealTimeClock globals)
@@ -88,6 +91,9 @@ Module yocto_realtimeclock
     Public Const TIMESET_FALSE As Integer = 0
     Public Const TIMESET_TRUE As Integer = 1
     Public Const TIMESET_INVALID As Integer = -1
+    Public Const DISABLEHOSTSYNC_FALSE As Integer = 0
+    Public Const DISABLEHOSTSYNC_TRUE As Integer = 1
+    Public Const DISABLEHOSTSYNC_INVALID As Integer = -1
     REM --- (end of YRealTimeClock definitions)
 
     REM --- (YRealTimeClock attributes declaration)
@@ -95,6 +101,7 @@ Module yocto_realtimeclock
     Protected _dateTime As String
     Protected _utcOffset As Integer
     Protected _timeSet As Integer
+    Protected _disableHostSync As Integer
     Protected _valueCallbackRealTimeClock As YRealTimeClockValueCallback
     REM --- (end of YRealTimeClock attributes declaration)
 
@@ -106,6 +113,7 @@ Module yocto_realtimeclock
       _dateTime = DATETIME_INVALID
       _utcOffset = UTCOFFSET_INVALID
       _timeSet = TIMESET_INVALID
+      _disableHostSync = DISABLEHOSTSYNC_INVALID
       _valueCallbackRealTimeClock = Nothing
       REM --- (end of YRealTimeClock attributes initialization)
     End Sub
@@ -124,6 +132,9 @@ Module yocto_realtimeclock
       End If
       If json_val.has("timeSet") Then
         If (json_val.getInt("timeSet") > 0) Then _timeSet = 1 Else _timeSet = 0
+      End If
+      If json_val.has("disableHostSync") Then
+        If (json_val.getInt("disableHostSync") > 0) Then _disableHostSync = 1 Else _disableHostSync = 0
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -292,6 +303,64 @@ Module yocto_realtimeclock
       Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns true if the automatic clock synchronization with host has been disabled,
+    '''   and false otherwise.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YRealTimeClock.DISABLEHOSTSYNC_FALSE</c> or <c>YRealTimeClock.DISABLEHOSTSYNC_TRUE</c>,
+    '''   according to true if the automatic clock synchronization with host has been disabled,
+    '''   and false otherwise
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YRealTimeClock.DISABLEHOSTSYNC_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_disableHostSync() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return DISABLEHOSTSYNC_INVALID
+        End If
+      End If
+      res = Me._disableHostSync
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the automatic clock synchronization with host working state.
+    ''' <para>
+    '''   To disable automatic synchronization, set the value to true.
+    '''   To enable automatic synchronization (default), set the value to false.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YRealTimeClock.DISABLEHOSTSYNC_FALSE</c> or <c>YRealTimeClock.DISABLEHOSTSYNC_TRUE</c>,
+    '''   according to the automatic clock synchronization with host working state
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_disableHostSync(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("disableHostSync", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves a real-time clock for a given identifier.

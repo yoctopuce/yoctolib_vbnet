@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_magnetometer.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_magnetometer.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindMagnetometer(), the high-level API for Magnetometer functions
 '
@@ -119,13 +119,13 @@ Module yocto_magnetometer
         _bandwidth = CInt(json_val.getLong("bandwidth"))
       End If
       If json_val.has("xValue") Then
-        _xValue = Math.Round(json_val.getDouble("xValue") * 1000.0 / 65536.0) / 1000.0
+        _xValue = Math.Round(json_val.getDouble("xValue") / 65.536) / 1000.0
       End If
       If json_val.has("yValue") Then
-        _yValue = Math.Round(json_val.getDouble("yValue") * 1000.0 / 65536.0) / 1000.0
+        _yValue = Math.Round(json_val.getDouble("yValue") / 65.536) / 1000.0
       End If
       If json_val.has("zValue") Then
-        _zValue = Math.Round(json_val.getDouble("zValue") * 1000.0 / 65536.0) / 1000.0
+        _zValue = Math.Round(json_val.getDouble("zValue") / 65.536) / 1000.0
       End If
       Return MyBase._parseAttr(json_val)
     End Function

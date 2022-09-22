@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 50281 2022-06-30 07:21:14Z mvuilleu $
+'* $Id: yocto_cellular.vb 50494 2022-07-19 16:08:56Z mvuilleu $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -6052,7 +6052,7 @@ Module yocto_cellular
         cpos = line.IndexOf(":")
         If (cpos > 0) Then
           profno = YAPI._atoi((line).Substring( 0, cpos))
-          If (profno > 0) Then
+          If (profno > 1) Then
             res.Add(line)
           End If
         End If

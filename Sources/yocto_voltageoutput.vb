@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_voltageoutput.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_voltageoutput.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindVoltageOutput(), the high-level API for VoltageOutput functions
 '
@@ -101,13 +101,13 @@ Module yocto_voltageoutput
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("currentVoltage") Then
-        _currentVoltage = Math.Round(json_val.getDouble("currentVoltage") * 1000.0 / 65536.0) / 1000.0
+        _currentVoltage = Math.Round(json_val.getDouble("currentVoltage") / 65.536) / 1000.0
       End If
       If json_val.has("voltageTransition") Then
         _voltageTransition = json_val.getString("voltageTransition")
       End If
       If json_val.has("voltageAtStartUp") Then
-        _voltageAtStartUp = Math.Round(json_val.getDouble("voltageAtStartUp") * 1000.0 / 65536.0) / 1000.0
+        _voltageAtStartUp = Math.Round(json_val.getDouble("voltageAtStartUp") / 65.536) / 1000.0
       End If
       Return MyBase._parseAttr(json_val)
     End Function

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_refframe.vb 48024 2022-01-12 08:38:48Z seb $
+'  $Id: yocto_refframe.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindRefFrame(), the high-level API for RefFrame functions
 '
@@ -183,7 +183,7 @@ end enum
         _mountPos = CInt(json_val.getLong("mountPos"))
       End If
       If json_val.has("bearing") Then
-        _bearing = Math.Round(json_val.getDouble("bearing") * 1000.0 / 65536.0) / 1000.0
+        _bearing = Math.Round(json_val.getDouble("bearing") / 65.536) / 1000.0
       End If
       If json_val.has("calibrationParam") Then
         _calibrationParam = json_val.getString("calibrationParam")

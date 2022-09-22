@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_steppermotor.vb 48024 2022-01-12 08:38:48Z seb $
+'  $Id: yocto_steppermotor.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '
@@ -180,16 +180,16 @@ Module yocto_steppermotor
         _stepPos = json_val.getDouble("stepPos") / 16.0
       End If
       If json_val.has("speed") Then
-        _speed = Math.Round(json_val.getDouble("speed") * 1000.0 / 65536.0) / 1000.0
+        _speed = Math.Round(json_val.getDouble("speed") / 65.536) / 1000.0
       End If
       If json_val.has("pullinSpeed") Then
-        _pullinSpeed = Math.Round(json_val.getDouble("pullinSpeed") * 1000.0 / 65536.0) / 1000.0
+        _pullinSpeed = Math.Round(json_val.getDouble("pullinSpeed") / 65.536) / 1000.0
       End If
       If json_val.has("maxAccel") Then
-        _maxAccel = Math.Round(json_val.getDouble("maxAccel") * 1000.0 / 65536.0) / 1000.0
+        _maxAccel = Math.Round(json_val.getDouble("maxAccel") / 65.536) / 1000.0
       End If
       If json_val.has("maxSpeed") Then
-        _maxSpeed = Math.Round(json_val.getDouble("maxSpeed") * 1000.0 / 65536.0) / 1000.0
+        _maxSpeed = Math.Round(json_val.getDouble("maxSpeed") / 65.536) / 1000.0
       End If
       If json_val.has("stepping") Then
         _stepping = CInt(json_val.getLong("stepping"))

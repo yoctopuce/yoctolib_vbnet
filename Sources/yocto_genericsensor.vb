@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_genericsensor.vb 49904 2022-05-25 14:18:55Z mvuilleu $
+'  $Id: yocto_genericsensor.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '
@@ -140,7 +140,7 @@ Module yocto_genericsensor
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("signalValue") Then
-        _signalValue = Math.Round(json_val.getDouble("signalValue") * 1000.0 / 65536.0) / 1000.0
+        _signalValue = Math.Round(json_val.getDouble("signalValue") / 65.536) / 1000.0
       End If
       If json_val.has("signalUnit") Then
         _signalUnit = json_val.getString("signalUnit")
@@ -152,7 +152,7 @@ Module yocto_genericsensor
         _valueRange = json_val.getString("valueRange")
       End If
       If json_val.has("signalBias") Then
-        _signalBias = Math.Round(json_val.getDouble("signalBias") * 1000.0 / 65536.0) / 1000.0
+        _signalBias = Math.Round(json_val.getDouble("signalBias") / 65.536) / 1000.0
       End If
       If json_val.has("signalSampling") Then
         _signalSampling = CInt(json_val.getLong("signalSampling"))

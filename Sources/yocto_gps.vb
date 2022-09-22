@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_gps.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_gps.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindGps(), the high-level API for Gps functions
 '
@@ -192,7 +192,7 @@ Module yocto_gps
         _satPerConst = json_val.getLong("satPerConst")
       End If
       If json_val.has("gpsRefreshRate") Then
-        _gpsRefreshRate = Math.Round(json_val.getDouble("gpsRefreshRate") * 1000.0 / 65536.0) / 1000.0
+        _gpsRefreshRate = Math.Round(json_val.getDouble("gpsRefreshRate") / 65.536) / 1000.0
       End If
       If json_val.has("coordSystem") Then
         _coordSystem = CInt(json_val.getLong("coordSystem"))
@@ -207,16 +207,16 @@ Module yocto_gps
         _longitude = json_val.getString("longitude")
       End If
       If json_val.has("dilution") Then
-        _dilution = Math.Round(json_val.getDouble("dilution") * 1000.0 / 65536.0) / 1000.0
+        _dilution = Math.Round(json_val.getDouble("dilution") / 65.536) / 1000.0
       End If
       If json_val.has("altitude") Then
-        _altitude = Math.Round(json_val.getDouble("altitude") * 1000.0 / 65536.0) / 1000.0
+        _altitude = Math.Round(json_val.getDouble("altitude") / 65.536) / 1000.0
       End If
       If json_val.has("groundSpeed") Then
-        _groundSpeed = Math.Round(json_val.getDouble("groundSpeed") * 1000.0 / 65536.0) / 1000.0
+        _groundSpeed = Math.Round(json_val.getDouble("groundSpeed") / 65.536) / 1000.0
       End If
       If json_val.has("direction") Then
-        _direction = Math.Round(json_val.getDouble("direction") * 1000.0 / 65536.0) / 1000.0
+        _direction = Math.Round(json_val.getDouble("direction") / 65.536) / 1000.0
       End If
       If json_val.has("unixTime") Then
         _unixTime = json_val.getLong("unixTime")

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 48024 2022-01-12 08:38:48Z seb $
+'  $Id: yocto_temperature.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -150,7 +150,7 @@ Module yocto_temperature
         _sensorType = CInt(json_val.getLong("sensorType"))
       End If
       If json_val.has("signalValue") Then
-        _signalValue = Math.Round(json_val.getDouble("signalValue") * 1000.0 / 65536.0) / 1000.0
+        _signalValue = Math.Round(json_val.getDouble("signalValue") / 65.536) / 1000.0
       End If
       If json_val.has("signalUnit") Then
         _signalUnit = json_val.getString("signalUnit")

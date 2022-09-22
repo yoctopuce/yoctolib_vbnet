@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_currentloopoutput.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_currentloopoutput.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindCurrentLoopOutput(), the high-level API for CurrentLoopOutput functions
 '
@@ -113,13 +113,13 @@ Module yocto_currentloopoutput
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("current") Then
-        _current = Math.Round(json_val.getDouble("current") * 1000.0 / 65536.0) / 1000.0
+        _current = Math.Round(json_val.getDouble("current") / 65.536) / 1000.0
       End If
       If json_val.has("currentTransition") Then
         _currentTransition = json_val.getString("currentTransition")
       End If
       If json_val.has("currentAtStartUp") Then
-        _currentAtStartUp = Math.Round(json_val.getDouble("currentAtStartUp") * 1000.0 / 65536.0) / 1000.0
+        _currentAtStartUp = Math.Round(json_val.getDouble("currentAtStartUp") / 65.536) / 1000.0
       End If
       If json_val.has("loopPower") Then
         _loopPower = CInt(json_val.getLong("loopPower"))

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_rangefinder.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_rangefinder.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindRangeFinder(), the high-level API for RangeFinder functions
 '
@@ -139,7 +139,7 @@ Module yocto_rangefinder
         _hardwareCalibration = json_val.getString("hardwareCalibration")
       End If
       If json_val.has("currentTemperature") Then
-        _currentTemperature = Math.Round(json_val.getDouble("currentTemperature") * 1000.0 / 65536.0) / 1000.0
+        _currentTemperature = Math.Round(json_val.getDouble("currentTemperature") / 65.536) / 1000.0
       End If
       If json_val.has("command") Then
         _command = json_val.getString("command")

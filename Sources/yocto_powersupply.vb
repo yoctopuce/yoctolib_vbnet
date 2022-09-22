@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_powersupply.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_powersupply.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindPowerSupply(), the high-level API for PowerSupply functions
 '
@@ -151,10 +151,10 @@ Module yocto_powersupply
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("voltageSetPoint") Then
-        _voltageSetPoint = Math.Round(json_val.getDouble("voltageSetPoint") * 1000.0 / 65536.0) / 1000.0
+        _voltageSetPoint = Math.Round(json_val.getDouble("voltageSetPoint") / 65.536) / 1000.0
       End If
       If json_val.has("currentLimit") Then
-        _currentLimit = Math.Round(json_val.getDouble("currentLimit") * 1000.0 / 65536.0) / 1000.0
+        _currentLimit = Math.Round(json_val.getDouble("currentLimit") / 65.536) / 1000.0
       End If
       If json_val.has("powerOutput") Then
         If (json_val.getInt("powerOutput") > 0) Then _powerOutput = 1 Else _powerOutput = 0
@@ -163,28 +163,28 @@ Module yocto_powersupply
         _voltageSense = CInt(json_val.getLong("voltageSense"))
       End If
       If json_val.has("measuredVoltage") Then
-        _measuredVoltage = Math.Round(json_val.getDouble("measuredVoltage") * 1000.0 / 65536.0) / 1000.0
+        _measuredVoltage = Math.Round(json_val.getDouble("measuredVoltage") / 65.536) / 1000.0
       End If
       If json_val.has("measuredCurrent") Then
-        _measuredCurrent = Math.Round(json_val.getDouble("measuredCurrent") * 1000.0 / 65536.0) / 1000.0
+        _measuredCurrent = Math.Round(json_val.getDouble("measuredCurrent") / 65.536) / 1000.0
       End If
       If json_val.has("inputVoltage") Then
-        _inputVoltage = Math.Round(json_val.getDouble("inputVoltage") * 1000.0 / 65536.0) / 1000.0
+        _inputVoltage = Math.Round(json_val.getDouble("inputVoltage") / 65.536) / 1000.0
       End If
       If json_val.has("vInt") Then
-        _vInt = Math.Round(json_val.getDouble("vInt") * 1000.0 / 65536.0) / 1000.0
+        _vInt = Math.Round(json_val.getDouble("vInt") / 65.536) / 1000.0
       End If
       If json_val.has("ldoTemperature") Then
-        _ldoTemperature = Math.Round(json_val.getDouble("ldoTemperature") * 1000.0 / 65536.0) / 1000.0
+        _ldoTemperature = Math.Round(json_val.getDouble("ldoTemperature") / 65.536) / 1000.0
       End If
       If json_val.has("voltageTransition") Then
         _voltageTransition = json_val.getString("voltageTransition")
       End If
       If json_val.has("voltageAtStartUp") Then
-        _voltageAtStartUp = Math.Round(json_val.getDouble("voltageAtStartUp") * 1000.0 / 65536.0) / 1000.0
+        _voltageAtStartUp = Math.Round(json_val.getDouble("voltageAtStartUp") / 65.536) / 1000.0
       End If
       If json_val.has("currentAtStartUp") Then
-        _currentAtStartUp = Math.Round(json_val.getDouble("currentAtStartUp") * 1000.0 / 65536.0) / 1000.0
+        _currentAtStartUp = Math.Round(json_val.getDouble("currentAtStartUp") / 65.536) / 1000.0
       End If
       If json_val.has("command") Then
         _command = json_val.getString("command")

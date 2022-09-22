@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_power.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_power.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindPower(), the high-level API for Power functions
 '
@@ -114,16 +114,16 @@ Module yocto_power
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("cosPhi") Then
-        _cosPhi = Math.Round(json_val.getDouble("cosPhi") * 1000.0 / 65536.0) / 1000.0
+        _cosPhi = Math.Round(json_val.getDouble("cosPhi") / 65.536) / 1000.0
       End If
       If json_val.has("meter") Then
-        _meter = Math.Round(json_val.getDouble("meter") * 1000.0 / 65536.0) / 1000.0
+        _meter = Math.Round(json_val.getDouble("meter") / 65.536) / 1000.0
       End If
       If json_val.has("deliveredEnergyMeter") Then
-        _deliveredEnergyMeter = Math.Round(json_val.getDouble("deliveredEnergyMeter") * 1000.0 / 65536.0) / 1000.0
+        _deliveredEnergyMeter = Math.Round(json_val.getDouble("deliveredEnergyMeter") / 65.536) / 1000.0
       End If
       If json_val.has("receivedEnergyMeter") Then
-        _receivedEnergyMeter = Math.Round(json_val.getDouble("receivedEnergyMeter") * 1000.0 / 65536.0) / 1000.0
+        _receivedEnergyMeter = Math.Round(json_val.getDouble("receivedEnergyMeter") / 65.536) / 1000.0
       End If
       If json_val.has("meterTimer") Then
         _meterTimer = CInt(json_val.getLong("meterTimer"))

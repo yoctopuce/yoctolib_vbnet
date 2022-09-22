@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 49750 2022-05-13 07:10:42Z seb $
+'* $Id: yocto_api.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "50357"
+  Public Const YOCTO_API_BUILD_NO As String = "51008"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -9141,16 +9141,16 @@ Module yocto_api
         _unit = json_val.getString("unit")
       End If
       If json_val.has("currentValue") Then
-        _currentValue = Math.Round(json_val.getDouble("currentValue") * 1000.0 / 65536.0) / 1000.0
+        _currentValue = Math.Round(json_val.getDouble("currentValue") / 65.536) / 1000.0
       End If
       If json_val.has("lowestValue") Then
-        _lowestValue = Math.Round(json_val.getDouble("lowestValue") * 1000.0 / 65536.0) / 1000.0
+        _lowestValue = Math.Round(json_val.getDouble("lowestValue") / 65.536) / 1000.0
       End If
       If json_val.has("highestValue") Then
-        _highestValue = Math.Round(json_val.getDouble("highestValue") * 1000.0 / 65536.0) / 1000.0
+        _highestValue = Math.Round(json_val.getDouble("highestValue") / 65.536) / 1000.0
       End If
       If json_val.has("currentRawValue") Then
-        _currentRawValue = Math.Round(json_val.getDouble("currentRawValue") * 1000.0 / 65536.0) / 1000.0
+        _currentRawValue = Math.Round(json_val.getDouble("currentRawValue") / 65.536) / 1000.0
       End If
       If json_val.has("logFrequency") Then
         _logFrequency = json_val.getString("logFrequency")
@@ -9165,7 +9165,7 @@ Module yocto_api
         _calibrationParam = json_val.getString("calibrationParam")
       End If
       If json_val.has("resolution") Then
-        _resolution = Math.Round(json_val.getDouble("resolution") * 1000.0 / 65536.0) / 1000.0
+        _resolution = Math.Round(json_val.getDouble("resolution") / 65.536) / 1000.0
       End If
       If json_val.has("sensorState") Then
         _sensorState = CInt(json_val.getLong("sensorState"))

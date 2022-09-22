@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multicellweighscale.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_multicellweighscale.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '
@@ -155,22 +155,22 @@ Module yocto_multicellweighscale
         _excitation = CInt(json_val.getLong("excitation"))
       End If
       If json_val.has("tempAvgAdaptRatio") Then
-        _tempAvgAdaptRatio = Math.Round(json_val.getDouble("tempAvgAdaptRatio") * 1000.0 / 65536.0) / 1000.0
+        _tempAvgAdaptRatio = Math.Round(json_val.getDouble("tempAvgAdaptRatio") / 65.536) / 1000.0
       End If
       If json_val.has("tempChgAdaptRatio") Then
-        _tempChgAdaptRatio = Math.Round(json_val.getDouble("tempChgAdaptRatio") * 1000.0 / 65536.0) / 1000.0
+        _tempChgAdaptRatio = Math.Round(json_val.getDouble("tempChgAdaptRatio") / 65.536) / 1000.0
       End If
       If json_val.has("compTempAvg") Then
-        _compTempAvg = Math.Round(json_val.getDouble("compTempAvg") * 1000.0 / 65536.0) / 1000.0
+        _compTempAvg = Math.Round(json_val.getDouble("compTempAvg") / 65.536) / 1000.0
       End If
       If json_val.has("compTempChg") Then
-        _compTempChg = Math.Round(json_val.getDouble("compTempChg") * 1000.0 / 65536.0) / 1000.0
+        _compTempChg = Math.Round(json_val.getDouble("compTempChg") / 65.536) / 1000.0
       End If
       If json_val.has("compensation") Then
-        _compensation = Math.Round(json_val.getDouble("compensation") * 1000.0 / 65536.0) / 1000.0
+        _compensation = Math.Round(json_val.getDouble("compensation") / 65.536) / 1000.0
       End If
       If json_val.has("zeroTracking") Then
-        _zeroTracking = Math.Round(json_val.getDouble("zeroTracking") * 1000.0 / 65536.0) / 1000.0
+        _zeroTracking = Math.Round(json_val.getDouble("zeroTracking") / 65.536) / 1000.0
       End If
       If json_val.has("command") Then
         _command = json_val.getString("command")

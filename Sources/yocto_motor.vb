@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_motor.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_motor.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindMotor(), the high-level API for Motor functions
 '
@@ -149,19 +149,19 @@ Module yocto_motor
         _motorStatus = CInt(json_val.getLong("motorStatus"))
       End If
       If json_val.has("drivingForce") Then
-        _drivingForce = Math.Round(json_val.getDouble("drivingForce") * 1000.0 / 65536.0) / 1000.0
+        _drivingForce = Math.Round(json_val.getDouble("drivingForce") / 65.536) / 1000.0
       End If
       If json_val.has("brakingForce") Then
-        _brakingForce = Math.Round(json_val.getDouble("brakingForce") * 1000.0 / 65536.0) / 1000.0
+        _brakingForce = Math.Round(json_val.getDouble("brakingForce") / 65.536) / 1000.0
       End If
       If json_val.has("cutOffVoltage") Then
-        _cutOffVoltage = Math.Round(json_val.getDouble("cutOffVoltage") * 1000.0 / 65536.0) / 1000.0
+        _cutOffVoltage = Math.Round(json_val.getDouble("cutOffVoltage") / 65.536) / 1000.0
       End If
       If json_val.has("overCurrentLimit") Then
         _overCurrentLimit = CInt(json_val.getLong("overCurrentLimit"))
       End If
       If json_val.has("frequency") Then
-        _frequency = Math.Round(json_val.getDouble("frequency") * 1000.0 / 65536.0) / 1000.0
+        _frequency = Math.Round(json_val.getDouble("frequency") / 65.536) / 1000.0
       End If
       If json_val.has("starterTime") Then
         _starterTime = CInt(json_val.getLong("starterTime"))

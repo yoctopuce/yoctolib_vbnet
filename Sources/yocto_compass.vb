@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_compass.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_compass.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindCompass(), the high-level API for Compass functions
 '
@@ -117,7 +117,7 @@ Module yocto_compass
         _axis = CInt(json_val.getLong("axis"))
       End If
       If json_val.has("magneticHeading") Then
-        _magneticHeading = Math.Round(json_val.getDouble("magneticHeading") * 1000.0 / 65536.0) / 1000.0
+        _magneticHeading = Math.Round(json_val.getDouble("magneticHeading") / 65.536) / 1000.0
       End If
       Return MyBase._parseAttr(json_val)
     End Function

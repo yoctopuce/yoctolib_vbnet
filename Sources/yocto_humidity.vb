@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_humidity.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_humidity.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindHumidity(), the high-level API for Humidity functions
 '
@@ -101,10 +101,10 @@ Module yocto_humidity
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("relHum") Then
-        _relHum = Math.Round(json_val.getDouble("relHum") * 1000.0 / 65536.0) / 1000.0
+        _relHum = Math.Round(json_val.getDouble("relHum") / 65.536) / 1000.0
       End If
       If json_val.has("absHum") Then
-        _absHum = Math.Round(json_val.getDouble("absHum") * 1000.0 / 65536.0) / 1000.0
+        _absHum = Math.Round(json_val.getDouble("absHum") / 65.536) / 1000.0
       End If
       Return MyBase._parseAttr(json_val)
     End Function

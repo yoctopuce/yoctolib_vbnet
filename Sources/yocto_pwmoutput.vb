@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwmoutput.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_pwmoutput.vb 50689 2022-08-17 14:37:15Z mvuilleu $
 '
 '  Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '
@@ -134,16 +134,16 @@ Module yocto_pwmoutput
         If (json_val.getInt("enabled") > 0) Then _enabled = 1 Else _enabled = 0
       End If
       If json_val.has("frequency") Then
-        _frequency = Math.Round(json_val.getDouble("frequency") * 1000.0 / 65536.0) / 1000.0
+        _frequency = Math.Round(json_val.getDouble("frequency") / 65.536) / 1000.0
       End If
       If json_val.has("period") Then
-        _period = Math.Round(json_val.getDouble("period") * 1000.0 / 65536.0) / 1000.0
+        _period = Math.Round(json_val.getDouble("period") / 65.536) / 1000.0
       End If
       If json_val.has("dutyCycle") Then
-        _dutyCycle = Math.Round(json_val.getDouble("dutyCycle") * 1000.0 / 65536.0) / 1000.0
+        _dutyCycle = Math.Round(json_val.getDouble("dutyCycle") / 65.536) / 1000.0
       End If
       If json_val.has("pulseDuration") Then
-        _pulseDuration = Math.Round(json_val.getDouble("pulseDuration") * 1000.0 / 65536.0) / 1000.0
+        _pulseDuration = Math.Round(json_val.getDouble("pulseDuration") / 65.536) / 1000.0
       End If
       If json_val.has("pwmTransition") Then
         _pwmTransition = json_val.getString("pwmTransition")
@@ -152,7 +152,7 @@ Module yocto_pwmoutput
         If (json_val.getInt("enabledAtPowerOn") > 0) Then _enabledAtPowerOn = 1 Else _enabledAtPowerOn = 0
       End If
       If json_val.has("dutyCycleAtPowerOn") Then
-        _dutyCycleAtPowerOn = Math.Round(json_val.getDouble("dutyCycleAtPowerOn") * 1000.0 / 65536.0) / 1000.0
+        _dutyCycleAtPowerOn = Math.Round(json_val.getDouble("dutyCycleAtPowerOn") / 65.536) / 1000.0
       End If
       Return MyBase._parseAttr(json_val)
     End Function
