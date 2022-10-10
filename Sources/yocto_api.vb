@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 50689 2022-08-17 14:37:15Z mvuilleu $
+'* $Id: yocto_api.vb 51266 2022-10-10 09:18:25Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "51050"
+  Public Const YOCTO_API_BUILD_NO As String = "51266"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -8691,6 +8691,33 @@ Module yocto_api
       Next i_i
       Me.clearCache()
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Adds a file to the uploaded data at the next HTTP callback.
+    ''' <para>
+    '''   This function only affects the next HTTP callback and only works in
+    '''   HTTP callback mode.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="filename">
+    '''   the name of the file to upload at the next HTTP callback
+    ''' </param>
+    ''' <returns>
+    '''   nothing.
+    ''' </returns>
+    '''/
+    Public Overridable Function addFileToHTTPCallback(filename As String) As Integer
+      Dim content As Byte() = New Byte(){}
+
+      content = Me._download("@YCB+" + filename)
+      If ((content).Length = 0) Then
+        Return YAPI.NOT_SUPPORTED
+      End If
+      Return YAPI.SUCCESS
     End Function
 
     '''*
