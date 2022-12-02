@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 51266 2022-10-10 09:18:25Z seb $
+'* $Id: yocto_api.vb 51903 2022-11-29 17:25:59Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "51266"
+  Public Const YOCTO_API_BUILD_NO As String = "52094"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2940,6 +2940,7 @@ Module yocto_api
     Protected _calraw As List(Of Double)
     Protected _calref As List(Of Double)
     Protected _values As List(Of List(Of Double))
+    Protected _isLoaded As Boolean
     REM --- (end of generated code: YDataStream attributes declaration)
     Protected _calhdl As yCalibrationHandler
 
@@ -3096,6 +3097,9 @@ Module yocto_api
       Dim idx As Integer = 0
       Dim udat As List(Of Integer) = New List(Of Integer)()
       Dim dat As List(Of Double) = New List(Of Double)()
+      If (Me._isLoaded AndAlso Not (Me._isClosed)) Then
+        Return YAPI.SUCCESS
+      End If
       If ((sdata).Length = 0) Then
         Me._nRows = 0
         Return YAPI.SUCCESS
@@ -3133,13 +3137,31 @@ Module yocto_api
       End If
 
       Me._nRows = Me._values.Count
+      Me._isLoaded = True
       Return YAPI.SUCCESS
+    End Function
+
+    Public Overridable Function _wasLoaded() As Boolean
+      Return Me._isLoaded
     End Function
 
     Public Overridable Function _get_url() As String
       Dim url As String
       url = "logger.json?id=" +
       Me._functionId + "&run=" + Convert.ToString(Me._runNo) + "&utc=" + Convert.ToString(Me._utcStamp)
+      Return url
+    End Function
+
+    Public Overridable Function _get_baseurl() As String
+      Dim url As String
+      url = "logger.json?id=" +
+      Me._functionId + "&run=" + Convert.ToString(Me._runNo) + "&utc="
+      Return url
+    End Function
+
+    Public Overridable Function _get_urlsuffix() As String
+      Dim url As String
+      url = "" + Convert.ToString(Me._utcStamp)
       Return url
     End Function
 
@@ -3728,6 +3750,7 @@ Module yocto_api
     Protected _hardwareId As String
     Protected _functionId As String
     Protected _unit As String
+    Protected _bulkLoad As Integer
     Protected _startTimeMs As Double
     Protected _endTimeMs As Double
     Protected _progress As Integer
@@ -3745,6 +3768,7 @@ Module yocto_api
 
     Sub New(parent As YFunction, functionId As String, unit As String, startTime As double, endTime As double)
       REM --- (generated code: YDataSet attributes initialization)
+      _bulkLoad = 0
       _startTimeMs = 0
       _endTimeMs = 0
       _progress = 0
@@ -3769,6 +3793,7 @@ Module yocto_api
 
     Sub New(parent As YFunction)
       REM --- (generated code: YDataSet attributes initialization)
+      _bulkLoad = 0
       _startTimeMs = 0
       _endTimeMs = 0
       _progress = 0
@@ -3808,6 +3833,9 @@ Module yocto_api
 
       Me._functionId = p.getString("id")
       Me._unit = p.getString("unit")
+      If p.has("bulk") Then
+        Me._bulkLoad = YAPI._atoi(p.getString("bulk"))
+      End If
       If p.has("calib") Then
         Me._calib = YAPI._decodeFloats(p.getString("calib"))
         Me._calib(0) = Me._calib(0)\1000
@@ -3915,9 +3943,11 @@ Module yocto_api
         Else
           REM // stream that are partially in the dataset
           REM // we need to parse data to filter value outside the dataset
-          url =  Me._streams(i_i)._get_url()
-          data = Me._parent._download(url)
-          Me._streams(i_i)._parseStream(data)
+          If (Not ( Me._streams(i_i)._wasLoaded())) Then
+            url =  Me._streams(i_i)._get_url()
+            data = Me._parent._download(url)
+            Me._streams(i_i)._parseStream(data)
+          End If
           dataRows =  Me._streams(i_i).get_dataRows()
           If (dataRows.Count = 0) Then
             Return Me.get_progress()
@@ -3968,8 +3998,10 @@ Module yocto_api
               If (previewMaxVal < maxVal) Then
                 previewMaxVal = maxVal
               End If
-              previewTotalAvg = previewTotalAvg + (avgVal * mitv)
-              previewTotalTime = previewTotalTime + mitv
+              If (Not (Double.IsNaN(avgVal))) Then
+                previewTotalAvg = previewTotalAvg + (avgVal * mitv)
+                previewTotalTime = previewTotalTime + mitv
+              End If
             End If
             tim = end_
             m_pos = m_pos + 1
@@ -4026,6 +4058,15 @@ Module yocto_api
       Dim avgCol As Integer = 0
       Dim maxCol As Integer = 0
       Dim firstMeasure As Boolean
+      Dim baseurl As String
+      Dim url As String
+      Dim suffix As String
+      Dim suffixes As List(Of String) = New List(Of String)()
+      Dim idx As Integer = 0
+      Dim bulkFile As Byte() = New Byte(){}
+      Dim streamStr As List(Of String) = New List(Of String)()
+      Dim urlIdx As Integer = 0
+      Dim streamBin As Byte() = New Byte(){}
 
       If (progress <> Me._progress) Then
         Return Me._progress
@@ -4034,7 +4075,9 @@ Module yocto_api
         Return Me.loadSummary(data)
       End If
       stream = Me._streams(Me._progress)
-      stream._parseStream(data)
+      If (Not (stream._wasLoaded())) Then
+        stream._parseStream(data)
+      End If
       dataRows = stream.get_dataRows()
       Me._progress = Me._progress + 1
       If (dataRows.Count = 0) Then
@@ -4077,6 +4120,40 @@ Module yocto_api
         tim = end_
       Next i_i
 
+      REM // Perform bulk preload to speed-up network transfer
+      If ((Me._bulkLoad > 0) AndAlso (Me._progress < Me._streams.Count)) Then
+        stream = Me._streams(Me._progress)
+        If (stream._wasLoaded()) Then
+          Return Me.get_progress()
+        End If
+        baseurl = stream._get_baseurl()
+        url = stream._get_url()
+        suffix = stream._get_urlsuffix()
+        suffixes.Add(suffix)
+        idx = Me._progress+1
+        While ((idx < Me._streams.Count) AndAlso (suffixes.Count < Me._bulkLoad))
+          stream = Me._streams(idx)
+          If (Not (stream._wasLoaded()) AndAlso (stream._get_baseurl() = baseurl)) Then
+            suffix = stream._get_urlsuffix()
+            suffixes.Add(suffix)
+            url = url + "," + suffix
+          End If
+          idx = idx + 1
+        End While
+        bulkFile = Me._parent._download(url)
+        streamStr = Me._parent._json_get_array(bulkFile)
+        urlIdx = 0
+        idx = Me._progress
+        While ((idx < Me._streams.Count) AndAlso (urlIdx < suffixes.Count) AndAlso (urlIdx < streamStr.Count))
+          stream = Me._streams(idx)
+          If ((stream._get_baseurl() = baseurl) AndAlso (stream._get_urlsuffix() = suffixes(urlIdx))) Then
+            streamBin = YAPI.DefaultEncoding.GetBytes(streamStr(urlIdx))
+            stream._parseStream(streamBin)
+            urlIdx = urlIdx + 1
+          End If
+          idx = idx + 1
+        End While
+      End If
       Return Me.get_progress()
     End Function
 
@@ -4272,6 +4349,10 @@ Module yocto_api
           Return 100
         Else
           stream = Me._streams(Me._progress)
+          If (stream._wasLoaded()) Then
+            REM // Do not reload stream if it was already loaded
+            Return Me.processMore(Me._progress, YAPI.DefaultEncoding.GetBytes(""))
+          End If
           url = stream._get_url()
         End If
       End If
@@ -6176,7 +6257,7 @@ Module yocto_api
       Throw New YAPI_Exception(YAPI.INVALID_ARGUMENT, (Convert.ToString("No key ") & key) + "in JSON struct")
     End Function
 
-    Protected Function _json_get_array(data As Byte()) As List(Of String)
+    Public Function _json_get_array(data As Byte()) As List(Of String)
       Dim array As New YJSONArray(YAPI.DefaultEncoding.GetString(data))
       array.parse()
       Dim list As New List(Of String)()
