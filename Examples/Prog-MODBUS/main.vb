@@ -36,15 +36,15 @@ Module Module1
     Console.WriteLine("Slave: ")
     slave = Convert.ToInt32(Console.ReadLine())
 
-    Console.WriteLine("Please select a Coil No (>=1), Input Bit No (>=10001+),")
-    Console.WriteLine("       Register No (>=30001) or Input Register No (>=40001)")
+    Console.WriteLine("Please select a Coil No (>=1), Input Bit No (>=10001),")
+    Console.WriteLine("Input Register No (>=30001) or Holding Register No (>=40001)")
     Console.WriteLine("No: ")
     reg = Convert.ToInt32(Console.ReadLine())
     While (True)
       If reg >= 40001 Then
-        val = serialPort.modbusReadInputRegisters(slave, reg - 40001, 1)(0)
+        val = serialPort.modbusReadRegisters(slave, reg - 40001, 1)(0)
       ElseIf (reg >= 30001) Then
-        val = serialPort.modbusReadRegisters(slave, reg - 30001, 1)(0)
+        val = serialPort.modbusReadInputRegisters(slave, reg - 30001, 1)(0)
       ElseIf (reg >= 10001) Then
         val = serialPort.modbusReadInputBits(slave, reg - 10001, 1)(0)
       Else
@@ -52,15 +52,15 @@ Module Module1
       End If
       Console.WriteLine("Current value: " + Convert.ToString(val))
       Console.WriteLine("Press ENTER to read again, Q to quit")
-      If ((reg Mod 30000) < 10000) Then Console.WriteLine(" or enter a new value")
+      If ((reg Mod 40000) < 10000) Then Console.WriteLine(" or enter a new value")
 
       cmd = Console.ReadLine()
       If cmd = "q" Or cmd = "Q" Then End
 
-      If (cmd <> "" And (reg Mod 30000) < 10000) Then
+      If (cmd <> "" And (reg Mod 40000) < 10000) Then
         val = Convert.ToInt32(cmd)
-        If reg >= 30001 Then
-          serialPort.modbusWriteRegister(slave, reg - 30001, val)
+        If reg >= 40001 Then
+          serialPort.modbusWriteRegister(slave, reg - 40001, val)
         Else
           serialPort.modbusWriteBit(slave, reg - 1, val)
         End If
