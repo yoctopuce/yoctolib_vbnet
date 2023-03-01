@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 51903 2022-11-29 17:25:59Z mvuilleu $
+'* $Id: yocto_api.vb 53258 2023-02-16 11:16:45Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "52382"
+  Public Const YOCTO_API_BUILD_NO As String = "53327"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1806,9 +1806,16 @@ Module yocto_api
     ''' <para>
     '''   <b><i>x.x.x.x</i></b> or <b><i>hostname</i></b>: The API will use the devices connected to the
     '''   host with the given IP address or hostname. That host can be a regular computer
-    '''   running a VirtualHub, or a networked YoctoHub such as YoctoHub-Ethernet or
+    '''   running a <i>native VirtualHub</i>, a <i>VirtualHub for web</i> hosted on a server,
+    '''   or a networked YoctoHub such as YoctoHub-Ethernet or
     '''   YoctoHub-Wireless. If you want to use the VirtualHub running on you local
-    '''   computer, use the IP address 127.0.0.1.
+    '''   computer, use the IP address 127.0.0.1. If the given IP is unresponsive, <c>yRegisterHub</c>
+    '''   will not return until a time-out defined by <c>ySetNetworkTimeout</c> has elapsed.
+    '''   However, it is possible to preventively test a connection  with <c>yTestHub</c>.
+    '''   If you cannot afford a network time-out, you can use the non blocking <c>yPregisterHub</c>
+    '''   function that will establish the connection as soon as it is available.
+    ''' </para>
+    ''' <para>
     ''' </para>
     ''' <para>
     '''   <b>callback</b>: that keyword make the API run in "<i>HTTP Callback</i>" mode.
@@ -1878,7 +1885,8 @@ Module yocto_api
     '''   This function has the same
     '''   purpose and same arguments as <c>yRegisterHub()</c>, but does not trigger
     '''   an error when the selected hub is not available at the time of the function call.
-    '''   This makes it possible to register a network hub independently of the current
+    '''   If the connexion cannot be established immediately, a background task will automatically
+    '''   perform periodic retries. This makes it possible to register a network hub independently of the current
     '''   connectivity, and to try to contact it only when a device is actively needed.
     ''' </para>
     ''' <para>
@@ -4318,7 +4326,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Loads the the next block of measures from the dataLogger, and updates
+    '''   Loads the next block of measures from the dataLogger, and updates
     '''   the progress indicator.
     ''' <para>
     ''' </para>
@@ -5107,7 +5115,7 @@ Module yocto_api
 
     Public Shared _cache As Dictionary(Of String, YFunction) = New Dictionary(Of String, YFunction)
     Public Shared _ValueCallbackList As List(Of YFunction) = New List(Of YFunction)
-    Public Shared _TimedReportCallbackList As List(Of YFunction) = New List(Of YFunction)
+    Public Shared _TimedReportCallbackList As List(Of YSensor) = New List(Of YSensor)
 
     REM --- (generated code: YFunction attributes declaration)
     Protected _logicalName As String
@@ -5557,7 +5565,7 @@ Module yocto_api
       End If
     End Sub
 
-    Protected Shared Sub _UpdateTimedReportCallbackList(func As YFunction, add As Boolean)
+    Protected Shared Sub _UpdateTimedReportCallbackList(func As YSensor, add As Boolean)
       If (add) Then
         func.isOnline()
         If Not (_TimedReportCallbackList.Contains(func)) Then
@@ -6477,7 +6485,9 @@ Module yocto_api
       Dim funcId As String = ""
       Dim funcName As String = ""
       Dim funcValue As String = ""
-
+      If (Not(_serial = "")) Then
+          Return YModule.FindModule(_serial + ".module")
+      End If
       fundescr = yapiGetFunction(_className, _func, errmsg)
       If (Not (YISERR(fundescr))) Then
         If (Not (YISERR(yapiGetFunctionInfo(fundescr, devdescr, serial, funcId, funcName, funcValue, errmsg)))) Then
@@ -11484,6 +11494,7 @@ Module yocto_api
 
   Private Class DataEvent
     Private _fun As YFunction
+    Private _sensor As YSensor
     Private _mod As YModule
     Private _value As String
     Private _report As List(Of Integer)
@@ -11494,6 +11505,7 @@ Module yocto_api
     Public Sub New(ByVal fun As YFunction, ByVal value As String)
       _fun = fun
       _mod = Nothing
+      _sensor = Nothing
       _value = value
       _report = Nothing
       _timestamp = 0
@@ -11501,19 +11513,21 @@ Module yocto_api
       _beacon = - 1
     End Sub
 
-    Public Sub New(ByVal fun As YFunction, ByVal timestamp As Double, ByVal duration As Double, ByVal report As List(Of Integer))
-      _fun = fun
+    Public Sub New(ByVal fun As YSensor, ByVal timestamp As Double, ByVal duration As Double, ByVal report As List(Of Integer))
+      _sensor = fun
+      _fun = Nothing
       _mod = Nothing
       _value = Nothing
       _timestamp = timestamp
       _duration = duration
       _report = report
-      _beacon = - 1
+      _beacon = -1
     End Sub
 
     Public Sub New(ByVal modul As YModule)
       _fun = Nothing
       _mod = modul
+      _sensor = Nothing
       _value = Nothing
       _report = Nothing
       _timestamp = 0
@@ -11524,6 +11538,7 @@ Module yocto_api
     Public Sub New(ByVal modul As YModule, ByVal beacon As Integer)
       _fun = Nothing
       _mod = modul
+      _sensor = Nothing
       _value = Nothing
       _report = Nothing
       _timestamp = 0
@@ -11532,17 +11547,18 @@ Module yocto_api
     End Sub
 
     Public Sub invoke()
-      If (_fun IsNot Nothing) Then
-        If (_value Is Nothing) Then
-          Dim sensor As YSensor = CType(_fun, YSensor)
-          Dim measure As YMeasure = sensor._decodeTimedReport(_timestamp, _duration, _report)
-          sensor._invokeTimedReportCallback(measure)
+      If (_sensor IsNot Nothing) Then
+        Dim measure As YMeasure = _sensor._decodeTimedReport(_timestamp, _duration, _report)
+        _sensor._invokeTimedReportCallback(measure)
+      ElseIf (_fun IsNot Nothing) Then
+        If _value Is Nothing Then
+          _fun.isOnline()
         Else
           REM new value
           _fun._invokeValueCallback(_value)
         End If
       ElseIf (_mod IsNot Nothing) Then
-        if (_beacon < 0) Then
+        If (_beacon < 0) Then
           _mod._invokeConfigChangeCallback()
         Else
           _mod._invokeBeaconCallback(_beacon)
@@ -11573,9 +11589,15 @@ Module yocto_api
   Private Sub native_yDeviceArrivalCallback(ByVal d As YDEV_DESCR)
     Dim infos As yDeviceSt = emptyDeviceSt()
     Dim ev As PlugEvent
+    Dim d_ev As DataEvent
     Dim modul As YModule
     Dim errmsg As String = ""
-
+    For i As Integer = 0 To YFunction._ValueCallbackList.Count - 1
+      If YFunction._ValueCallbackList(i).get_functionDescriptor() = YFunction.FUNCTIONDESCRIPTOR_INVALID Then
+        d_ev = New DataEvent(YFunction._ValueCallbackList(i), Nothing)
+        _DataEvents.Add(d_ev)
+      End If
+    Next
     YDevice.PlugDevice(d)
     If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then
       Exit Sub
@@ -11928,9 +11950,16 @@ Module yocto_api
   ''' <para>
   '''   <b><i>x.x.x.x</i></b> or <b><i>hostname</i></b>: The API will use the devices connected to the
   '''   host with the given IP address or hostname. That host can be a regular computer
-  '''   running a VirtualHub, or a networked YoctoHub such as YoctoHub-Ethernet or
+  '''   running a <i>native VirtualHub</i>, a <i>VirtualHub for web</i> hosted on a server,
+  '''   or a networked YoctoHub such as YoctoHub-Ethernet or
   '''   YoctoHub-Wireless. If you want to use the VirtualHub running on you local
-  '''   computer, use the IP address 127.0.0.1.
+  '''   computer, use the IP address 127.0.0.1. If the given IP is unresponsive, <c>yRegisterHub</c>
+  '''   will not return until a time-out defined by <c>ySetNetworkTimeout</c> has elapsed.
+  '''   However, it is possible to preventively test a connection  with <c>yTestHub</c>.
+  '''   If you cannot afford a network time-out, you can use the non blocking <c>yPregisterHub</c>
+  '''   function that will establish the connection as soon as it is available.
+  ''' </para>
+  ''' <para>
   ''' </para>
   ''' <para>
   '''   <b>callback</b>: that keyword make the API run in "<i>HTTP Callback</i>" mode.
@@ -11988,7 +12017,8 @@ Module yocto_api
   '''   This function has the same
   '''   purpose and same arguments as <c>yRegisterHub()</c>, but does not trigger
   '''   an error when the selected hub is not available at the time of the function call.
-  '''   This makes it possible to register a network hub independently of the current
+  '''   If the connexion cannot be established immediately, a background task will automatically
+  '''   perform periodic retries. This makes it possible to register a network hub independently of the current
   '''   connectivity, and to try to contact it only when a device is actively needed.
   ''' </para>
   ''' <para>

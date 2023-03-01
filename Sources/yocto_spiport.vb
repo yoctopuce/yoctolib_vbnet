@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 49904 2022-05-25 14:18:55Z mvuilleu $
+'  $Id: yocto_spiport.vb 52892 2023-01-25 10:13:30Z seb $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -1227,16 +1227,28 @@ Module yocto_spiport
     ''' </returns>
     '''/
     Public Overridable Function read_avail() As Integer
-      Dim buff As Byte() = New Byte(){}
-      Dim bufflen As Integer = 0
+      Dim availPosStr As String
+      Dim atPos As Integer = 0
       Dim res As Integer = 0
+      Dim databin As Byte() = New Byte(){}
 
-      buff = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
-      bufflen = (buff).Length - 1
-      While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
-        bufflen = bufflen - 1
-      End While
-      res = YAPI._atoi((YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen))
+      databin = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
+      availPosStr = YAPI.DefaultEncoding.GetString(databin)
+      atPos = availPosStr.IndexOf("@")
+      res = YAPI._atoi((availPosStr).Substring( 0, atPos))
+      Return res
+    End Function
+
+    Public Overridable Function end_tell() As Integer
+      Dim availPosStr As String
+      Dim atPos As Integer = 0
+      Dim res As Integer = 0
+      Dim databin As Byte() = New Byte(){}
+
+      databin = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
+      availPosStr = YAPI.DefaultEncoding.GetString(databin)
+      atPos = availPosStr.IndexOf("@")
+      res = YAPI._atoi((availPosStr).Substring( atPos+1, (availPosStr).Length-atPos-1))
       Return res
     End Function
 
@@ -1262,13 +1274,22 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function queryLine(query As String, maxWait As Integer) As String
+      Dim prevpos As Integer = 0
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
+      If ((query).Length <= 80) Then
+        REM // fast query
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + Me._escapeAttr(query)
+      Else
+        REM // long query
+        prevpos = Me.end_tell()
+        Me._upload("txdata", YAPI.DefaultEncoding.GetBytes(query + "" + vbCr + "" + vbLf + ""))
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&pos=" + Convert.ToString(prevpos)
+      End If
 
-      url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + Me._escapeAttr(query)
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
@@ -1308,13 +1329,22 @@ Module yocto_spiport
     ''' </para>
     '''/
     Public Overridable Function queryHex(hexString As String, maxWait As Integer) As String
+      Dim prevpos As Integer = 0
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
       Dim msglen As Integer = 0
       Dim res As String
+      If ((hexString).Length <= 80) Then
+        REM // fast query
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=$" + hexString
+      Else
+        REM // long query
+        prevpos = Me.end_tell()
+        Me._upload("txdata", YAPI._hexStrToBin(hexString))
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&pos=" + Convert.ToString(prevpos)
+      End If
 
-      url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=$" + hexString
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
