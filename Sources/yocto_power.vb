@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_power.vb 52318 2022-12-13 10:58:18Z seb $
+'  $Id: yocto_power.vb 53420 2023-03-06 10:38:51Z mvuilleu $
 '
 '  Implements yFindPower(), the high-level API for Power functions
 '
@@ -53,6 +53,7 @@ Module yocto_power
    REM --- (end of YPower yapiwrapper)
   REM --- (YPower globals)
 
+  Public Const Y_POWERFACTOR_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_COSPHI_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_METER_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_DELIVEREDENERGYMETER_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -79,6 +80,7 @@ Module yocto_power
     REM --- (end of YPower class start)
 
     REM --- (YPower definitions)
+    Public Const POWERFACTOR_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const COSPHI_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const METER_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const DELIVEREDENERGYMETER_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -87,6 +89,7 @@ Module yocto_power
     REM --- (end of YPower definitions)
 
     REM --- (YPower attributes declaration)
+    Protected _powerFactor As Double
     Protected _cosPhi As Double
     Protected _meter As Double
     Protected _deliveredEnergyMeter As Double
@@ -100,6 +103,7 @@ Module yocto_power
       MyBase.New(func)
       _classname = "Power"
       REM --- (YPower attributes initialization)
+      _powerFactor = POWERFACTOR_INVALID
       _cosPhi = COSPHI_INVALID
       _meter = METER_INVALID
       _deliveredEnergyMeter = DELIVEREDENERGYMETER_INVALID
@@ -113,6 +117,9 @@ Module yocto_power
     REM --- (YPower private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("powerFactor") Then
+        _powerFactor = Math.Round(json_val.getDouble("powerFactor") / 65.536) / 1000.0
+      End If
       If json_val.has("cosPhi") Then
         _cosPhi = Math.Round(json_val.getDouble("cosPhi") / 65.536) / 1000.0
       End If
@@ -136,16 +143,50 @@ Module yocto_power
     REM --- (YPower public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the power factor (the ratio between the real power consumed,
-    '''   measured in W, and the apparent power provided, measured in VA).
+    '''   Returns the power factor (PF), i.e.
     ''' <para>
+    '''   ratio between the active power consumed (in W)
+    '''   and the apparent power provided (VA).
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the power factor (the ratio between the real power consumed,
-    '''   measured in W, and the apparent power provided, measured in VA)
+    '''   a floating point number corresponding to the power factor (PF), i.e
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YPower.POWERFACTOR_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_powerFactor() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return POWERFACTOR_INVALID
+        End If
+      End If
+      res = Me._powerFactor
+      If (res = POWERFACTOR_INVALID) Then
+        res = Me._cosPhi
+      End If
+      res = Math.Round(res * 1000) / 1000
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the Displacement Power factor (DPF), i.e.
+    ''' <para>
+    '''   cosine of the phase shift between
+    '''   the voltage and current fundamentals.
+    '''   On the Yocto-Watt (V1), the value returned by this method correponds to the
+    '''   power factor as this device is cannot estimate the true DPF.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the Displacement Power factor (DPF), i.e
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YPower.COSPHI_INVALID</c>.

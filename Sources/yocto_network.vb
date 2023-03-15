@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 48692 2022-02-24 22:30:52Z mvuilleu $
+'  $Id: yocto_network.vb 53420 2023-03-06 10:38:51Z mvuilleu $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -95,6 +95,9 @@ Module yocto_network
   Public Const Y_CALLBACKENCODING_PRTG As Integer = 11
   Public Const Y_CALLBACKENCODING_INFLUXDB_V2 As Integer = 12
   Public Const Y_CALLBACKENCODING_INVALID As Integer = -1
+  Public Const Y_CALLBACKTEMPLATE_OFF As Integer = 0
+  Public Const Y_CALLBACKTEMPLATE_ON As Integer = 1
+  Public Const Y_CALLBACKTEMPLATE_INVALID As Integer = -1
   Public Const Y_CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CALLBACKSCHEDULE_INVALID As String = YAPI.INVALID_STRING
@@ -158,6 +161,9 @@ Module yocto_network
     Public Const CALLBACKENCODING_PRTG As Integer = 11
     Public Const CALLBACKENCODING_INFLUXDB_V2 As Integer = 12
     Public Const CALLBACKENCODING_INVALID As Integer = -1
+    Public Const CALLBACKTEMPLATE_OFF As Integer = 0
+    Public Const CALLBACKTEMPLATE_ON As Integer = 1
+    Public Const CALLBACKTEMPLATE_INVALID As Integer = -1
     Public Const CALLBACKCREDENTIALS_INVALID As String = YAPI.INVALID_STRING
     Public Const CALLBACKINITIALDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CALLBACKSCHEDULE_INVALID As String = YAPI.INVALID_STRING
@@ -186,6 +192,7 @@ Module yocto_network
     Protected _callbackUrl As String
     Protected _callbackMethod As Integer
     Protected _callbackEncoding As Integer
+    Protected _callbackTemplate As Integer
     Protected _callbackCredentials As String
     Protected _callbackInitialDelay As Integer
     Protected _callbackSchedule As String
@@ -218,6 +225,7 @@ Module yocto_network
       _callbackUrl = CALLBACKURL_INVALID
       _callbackMethod = CALLBACKMETHOD_INVALID
       _callbackEncoding = CALLBACKENCODING_INVALID
+      _callbackTemplate = CALLBACKTEMPLATE_INVALID
       _callbackCredentials = CALLBACKCREDENTIALS_INVALID
       _callbackInitialDelay = CALLBACKINITIALDELAY_INVALID
       _callbackSchedule = CALLBACKSCHEDULE_INVALID
@@ -287,6 +295,9 @@ Module yocto_network
       End If
       If json_val.has("callbackEncoding") Then
         _callbackEncoding = CInt(json_val.getLong("callbackEncoding"))
+      End If
+      If json_val.has("callbackTemplate") Then
+        If (json_val.getInt("callbackTemplate") > 0) Then _callbackTemplate = 1 Else _callbackTemplate = 0
       End If
       If json_val.has("callbackCredentials") Then
         _callbackCredentials = json_val.getString("callbackCredentials")
@@ -1237,6 +1248,67 @@ Module yocto_network
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("callbackEncoding", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the activation state of the custom template file to customize callback
+    '''   format.
+    ''' <para>
+    '''   If the custom callback template is disabled, it will be ignored even
+    '''   if present on the YoctoHub.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YNetwork.CALLBACKTEMPLATE_OFF</c> or <c>YNetwork.CALLBACKTEMPLATE_ON</c>, according to
+    '''   the activation state of the custom template file to customize callback
+    '''   format
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YNetwork.CALLBACKTEMPLATE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_callbackTemplate() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return CALLBACKTEMPLATE_INVALID
+        End If
+      End If
+      res = Me._callbackTemplate
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Enable the use of a template file to customize callbacks format.
+    ''' <para>
+    '''   When the custom callback template file is enabled, the template file
+    '''   will be loaded for each callback in order to build the data to post to the
+    '''   server. If template file does not exist on the YoctoHub, the callback will
+    '''   fail with an error message indicating the name of the expected template file.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YNetwork.CALLBACKTEMPLATE_OFF</c> or <c>YNetwork.CALLBACKTEMPLATE_ON</c>
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_callbackTemplate(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("callbackTemplate", rest_val)
     End Function
     '''*
     ''' <summary>
