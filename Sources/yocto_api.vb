@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 53258 2023-02-16 11:16:45Z seb $
+'* $Id: yocto_api.vb 53871 2023-04-04 17:04:53Z mvuilleu $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "53532"
+  Public Const YOCTO_API_BUILD_NO As String = "54037"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -5856,16 +5856,16 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Test if the function is readOnly.
+    '''   Indicates whether changes to the function are prohibited or allowed.
     ''' <para>
-    '''   Return <c>true</c> if the function is write protected
-    '''   or that the function is not available.
+    '''   Returns <c>true</c> if the function is blocked by an admin password
+    '''   or if the function is not available.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>true</c> if the function is readOnly or not online.
+    '''   <c>true</c> if the function is write-protected or not online.
     ''' </returns>
     '''/
     Public Overridable Function isReadOnly() As Boolean
@@ -12554,6 +12554,9 @@ Module yocto_api
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiAddUdevRulesForYocto", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiAddUdevRulesForYocto(ByVal force As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiGetNextHubRef", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiGetNextHubRef(ByVal ref As Integer) As Integer
   End Function
     REM --- (end of generated code: YFunction dlldef)
 

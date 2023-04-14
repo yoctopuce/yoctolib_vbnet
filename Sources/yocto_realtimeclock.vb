@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_realtimeclock.vb 50595 2022-07-28 07:54:15Z mvuilleu $
+'  $Id: yocto_realtimeclock.vb 53871 2023-04-04 17:04:53Z mvuilleu $
 '
 '  Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '
@@ -339,6 +339,10 @@ Module yocto_realtimeclock
     ''' <para>
     '''   To disable automatic synchronization, set the value to true.
     '''   To enable automatic synchronization (default), set the value to false.
+    ''' </para>
+    ''' <para>
+    '''   If you want the change to be kept after a device reboot,
+    '''   make sure  to call the matching module <c>saveToFlash()</c>.
     ''' </para>
     ''' <para>
     ''' </para>
