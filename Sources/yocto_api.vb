@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 53871 2023-04-04 17:04:53Z mvuilleu $
+'* $Id: yocto_api.vb 54649 2023-05-22 10:09:20Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -780,7 +780,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "54037"
+  Public Const YOCTO_API_BUILD_NO As String = "54821"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -818,6 +818,346 @@ Module yocto_api
   Public Const Y_RUNNING_ON As Integer = 1
   Public Const Y_RUNNING_INVALID As Integer = -1
 
+
+
+
+
+  REM --- (generated code: YHub return codes)
+    REM --- (end of generated code: YHub return codes)
+  REM --- (generated code: YHub dlldef)
+    REM --- (end of generated code: YHub dlldef)
+  REM --- (generated code: YHub yapiwrapper)
+   REM --- (end of generated code: YHub yapiwrapper)
+  REM --- (generated code: YHub globals)
+
+  REM --- (end of generated code: YHub globals)
+
+  REM --- (generated code: YHub class start)
+
+  Public Class YHub
+    REM --- (end of generated code: YHub class start)
+
+    REM --- (generated code: YHub definitions)
+    REM --- (end of generated code: YHub definitions)
+
+    REM --- (generated code: YHub attributes declaration)
+    Protected _ctx As YAPIContext
+    Protected _hubref As Integer
+    Protected _userData As Object
+    REM --- (end of generated code: YHub attributes declaration)
+
+    Public Sub New(ByVal yctx As YAPIContext, hubref As Integer)
+      MyBase.New()
+      REM --- (generated code: YHub attributes initialization)
+      _hubref = 0
+      _userData = Nothing
+      REM --- (end of generated code: YHub attributes initialization)
+      _ctx = yctx
+      _hubref = hubref
+    End Sub
+
+    REM --- (generated code: YHub private methods declaration)
+
+    REM --- (end of generated code: YHub private methods declaration)
+
+    REM --- (generated code: YHub public methods declaration)
+    Public Overridable Function _getStrAttr(attrName As String) As String
+      Dim val As StringBuilder = New StringBuilder(1024)
+      Dim res As Integer = 0
+      Dim fullsize As Integer
+      fullsize = 0
+      res = _yapiGetHubStrAttr(Me._hubref, New StringBuilder(attrName), val, 1024, fullsize)
+      If (res > 0) Then
+        Return val.ToString()
+      End If
+      Return ""
+    End Function
+
+    Public Overridable Function _getIntAttr(attrName As String) As Integer
+      Return _yapiGetHubIntAttr(Me._hubref, New StringBuilder(attrName))
+    End Function
+
+    Public Overridable Sub _setIntAttr(attrName As String, value As Integer)
+      _yapiSetHubIntAttr(Me._hubref, New StringBuilder(attrName), value)
+    End Sub
+
+    '''*
+    ''' <summary>
+    '''   Returns the URL that has been used first to register this hub.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function get_registeredUrl() As String
+      Return Me._getStrAttr("registeredUrl")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns all known URLs that have been used to register this hub.
+    ''' <para>
+    '''   URLs are pointing to the same hub when the devices connected
+    '''   are sharing the same serial number.
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function get_knownUrls() As List(Of String)
+      Dim smallbuff As StringBuilder = New StringBuilder(1024)
+      Dim bigbuff As StringBuilder
+      Dim buffsize As Integer = 0
+      Dim fullsize As Integer
+      Dim yapi_res As Integer = 0
+      Dim urls_packed As String
+      Dim known_url_val As String
+      Dim url_list As List(Of String) = New List(Of String)()
+
+      fullsize = 0
+      known_url_val = "knownUrls"
+      yapi_res = _yapiGetHubStrAttr(Me._hubref, New StringBuilder(known_url_val), smallbuff, 1024, fullsize)
+      If (yapi_res < 0) Then
+        Return url_list
+      End If
+      If (fullsize <= 1024) Then
+        urls_packed = smallbuff.ToString()
+      Else
+        buffsize = fullsize
+        bigbuff = New StringBuilder(buffsize)
+        yapi_res = _yapiGetHubStrAttr(Me._hubref, New StringBuilder(known_url_val), bigbuff, buffsize, fullsize)
+        If (yapi_res < 0) Then
+          bigbuff = Nothing
+          Return url_list
+        Else
+          urls_packed = bigbuff.ToString()
+        End If
+        bigbuff = Nothing
+      End If
+      If (Not (urls_packed = "")) Then
+        url_list = New List(Of String)(urls_packed.Split(New Char() {"?"c}))
+      End If
+      Return url_list
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the URL currently in use to communicate with this hub.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function get_connectionUrl() As String
+      Return Me._getStrAttr("connectionUrl")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the hub serial number, if the hub was already connected once.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function get_serialNumber() As String
+      Return Me._getStrAttr("serialNumber")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Tells if this hub is still registered within the API.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>true</c> if the hub has not been unregistered.
+    ''' </returns>
+    '''/
+    Public Overridable Function isInUse() As Boolean
+      Return Me._getIntAttr("isInUse") > 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Tells if there is an active communication channel with this hub.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>true</c> if the hub is currently connected.
+    ''' </returns>
+    '''/
+    Public Overridable Function isOnline() As Boolean
+      Return Me._getIntAttr("isOnline") > 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Tells if write access on this hub is blocked.
+    ''' <para>
+    '''   Return <c>true</c> if it
+    '''   is not possible to change attributes on this hub
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>true</c> if it is not possible to change attributes on this hub.
+    ''' </returns>
+    '''/
+    Public Overridable Function isReadOnly() As Boolean
+      Return Me._getIntAttr("isReadOnly") > 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Modifies tthe network connection delay for this hub.
+    ''' <para>
+    '''   The default value is inherited from <c>ySetNetworkTimeout</c>
+    '''   at the time when the hub is registered, but it can be updated
+    '''   afterwards for each specific hub if necessary.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="networkMsTimeout">
+    '''   the network connection delay in milliseconds.
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overridable Sub set_networkTimeout(networkMsTimeout As Integer)
+      Me._setIntAttr("networkTimeout",networkMsTimeout)
+    End Sub
+
+    '''*
+    ''' <summary>
+    '''   Returns the network connection delay for this hub.
+    ''' <para>
+    '''   The default value is inherited from <c>ySetNetworkTimeout</c>
+    '''   at the time when the hub is registered, but it can be updated
+    '''   afterwards for each specific hub if necessary.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the network connection delay in milliseconds.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_networkTimeout() As Integer
+      Return Me._getIntAttr("networkTimeout")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the numerical error code of the latest error with the hub.
+    ''' <para>
+    '''   This method is mostly useful when using the Yoctopuce library with
+    '''   exceptions disabled.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a number corresponding to the code of the latest error that occurred while
+    '''   using the hub object
+    ''' </returns>
+    '''/
+    Public Overridable Function get_errorType() As Integer
+      Return Me._getIntAttr("errorType")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the error message of the latest error with the hub.
+    ''' <para>
+    '''   This method is mostly useful when using the Yoctopuce library with
+    '''   exceptions disabled.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the latest error message that occured while
+    '''   using the hub object
+    ''' </returns>
+    '''/
+    Public Overridable Function get_errorMessage() As String
+      Return Me._getStrAttr("errorMessage")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the value of the userData attribute, as previously stored
+    '''   using method <c>set_userData</c>.
+    ''' <para>
+    '''   This attribute is never touched directly by the API, and is at
+    '''   disposal of the caller to store a context.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the object stored previously by the caller.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_userData() As Object
+      Return Me._userData
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Stores a user context provided as argument in the userData
+    '''   attribute of the function.
+    ''' <para>
+    '''   This attribute is never touched by the API, and is at
+    '''   disposal of the caller to store a context.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="data">
+    '''   any kind of object to be stored
+    ''' @noreturn
+    ''' </param>
+    '''/
+    Public Overridable Sub set_userData(data As Object)
+      Me._userData = data
+    End Sub
+
+    '''*
+    ''' <summary>
+    '''   Starts the enumeration of hubs currently in use by the API.
+    ''' <para>
+    '''   Use the method <c>YHub.nextHubInUse()</c> to iterate on the
+    '''   next hubs.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YHub</c> object, corresponding to
+    '''   the first hub currently in use by the API, or a
+    '''   <c>Nothing</c> pointer if none has been registered.
+    ''' </returns>
+    '''/
+    Public Shared Function FirstHubInUse() As YHub
+      Return YAPI.nextHubInUseInternal(-1)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Continues the module enumeration started using <c>YHub.FirstHubInUse()</c>.
+    ''' <para>
+    '''   Caution: You can't make any assumption about the order of returned hubs.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a pointer to a <c>YHub</c> object, corresponding to
+    '''   the next hub currenlty in use, or a <c>Nothing</c> pointer
+    '''   if there are no more hubs to enumerate.
+    ''' </returns>
+    '''/
+    Public Overridable Function nextHubInUse() As YHub
+      Return Me._ctx.nextHubInUseInternal(Me._hubref)
+    End Function
+
+
+
+    REM --- (end of generated code: YHub public methods declaration)
+
+  End Class
+
+  REM --- (generated code: YHub functions)
+
+
+  REM --- (end of generated code: YHub functions)
 
 
   REM --- (generated code: YAPIContext return codes)
@@ -1010,9 +1350,43 @@ Module yocto_api
       Return Me._defaultCacheValidity
     End Function
 
+    Public Overridable Function nextHubInUseInternal(hubref As Integer) As YHub
+      Dim nextref As Integer = 0
+      nextref = _yapiGetNextHubRef(hubref)
+      If (nextref < 0) Then
+        Return Nothing
+      End If
+      Return Me.getYHubObj(nextref)
+    End Function
+
+    Public Overridable Function getYHubObj(hubref As Integer) As YHub
+      Dim obj As YHub
+      obj = Me._findYHubFromCache(hubref)
+      If ((obj Is Nothing)) Then
+        obj = New YHub(Me, hubref)
+        Me._addYHubToCache(hubref, obj)
+      End If
+      Return obj
+    End Function
+
 
 
     REM --- (end of generated code: YAPIContext public methods declaration)
+
+    Private Sub _addYHubToCache(hubref As Integer, obj As YHub)
+      _yhub_cache(hubref) = obj
+    End Sub
+
+    Public Property _yhub_cache As Dictionary(Of Integer, YHub) = New Dictionary(Of Integer, YHub)
+    Private Function _findYHubFromCache(hubref As Integer) As YHub
+      If (_yhub_cache.ContainsKey(hubref)) Then
+        Return _yhub_cache(hubref)
+      End If
+      Return Nothing
+    End Function
+    Private Sub _ClearCache()
+      _yhub_cache.Clear()
+    End Sub
   End Class
 
   REM --- (generated code: YAPIContext functions)
@@ -1071,7 +1445,7 @@ Module yocto_api
     Public Const SSL_ERROR As Integer = -15     REM Error reported by mbedSSL
 
     REM --- (end of generated code: YFunction return codes)
-    Public Shared _yapiContext As YAPIContext = new YAPIContext()
+    Public Shared _yapiContext As YAPIContext = New YAPIContext()
 
 
     Friend Shared Function ParseHTTP(data As String, start As Integer, [stop] As Integer, ByRef headerlen As Integer, ByRef errmsg As String) As Integer
@@ -1119,7 +1493,7 @@ Module yocto_api
     End Function
 
 
-    Friend shared Function _escapeAttr(ByVal changeval As String) As String
+    Friend Shared Function _escapeAttr(ByVal changeval As String) As String
       Dim i, c_ord As Integer
       Dim uchangeval, h As String
       uchangeval = ""
@@ -1186,10 +1560,10 @@ Module yocto_api
 
     REM Convert Yoctopuce 16-bit decimal floats to standard double-precision floats
     REM
-    Public Shared Function _decimalToDouble(ByVal val As long) As Double
+    Public Shared Function _decimalToDouble(ByVal val As Long) As Double
       Dim negate As Boolean = False
       Dim res As Double
-      Dim mantis As long = val And 2047
+      Dim mantis As Long = val And 2047
       If mantis = 0 Then
         Return 0.0
       End If
@@ -1200,8 +1574,8 @@ Module yocto_api
         negate = True
         val = -val
       End If
-      Dim exp As long = val >> 11
-      res = (mantis)*decexp(CInt(exp))
+      Dim exp As Long = val >> 11
+      res = (mantis) * decexp(CInt(exp))
       If negate Then
         Return -res
       Else
@@ -1341,7 +1715,7 @@ Module yocto_api
     Public Shared Function _floatToStr(ByVal value As Double) As String
       Dim res As String = ""
       Dim rounded As Long
-      Dim decim As long
+      Dim decim As Long
 
       rounded = CLng(Math.Round(value * 1000))
       If (rounded < 0) Then
@@ -1625,6 +1999,12 @@ Module yocto_api
     Public Shared Function GetCacheValidity() As Long
         return _yapiContext.GetCacheValidity()
     End Function
+    Public Shared Function nextHubInUseInternal(hubref As Integer) As YHub
+        return _yapiContext.nextHubInUseInternal(hubref)
+    End Function
+    Public Shared Function getYHubObj(hubref As Integer) As YHub
+        return _yapiContext.getYHubObj(hubref)
+    End Function
    REM --- (end of generated code: YAPIContext yapiwrapper)
 
 
@@ -1687,7 +2067,7 @@ Module yocto_api
     '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure returns a negative error code.
     ''' </para>
     '''/
     Public Shared Function InitAPI(ByVal mode As Integer, ByRef errmsg As String) As Integer
@@ -1696,7 +2076,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       Dim i As Integer
-      Dim dll_ver as yu16
+      Dim dll_ver As yu16
 
       If (apiInitialized) Then
         InitAPI = YAPI_SUCCESS
@@ -1859,7 +2239,7 @@ Module yocto_api
     '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure returns a negative error code.
     ''' </para>
     '''/
     Public Shared Function RegisterHub(ByVal url As String, ByRef errmsg As String) As Integer
@@ -1903,7 +2283,7 @@ Module yocto_api
     '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure returns a negative error code.
     ''' </para>
     '''/
     Public Shared Function PreregisterHub(ByVal url As String, ByRef errmsg As String) As Integer
@@ -2003,7 +2383,7 @@ Module yocto_api
     '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure returns a negative error code.
     ''' </para>
     '''/
     Public Shared Function UpdateDeviceList(ByRef errmsg As String) As YRETCODE
@@ -2058,7 +2438,7 @@ Module yocto_api
     '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure returns a negative error code.
     ''' </para>
     '''/
     Public Shared Function HandleEvents(ByRef errmsg As String) As YRETCODE
@@ -2118,7 +2498,7 @@ Module yocto_api
     '''   <c>YAPI.SUCCESS</c> when the call succeeds.
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure returns a negative error code.
     ''' </para>
     '''/
     Public Shared Function Sleep(ByVal ms_duration As Integer, ByRef errmsg As String) As Integer
@@ -2164,7 +2544,7 @@ Module yocto_api
     ''' </param>
     ''' <returns>
     '''   <c>YAPI.SUCCESS</c> when the call succeeds.
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure returns a negative error code.
     ''' </returns>
     '''/
     Public Shared Function TriggerHubDiscovery(ByRef errmsg As String) As Integer
@@ -2262,8 +2642,7 @@ Module yocto_api
     ''' <para>
     '''   Be aware than when exceptions are enabled, every function that fails
     '''   triggers an exception. If the exception is not caught by the user code,
-    '''   it  either fires the debugger or aborts (i.e. crash) the program.
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   it either fires the debugger or aborts (i.e. crash) the program.
     ''' </para>
     ''' </summary>
     '''/
@@ -3033,7 +3412,7 @@ Module yocto_api
         Me._startTime = Me._utcStamp + (ms_offset / 1000.0)
       Else
         REM // legacy encoding subtract the measure interval form the UTC timestamp
-        Me._startTime = Me._utcStamp -  Me._dataSamplesInterval
+        Me._startTime = Me._utcStamp - Me._dataSamplesInterval
       End If
       Me._firstMeasureDuration = encoded(5)
       If (Not (Me._isAvg)) Then
@@ -3774,7 +4153,7 @@ Module yocto_api
     REM --- (end of generated code: YDataSet attributes declaration)
 
 
-    Sub New(parent As YFunction, functionId As String, unit As String, startTime As double, endTime As double)
+    Sub New(parent As YFunction, functionId As String, unit As String, startTime As Double, endTime As Double)
       REM --- (generated code: YDataSet attributes initialization)
       _bulkLoad = 0
       _startTimeMs = 0
@@ -3795,7 +4174,7 @@ Module yocto_api
       _startTimeMs = startTime * 1000
       _endTimeMs = endTime * 1000
       _summary = New YMeasure(0, 0, 0, 0, 0)
-      _progress = - 1
+      _progress = -1
     End Sub
 
 
@@ -3836,8 +4215,8 @@ Module yocto_api
       End If
 
       Dim stream As YDataStream
-      Dim streamStartTime As double
-      Dim streamEndTime As double
+      Dim streamStartTime As Double
+      Dim streamEndTime As Double
 
       Me._functionId = p.getString("id")
       Me._unit = p.getString("unit")
@@ -3846,7 +4225,7 @@ Module yocto_api
       End If
       If p.has("calib") Then
         Me._calib = YAPI._decodeFloats(p.getString("calib"))
-        Me._calib(0) = Me._calib(0)\1000
+        Me._calib(0) = Me._calib(0) \ 1000
       Else
         Me._calib = YAPI._decodeWords(p.getString("cal"))
       End If
@@ -3880,7 +4259,6 @@ Module yocto_api
     End Function
 
     Public Overridable Function loadSummary(data As Byte()) As Integer
-      Dim i_i As Integer
       Dim dataRows As List(Of List(Of Double)) = New List(Of List(Of Double))()
       Dim tim As Double = 0
       Dim mitv As Double = 0
@@ -3936,33 +4314,34 @@ Module yocto_api
       summaryStopMs = YAPI.MIN_DOUBLE
 
       REM // Parse complete streams
-      For i_i = 0 To  Me._streams.Count - 1
-        streamStartTimeMs = Math.Round( Me._streams(i_i).get_realStartTimeUTC() *1000)
-        streamDuration =  Me._streams(i_i).get_realDuration()
+      Dim ii_0 As Integer
+      For ii_0 = 0 To  Me._streams.Count - 1
+        streamStartTimeMs = Math.Round( Me._streams(ii_0).get_realStartTimeUTC() * 1000)
+        streamDuration =  Me._streams(ii_0).get_realDuration()
         streamEndTimeMs = streamStartTimeMs + Math.Round(streamDuration * 1000)
         If ((streamStartTimeMs >= Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (streamEndTimeMs <= Me._endTimeMs))) Then
           REM // stream that are completely inside the dataset
-          previewMinVal =  Me._streams(i_i).get_minValue()
-          previewAvgVal =  Me._streams(i_i).get_averageValue()
-          previewMaxVal =  Me._streams(i_i).get_maxValue()
+          previewMinVal =  Me._streams(ii_0).get_minValue()
+          previewAvgVal =  Me._streams(ii_0).get_averageValue()
+          previewMaxVal =  Me._streams(ii_0).get_maxValue()
           previewStartMs = streamStartTimeMs
           previewStopMs = streamEndTimeMs
           previewDuration = streamDuration
         Else
           REM // stream that are partially in the dataset
           REM // we need to parse data to filter value outside the dataset
-          If (Not ( Me._streams(i_i)._wasLoaded())) Then
-            url =  Me._streams(i_i)._get_url()
+          If (Not ( Me._streams(ii_0)._wasLoaded())) Then
+            url =  Me._streams(ii_0)._get_url()
             data = Me._parent._download(url)
-            Me._streams(i_i)._parseStream(data)
+            Me._streams(ii_0)._parseStream(data)
           End If
-          dataRows =  Me._streams(i_i).get_dataRows()
+          dataRows =  Me._streams(ii_0).get_dataRows()
           If (dataRows.Count = 0) Then
             Return Me.get_progress()
           End If
           tim = streamStartTimeMs
-          fitv = Math.Round( Me._streams(i_i).get_firstDataSamplesInterval() * 1000)
-          itv = Math.Round( Me._streams(i_i).get_dataSamplesInterval() * 1000)
+          fitv = Math.Round( Me._streams(ii_0).get_firstDataSamplesInterval() * 1000)
+          itv = Math.Round( Me._streams(ii_0).get_dataSamplesInterval() * 1000)
           nCols = dataRows(0).Count
           minCol = 0
           If (nCols > 2) Then
@@ -3983,7 +4362,7 @@ Module yocto_api
           previewMaxVal = YAPI.MIN_DOUBLE
           m_pos = 0
           While (m_pos < dataRows.Count)
-            measure_data  = dataRows(m_pos)
+            measure_data = dataRows(m_pos)
             If (m_pos = 0) Then
               mitv = fitv
             Else
@@ -4037,7 +4416,7 @@ Module yocto_api
         End If
         summaryTotalAvg = summaryTotalAvg + (previewAvgVal * previewDuration)
         summaryTotalTime = summaryTotalTime + previewDuration
-      Next i_i
+      Next ii_0
       If ((Me._startTimeMs = 0) OrElse (Me._startTimeMs > summaryStartMs)) Then
         Me._startTimeMs = summaryStartMs
       End If
@@ -4053,7 +4432,6 @@ Module yocto_api
     End Function
 
     Public Overridable Function processMore(progress As Integer, data As Byte()) As Integer
-      Dim i_i As Integer
       Dim stream As YDataStream
       Dim dataRows As List(Of List(Of Double)) = New List(Of List(Of Double))()
       Dim tim As Double = 0
@@ -4114,19 +4492,20 @@ Module yocto_api
       End If
 
       firstMeasure = True
-      For i_i = 0 To dataRows.Count - 1
+      Dim ii_0 As Integer
+      For ii_0 = 0 To dataRows.Count - 1
         If (firstMeasure) Then
           end_ = tim + fitv
           firstMeasure = False
         Else
           end_ = tim + itv
         End If
-        avgv = dataRows(i_i)(avgCol)
+        avgv = dataRows(ii_0)(avgCol)
         If ((end_ > Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (tim < Me._endTimeMs)) AndAlso Not (Double.IsNaN(avgv))) Then
-          Me._measures.Add(New YMeasure(tim / 1000, end_ / 1000, dataRows(i_i)(minCol), avgv, dataRows(i_i)(maxCol)))
+          Me._measures.Add(New YMeasure(tim / 1000, end_ / 1000, dataRows(ii_0)(minCol), avgv, dataRows(ii_0)(maxCol)))
         End If
         tim = end_
-      Next i_i
+      Next ii_0
 
       REM // Perform bulk preload to speed-up network transfer
       If ((Me._bulkLoad > 0) AndAlso (Me._progress < Me._streams.Count)) Then
@@ -4138,7 +4517,7 @@ Module yocto_api
         url = stream._get_url()
         suffix = stream._get_urlsuffix()
         suffixes.Add(suffix)
-        idx = Me._progress+1
+        idx = Me._progress + 1
         While ((idx < Me._streams.Count) AndAlso (suffixes.Count < Me._bulkLoad))
           stream = Me._streams(idx)
           If (Not (stream._wasLoaded()) AndAlso (stream._get_baseurl() = baseurl)) Then
@@ -4350,7 +4729,7 @@ Module yocto_api
           url = "" + url + "&from=" + Convert.ToString(Me.imm_get_startTimeUTC())
         End If
         If (Me._endTimeMs <> 0) Then
-          url = "" + url + "&to=" + Convert.ToString(Me.imm_get_endTimeUTC()+1)
+          url = "" + url + "&to=" + Convert.ToString(Me.imm_get_endTimeUTC() + 1)
         End If
       Else
         If (Me._progress >= Me._streams.Count) Then
@@ -4453,7 +4832,6 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function get_measuresAt(measure As YMeasure) As List(Of YMeasure)
-      Dim i_i As Integer
       Dim startUtcMs As Double = 0
       Dim stream As YDataStream
       Dim dataRows As List(Of List(Of Double)) = New List(Of List(Of Double))()
@@ -4468,11 +4846,12 @@ Module yocto_api
 
       startUtcMs = measure.get_startTimeUTC() * 1000
       stream = Nothing
-      For i_i = 0 To Me._streams.Count - 1
-        If (Math.Round(Me._streams(i_i).get_realStartTimeUTC() *1000) = startUtcMs) Then
-          stream = Me._streams(i_i)
+      Dim ii_0 As Integer
+      For ii_0 = 0 To Me._streams.Count - 1
+        If (Math.Round(Me._streams(ii_0).get_realStartTimeUTC() *1000) = startUtcMs) Then
+          stream = Me._streams(ii_0)
         End If
-      Next i_i
+      Next ii_0
       If ((stream Is Nothing)) Then
         Return measures
       End If
@@ -4498,13 +4877,14 @@ Module yocto_api
         maxCol = 0
       End If
 
-      For i_i = 0 To dataRows.Count - 1
+      Dim ii_1 As Integer
+      For ii_1 = 0 To dataRows.Count - 1
         end_ = tim + itv
         If ((end_ > Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (tim < Me._endTimeMs))) Then
-          measures.Add(New YMeasure(tim / 1000.0, end_ / 1000.0, dataRows(i_i)(minCol), dataRows(i_i)(avgCol), dataRows(i_i)(maxCol)))
+          measures.Add(New YMeasure(tim / 1000.0, end_ / 1000.0, dataRows(ii_1)(minCol), dataRows(ii_1)(avgCol), dataRows(ii_1)(maxCol)))
         End If
         tim = end_
-      Next i_i
+      Next ii_1
 
       Return measures
     End Function
@@ -4584,7 +4964,7 @@ Module yocto_api
     REM --- (end of generated code: YConsolidatedDataSet attributes declaration)
 
 
-    Sub New(startTime As double, endTime As double, sensorList as List(Of YSensor))
+    Sub New(startTime As Double, endTime As Double, sensorList As List(Of YSensor))
       REM --- (generated code: YConsolidatedDataSet attributes initialization)
       _start = 0
       _end = 0
@@ -4769,7 +5149,7 @@ Module yocto_api
           newvalue = measures(idx).get_averageValue()
           datarec.Add(newvalue)
           Me._nexttim( s) = 0.0
-          Me._nextidx( s) = idx+1
+          Me._nextidx( s) = idx + 1
         Else
           datarec.Add(Double.NaN)
         End If
@@ -5429,36 +5809,36 @@ Module yocto_api
 
       request = "GET /" + url + " HTTP/1.1" + Chr(13) + Chr(10) + Chr(13) + Chr(10)
       outbuf = _request(request)
-        Return _strip_http_header(outbuf)
+      Return _strip_http_header(outbuf)
     End Function
 
     Private Function _strip_http_header(outbuf As Byte()) As Byte()
-        Dim found As Integer
-        Dim body As Integer
-        Dim res As Byte()
+      Dim found As Integer
+      Dim body As Integer
+      Dim res As Byte()
 
-        If (outbuf.Length = 0) Then
-            Return outbuf
-        End If
-        found = 0
-        Do While found < outbuf.Length - 4 And
+      If (outbuf.Length = 0) Then
+        Return outbuf
+      End If
+      found = 0
+      Do While found < outbuf.Length - 4 And
                  (outbuf(found) <> 13 Or outbuf(found + 1) <> 10 Or
                   outbuf(found + 2) <> 13 Or outbuf(found + 3) <> 10)
-            found += 1
-        Loop
-        If found > outbuf.Length - 4 Then
-            _throw(YAPI.IO_ERROR, "http request failed")
-            ReDim outbuf(-1)
-            Return outbuf
-        End If
-        If found = outbuf.Length - 4 Then
-            ReDim outbuf(0)
-            Return outbuf
-        End If
-        body = found + 4
-        ReDim res(outbuf.Length - body - 1)
-        Buffer.BlockCopy(outbuf, body, res, 0, outbuf.Length - body)
-        Return res
+        found += 1
+      Loop
+      If found > outbuf.Length - 4 Then
+        _throw(YAPI.IO_ERROR, "http request failed")
+        ReDim outbuf(-1)
+        Return outbuf
+      End If
+      If found = outbuf.Length - 4 Then
+        ReDim outbuf(0)
+        Return outbuf
+      End If
+      body = found + 4
+      ReDim res(outbuf.Length - body - 1)
+      Buffer.BlockCopy(outbuf, body, res, 0, outbuf.Length - body)
+      Return res
     End Function
 
     REM Method used to upload a file to the device
@@ -5481,7 +5861,7 @@ Module yocto_api
       Return YAPI.SUCCESS
     End Function
 
-     REM Method used to upload a file to the device
+    REM Method used to upload a file to the device
     Public Function _uploadEx(ByVal path As String, ByVal content As Byte()) As Byte()
       Dim bodystr, boundary As String
       Dim body, bb, header, footer, fullrequest, outbuf As Byte()
@@ -5536,9 +5916,9 @@ Module yocto_api
         Return CType(_dataStreams(key), YDataStream)
       End If
       words = YAPI._decodeWords(def)
-      If (words.Count  < 14) then
-        _throw(YAPI_VERSION_MISMATCH,"device firmware is too old")
-        return Nothing
+      If (words.Count < 14) Then
+        _throw(YAPI_VERSION_MISMATCH, "device firmware is too old")
+        Return Nothing
       End If
       newDataStream = New YDataStream(Me, dataset, words)
       Return newDataStream
@@ -6334,7 +6714,7 @@ Module yocto_api
       Dim jsonObject As YJSONObject = Nothing
       jsonObject = New YJSONObject(json)
       jsonObject.parse()
-      Dim split As String() = path.Split(New Char() {"\"C, "|"C})
+      Dim split As String() = path.Split(New Char() {"\"c, "|"c})
       Return get_json_path_struct(jsonObject, split, 0)
     End Function
 
@@ -6485,8 +6865,8 @@ Module yocto_api
       Dim funcId As String = ""
       Dim funcName As String = ""
       Dim funcValue As String = ""
-      If (Not(_serial = "")) Then
-          Return YModule.FindModule(_serial + ".module")
+      If (Not (_serial = "")) Then
+        Return YModule.FindModule(_serial + ".module")
       End If
       fundescr = yapiGetFunction(_className, _func, errmsg)
       If (Not (YISERR(fundescr))) Then
@@ -6684,7 +7064,7 @@ Module yocto_api
     Protected _confChangeCallback As YModuleConfigChangeCallback
     Protected _beaconCallback As YModuleBeaconCallback
     REM --- (end of generated code: YModule attributes declaration)
-    public shared _moduleCallbackList as Dictionary(of YModule, Integer) = new Dictionary(Of YModule,Integer)
+    Public Shared _moduleCallbackList As Dictionary(Of YModule, Integer) = New Dictionary(Of YModule, Integer)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
@@ -6709,21 +7089,21 @@ Module yocto_api
     End Sub
 
 
-    shared sub _updateModuleCallbackList(ByVal modul as YModule, ByVal ad As Boolean)
+    Shared Sub _updateModuleCallbackList(ByVal modul As YModule, ByVal ad As Boolean)
 
-      if (ad) then
+      If (ad) Then
         modul.isOnline()
-        if (not _moduleCallbackList.ContainsKey(modul)) then
+        If (Not _moduleCallbackList.ContainsKey(modul)) Then
           _moduleCallbackList(modul) = 1
-        else
+        Else
           _moduleCallbackList(modul) += 1
         End If
-      else
-        if (_moduleCallbackList.ContainsKey(modul) and _moduleCallbackList(modul) > 1) then
+      Else
+        If (_moduleCallbackList.ContainsKey(modul) And _moduleCallbackList(modul) > 1) Then
           _moduleCallbackList(modul) -= 1
         End If
       End If
-    end sub
+    End Sub
 
 
     REM --- (generated code: YModule private methods declaration)
@@ -7596,7 +7976,7 @@ Module yocto_api
       prodname = Me.get_productName()
       prodrel = Me.get_productRelease()
       If (prodrel > 1) Then
-        fullname = "" +  prodname + " rev. " + Chr(64+prodrel)
+        fullname = "" +  prodname + " rev. " + Chr(64 + prodrel)
       Else
         fullname = prodname
       End If
@@ -7915,7 +8295,6 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function get_allSettings() As Byte()
-      Dim i_i As Integer
       Dim settings As Byte() = New Byte(){}
       Dim json As Byte() = New Byte(){}
       Dim res As Byte() = New Byte(){}
@@ -7939,24 +8318,25 @@ Module yocto_api
       ext_settings = ", ""extras"":["
       templist = Me.get_functionIds("Temperature")
       sep = ""
-      For i_i = 0 To  templist.Count - 1
+      Dim ii_0 As Integer
+      For ii_0 = 0 To  templist.Count - 1
         If (YAPI._atoi(Me.get_firmwareRelease()) > 9000) Then
-          url = "api/" +  templist(i_i) + "/sensorType"
+          url = "api/" +  templist(ii_0) + "/sensorType"
           t_type = YAPI.DefaultEncoding.GetString(Me._download(url))
           If (t_type = "RES_NTC" OrElse t_type = "RES_LINEAR") Then
-            id = ( templist(i_i)).Substring( 11, ( templist(i_i)).Length - 11)
+            id = ( templist(ii_0)).Substring( 11, ( templist(ii_0)).Length - 11)
             If (id = "") Then
               id = "1"
             End If
             temp_data_bin = Me._download("extra.json?page=" + id)
             If ((temp_data_bin).Length > 0) Then
-              item = "" +  sep + "{""fid"":""" +   templist(i_i) + """, ""json"":" + YAPI.DefaultEncoding.GetString(temp_data_bin) + "}" + vbLf + ""
+              item = "" +  sep + "{""fid"":""" +   templist(ii_0) + """, ""json"":" + YAPI.DefaultEncoding.GetString(temp_data_bin) + "}" + vbLf + ""
               ext_settings = ext_settings + item
               sep = ","
             End If
           End If
         End If
-      Next i_i
+      Next ii_0
       ext_settings = ext_settings + "]," + vbLf + """files"":["
       If (Me.hasFunction("files")) Then
         json = Me._download("files.json?a=dir&f=")
@@ -7965,8 +8345,9 @@ Module yocto_api
         End If
         filelist = Me._json_get_array(json)
         sep = ""
-        For i_i = 0 To  filelist.Count - 1
-          name = Me._json_get_key(YAPI.DefaultEncoding.GetBytes( filelist(i_i)), "name")
+        Dim ii_1 As Integer
+        For ii_1 = 0 To  filelist.Count - 1
+          name = Me._json_get_key(YAPI.DefaultEncoding.GetBytes( filelist(ii_1)), "name")
           If (((name).Length > 0) AndAlso Not (name = "startupConf.json")) Then
             file_data_bin = Me._download(Me._escapeAttr(name))
             file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
@@ -7974,7 +8355,7 @@ Module yocto_api
             ext_settings = ext_settings + item
             sep = ","
           End If
-        Next i_i
+        Next ii_1
       End If
       res = YAPI.DefaultEncoding.GetBytes("{ ""api"":" + YAPI.DefaultEncoding.GetString(settings) + ext_settings + "]}")
       Return res
@@ -8005,19 +8386,19 @@ Module yocto_api
     End Function
 
     Public Overridable Function set_extraSettings(jsonExtra As String) As Integer
-      Dim i_i As Integer
       Dim extras As List(Of String) = New List(Of String)()
       Dim functionId As String
       Dim data As String
       extras = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(jsonExtra))
-      For i_i = 0 To  extras.Count - 1
-        functionId = Me._get_json_path( extras(i_i), "fid")
+      Dim ii_0 As Integer
+      For ii_0 = 0 To  extras.Count - 1
+        functionId = Me._get_json_path( extras(ii_0), "fid")
         functionId = Me._decode_json_string(functionId)
-        data = Me._get_json_path( extras(i_i), "json")
+        data = Me._get_json_path( extras(ii_0), "json")
         If (Me.hasFunction(functionId)) Then
           Me.loadThermistorExtra(functionId, data)
         End If
-      Next i_i
+      Next ii_0
       Return YAPI.SUCCESS
     End Function
 
@@ -8044,7 +8425,6 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function set_allSettingsAndFiles(settings As Byte()) As Integer
-      Dim i_i As Integer
       Dim down As Byte() = New Byte(){}
       Dim json As String
       Dim json_api As String
@@ -8077,17 +8457,18 @@ Module yocto_api
         end if
         json_files = Me._get_json_path(json, "files")
         files = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(json_files))
-        For i_i = 0 To  files.Count - 1
-          name = Me._get_json_path( files(i_i), "name")
+        Dim ii_0 As Integer
+        For ii_0 = 0 To  files.Count - 1
+          name = Me._get_json_path( files(ii_0), "name")
           name = Me._decode_json_string(name)
-          data = Me._get_json_path( files(i_i), "data")
+          data = Me._get_json_path( files(ii_0), "data")
           data = Me._decode_json_string(data)
           If (name = "") Then
             fuperror = fuperror + 1
           Else
             Me._upload(name, YAPI._hexStrToBin(data))
           End If
-        Next i_i
+        Next ii_0
       End If
       REM // Apply settings a second time for file-dependent settings and dynamic sensor nodes
       globalres = Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
@@ -8256,7 +8637,6 @@ Module yocto_api
     End Function
 
     Public Overridable Function calibConvert(param As String, currentFuncValue As String, unit_name As String, sensorType As String) As String
-      Dim i_i As Integer
       Dim paramVer As Integer = 0
       Dim funVer As Integer = 0
       Dim funScale As Integer = 0
@@ -8328,9 +8708,10 @@ Module yocto_api
         Else
           If (paramVer = 1) Then
             words_str = New List(Of String)(param.Split(New Char() {","c}))
-            For i_i = 0 To words_str.Count - 1
-              words.Add(YAPI._atoi(words_str(i_i)))
-            Next i_i
+            Dim ii_0 As Integer
+            For ii_0 = 0 To words_str.Count - 1
+              words.Add(YAPI._atoi(words_str(ii_0)))
+            Next ii_0
             If (param = "" OrElse (words(0) > 10)) Then
               paramScale = 0
             End If
@@ -8469,7 +8850,6 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function set_allSettings(settings As Byte()) As Integer
-      Dim i_i As Integer
       Dim restoreLast As List(Of String) = New List(Of String)()
       Dim old_json_flat As Byte() = New Byte(){}
       Dim old_dslist As List(Of String) = New List(Of String)()
@@ -8517,8 +8897,9 @@ Module yocto_api
 
 
 
-      For i_i = 0 To old_dslist.Count - 1
-        each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(old_dslist(i_i)))
+      Dim ii_0 As Integer
+      For ii_0 = 0 To old_dslist.Count - 1
+        each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(old_dslist(ii_0)))
         REM // split json path and attr
         leng = (each_str).Length
         eqpos = each_str.IndexOf("=")
@@ -8532,7 +8913,7 @@ Module yocto_api
         old_jpath.Add(jpath)
         old_jpath_len.Add((jpath).Length)
         old_val_arr.Add(value)
-      Next i_i
+      Next ii_0
 
 
 
@@ -8549,9 +8930,10 @@ Module yocto_api
 
 
 
-      For i_i = 0 To new_dslist.Count - 1
+      Dim ii_1 As Integer
+      For ii_1 = 0 To new_dslist.Count - 1
         REM // remove quotes
-        each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(new_dslist(i_i)))
+        each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(new_dslist(ii_1)))
         REM // split json path and attr
         leng = (each_str).Length
         eqpos = each_str.IndexOf("=")
@@ -8565,7 +8947,7 @@ Module yocto_api
         new_jpath.Add(jpath)
         new_jpath_len.Add((jpath).Length)
         new_val_arr.Add(value)
-      Next i_i
+      Next ii_1
 
 
 
@@ -8774,12 +9156,13 @@ Module yocto_api
         i = i + 1
       End While
 
-      For i_i = 0 To restoreLast.Count - 1
-        subres = Me._tryExec(restoreLast(i_i))
+      Dim ii_2 As Integer
+      For ii_2 = 0 To restoreLast.Count - 1
+        subres = Me._tryExec(restoreLast(ii_2))
         If ((res = YAPI.SUCCESS) AndAlso (subres <> YAPI.SUCCESS)) Then
           res = subres
         End If
-      Next i_i
+      Next ii_2
       Me.clearCache()
       Return res
     End Function
@@ -10080,7 +10463,7 @@ Module yocto_api
       Dim res As Byte() = New Byte(){}
 
       res = Me._download("api/dataLogger/recording?recording=1")
-      If Not((res).Length>0) Then
+      If Not((res).Length > 0) Then
         me._throw( YAPI.IO_ERROR,  "unable to start datalogger")
         return YAPI.IO_ERROR
       end if
@@ -10101,7 +10484,7 @@ Module yocto_api
       Dim res As Byte() = New Byte(){}
 
       res = Me._download("api/dataLogger/recording?recording=0")
-      If Not((res).Length>0) Then
+      If Not((res).Length > 0) Then
         me._throw( YAPI.IO_ERROR,  "unable to stop datalogger")
         return YAPI.IO_ERROR
       end if
@@ -10260,7 +10643,6 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function loadCalibrationPoints(rawValues As List(Of Double), refValues As List(Of Double)) As Integer
-      Dim i_i As Integer
       rawValues.Clear()
       refValues.Clear()
       REM // Load function parameters if not yet loaded
@@ -10275,12 +10657,14 @@ Module yocto_api
       End If
       rawValues.Clear()
       refValues.Clear()
-      For i_i = 0 To Me._calraw.Count - 1
-        rawValues.Add(Me._calraw(i_i))
-      Next i_i
-      For i_i = 0 To Me._calref.Count - 1
-        refValues.Add(Me._calref(i_i))
-      Next i_i
+      Dim ii_0 As Integer
+      For ii_0 = 0 To Me._calraw.Count - 1
+        rawValues.Add(Me._calraw(ii_0))
+      Next ii_0
+      Dim ii_1 As Integer
+      For ii_1 = 0 To Me._calref.Count - 1
+        refValues.Add(Me._calref(ii_1))
+      Next ii_1
       Return YAPI.SUCCESS
     End Function
 
@@ -10626,7 +11010,7 @@ Module yocto_api
   REM --- (end of generated code: YDataLogger globals)
 
 
- REM --- (generated code: YDataLogger class start)
+  REM --- (generated code: YDataLogger class start)
 
   '''*
   ''' <summary>
@@ -11162,18 +11546,18 @@ Module yocto_api
     End Function
 
     Public Overridable Function parse_dataSets(json As Byte()) As List(Of YDataSet)
-      Dim i_i As Integer
       Dim dslist As List(Of String) = New List(Of String)()
       Dim dataset As YDataSet
       Dim res As List(Of YDataSet) = New List(Of YDataSet)()
 
       dslist = Me._json_get_array(json)
       res.Clear()
-      For i_i = 0 To dslist.Count - 1
+      Dim ii_0 As Integer
+      For ii_0 = 0 To dslist.Count - 1
         dataset = New YDataSet(Me)
-        dataset._parse(dslist(i_i))
+        dataset._parse(dslist(ii_0))
         res.Add(dataset)
-      Next i_i
+      Next ii_0
       Return res
     End Function
 
@@ -11414,8 +11798,7 @@ Module yocto_api
   ''' <para>
   '''   Be aware than when exceptions are enabled, every function that fails
   '''   triggers an exception. If the exception is not caught by the user code,
-  '''   it  either fires the debugger or aborts (i.e. crash) the program.
-  '''   On failure, throws an exception or returns a negative error code.
+  '''   it either fires the debugger or aborts (i.e. crash) the program.
   ''' </para>
   ''' </summary>
   '''/
@@ -12003,7 +12386,7 @@ Module yocto_api
   '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
-  '''   On failure, throws an exception or returns a negative error code.
+  '''   On failure returns a negative error code.
   ''' </para>
   '''/
   Public Function yRegisterHub(ByVal url As String, ByRef errmsg As String) As Integer
@@ -12035,7 +12418,7 @@ Module yocto_api
   '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
-  '''   On failure, throws an exception or returns a negative error code.
+  '''   On failure returns a negative error code.
   ''' </para>
   '''/
   Public Function yPreregisterHub(ByVal url As String, ByRef errmsg As String) As Integer
@@ -12113,7 +12496,7 @@ Module yocto_api
   '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
-  '''   On failure, throws an exception or returns a negative error code.
+  '''   On failure returns a negative error code.
   ''' </para>
   '''/
   Public Function yUpdateDeviceList(ByRef errmsg As String) As YRETCODE
@@ -12142,7 +12525,7 @@ Module yocto_api
   '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
-  '''   On failure, throws an exception or returns a negative error code.
+  '''   On failure returns a negative error code.
   ''' </para>
   '''/
   Public Function yHandleEvents(ByRef errmsg As String) As YRETCODE
@@ -12175,7 +12558,7 @@ Module yocto_api
   '''   <c>YAPI.SUCCESS</c> when the call succeeds.
   ''' </returns>
   ''' <para>
-  '''   On failure, throws an exception or returns a negative error code.
+  '''   On failure returns a negative error code.
   ''' </para>
   '''/
   Public Function ySleep(ByVal ms_duration As Integer, ByRef errmsg As String) As Integer
@@ -12194,7 +12577,7 @@ Module yocto_api
   ''' </param>
   ''' <returns>
   '''   <c>YAPI.SUCCESS</c> when the call succeeds.
-  '''   On failure, throws an exception or returns a negative error code.
+  '''   On failure returns a negative error code.
   ''' </returns>
   '''/
   Public Function yTriggerHubDiscovery(ByRef errmsg As String) As Integer
@@ -12556,7 +12939,16 @@ Module yocto_api
   Private Function _yapiAddUdevRulesForYocto(ByVal force As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiGetNextHubRef", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
-  Private Function _yapiGetNextHubRef(ByVal ref As Integer) As Integer
+  Private Function _yapiGetNextHubRef(ByVal hubref As Integer) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiGetHubStrAttr", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiGetHubStrAttr(ByVal hubref As Integer, ByVal attrname As StringBuilder, ByVal attrval As StringBuilder, ByVal maxsize As Integer, ByRef neededsize As Integer) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiGetHubIntAttr", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiGetHubIntAttr(ByVal hubref As Integer, ByVal attrname As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiSetHubIntAttr", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiSetHubIntAttr(ByVal hubref As Integer, ByVal attrname As StringBuilder, ByVal value As Integer) As Integer
   End Function
     REM --- (end of generated code: YFunction dlldef)
 

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 50494 2022-07-19 16:08:56Z mvuilleu $
+'* $Id: yocto_cellular.vb 54160 2023-04-21 07:33:49Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -1490,7 +1490,6 @@ Module yocto_cellular
     ''' </returns>
     '''/
     Public Overridable Function quickCellSurvey() As List(Of YCellRecord)
-      Dim i_i As Integer
       Dim moni As String
       Dim recs As List(Of String) = New List(Of String)()
       Dim llen As Integer = 0
@@ -1527,24 +1526,25 @@ Module yocto_cellular
       recs = New List(Of String)(moni.Split(New Char() {"#"c}))
       REM // process each line in turn
       res.Clear()
-      For i_i = 0 To recs.Count - 1
-        llen = (recs(i_i)).Length - 2
+      Dim ii_0 As Integer
+      For ii_0 = 0 To recs.Count - 1
+        llen = (recs(ii_0)).Length - 2
         If (llen >= 44) Then
-          If ((recs(i_i)).Substring(41, 3) = "dbm") Then
-            lac = Convert.ToInt32((recs(i_i)).Substring(16, 4), 16)
-            cellId = Convert.ToInt32((recs(i_i)).Substring(23, 4), 16)
-            dbms = (recs(i_i)).Substring(37, 4)
+          If ((recs(ii_0)).Substring(41, 3) = "dbm") Then
+            lac = Convert.ToInt32((recs(ii_0)).Substring(16, 4), 16)
+            cellId = Convert.ToInt32((recs(ii_0)).Substring(23, 4), 16)
+            dbms = (recs(ii_0)).Substring(37, 4)
             If ((dbms).Substring(0, 1) = " ") Then
               dbms = (dbms).Substring(1, 3)
             End If
             dbm = YAPI._atoi(dbms)
             If (llen > 66) Then
-              tads = (recs(i_i)).Substring(54, 2)
+              tads = (recs(ii_0)).Substring(54, 2)
               If ((tads).Substring(0, 1) = " ") Then
                 tads = (tads).Substring(1, 3)
               End If
               tad = YAPI._atoi(tads)
-              oper = (recs(i_i)).Substring(66, llen-66)
+              oper = (recs(ii_0)).Substring(66, llen-66)
             Else
               tad = -1
               oper = ""
@@ -1554,7 +1554,7 @@ Module yocto_cellular
             End If
           End If
         End If
-      Next i_i
+      Next ii_0
       Return res
     End Function
 

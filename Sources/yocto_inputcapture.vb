@@ -44,7 +44,7 @@ Imports YRETCODE = System.Int32
 Imports System.Runtime.InteropServices
 Imports System.Text
 
-Module yocto_i2cport
+Module yocto_inputcapture
 
     REM --- (generated code: YInputCapture return codes)
     REM --- (end of generated code: YInputCapture return codes)

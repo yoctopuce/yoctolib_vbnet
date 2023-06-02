@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 51903 2022-11-29 17:25:59Z mvuilleu $
+'* $Id: yocto_files.vb 54160 2023-04-21 07:33:49Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -406,16 +406,16 @@ Module yocto_files
     ''' </para>
     '''/
     Public Overridable Function get_list(pattern As String) As List(Of YFileRecord)
-      Dim i_i As Integer
       Dim json As Byte() = New Byte(){}
       Dim filelist As List(Of String) = New List(Of String)()
       Dim res As List(Of YFileRecord) = New List(Of YFileRecord)()
       json = Me.sendCommand("dir&f=" + pattern)
       filelist = Me._json_get_array(json)
       res.Clear()
-      For i_i = 0 To filelist.Count - 1
-        res.Add(New YFileRecord(filelist(i_i)))
-      Next i_i
+      Dim ii_0 As Integer
+      For ii_0 = 0 To filelist.Count - 1
+        res.Add(New YFileRecord(filelist(ii_0)))
+      Next ii_0
       Return res
     End Function
 

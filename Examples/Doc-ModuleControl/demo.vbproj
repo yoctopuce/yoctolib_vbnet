@@ -156,6 +156,9 @@
 <Compile Include="..\..\Sources\yocto_i2cport.vb">
 <Link>yocto_api\yocto_i2cport.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_inputcapture.vb">
+<Link>yocto_api\yocto_inputcapture.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_inputchain.vb">
 <Link>yocto_api\yocto_inputchain.vb</Link>
 </Compile>

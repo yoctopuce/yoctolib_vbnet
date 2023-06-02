@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_powersupply.vb 50689 2022-08-17 14:37:15Z mvuilleu $
+'  $Id: yocto_powersupply.vb 54768 2023-05-26 06:46:41Z seb $
 '
 '  Implements yFindPowerSupply(), the high-level API for PowerSupply functions
 '
@@ -58,14 +58,9 @@ Module yocto_powersupply
   Public Const Y_POWEROUTPUT_OFF As Integer = 0
   Public Const Y_POWEROUTPUT_ON As Integer = 1
   Public Const Y_POWEROUTPUT_INVALID As Integer = -1
-  Public Const Y_VOLTAGESENSE_INT As Integer = 0
-  Public Const Y_VOLTAGESENSE_EXT As Integer = 1
-  Public Const Y_VOLTAGESENSE_INVALID As Integer = -1
   Public Const Y_MEASUREDVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_MEASUREDCURRENT_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_INPUTVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_VINT_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_LDOTEMPERATURE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_VOLTAGETRANSITION_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_VOLTAGEATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_CURRENTATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -95,14 +90,9 @@ Module yocto_powersupply
     Public Const POWEROUTPUT_OFF As Integer = 0
     Public Const POWEROUTPUT_ON As Integer = 1
     Public Const POWEROUTPUT_INVALID As Integer = -1
-    Public Const VOLTAGESENSE_INT As Integer = 0
-    Public Const VOLTAGESENSE_EXT As Integer = 1
-    Public Const VOLTAGESENSE_INVALID As Integer = -1
     Public Const MEASUREDVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const MEASUREDCURRENT_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const INPUTVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const VINT_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const LDOTEMPERATURE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const VOLTAGETRANSITION_INVALID As String = YAPI.INVALID_STRING
     Public Const VOLTAGEATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const CURRENTATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -113,12 +103,9 @@ Module yocto_powersupply
     Protected _voltageSetPoint As Double
     Protected _currentLimit As Double
     Protected _powerOutput As Integer
-    Protected _voltageSense As Integer
     Protected _measuredVoltage As Double
     Protected _measuredCurrent As Double
     Protected _inputVoltage As Double
-    Protected _vInt As Double
-    Protected _ldoTemperature As Double
     Protected _voltageTransition As String
     Protected _voltageAtStartUp As Double
     Protected _currentAtStartUp As Double
@@ -133,12 +120,9 @@ Module yocto_powersupply
       _voltageSetPoint = VOLTAGESETPOINT_INVALID
       _currentLimit = CURRENTLIMIT_INVALID
       _powerOutput = POWEROUTPUT_INVALID
-      _voltageSense = VOLTAGESENSE_INVALID
       _measuredVoltage = MEASUREDVOLTAGE_INVALID
       _measuredCurrent = MEASUREDCURRENT_INVALID
       _inputVoltage = INPUTVOLTAGE_INVALID
-      _vInt = VINT_INVALID
-      _ldoTemperature = LDOTEMPERATURE_INVALID
       _voltageTransition = VOLTAGETRANSITION_INVALID
       _voltageAtStartUp = VOLTAGEATSTARTUP_INVALID
       _currentAtStartUp = CURRENTATSTARTUP_INVALID
@@ -159,9 +143,6 @@ Module yocto_powersupply
       If json_val.has("powerOutput") Then
         If (json_val.getInt("powerOutput") > 0) Then _powerOutput = 1 Else _powerOutput = 0
       End If
-      If json_val.has("voltageSense") Then
-        _voltageSense = CInt(json_val.getLong("voltageSense"))
-      End If
       If json_val.has("measuredVoltage") Then
         _measuredVoltage = Math.Round(json_val.getDouble("measuredVoltage") / 65.536) / 1000.0
       End If
@@ -170,12 +151,6 @@ Module yocto_powersupply
       End If
       If json_val.has("inputVoltage") Then
         _inputVoltage = Math.Round(json_val.getDouble("inputVoltage") / 65.536) / 1000.0
-      End If
-      If json_val.has("vInt") Then
-        _vInt = Math.Round(json_val.getDouble("vInt") / 65.536) / 1000.0
-      End If
-      If json_val.has("ldoTemperature") Then
-        _ldoTemperature = Math.Round(json_val.getDouble("ldoTemperature") / 65.536) / 1000.0
       End If
       If json_val.has("voltageTransition") Then
         _voltageTransition = json_val.getString("voltageTransition")
@@ -355,60 +330,6 @@ Module yocto_powersupply
     End Function
     '''*
     ''' <summary>
-    '''   Returns the output voltage control point.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   either <c>YPowerSupply.VOLTAGESENSE_INT</c> or <c>YPowerSupply.VOLTAGESENSE_EXT</c>, according to
-    '''   the output voltage control point
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>YPowerSupply.VOLTAGESENSE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_voltageSense() As Integer
-      Dim res As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return VOLTAGESENSE_INVALID
-        End If
-      End If
-      res = Me._voltageSense
-      Return res
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the voltage control point.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   either <c>YPowerSupply.VOLTAGESENSE_INT</c> or <c>YPowerSupply.VOLTAGESENSE_EXT</c>, according to
-    '''   the voltage control point
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_voltageSense(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("voltageSense", rest_val)
-    End Function
-    '''*
-    ''' <summary>
     '''   Returns the measured output voltage, in V.
     ''' <para>
     ''' </para>
@@ -482,58 +403,6 @@ Module yocto_powersupply
         End If
       End If
       res = Me._inputVoltage
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the internal voltage, in V.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a floating point number corresponding to the internal voltage, in V
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>YPowerSupply.VINT_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_vInt() As Double
-      Dim res As Double = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return VINT_INVALID
-        End If
-      End If
-      res = Me._vInt
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the LDO temperature, in Celsius.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a floating point number corresponding to the LDO temperature, in Celsius
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>YPowerSupply.LDOTEMPERATURE_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_ldoTemperature() As Double
-      Dim res As Double = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return LDOTEMPERATURE_INVALID
-        End If
-      End If
-      res = Me._ldoTemperature
       Return res
     End Function
 
