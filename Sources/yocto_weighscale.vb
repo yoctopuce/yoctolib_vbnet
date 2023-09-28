@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_weighscale.vb 50689 2022-08-17 14:37:15Z mvuilleu $
+'  $Id: yocto_weighscale.vb 55969 2023-08-10 09:01:35Z seb $
 '
 '  Implements yFindWeighScale(), the high-level API for WeighScale functions
 '
@@ -787,8 +787,8 @@ Module yocto_weighscale
       compValues.Clear()
       idx = 0
       While (idx < siz)
-        temp = Double.Parse(paramlist(2*idx))/1000.0
-        comp = Double.Parse(paramlist(2*idx+1))/1000.0
+        temp = YAPI._atof(paramlist(2*idx))/1000.0
+        comp = YAPI._atof(paramlist(2*idx+1))/1000.0
         tempValues.Add(temp)
         compValues.Add(comp)
         idx = idx + 1

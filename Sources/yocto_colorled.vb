@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorled.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_colorled.vb 55969 2023-08-10 09:01:35Z seb $
 '
 '  Implements yFindColorLed(), the high-level API for ColorLed functions
 '
@@ -268,7 +268,7 @@ End Class
 
     '''*
     ''' <summary>
-    '''   Changes the current color of the LED, using a color HSL.
+    '''   Changes the current color of the LED, using a specific HSL color.
     ''' <para>
     '''   Encoding is done as follows: 0xHHSSLL.
     ''' </para>
@@ -276,7 +276,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the current color of the LED, using a color HSL
+    '''   an integer corresponding to the current color of the LED, using a specific HSL color
     ''' </param>
     ''' <para>
     ''' </para>
@@ -492,7 +492,7 @@ End Class
 
     '''*
     ''' <summary>
-    '''   Return the blinking sequence signature.
+    '''   Returns the blinking sequence signature.
     ''' <para>
     '''   Since blinking
     '''   sequences cannot be read from the device, this can be used
@@ -503,7 +503,7 @@ End Class
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer
+    '''   an integer corresponding to the blinking sequence signature
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorLed.BLINKSEQSIGNATURE_INVALID</c>.

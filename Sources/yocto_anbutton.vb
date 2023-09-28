@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_anbutton.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_anbutton.vb 56268 2023-08-25 17:43:56Z mvuilleu $
 '
 '  Implements yFindAnButton(), the high-level API for AnButton functions
 '
@@ -71,6 +71,7 @@ Module yocto_anbutton
   Public Const Y_INPUTTYPE_ANALOG_FAST As Integer = 0
   Public Const Y_INPUTTYPE_DIGITAL4 As Integer = 1
   Public Const Y_INPUTTYPE_ANALOG_SMOOTH As Integer = 2
+  Public Const Y_INPUTTYPE_DIGITAL_FAST As Integer = 3
   Public Const Y_INPUTTYPE_INVALID As Integer = -1
   Public Delegate Sub YAnButtonValueCallback(ByVal func As YAnButton, ByVal value As String)
   Public Delegate Sub YAnButtonTimedReportCallback(ByVal func As YAnButton, ByVal measure As YMeasure)
@@ -114,6 +115,7 @@ Module yocto_anbutton
     Public Const INPUTTYPE_ANALOG_FAST As Integer = 0
     Public Const INPUTTYPE_DIGITAL4 As Integer = 1
     Public Const INPUTTYPE_ANALOG_SMOOTH As Integer = 2
+    Public Const INPUTTYPE_DIGITAL_FAST As Integer = 3
     Public Const INPUTTYPE_INVALID As Integer = -1
     REM --- (end of YAnButton definitions)
 
@@ -628,9 +630,9 @@ Module yocto_anbutton
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>YAnButton.INPUTTYPE_ANALOG_FAST</c>, <c>YAnButton.INPUTTYPE_DIGITAL4</c> and
-    '''   <c>YAnButton.INPUTTYPE_ANALOG_SMOOTH</c> corresponding to the decoding method applied to the input
-    '''   (analog or multiplexed binary switches)
+    '''   a value among <c>YAnButton.INPUTTYPE_ANALOG_FAST</c>, <c>YAnButton.INPUTTYPE_DIGITAL4</c>,
+    '''   <c>YAnButton.INPUTTYPE_ANALOG_SMOOTH</c> and <c>YAnButton.INPUTTYPE_DIGITAL_FAST</c> corresponding
+    '''   to the decoding method applied to the input (analog or multiplexed binary switches)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YAnButton.INPUTTYPE_INVALID</c>.
@@ -658,9 +660,9 @@ Module yocto_anbutton
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a value among <c>YAnButton.INPUTTYPE_ANALOG_FAST</c>, <c>YAnButton.INPUTTYPE_DIGITAL4</c> and
-    '''   <c>YAnButton.INPUTTYPE_ANALOG_SMOOTH</c> corresponding to the decoding method applied to the input
-    '''   (analog or multiplexed binary switches)
+    '''   a value among <c>YAnButton.INPUTTYPE_ANALOG_FAST</c>, <c>YAnButton.INPUTTYPE_DIGITAL4</c>,
+    '''   <c>YAnButton.INPUTTYPE_ANALOG_SMOOTH</c> and <c>YAnButton.INPUTTYPE_DIGITAL_FAST</c> corresponding
+    '''   to the decoding method applied to the input (analog or multiplexed binary switches)
     ''' </param>
     ''' <para>
     ''' </para>

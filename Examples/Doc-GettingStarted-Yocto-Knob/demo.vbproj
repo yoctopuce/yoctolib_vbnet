@@ -78,6 +78,9 @@
 <Compile Include="..\..\Sources\yocto_anbutton.vb">
 <Link>yocto_api\yocto_anbutton.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_quadraturedecoder.vb">
+<Link>yocto_api\yocto_quadraturedecoder.vb</Link>
+</Compile>
 
     <Compile Include="main.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />

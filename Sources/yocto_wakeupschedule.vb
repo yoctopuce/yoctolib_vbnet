@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupschedule.vb 48183 2022-01-20 10:26:11Z mvuilleu $
+'  $Id: yocto_wakeupschedule.vb 56230 2023-08-21 15:20:59Z mvuilleu $
 '
 '  Implements yFindWakeUpSchedule(), the high-level API for WakeUpSchedule functions
 '
@@ -59,6 +59,7 @@ Module yocto_wakeupschedule
   Public Const Y_WEEKDAYS_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_MONTHDAYS_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_MONTHS_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_SECONDSBEFORE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_NEXTOCCURENCE_INVALID As Long = YAPI.INVALID_LONG
   Public Delegate Sub YWakeUpScheduleValueCallback(ByVal func As YWakeUpSchedule, ByVal value As String)
   Public Delegate Sub YWakeUpScheduleTimedReportCallback(ByVal func As YWakeUpSchedule, ByVal measure As YMeasure)
@@ -87,6 +88,7 @@ Module yocto_wakeupschedule
     Public Const WEEKDAYS_INVALID As Integer = YAPI.INVALID_UINT
     Public Const MONTHDAYS_INVALID As Integer = YAPI.INVALID_UINT
     Public Const MONTHS_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const SECONDSBEFORE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const NEXTOCCURENCE_INVALID As Long = YAPI.INVALID_LONG
     REM --- (end of YWakeUpSchedule definitions)
 
@@ -97,6 +99,7 @@ Module yocto_wakeupschedule
     Protected _weekDays As Integer
     Protected _monthDays As Integer
     Protected _months As Integer
+    Protected _secondsBefore As Integer
     Protected _nextOccurence As Long
     Protected _valueCallbackWakeUpSchedule As YWakeUpScheduleValueCallback
     REM --- (end of YWakeUpSchedule attributes declaration)
@@ -111,6 +114,7 @@ Module yocto_wakeupschedule
       _weekDays = WEEKDAYS_INVALID
       _monthDays = MONTHDAYS_INVALID
       _months = MONTHS_INVALID
+      _secondsBefore = SECONDSBEFORE_INVALID
       _nextOccurence = NEXTOCCURENCE_INVALID
       _valueCallbackWakeUpSchedule = Nothing
       REM --- (end of YWakeUpSchedule attributes initialization)
@@ -136,6 +140,9 @@ Module yocto_wakeupschedule
       End If
       If json_val.has("months") Then
         _months = CInt(json_val.getLong("months"))
+      End If
+      If json_val.has("secondsBefore") Then
+        _secondsBefore = CInt(json_val.getLong("secondsBefore"))
       End If
       If json_val.has("nextOccurence") Then
         _nextOccurence = json_val.getLong("nextOccurence")
@@ -469,6 +476,64 @@ Module yocto_wakeupschedule
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("months", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the number of seconds to anticipate wake-up time to allow
+    '''   the system to power-up.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the number of seconds to anticipate wake-up time to allow
+    '''   the system to power-up
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YWakeUpSchedule.SECONDSBEFORE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_secondsBefore() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return SECONDSBEFORE_INVALID
+        End If
+      End If
+      res = Me._secondsBefore
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the number of seconds to anticipate wake-up time to allow
+    '''   the system to power-up.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the number of seconds to anticipate wake-up time to allow
+    '''   the system to power-up
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_secondsBefore(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("secondsBefore", rest_val)
     End Function
     '''*
     ''' <summary>

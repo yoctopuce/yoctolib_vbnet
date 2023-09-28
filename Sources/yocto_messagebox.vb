@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 50144 2022-06-17 06:59:52Z seb $
+'* $Id: yocto_messagebox.vb 55576 2023-07-25 06:26:34Z mvuilleu $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -1340,6 +1340,7 @@ Module yocto_messagebox
   Public Const Y_SLOTSBITMAP_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_PDUSENT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_PDURECEIVED_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_OBEY_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YMessageBoxValueCallback(ByVal func As YMessageBox, ByVal value As String)
   Public Delegate Sub YMessageBoxTimedReportCallback(ByVal func As YMessageBox, ByVal measure As YMeasure)
@@ -1365,6 +1366,7 @@ Module yocto_messagebox
     Public Const SLOTSBITMAP_INVALID As String = YAPI.INVALID_STRING
     Public Const PDUSENT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const PDURECEIVED_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const OBEY_INVALID As String = YAPI.INVALID_STRING
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of generated code: YMessageBox definitions)
 
@@ -1374,6 +1376,7 @@ Module yocto_messagebox
     Protected _slotsBitmap As String
     Protected _pduSent As Integer
     Protected _pduReceived As Integer
+    Protected _obey As String
     Protected _command As String
     Protected _valueCallbackMessageBox As YMessageBoxValueCallback
     Protected _nextMsgRef As Integer
@@ -1394,6 +1397,7 @@ Module yocto_messagebox
       _slotsBitmap = SLOTSBITMAP_INVALID
       _pduSent = PDUSENT_INVALID
       _pduReceived = PDURECEIVED_INVALID
+      _obey = OBEY_INVALID
       _command = COMMAND_INVALID
       _valueCallbackMessageBox = Nothing
       _nextMsgRef = 0
@@ -1422,6 +1426,9 @@ Module yocto_messagebox
       End If
       If json_val.has("pduReceived") Then
         _pduReceived = CInt(json_val.getLong("pduReceived"))
+      End If
+      If json_val.has("obey") Then
+        _obey = json_val.getString("obey")
       End If
       If json_val.has("command") Then
         _command = json_val.getString("command")
@@ -1598,6 +1605,73 @@ Module yocto_messagebox
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("pduReceived", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the phone number authorized to send remote management commands.
+    ''' <para>
+    '''   When a phone number is specified, the hub will take contre of all incoming
+    '''   SMS messages: it will execute commands coming from the authorized number,
+    '''   and delete all messages once received (whether authorized or not).
+    '''   If you need to receive SMS messages using your own software, leave this
+    '''   attribute empty.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the phone number authorized to send remote management commands
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMessageBox.OBEY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_obey() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return OBEY_INVALID
+        End If
+      End If
+      res = Me._obey
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the phone number authorized to send remote management commands.
+    ''' <para>
+    '''   The phone number usually starts with a '+' and does not include spacers.
+    '''   When a phone number is specified, the hub will take contre of all incoming
+    '''   SMS messages: it will execute commands coming from the authorized number,
+    '''   and delete all messages once received (whether authorized or not).
+    '''   If you need to receive SMS messages using your own software, leave this
+    '''   attribute empty. Remember to call the <c>saveToFlash()</c> method of the
+    '''   module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    '''   This feature is only available since YoctoHub-GSM-4G.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the phone number authorized to send remote management commands
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_obey(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("obey", rest_val)
     End Function
     Public Function get_command() As String
       Dim res As String

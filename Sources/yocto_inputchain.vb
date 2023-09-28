@@ -70,7 +70,7 @@ Module yocto_inputchain
   Public Const Y_CHAINDIAGS_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YInputChainValueCallback(ByVal func As YInputChain, ByVal value As String)
   Public Delegate Sub YInputChainTimedReportCallback(ByVal func As YInputChain, ByVal measure As YMeasure)
-  Public Delegate Sub YEventCallback(ByVal func As YInputChain, ByVal timestamp As Integer, ByVal eventType As String, ByVal eventData As String, ByVal eventChange As String)
+  Public Delegate Sub YStateChangeCallback(ByVal func As YInputChain, ByVal timestamp As Integer, ByVal eventType As String, ByVal eventData As String, ByVal eventChange As String)
 
   Sub yInternalEventCallback(ByVal func As YInputChain, ByVal value As String)
     func._internalEventHandler(value)
@@ -124,7 +124,7 @@ Module yocto_inputchain
     Protected _watchdogPeriod As Integer
     Protected _chainDiags As Integer
     Protected _valueCallbackInputChain As YInputChainValueCallback
-    Protected _eventCallback As YEventCallback
+    Protected _stateChangeCallback As YStateChangeCallback
     Protected _prevPos As Integer
     Protected _eventPos As Integer
     Protected _eventStamp As Integer
@@ -873,7 +873,7 @@ Module yocto_inputchain
     '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
     '''/
-    Public Overridable Function registerEventCallback(callback As YEventCallback) As Integer
+    Public Overridable Function registerStateChangeCallback(callback As YStateChangeCallback) As Integer
       If (Not (callback Is Nothing)) Then
         Me.registerValueCallback(AddressOf yInternalEventCallback)
       Else
@@ -881,7 +881,7 @@ Module yocto_inputchain
       End If
       REM // register user callback AFTER the internal pseudo-event,
       REM // to make sure we start with future events only
-      Me._eventCallback = callback
+      Me._stateChangeCallback = callback
       Return 0
     End Function
 
@@ -912,7 +912,7 @@ Module yocto_inputchain
       If (newPos < Me._eventPos) Then
         Return YAPI.SUCCESS
       End If
-      If (Not (Not (Me._eventCallback Is Nothing))) Then
+      If (Not (Not (Me._stateChangeCallback Is Nothing))) Then
         REM // first simulated event, use it to initialize reference values
         Me._eventPos = newPos
         Me._eventChains.Clear()
@@ -964,7 +964,7 @@ Module yocto_inputchain
                 Me._eventChains( chainIdx) = evtData
               End If
             End If
-            Me._eventCallback(Me, evtStamp, evtType, evtData, evtChange)
+            Me._stateChangeCallback(Me, evtStamp, evtType, evtData, evtChange)
           End If
         End If
         arrPos = arrPos + 1

@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 54649 2023-05-22 10:09:20Z seb $
+'* $Id: yocto_api.vb 56393 2023-09-05 08:36:51Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -59,6 +59,7 @@ Imports yUrlRef = System.Int16
 
 Imports System.Runtime.InteropServices
 Imports System.Buffer
+Imports System.Globalization
 Imports System.Text
 Imports System.Math
 Imports System.Threading
@@ -179,7 +180,7 @@ Module yocto_api
     Public Overrides Function parse() As Integer
       Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
 
-      If cur_pos >= _data_boundary  OrElse _data(cur_pos) <> "["c Then
+      If cur_pos >= _data_boundary OrElse _data(cur_pos) <> "["c Then
         Throw New System.Exception(FormatError("Opening braces was expected", cur_pos))
       End If
       cur_pos += 1
@@ -335,7 +336,7 @@ Module yocto_api
       Dim value As String = ""
       Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
 
-      If cur_pos >= _data_boundary  OrElse _data(cur_pos) <> """"c Then
+      If cur_pos >= _data_boundary OrElse _data(cur_pos) <> """"c Then
         Throw New System.Exception(FormatError("double quote was expected", cur_pos))
       End If
       cur_pos += 1
@@ -373,7 +374,7 @@ Module yocto_api
     End Function
 
     Public Overrides Function toJSON() As String
-      Dim res As New StringBuilder(_stringValue.Length*2)
+      Dim res As New StringBuilder(_stringValue.Length * 2)
       res.Append(""""c)
       For Each c As Char In _stringValue
         Select Case c
@@ -531,7 +532,7 @@ Module yocto_api
       Dim name_start As Integer = _data_start
       Dim cur_pos As Integer = SkipGarbage(_data, _data_start, _data_boundary)
 
-      If _data.Length <= cur_pos OrElse cur_pos >= _data_boundary  OrElse _data(cur_pos) <> "{"c Then
+      If _data.Length <= cur_pos OrElse cur_pos >= _data_boundary OrElse _data(cur_pos) <> "{"c Then
         Throw New System.Exception(FormatError("Opening braces was expected", cur_pos))
       End If
       cur_pos += 1
@@ -780,7 +781,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "1.10"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "54852"
+  Public Const YOCTO_API_BUILD_NO As String = "56784"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1443,6 +1444,9 @@ Module yocto_api
     Public Const RTC_NOT_READY As Integer = -13 REM real-time clock has not been initialized (or time was lost)
     Public Const FILE_NOT_FOUND As Integer = -14 REM the file is not found
     Public Const SSL_ERROR As Integer = -15     REM Error reported by mbedSSL
+    Public Const RFID_SOFT_ERROR As Integer = -16 REM Recoverable error with RFID tag (eg. tag out of reach), check YRfidStatus for details
+    Public Const RFID_HARD_ERROR As Integer = -17 REM Serious RFID error (eg. write-protected, out-of-boundary), check YRfidStatus for details
+    Public Const BUFFER_TOO_SMALL As Integer = -18 REM The buffer provided is too small
 
     REM --- (end of generated code: YFunction return codes)
     Public Shared _yapiContext As YAPIContext = New YAPIContext()
@@ -1492,6 +1496,11 @@ Module yocto_api
       Return httpcode
     End Function
 
+    Friend Shared Function _atof(ByVal val As String) As Double
+      Dim res As Double
+      Double.TryParse(val, NumberStyles.Number, CultureInfo.InvariantCulture, res)
+      Return res
+    End Function
 
     Friend Shared Function _escapeAttr(ByVal changeval As String) As String
       Dim i, c_ord As Integer
@@ -1886,6 +1895,7 @@ Module yocto_api
     ''' </param>
     '''/
     Public Shared Sub SetDeviceListValidity(deviceListValidity As Integer)
+        YAPI.InitAPI(0, Nothing)
         _yapiContext.SetDeviceListValidity(deviceListValidity)
     End Sub
     '''*
@@ -1900,6 +1910,7 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Shared Function GetDeviceListValidity() As Integer
+        YAPI.InitAPI(0, Nothing)
         return _yapiContext.GetDeviceListValidity()
     End Function
     '''*
@@ -1922,6 +1933,7 @@ Module yocto_api
     ''' </para>
     '''/
     Public Shared Function AddUdevRule(force As Boolean) As String
+        YAPI.InitAPI(0, Nothing)
         return _yapiContext.AddUdevRule(force)
     End Function
     '''*
@@ -1942,6 +1954,7 @@ Module yocto_api
     ''' </param>
     '''/
     Public Shared Sub SetNetworkTimeout(networkMsTimeout As Integer)
+        YAPI.InitAPI(0, Nothing)
         _yapiContext.SetNetworkTimeout(networkMsTimeout)
     End Sub
     '''*
@@ -1959,6 +1972,7 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Shared Function GetNetworkTimeout() As Integer
+        YAPI.InitAPI(0, Nothing)
         return _yapiContext.GetNetworkTimeout()
     End Function
     '''*
@@ -1980,6 +1994,7 @@ Module yocto_api
     ''' </param>
     '''/
     Public Shared Sub SetCacheValidity(cacheValidityMs As Long)
+        YAPI.InitAPI(0, Nothing)
         _yapiContext.SetCacheValidity(cacheValidityMs)
     End Sub
     '''*
@@ -1997,12 +2012,15 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Shared Function GetCacheValidity() As Long
+        YAPI.InitAPI(0, Nothing)
         return _yapiContext.GetCacheValidity()
     End Function
     Public Shared Function nextHubInUseInternal(hubref As Integer) As YHub
+        YAPI.InitAPI(0, Nothing)
         return _yapiContext.nextHubInUseInternal(hubref)
     End Function
     Public Shared Function getYHubObj(hubref As Integer) As YHub
+        YAPI.InitAPI(0, Nothing)
         return _yapiContext.getYHubObj(hubref)
     End Function
    REM --- (end of generated code: YAPIContext yapiwrapper)
@@ -2816,6 +2834,9 @@ Module yocto_api
   Public Const YAPI_RTC_NOT_READY As Integer = -13 REM real-time clock has not been initialized (or time was lost)
   Public Const YAPI_FILE_NOT_FOUND As Integer = -14 REM the file is not found
   Public Const YAPI_SSL_ERROR As Integer = -15     REM Error reported by mbedSSL
+  Public Const YAPI_RFID_SOFT_ERROR As Integer = -16 REM Recoverable error with RFID tag (eg. tag out of reach), check YRfidStatus for details
+  Public Const YAPI_RFID_HARD_ERROR As Integer = -17 REM Serious RFID error (eg. write-protected, out-of-boundary), check YRfidStatus for details
+  Public Const YAPI_BUFFER_TOO_SMALL As Integer = -18 REM The buffer provided is too small
 
   Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
@@ -7345,13 +7366,15 @@ Module yocto_api
     ''' <summary>
     '''   Retrieves the type of the <i>n</i>th function on the module.
     ''' <para>
+    '''   Yoctopuce functions type names match their class names without the <i>Y</i> prefix, for instance
+    '''   <i>Relay</i>, <i>Temperature</i> etc..
     ''' </para>
     ''' </summary>
     ''' <param name="functionIndex">
     '''   the index of the function for which the information is desired, starting at 0 for the first function.
     ''' </param>
     ''' <returns>
-    '''   a string corresponding to the type of the function
+    '''   a string corresponding to the type of the function.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns an empty string.
@@ -8728,7 +8751,7 @@ Module yocto_api
             End If
           Else
             If (paramVer = 0) Then
-              ratio = Double.Parse(param)
+              ratio = YAPI._atof(param)
               If (ratio > 0) Then
                 calibData.Add(0.0)
                 calibData.Add(0.0)

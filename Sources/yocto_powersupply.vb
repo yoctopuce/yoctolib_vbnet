@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_powersupply.vb 54768 2023-05-26 06:46:41Z seb $
+'  $Id: yocto_powersupply.vb 55576 2023-07-25 06:26:34Z mvuilleu $
 '
 '  Implements yFindPowerSupply(), the high-level API for PowerSupply functions
 '
@@ -53,7 +53,7 @@ Module yocto_powersupply
    REM --- (end of YPowerSupply yapiwrapper)
   REM --- (YPowerSupply globals)
 
-  Public Const Y_VOLTAGESETPOINT_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_VOLTAGELIMIT_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_CURRENTLIMIT_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_POWEROUTPUT_OFF As Integer = 0
   Public Const Y_POWEROUTPUT_ON As Integer = 1
@@ -62,8 +62,11 @@ Module yocto_powersupply
   Public Const Y_MEASUREDCURRENT_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_INPUTVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_VOLTAGETRANSITION_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_VOLTAGEATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_CURRENTATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_VOLTAGELIMITATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_CURRENTLIMITATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Const Y_POWEROUTPUTATSTARTUP_OFF As Integer = 0
+  Public Const Y_POWEROUTPUTATSTARTUP_ON As Integer = 1
+  Public Const Y_POWEROUTPUTATSTARTUP_INVALID As Integer = -1
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YPowerSupplyValueCallback(ByVal func As YPowerSupply, ByVal value As String)
   Public Delegate Sub YPowerSupplyTimedReportCallback(ByVal func As YPowerSupply, ByVal measure As YMeasure)
@@ -75,8 +78,8 @@ Module yocto_powersupply
   ''' <summary>
   '''   The <c>YPowerSupply</c> class allows you to drive a Yoctopuce power supply.
   ''' <para>
-  '''   It can be use to change the voltage set point,
-  '''   the current limit and the enable/disable the output.
+  '''   It can be use to change the voltage and current limits, and to enable/disable
+  '''   the output.
   ''' </para>
   ''' </summary>
   '''/
@@ -85,7 +88,7 @@ Module yocto_powersupply
     REM --- (end of YPowerSupply class start)
 
     REM --- (YPowerSupply definitions)
-    Public Const VOLTAGESETPOINT_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const VOLTAGELIMIT_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const CURRENTLIMIT_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const POWEROUTPUT_OFF As Integer = 0
     Public Const POWEROUTPUT_ON As Integer = 1
@@ -94,21 +97,25 @@ Module yocto_powersupply
     Public Const MEASUREDCURRENT_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const INPUTVOLTAGE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const VOLTAGETRANSITION_INVALID As String = YAPI.INVALID_STRING
-    Public Const VOLTAGEATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const CURRENTATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const VOLTAGELIMITATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const CURRENTLIMITATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
+    Public Const POWEROUTPUTATSTARTUP_OFF As Integer = 0
+    Public Const POWEROUTPUTATSTARTUP_ON As Integer = 1
+    Public Const POWEROUTPUTATSTARTUP_INVALID As Integer = -1
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YPowerSupply definitions)
 
     REM --- (YPowerSupply attributes declaration)
-    Protected _voltageSetPoint As Double
+    Protected _voltageLimit As Double
     Protected _currentLimit As Double
     Protected _powerOutput As Integer
     Protected _measuredVoltage As Double
     Protected _measuredCurrent As Double
     Protected _inputVoltage As Double
     Protected _voltageTransition As String
-    Protected _voltageAtStartUp As Double
-    Protected _currentAtStartUp As Double
+    Protected _voltageLimitAtStartUp As Double
+    Protected _currentLimitAtStartUp As Double
+    Protected _powerOutputAtStartUp As Integer
     Protected _command As String
     Protected _valueCallbackPowerSupply As YPowerSupplyValueCallback
     REM --- (end of YPowerSupply attributes declaration)
@@ -117,15 +124,16 @@ Module yocto_powersupply
       MyBase.New(func)
       _classname = "PowerSupply"
       REM --- (YPowerSupply attributes initialization)
-      _voltageSetPoint = VOLTAGESETPOINT_INVALID
+      _voltageLimit = VOLTAGELIMIT_INVALID
       _currentLimit = CURRENTLIMIT_INVALID
       _powerOutput = POWEROUTPUT_INVALID
       _measuredVoltage = MEASUREDVOLTAGE_INVALID
       _measuredCurrent = MEASUREDCURRENT_INVALID
       _inputVoltage = INPUTVOLTAGE_INVALID
       _voltageTransition = VOLTAGETRANSITION_INVALID
-      _voltageAtStartUp = VOLTAGEATSTARTUP_INVALID
-      _currentAtStartUp = CURRENTATSTARTUP_INVALID
+      _voltageLimitAtStartUp = VOLTAGELIMITATSTARTUP_INVALID
+      _currentLimitAtStartUp = CURRENTLIMITATSTARTUP_INVALID
+      _powerOutputAtStartUp = POWEROUTPUTATSTARTUP_INVALID
       _command = COMMAND_INVALID
       _valueCallbackPowerSupply = Nothing
       REM --- (end of YPowerSupply attributes initialization)
@@ -134,8 +142,8 @@ Module yocto_powersupply
     REM --- (YPowerSupply private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
-      If json_val.has("voltageSetPoint") Then
-        _voltageSetPoint = Math.Round(json_val.getDouble("voltageSetPoint") / 65.536) / 1000.0
+      If json_val.has("voltageLimit") Then
+        _voltageLimit = Math.Round(json_val.getDouble("voltageLimit") / 65.536) / 1000.0
       End If
       If json_val.has("currentLimit") Then
         _currentLimit = Math.Round(json_val.getDouble("currentLimit") / 65.536) / 1000.0
@@ -155,11 +163,14 @@ Module yocto_powersupply
       If json_val.has("voltageTransition") Then
         _voltageTransition = json_val.getString("voltageTransition")
       End If
-      If json_val.has("voltageAtStartUp") Then
-        _voltageAtStartUp = Math.Round(json_val.getDouble("voltageAtStartUp") / 65.536) / 1000.0
+      If json_val.has("voltageLimitAtStartUp") Then
+        _voltageLimitAtStartUp = Math.Round(json_val.getDouble("voltageLimitAtStartUp") / 65.536) / 1000.0
       End If
-      If json_val.has("currentAtStartUp") Then
-        _currentAtStartUp = Math.Round(json_val.getDouble("currentAtStartUp") / 65.536) / 1000.0
+      If json_val.has("currentLimitAtStartUp") Then
+        _currentLimitAtStartUp = Math.Round(json_val.getDouble("currentLimitAtStartUp") / 65.536) / 1000.0
+      End If
+      If json_val.has("powerOutputAtStartUp") Then
+        If (json_val.getInt("powerOutputAtStartUp") > 0) Then _powerOutputAtStartUp = 1 Else _powerOutputAtStartUp = 0
       End If
       If json_val.has("command") Then
         _command = json_val.getString("command")
@@ -173,14 +184,14 @@ Module yocto_powersupply
 
     '''*
     ''' <summary>
-    '''   Changes the voltage set point, in V.
+    '''   Changes the voltage limit, in V.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a floating point number corresponding to the voltage set point, in V
+    '''   a floating point number corresponding to the voltage limit, in V
     ''' </param>
     ''' <para>
     ''' </para>
@@ -191,34 +202,34 @@ Module yocto_powersupply
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_voltageSetPoint(ByVal newval As Double) As Integer
+    Public Function set_voltageLimit(ByVal newval As Double) As Integer
       Dim rest_val As String
       rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
-      Return _setAttr("voltageSetPoint", rest_val)
+      Return _setAttr("voltageLimit", rest_val)
     End Function
     '''*
     ''' <summary>
-    '''   Returns the voltage set point, in V.
+    '''   Returns the voltage limit, in V.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the voltage set point, in V
+    '''   a floating point number corresponding to the voltage limit, in V
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YPowerSupply.VOLTAGESETPOINT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.VOLTAGELIMIT_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_voltageSetPoint() As Double
+    Public Function get_voltageLimit() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return VOLTAGESETPOINT_INVALID
+          Return VOLTAGELIMIT_INVALID
         End If
       End If
-      res = Me._voltageSetPoint
+      res = Me._voltageLimit
       Return res
     End Function
 
@@ -446,34 +457,34 @@ Module yocto_powersupply
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_voltageAtStartUp(ByVal newval As Double) As Integer
+    Public Function set_voltageLimitAtStartUp(ByVal newval As Double) As Integer
       Dim rest_val As String
       rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
-      Return _setAttr("voltageAtStartUp", rest_val)
+      Return _setAttr("voltageLimitAtStartUp", rest_val)
     End Function
     '''*
     ''' <summary>
-    '''   Returns the selected voltage set point at device startup, in V.
+    '''   Returns the selected voltage limit at device startup, in V.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the selected voltage set point at device startup, in V
+    '''   a floating point number corresponding to the selected voltage limit at device startup, in V
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YPowerSupply.VOLTAGEATSTARTUP_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.VOLTAGELIMITATSTARTUP_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_voltageAtStartUp() As Double
+    Public Function get_voltageLimitAtStartUp() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return VOLTAGEATSTARTUP_INVALID
+          Return VOLTAGELIMITATSTARTUP_INVALID
         End If
       End If
-      res = Me._voltageAtStartUp
+      res = Me._voltageLimitAtStartUp
       Return res
     End Function
 
@@ -500,10 +511,10 @@ Module yocto_powersupply
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_currentAtStartUp(ByVal newval As Double) As Integer
+    Public Function set_currentLimitAtStartUp(ByVal newval As Double) As Integer
       Dim rest_val As String
       rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
-      Return _setAttr("currentAtStartUp", rest_val)
+      Return _setAttr("currentLimitAtStartUp", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -517,20 +528,76 @@ Module yocto_powersupply
     '''   a floating point number corresponding to the selected current limit at device startup, in mA
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YPowerSupply.CURRENTATSTARTUP_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YPowerSupply.CURRENTLIMITATSTARTUP_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_currentAtStartUp() As Double
+    Public Function get_currentLimitAtStartUp() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return CURRENTATSTARTUP_INVALID
+          Return CURRENTLIMITATSTARTUP_INVALID
         End If
       End If
-      res = Me._currentAtStartUp
+      res = Me._currentLimitAtStartUp
       Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the power supply output switch state.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YPowerSupply.POWEROUTPUTATSTARTUP_OFF</c> or <c>YPowerSupply.POWEROUTPUTATSTARTUP_ON</c>,
+    '''   according to the power supply output switch state
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YPowerSupply.POWEROUTPUTATSTARTUP_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_powerOutputAtStartUp() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return POWEROUTPUTATSTARTUP_INVALID
+        End If
+      End If
+      res = Me._powerOutputAtStartUp
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the power supply output switch state at device start up.
+    ''' <para>
+    '''   Remember to call the matching
+    '''   module <c>saveToFlash()</c> method, otherwise this call has no effect.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YPowerSupply.POWEROUTPUTATSTARTUP_OFF</c> or <c>YPowerSupply.POWEROUTPUTATSTARTUP_ON</c>,
+    '''   according to the power supply output switch state at device start up
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_powerOutputAtStartUp(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("powerOutputAtStartUp", rest_val)
+    End Function
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then

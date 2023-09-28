@@ -185,6 +185,9 @@ Module yocto_inputcapture
       Dim ms As Integer = 0
       Dim recSize As Integer = 0
       Dim count As Integer = 0
+      Dim mult1 As Integer = 0
+      Dim mult2 As Integer = 0
+      Dim mult3 As Integer = 0
       Dim v As Double = 0
 
       buffSize = (sdata).Length
@@ -250,12 +253,32 @@ Module yocto_inputcapture
           recOfs = recOfs + 1
         End While
       End If
+      If (((recOfs) And (1)) = 1) Then
+        REM // align to next word
+        recOfs = recOfs + 1
+      End If
+      mult1 = 1
+      mult2 = 1
+      mult3 = 1
+      If (recOfs < Me._recOfs) Then
+        REM // load optional value multiplier
+        mult1 = Me._decodeU16(sdata, Me._recOfs)
+        recOfs = recOfs + 2
+        If (Me._var2size > 0) Then
+          mult2 = Me._decodeU16(sdata, Me._recOfs)
+          recOfs = recOfs + 2
+        End If
+        If (Me._var3size > 0) Then
+          mult3 = Me._decodeU16(sdata, Me._recOfs)
+          recOfs = recOfs + 2
+        End If
+      End If
 
       recOfs = Me._recOfs
       count = Me._nRecs
       While ((count > 0) AndAlso (recOfs + Me._var1size <= buffSize))
         v = Me._decodeVal(sdata, recOfs, Me._var1size) / 1000.0
-        Me._var1samples.Add(v)
+        Me._var1samples.Add(v*mult1)
         recOfs = recOfs + recSize
       End While
 
@@ -264,7 +287,7 @@ Module yocto_inputcapture
         count = Me._nRecs
         While ((count > 0) AndAlso (recOfs + Me._var2size <= buffSize))
           v = Me._decodeVal(sdata, recOfs, Me._var2size) / 1000.0
-          Me._var2samples.Add(v)
+          Me._var2samples.Add(v*mult2)
           recOfs = recOfs + recSize
         End While
       End If
@@ -273,7 +296,7 @@ Module yocto_inputcapture
         count = Me._nRecs
         While ((count > 0) AndAlso (recOfs + Me._var3size <= buffSize))
           v = Me._decodeVal(sdata, recOfs, Me._var3size) / 1000.0
-          Me._var3samples.Add(v)
+          Me._var3samples.Add(v*mult3)
           recOfs = recOfs + recSize
         End While
       End If

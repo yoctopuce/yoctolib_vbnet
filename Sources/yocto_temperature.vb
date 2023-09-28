@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 50689 2022-08-17 14:37:15Z mvuilleu $
+'  $Id: yocto_temperature.vb 55969 2023-08-10 09:01:35Z seb $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -668,7 +668,7 @@ Module yocto_temperature
       templist.Clear()
       idx = 0
       While (idx < siz)
-        temp = Double.Parse(paramlist(2*idx+1))/1000.0
+        temp = YAPI._atof(paramlist(2*idx+1))/1000.0
         templist.Add(temp)
         idx = idx + 1
       End While
@@ -686,7 +686,7 @@ Module yocto_temperature
           temp = templist(idx)
           If ((temp > prev) AndAlso (temp < curr)) Then
             curr = temp
-            currRes = Double.Parse(paramlist(2*idx))/1000.0
+            currRes = YAPI._atof(paramlist(2*idx))/1000.0
             found = 1
           End If
           idx = idx + 1

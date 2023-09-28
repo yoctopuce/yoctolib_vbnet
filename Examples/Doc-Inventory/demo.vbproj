@@ -237,6 +237,12 @@
 <Compile Include="..\..\Sources\yocto_relay.vb">
 <Link>yocto_api\yocto_relay.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_rfidreader.vb">
+<Link>yocto_api\yocto_rfidreader.vb</Link>
+</Compile>
+<Compile Include="..\..\Sources\yocto_sdi12port.vb">
+<Link>yocto_api\yocto_sdi12port.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_segmenteddisplay.vb">
 <Link>yocto_api\yocto_segmenteddisplay.vb</Link>
 </Compile>
