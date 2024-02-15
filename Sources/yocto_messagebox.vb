@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 55576 2023-07-25 06:26:34Z mvuilleu $
+'* $Id: yocto_messagebox.vb 55633 2023-07-26 09:18:40Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*

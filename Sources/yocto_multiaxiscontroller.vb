@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multiaxiscontroller.vb 48024 2022-01-12 08:38:48Z seb $
+'  $Id: yocto_multiaxiscontroller.vb 48030 2022-01-12 09:23:52Z seb $
 '
 '  Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '

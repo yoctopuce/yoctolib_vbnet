@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 54160 2023-04-21 07:33:49Z seb $
+'* $Id: yocto_cellular.vb 54332 2023-05-02 08:35:37Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*

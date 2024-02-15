@@ -88,6 +88,7 @@ Module yocto_sdi12port
     REM --- (end of generated code: YSdi12SnoopingRecord definitions)
     REM --- (generated code: YSdi12SnoopingRecord attributes declaration)
     Protected _tim As Integer
+    Protected _pos As Integer
     Protected _dir As Integer
     Protected _msg As String
     REM --- (end of generated code: YSdi12SnoopingRecord attributes declaration)
@@ -109,6 +110,20 @@ Module yocto_sdi12port
     '''/
     Public Overridable Function get_time() As Integer
       Return Me._tim
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the absolute position of the message end.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the absolute position of the message end.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_pos() As Integer
+      Return Me._pos
     End Function
 
     '''*
@@ -149,14 +164,21 @@ Module yocto_sdi12port
       Dim m as string
       Dim json As YJSONObject  = New YJSONObject(data)
       json.parse()
-      Me._tim = CInt(json.getInt("t"))
-      m = json.getString("m")
-      IF m.Chars(0)="<" Then
-        Me._dir =1
-      Else
-        Me._dir=0
+      If json.has("t") Then
+        Me._tim = CInt(json.getInt("t"))
       End If
-      Me._msg = m.Substring(1)
+      If json.has("p") Then
+        Me._pos = CInt(json.getInt("p"))
+      End If
+      If json.has("m") Then
+        m = json.getString("m")
+        If m.Chars(0) = "<" Then
+          Me._dir = 1
+        Else
+          Me._dir = 0
+        End If
+        Me._msg = m.Substring(1)
+      End If
     End Sub
 
   End Class
@@ -181,50 +203,185 @@ Module yocto_sdi12port
     REM --- (end of generated code: YSdi12Sensor private methods declaration)
 
     REM --- (generated code: YSdi12Sensor public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the sensor address.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the sensor address.
+    ''' </returns>
+    '''/
     Public Overridable Function get_sensorAddress() As String
       Return Me._addr
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the compatible SDI-12 version of the sensor.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the compatible SDI-12 version of the sensor.
+    ''' </returns>
+    '''/
     Public Overridable Function get_sensorProtocol() As String
       Return Me._proto
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the sensor vendor identification.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the sensor vendor identification.
+    ''' </returns>
+    '''/
     Public Overridable Function get_sensorVendor() As String
       Return Me._mfg
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the sensor model number.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the sensor model number.
+    ''' </returns>
+    '''/
     Public Overridable Function get_sensorModel() As String
       Return Me._model
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the sensor version.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the sensor version.
+    ''' </returns>
+    '''/
     Public Overridable Function get_sensorVersion() As String
       Return Me._ver
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the sensor serial number.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the sensor serial number.
+    ''' </returns>
+    '''/
     Public Overridable Function get_sensorSerial() As String
       Return Me._sn
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the number of sensor measurements.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the number of sensor measurements.
+    ''' </returns>
+    '''/
     Public Overridable Function get_measureCount() As Integer
       Return Me._valuesDesc.Count
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the sensor measurement command.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="measureIndex">
+    '''   measurement index
+    ''' </param>
+    ''' <returns>
+    '''   the sensor measurement command.
+    ''' </returns>
+    '''/
     Public Overridable Function get_measureCommand(measureIndex As Integer) As String
       Return Me._valuesDesc(measureIndex)(0)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns sensor measurement position.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="measureIndex">
+    '''   measurement index
+    ''' </param>
+    ''' <returns>
+    '''   the sensor measurement command.
+    ''' </returns>
+    '''/
     Public Overridable Function get_measurePosition(measureIndex As Integer) As Integer
       Return YAPI._atoi(Me._valuesDesc(measureIndex)(2))
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the measured value symbol.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="measureIndex">
+    '''   measurement index
+    ''' </param>
+    ''' <returns>
+    '''   the sensor measurement command.
+    ''' </returns>
+    '''/
     Public Overridable Function get_measureSymbol(measureIndex As Integer) As String
       Return Me._valuesDesc(measureIndex)(3)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the unit of the measured value.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="measureIndex">
+    '''   measurement index
+    ''' </param>
+    ''' <returns>
+    '''   the sensor measurement command.
+    ''' </returns>
+    '''/
     Public Overridable Function get_measureUnit(measureIndex As Integer) As String
       Return Me._valuesDesc(measureIndex)(4)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the description of the measured value.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="measureIndex">
+    '''   measurement index
+    ''' </param>
+    ''' <returns>
+    '''   the sensor measurement command.
+    ''' </returns>
+    '''/
     Public Overridable Function get_measureDescription(measureIndex As Integer) As String
       Return Me._valuesDesc(measureIndex)(5)
     End Function
@@ -268,8 +425,10 @@ Module yocto_sdi12port
       Dim i As Integer = 0
       Dim j As Integer = 0
       Dim listVal As List(Of String) = New List(Of String)()
+      Dim size As Integer = 0
 
       k = 0
+      size = 4
       While (k < 10)
         infoNbVal = Me._sdi12Port.querySdi12(Me._addr, "IM" + Convert.ToString(k), 5000)
         If ((infoNbVal).Length > 1) Then
@@ -287,6 +446,9 @@ Module yocto_sdi12port
               listVal.Add("M" + Convert.ToString(k))
               listVal.Add((i+1).ToString())
               j = 0
+              While (data.Count < size)
+                data.Add("")
+              End While
               While (j < data.Count)
                 listVal.Add(data(j))
                 j = j + 1

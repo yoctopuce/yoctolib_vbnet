@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwminput.vb 50689 2022-08-17 14:37:15Z mvuilleu $
+'  $Id: yocto_pwminput.vb 50694 2022-08-18 09:01:12Z seb $
 '
 '  Implements yFindPwmInput(), the high-level API for PwmInput functions
 '

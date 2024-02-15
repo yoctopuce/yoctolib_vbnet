@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwmoutput.vb 50689 2022-08-17 14:37:15Z mvuilleu $
+'  $Id: yocto_pwmoutput.vb 58921 2024-01-12 09:43:57Z seb $
 '
 '  Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '
@@ -61,6 +61,9 @@ Module yocto_pwmoutput
   Public Const Y_DUTYCYCLE_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_PULSEDURATION_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_PWMTRANSITION_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_INVERTEDOUTPUT_FALSE As Integer = 0
+  Public Const Y_INVERTEDOUTPUT_TRUE As Integer = 1
+  Public Const Y_INVERTEDOUTPUT_INVALID As Integer = -1
   Public Const Y_ENABLEDATPOWERON_FALSE As Integer = 0
   Public Const Y_ENABLEDATPOWERON_TRUE As Integer = 1
   Public Const Y_ENABLEDATPOWERON_INVALID As Integer = -1
@@ -93,6 +96,9 @@ Module yocto_pwmoutput
     Public Const DUTYCYCLE_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const PULSEDURATION_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const PWMTRANSITION_INVALID As String = YAPI.INVALID_STRING
+    Public Const INVERTEDOUTPUT_FALSE As Integer = 0
+    Public Const INVERTEDOUTPUT_TRUE As Integer = 1
+    Public Const INVERTEDOUTPUT_INVALID As Integer = -1
     Public Const ENABLEDATPOWERON_FALSE As Integer = 0
     Public Const ENABLEDATPOWERON_TRUE As Integer = 1
     Public Const ENABLEDATPOWERON_INVALID As Integer = -1
@@ -106,6 +112,7 @@ Module yocto_pwmoutput
     Protected _dutyCycle As Double
     Protected _pulseDuration As Double
     Protected _pwmTransition As String
+    Protected _invertedOutput As Integer
     Protected _enabledAtPowerOn As Integer
     Protected _dutyCycleAtPowerOn As Double
     Protected _valueCallbackPwmOutput As YPwmOutputValueCallback
@@ -121,6 +128,7 @@ Module yocto_pwmoutput
       _dutyCycle = DUTYCYCLE_INVALID
       _pulseDuration = PULSEDURATION_INVALID
       _pwmTransition = PWMTRANSITION_INVALID
+      _invertedOutput = INVERTEDOUTPUT_INVALID
       _enabledAtPowerOn = ENABLEDATPOWERON_INVALID
       _dutyCycleAtPowerOn = DUTYCYCLEATPOWERON_INVALID
       _valueCallbackPwmOutput = Nothing
@@ -147,6 +155,9 @@ Module yocto_pwmoutput
       End If
       If json_val.has("pwmTransition") Then
         _pwmTransition = json_val.getString("pwmTransition")
+      End If
+      If json_val.has("invertedOutput") Then
+        If (json_val.getInt("invertedOutput") > 0) Then _invertedOutput = 1 Else _invertedOutput = 0
       End If
       If json_val.has("enabledAtPowerOn") Then
         If (json_val.getInt("enabledAtPowerOn") > 0) Then _enabledAtPowerOn = 1 Else _enabledAtPowerOn = 0
@@ -450,6 +461,62 @@ Module yocto_pwmoutput
       Dim rest_val As String
       rest_val = newval
       Return _setAttr("pwmTransition", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns true if the output signal is configured as inverted, and false otherwise.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YPwmOutput.INVERTEDOUTPUT_FALSE</c> or <c>YPwmOutput.INVERTEDOUTPUT_TRUE</c>, according
+    '''   to true if the output signal is configured as inverted, and false otherwise
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YPwmOutput.INVERTEDOUTPUT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_invertedOutput() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return INVERTEDOUTPUT_INVALID
+        End If
+      End If
+      res = Me._invertedOutput
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the inversion mode of the output signal.
+    ''' <para>
+    '''   Remember to call the matching module <c>saveToFlash()</c> method if you want
+    '''   the change to be kept after power cycle.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YPwmOutput.INVERTEDOUTPUT_FALSE</c> or <c>YPwmOutput.INVERTEDOUTPUT_TRUE</c>, according
+    '''   to the inversion mode of the output signal
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_invertedOutput(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("invertedOutput", rest_val)
     End Function
     '''*
     ''' <summary>

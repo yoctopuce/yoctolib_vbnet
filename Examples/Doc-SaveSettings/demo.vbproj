@@ -261,6 +261,9 @@
 <Compile Include="..\..\Sources\yocto_temperature.vb">
 <Link>yocto_api\yocto_temperature.vb</Link>
 </Compile>
+<Compile Include="..\..\Sources\yocto_threshold.vb">
+<Link>yocto_api\yocto_threshold.vb</Link>
+</Compile>
 <Compile Include="..\..\Sources\yocto_tilt.vb">
 <Link>yocto_api\yocto_tilt.vb</Link>
 </Compile>

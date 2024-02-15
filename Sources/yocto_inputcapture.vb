@@ -46,13 +46,13 @@ Imports System.Text
 
 Module yocto_inputcapture
 
-    REM --- (generated code: YInputCapture return codes)
+  REM --- (generated code: YInputCapture return codes)
     REM --- (end of generated code: YInputCapture return codes)
-    REM --- (generated code: YInputCapture dlldef)
+  REM --- (generated code: YInputCapture dlldef)
     REM --- (end of generated code: YInputCapture dlldef)
-    REM --- (generated code: YInputCapture yapiwrapper)
+  REM --- (generated code: YInputCapture yapiwrapper)
    REM --- (end of generated code: YInputCapture yapiwrapper)
-    REM --- (generated code: YInputCapture globals)
+  REM --- (generated code: YInputCapture globals)
 
   Public Const Y_LASTCAPTURETIME_INVALID As Long = YAPI.INVALID_LONG
   Public Const Y_NSAMPLES_INVALID As Integer = YAPI.INVALID_UINT
@@ -106,7 +106,7 @@ Module yocto_inputcapture
   Public Delegate Sub YInputCaptureTimedReportCallback(ByVal func As YInputCapture, ByVal measure As YMeasure)
   REM --- (end of generated code: YInputCapture globals)
 
-    REM --- (generated code: YInputCaptureData class start)
+  REM --- (generated code: YInputCaptureData class start)
 
   '''*
   ''' <c>InputCaptureData</c> objects represent raw data
@@ -117,9 +117,9 @@ Module yocto_inputcapture
   '''/
   Public Class YInputCaptureData
     REM --- (end of generated code: YInputCaptureData class start)
-        REM --- (generated code: YInputCaptureData definitions)
+    REM --- (generated code: YInputCaptureData definitions)
     REM --- (end of generated code: YInputCaptureData definitions)
-        REM --- (generated code: YInputCaptureData attributes declaration)
+    REM --- (generated code: YInputCaptureData attributes declaration)
     Protected _fmt As Integer
     Protected _var1size As Integer
     Protected _var2size As Integer
@@ -140,11 +140,11 @@ Module yocto_inputcapture
     Protected _var3samples As List(Of Double)
     REM --- (end of generated code: YInputCaptureData attributes declaration)
 
-        REM --- (generated code: YInputCaptureData private methods declaration)
+    REM --- (generated code: YInputCaptureData private methods declaration)
 
     REM --- (end of generated code: YInputCaptureData private methods declaration)
 
-        REM --- (generated code: YInputCaptureData public methods declaration)
+    REM --- (generated code: YInputCaptureData public methods declaration)
     Public Overridable Function _decodeU16(sdata As Byte(), ofs As Integer) As Integer
       Dim v As Integer = 0
       v = sdata(ofs)
@@ -558,20 +558,20 @@ Module yocto_inputcapture
 
     REM --- (end of generated code: YInputCaptureData public methods declaration)
 
-        Public Sub _throw(ByVal errType As YRETCODE, ByVal errMsg As String)
-            If Not (YAPI.ExceptionsDisabled) Then
-                Throw New YAPI_Exception(errType, "YoctoApi error : " + errMsg)
-            End If
-        End Sub
+    Public Sub _throw(ByVal errType As YRETCODE, ByVal errMsg As String)
+      If Not (YAPI.ExceptionsDisabled) Then
+        Throw New YAPI_Exception(errType, "YoctoApi error : " + errMsg)
+      End If
+    End Sub
 
-        Public Sub New(yfun As YFunction, sdata As Byte())
-            Me._decodeSnapBin(sdata)
-        End Sub
+    Public Sub New(yfun As YFunction, sdata As Byte())
+      Me._decodeSnapBin(sdata)
+    End Sub
 
-    End Class
+  End Class
 
 
-    REM --- (generated code: YInputCapture class start)
+  REM --- (generated code: YInputCapture class start)
 
   '''*
   ''' <summary>
@@ -587,7 +587,7 @@ Module yocto_inputcapture
     Inherits YFunction
     REM --- (end of generated code: YInputCapture class start)
 
-        REM --- (generated code: YInputCapture definitions)
+    REM --- (generated code: YInputCapture definitions)
     Public Const LASTCAPTURETIME_INVALID As Long = YAPI.INVALID_LONG
     Public Const NSAMPLES_INVALID As Integer = YAPI.INVALID_UINT
     Public Const SAMPLINGRATE_INVALID As Integer = YAPI.INVALID_UINT
@@ -638,7 +638,7 @@ Module yocto_inputcapture
     Public Const CONDVALUEATSTARTUP_INVALID As Double = YAPI.INVALID_DOUBLE
     REM --- (end of generated code: YInputCapture definitions)
 
-        REM --- (generated code: YInputCapture attributes declaration)
+    REM --- (generated code: YInputCapture attributes declaration)
     Protected _lastCaptureTime As Long
     Protected _nSamples As Integer
     Protected _samplingRate As Integer
@@ -650,10 +650,10 @@ Module yocto_inputcapture
     Protected _valueCallbackInputCapture As YInputCaptureValueCallback
     REM --- (end of generated code: YInputCapture attributes declaration)
 
-        Public Sub New(ByVal func As String)
-            MyBase.New(func)
-            _className = "I2cPort"
-            REM --- (generated code: YInputCapture attributes initialization)
+    Public Sub New(ByVal func As String)
+      MyBase.New(func)
+      _className = "I2cPort"
+      REM --- (generated code: YInputCapture attributes initialization)
       _lastCaptureTime = LASTCAPTURETIME_INVALID
       _nSamples = NSAMPLES_INVALID
       _samplingRate = SAMPLINGRATE_INVALID
@@ -664,9 +664,9 @@ Module yocto_inputcapture
       _condValueAtStartup = CONDVALUEATSTARTUP_INVALID
       _valueCallbackInputCapture = Nothing
       REM --- (end of generated code: YInputCapture attributes initialization)
-        End Sub
+    End Sub
 
-        REM --- (generated code: YInputCapture private methods declaration)
+    REM --- (generated code: YInputCapture private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("lastCaptureTime") Then
@@ -698,7 +698,7 @@ Module yocto_inputcapture
 
     REM --- (end of generated code: YInputCapture private methods declaration)
 
-        REM --- (generated code: YInputCapture public methods declaration)
+    REM --- (generated code: YInputCapture public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the number of elapsed milliseconds between the module power on
@@ -1347,9 +1347,9 @@ Module yocto_inputcapture
 
     REM --- (end of generated code: YInputCapture public methods declaration)
 
-    End Class
+  End Class
 
-    REM --- (generated code: YInputCapture functions)
+  REM --- (generated code: YInputCapture functions)
 
   '''*
   ''' <summary>

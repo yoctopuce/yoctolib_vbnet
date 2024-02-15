@@ -1,13 +1,13 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
+'  $Id: main.vb 58233 2023-12-04 10:57:58Z seb $
 '
-'  An example that show how to use a  Yocto-Light
+'  An example that shows how to use a  Yocto-Light
 '
 '  You can find more information on our web site:
 '   Yocto-Light documentation:
 '      https://www.yoctopuce.com/EN/products/yocto-light/doc.html
-'   VB .NET API Reference:
+'   Visual Basic .Net V2 API Reference:
 '      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
 '
 ' *********************************************************************

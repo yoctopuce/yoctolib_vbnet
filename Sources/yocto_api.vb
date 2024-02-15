@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 56393 2023-09-05 08:36:51Z seb $
+'* $Id: yocto_api.vb 59222 2024-02-05 15:50:11Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -779,9 +779,9 @@ Module yocto_api
   '=======================================================
 
 
-  Public Const YOCTO_API_VERSION_STR As String = "1.10"
-  Public Const YOCTO_API_VERSION_BCD As Integer = &H110
-  Public Const YOCTO_API_BUILD_NO As String = "57762"
+  Public Const YOCTO_API_VERSION_STR As String = "2.00"
+  Public Const YOCTO_API_VERSION_BCD As Integer = &H200
+  Public Const YOCTO_API_BUILD_NO As String = "59414"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1272,6 +1272,114 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Download the TLS/SSL certificate from the hub.
+    ''' <para>
+    '''   This function allows to download a TLS/SSL certificate to add it
+    '''   to the list of trusted certificates using the AddTrustedCertificates method.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="url">
+    '''   the root URL of the VirtualHub V2 or HTTP server.
+    ''' </param>
+    ''' <param name="mstimeout">
+    '''   the number of milliseconds available to download the certificate.
+    ''' </param>
+    ''' <returns>
+    '''   a string containing the certificate. In case of error, returns a string starting with "error:".
+    ''' </returns>
+    '''/
+    Public Overridable Function DownloadHostCertificate(url As String, mstimeout As Long) As Byte()
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim smallbuff As StringBuilder = New StringBuilder(4096)
+      Dim bigbuff As StringBuilder
+      Dim buffsize As Integer = 0
+      Dim fullsize As Integer
+      Dim res As Integer = 0
+      Dim certifcate As String
+      fullsize = 0
+      res = _yapiGetRemoteCertificate(New StringBuilder(url), CType(mstimeout, yu64), smallbuff, 4096, fullsize, errmsg)
+      If (res < 0) Then
+        If (res = YAPI.BUFFER_TOO_SMALL) Then
+          fullsize = fullsize * 2
+          buffsize = fullsize
+          bigbuff = New StringBuilder(buffsize)
+          res = _yapiGetRemoteCertificate(New StringBuilder(url), CType(mstimeout, yu64), bigbuff, buffsize, fullsize, errmsg)
+          If (res < 0) Then
+            certifcate = "error:" + errmsg.ToString()
+          Else
+            certifcate = bigbuff.ToString()
+          End If
+          bigbuff = Nothing
+        Else
+          certifcate = "error:" + errmsg.ToString()
+        End If
+        Return YAPI.DefaultEncoding.GetBytes(certifcate)
+      Else
+        certifcate = smallbuff.ToString()
+      End If
+      Return YAPI.DefaultEncoding.GetBytes(certifcate)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Adds a TLS/SSL certificate to the list of trusted certificates.
+    ''' <para>
+    '''   By default, the library
+    '''   library will reject TLS/SSL connections to servers whose certificate is not known. This function
+    '''   function allows to add a list of known certificates. It is also possible to disable the verification
+    '''   using the SetNetworkSecurityOptions method.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="certificate">
+    '''   a string containing one or more certificates.
+    ''' </param>
+    ''' <returns>
+    '''   an empty string if the certificate has been added correctly.
+    '''   In case of error, returns a string starting with "error:".
+    ''' </returns>
+    '''/
+    Public Overridable Function AddTrustedCertificates(certificate As String) As String
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim size As Integer = 0
+      Dim res As Integer = 0
+      REM // null char must be inclued
+      size = (certificate).Length + 1
+      res = _yapiAddSSLCertificateCli(New StringBuilder(certificate), size, errmsg)
+      If (res < 0) Then
+        Return errmsg.ToString()
+      Else
+        Return ""
+      End If
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Enables or disables certain TLS/SSL certificate checks.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="options">
+    '''   The options: <c>YAPI.NO_TRUSTED_CA_CHECK</c>,
+    '''   <c>YAPI.NO_EXPIRATION_CHECK</c>, <c>YAPI.NO_HOSTNAME_CHECK</c>.
+    ''' </param>
+    ''' <returns>
+    '''   an empty string if the options are taken into account.
+    '''   On error, returns a string beginning with "error:".
+    ''' </returns>
+    '''/
+    Public Overridable Function SetNetworkSecurityOptions(options As Integer) As String
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim res As Integer = 0
+      res = _yapiSetNetworkSecurityOptions(options, errmsg)
+      If (res < 0) Then
+        Return errmsg.ToString()
+      Else
+        Return ""
+      End If
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Modifies the network connection delay for <c>yRegisterHub()</c> and <c>yUpdateDeviceList()</c>.
     ''' <para>
     '''   This delay impacts only the YoctoHubs and VirtualHub
@@ -1447,6 +1555,8 @@ Module yocto_api
     Public Const RFID_SOFT_ERROR As Integer = -16 REM Recoverable error with RFID tag (eg. tag out of reach), check YRfidStatus for details
     Public Const RFID_HARD_ERROR As Integer = -17 REM Serious RFID error (eg. write-protected, out-of-boundary), check YRfidStatus for details
     Public Const BUFFER_TOO_SMALL As Integer = -18 REM The buffer provided is too small
+    Public Const DNS_ERROR As Integer = -19     REM Error during name resolutions (invalid hostname or dns communication error)
+    Public Const SSL_UNK_CERT As Integer = -20  REM The certificate is not correctly signed by the trusted CA
 
     REM --- (end of generated code: YFunction return codes)
     Public Shared _yapiContext As YAPIContext = New YAPIContext()
@@ -1935,6 +2045,69 @@ Module yocto_api
     Public Shared Function AddUdevRule(force As Boolean) As String
         YAPI.InitAPI(0, Nothing)
         return _yapiContext.AddUdevRule(force)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Download the TLS/SSL certificate from the hub.
+    ''' <para>
+    '''   This function allows to download a TLS/SSL certificate to add it
+    '''   to the list of trusted certificates using the AddTrustedCertificates method.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="url">
+    '''   the root URL of the VirtualHub V2 or HTTP server.
+    ''' </param>
+    ''' <param name="mstimeout">
+    '''   the number of milliseconds available to download the certificate.
+    ''' </param>
+    ''' <returns>
+    '''   a string containing the certificate. In case of error, returns a string starting with "error:".
+    ''' </returns>
+    '''/
+    Public Shared Function DownloadHostCertificate(url As String, mstimeout As Long) As Byte()
+        YAPI.InitAPI(0, Nothing)
+        return _yapiContext.DownloadHostCertificate(url, mstimeout)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Adds a TLS/SSL certificate to the list of trusted certificates.
+    ''' <para>
+    '''   By default, the library
+    '''   library will reject TLS/SSL connections to servers whose certificate is not known. This function
+    '''   function allows to add a list of known certificates. It is also possible to disable the verification
+    '''   using the SetNetworkSecurityOptions method.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="certificate">
+    '''   a string containing one or more certificates.
+    ''' </param>
+    ''' <returns>
+    '''   an empty string if the certificate has been added correctly.
+    '''   In case of error, returns a string starting with "error:".
+    ''' </returns>
+    '''/
+    Public Shared Function AddTrustedCertificates(certificate As String) As String
+        YAPI.InitAPI(0, Nothing)
+        return _yapiContext.AddTrustedCertificates(certificate)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Enables or disables certain TLS/SSL certificate checks.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="options">
+    '''   The options: <c>YAPI.NO_TRUSTED_CA_CHECK</c>,
+    '''   <c>YAPI.NO_EXPIRATION_CHECK</c>, <c>YAPI.NO_HOSTNAME_CHECK</c>.
+    ''' </param>
+    ''' <returns>
+    '''   an empty string if the options are taken into account.
+    '''   On error, returns a string beginning with "error:".
+    ''' </returns>
+    '''/
+    Public Shared Function SetNetworkSecurityOptions(options As Integer) As String
+        YAPI.InitAPI(0, Nothing)
+        return _yapiContext.SetNetworkSecurityOptions(options)
     End Function
     '''*
     ''' <summary>
@@ -2837,6 +3010,13 @@ Module yocto_api
   Public Const YAPI_RFID_SOFT_ERROR As Integer = -16 REM Recoverable error with RFID tag (eg. tag out of reach), check YRfidStatus for details
   Public Const YAPI_RFID_HARD_ERROR As Integer = -17 REM Serious RFID error (eg. write-protected, out-of-boundary), check YRfidStatus for details
   Public Const YAPI_BUFFER_TOO_SMALL As Integer = -18 REM The buffer provided is too small
+  Public Const YAPI_DNS_ERROR As Integer = -19     REM Error during name resolutions (invalid hostname or dns communication error)
+  Public Const YAPI_SSL_UNK_CERT As Integer = -20  REM The certificate is not correctly signed by the trusted CA
+
+  REM TLS / SSL definitions
+  Public Const NO_TRUSTED_CA_CHECK As Integer = 1 REM Disables certificate checking
+  Public Const NO_EXPIRATION_CHECK As Integer = 2 REM Disables certificate expiration date checking
+  Public Const NO_HOSTNAME_CHECK As Integer = 4 REM Disable hostname checking
 
   Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
@@ -3076,7 +3256,7 @@ Module yocto_api
         Me._progress = (Me._progress_c * 9 \ 10)
         Me._progress_msg = errmsg.ToString()
       Else
-        If (((Me._settings).Length <> 0)) Then
+        If (((Me._settings).Length <> 0) AndAlso ( Me._progress_c <> 101)) Then
           Me._progress_msg = "restoring settings"
           m = YModule.FindModule(Me._serial + ".module")
           If (Not (m.isOnline())) Then
@@ -8105,8 +8285,10 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <param name="callback">
-    '''   the callback function to call, or a Nothing pointer. The callback function should take two
-    '''   arguments: the module object that emitted the log message, and the character string containing the log.
+    '''   the callback function to call, or a Nothing pointer.
+    '''   The callback function should take two
+    '''   arguments: the module object that emitted the log message,
+    '''   and the character string containing the log.
     '''   On failure, throws an exception or returns a negative error code.
     ''' </param>
     '''/
@@ -10669,7 +10851,7 @@ Module yocto_api
       rawValues.Clear()
       refValues.Clear()
       REM // Load function parameters if not yet loaded
-      If (Me._scale = 0) Then
+      If ((Me._scale = 0) OrElse (Me._cacheExpiration <= YAPI.GetTickCount())) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return YAPI.DEVICE_NOT_FOUND
         End If
@@ -12960,6 +13142,18 @@ Module yocto_api
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiAddUdevRulesForYocto", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiAddUdevRulesForYocto(ByVal force As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiSetSSLCertificateSrv", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiSetSSLCertificateSrv(ByVal certfile As StringBuilder, ByVal keyfile As StringBuilder, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiAddSSLCertificateCli", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiAddSSLCertificateCli(ByVal cert As StringBuilder, ByVal cert_len As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiSetNetworkSecurityOptions", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiSetNetworkSecurityOptions(ByVal options As Integer, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiGetRemoteCertificate", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiGetRemoteCertificate(ByVal rooturl As StringBuilder, ByVal timeout As yu64, ByVal buffer As StringBuilder, ByVal maxsize As Integer, ByRef neededsize As Integer, ByVal errmsg As StringBuilder) As Integer
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiGetNextHubRef", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiGetNextHubRef(ByVal hubref As Integer) As Integer

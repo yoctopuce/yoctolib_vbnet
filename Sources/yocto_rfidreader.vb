@@ -1079,7 +1079,7 @@ Module yocto_rfidreader
   Public Const Y_REFRESHRATE_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YRfidReaderValueCallback(ByVal func As YRfidReader, ByVal value As String)
   Public Delegate Sub YRfidReaderTimedReportCallback(ByVal func As YRfidReader, ByVal measure As YMeasure)
-  Public Delegate Sub YEventCallback(ByVal func As YRfidReader, ByVal timestamp As Integer, ByVal eventType As String, ByVal eventData As String)
+  Public Delegate Sub YEventCallback(ByVal func As YRfidReader, ByVal timestamp As Double, ByVal eventType As String, ByVal eventData As String)
 
   Sub yInternalEventCallback(ByVal func As YRfidReader, ByVal value As String)
     func._internalEventHandler(value)
@@ -1423,7 +1423,7 @@ Module yocto_rfidreader
     '''   the detailled status of the operation
     ''' </param>
     ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    '''   a <c>YRfidTagInfo</c> object.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns an empty <c>YRfidTagInfo</c> objact.
@@ -2092,7 +2092,7 @@ Module yocto_rfidreader
     Public Overridable Function get_lastEvents() As String
       Dim content As Byte() = New Byte(){}
 
-      content = Me._download("events.txt")
+      content = Me._download("events.txt?pos=0")
       Return YAPI.DefaultEncoding.GetString(content)
     End Function
 
@@ -2133,15 +2133,11 @@ Module yocto_rfidreader
     Public Overridable Function _internalEventHandler(cbVal As String) As Integer
       Dim cbPos As Integer = 0
       Dim cbDPos As Integer = 0
-      Dim cbNtags As Integer = 0
-      Dim searchTags As Integer = 0
       Dim url As String
       Dim content As Byte() = New Byte(){}
       Dim contentStr As String
-      Dim currentTags As List(Of String) = New List(Of String)()
       Dim eventArr As List(Of String) = New List(Of String)()
       Dim arrLen As Integer = 0
-      Dim lastEvents As List(Of Integer) = New List(Of Integer)()
       Dim lenStr As String
       Dim arrPos As Integer = 0
       Dim eventStr As String
@@ -2149,13 +2145,14 @@ Module yocto_rfidreader
       Dim hexStamp As String
       Dim typePos As Integer = 0
       Dim dataPos As Integer = 0
-      Dim evtStamp As Integer = 0
+      Dim intStamp As Integer = 0
+      Dim binMStamp As Byte() = New Byte(){}
+      Dim msStamp As Integer = 0
+      Dim evtStamp As Double = 0
       Dim evtType As String
       Dim evtData As String
-      Dim tagIdx As Integer = 0
       REM // detect possible power cycle of the reader to clear event pointer
       cbPos = YAPI._atoi(cbVal)
-      cbNtags = ((cbPos) Mod (1000))
       cbPos = (cbPos \ 1000)
       cbDPos = ((cbPos - Me._prevCbPos) And (&H7ffff))
       Me._prevCbPos = cbPos
@@ -2165,102 +2162,69 @@ Module yocto_rfidreader
       If (Not (Not (Me._eventCallback Is Nothing))) Then
         Return YAPI.SUCCESS
       End If
-      REM // load all events since previous call
-      url = "events.txt?pos=" + Convert.ToString(Me._eventPos)
-
-      content = Me._download(url)
-      contentStr = YAPI.DefaultEncoding.GetString(content)
-      eventArr = New List(Of String)(contentStr.Split(vbLf.ToCharArray()))
-      arrLen = eventArr.Count
-      If Not(arrLen > 0) Then
-        me._throw( YAPI.IO_ERROR,  "fail to download events")
-        return YAPI.IO_ERROR
-      end if
-      REM // last element of array is the new position preceeded by '@'
-      arrLen = arrLen - 1
-      lenStr = eventArr(arrLen)
-      lenStr = (lenStr).Substring( 1, (lenStr).Length-1)
-      REM // update processed event position pointer
-      Me._eventPos = YAPI._atoi(lenStr)
       If (Me._isFirstCb) Then
         REM // first emulated value callback caused by registerValueCallback:
-        REM // attempt to retrieve arrivals of all tags present to emulate arrival
+        REM // retrieve arrivals of all tags currently present to emulate arrival
         Me._isFirstCb = False
         Me._eventStamp = 0
-        If (cbNtags = 0) Then
-          Return YAPI.SUCCESS
-        End If
-        currentTags = Me.get_tagIdList()
-        cbNtags = currentTags.Count
-        searchTags = cbNtags
-        lastEvents.Clear()
-        arrPos = arrLen - 1
-        While ((arrPos >= 0) AndAlso (searchTags > 0))
-          eventStr = eventArr(arrPos)
-          typePos = eventStr.IndexOf(":")+1
-          If (typePos > 8) Then
-            dataPos = eventStr.IndexOf("=")+1
-            evtType = (eventStr).Substring( typePos, 1)
-            If ((dataPos > 10) AndAlso evtType = "+") Then
-              evtData = (eventStr).Substring( dataPos, (eventStr).Length-dataPos)
-              tagIdx = searchTags - 1
-              While (tagIdx >= 0)
-                If (evtData = currentTags(tagIdx)) Then
-                  lastEvents.Add(0+arrPos)
-                  currentTags(tagIdx) = ""
-                  While ((searchTags > 0) AndAlso currentTags(searchTags-1) = "")
-                    searchTags = searchTags - 1
-                  End While
-                  tagIdx = -1
-                End If
-                tagIdx = tagIdx - 1
-              End While
-            End If
-          End If
-          arrPos = arrPos - 1
-        End While
-        REM // If we have any remaining tags without a known arrival event,
-        REM // create a pseudo callback with timestamp zero
-        tagIdx = 0
-        While (tagIdx < searchTags)
-          evtData = currentTags(tagIdx)
-          If (Not (evtData = "")) Then
-            Me._eventCallback(Me, 0, "+", evtData)
-          End If
-          tagIdx = tagIdx + 1
-        End While
+        content = Me._download("events.txt")
+        contentStr = YAPI.DefaultEncoding.GetString(content)
+        eventArr = New List(Of String)(contentStr.Split(vbLf.ToCharArray()))
+        arrLen = eventArr.Count
+        If Not(arrLen > 0) Then
+          me._throw( YAPI.IO_ERROR,  "fail to download events")
+          return YAPI.IO_ERROR
+        end if
+        REM // first element of array is the new position preceeded by '@'
+        arrPos = 1
+        lenStr = eventArr(0)
+        lenStr = (lenStr).Substring( 1, (lenStr).Length-1)
+        REM // update processed event position pointer
+        Me._eventPos = YAPI._atoi(lenStr)
       Else
-        REM // regular callback
-        lastEvents.Clear()
-        arrPos = arrLen - 1
-        While (arrPos >= 0)
-          lastEvents.Add(0+arrPos)
-          arrPos = arrPos - 1
-        End While
+        REM // load all events since previous call
+        url = "events.txt?pos=" + Convert.ToString(Me._eventPos)
+        content = Me._download(url)
+        contentStr = YAPI.DefaultEncoding.GetString(content)
+        eventArr = New List(Of String)(contentStr.Split(vbLf.ToCharArray()))
+        arrLen = eventArr.Count
+        If Not(arrLen > 0) Then
+          me._throw( YAPI.IO_ERROR,  "fail to download events")
+          return YAPI.IO_ERROR
+        end if
+        REM // last element of array is the new position preceeded by '@'
+        arrPos = 0
+        arrLen = arrLen - 1
+        lenStr = eventArr(arrLen)
+        lenStr = (lenStr).Substring( 1, (lenStr).Length-1)
+        REM // update processed event position pointer
+        Me._eventPos = YAPI._atoi(lenStr)
       End If
-      REM // now generate callbacks for each selected event
-      arrLen = lastEvents.Count
-      arrPos = arrLen - 1
-      While (arrPos >= 0)
-        tagIdx = lastEvents(arrPos)
-        eventStr = eventArr(tagIdx)
+      REM // now generate callbacks for each real event
+      While (arrPos < arrLen)
+        eventStr = eventArr(arrPos)
         eventLen = (eventStr).Length
-        If (eventLen >= 1) Then
+        typePos = eventStr.IndexOf(":")+1
+        If ((eventLen >= 14) AndAlso (typePos > 10)) Then
           hexStamp = (eventStr).Substring( 0, 8)
-          evtStamp = Convert.ToInt32(hexStamp, 16)
-          typePos = eventStr.IndexOf(":")+1
-          If ((evtStamp >= Me._eventStamp) AndAlso (typePos > 8)) Then
-            Me._eventStamp = evtStamp
+          intStamp = Convert.ToInt32(hexStamp, 16)
+          If (intStamp >= Me._eventStamp) Then
+            Me._eventStamp = intStamp
+            binMStamp = YAPI.DefaultEncoding.GetBytes((eventStr).Substring( 8, 2))
+            msStamp = (binMStamp(0)-64) * 32 + binMStamp(1)
+            evtStamp = intStamp + (0.001 * msStamp)
             dataPos = eventStr.IndexOf("=")+1
             evtType = (eventStr).Substring( typePos, 1)
             evtData = ""
             If (dataPos > 10) Then
               evtData = (eventStr).Substring( dataPos, eventLen-dataPos)
             End If
-            Me._eventCallback(Me, evtStamp, evtType, evtData)
+            If (Not (Me._eventCallback Is Nothing)) Then
+              Me._eventCallback(Me, evtStamp, evtType, evtData)
+            End If
           End If
         End If
-        arrPos = arrPos - 1
+        arrPos = arrPos + 1
       End While
       Return YAPI.SUCCESS
     End Function

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_realtimeclock.vb 53871 2023-04-04 17:04:53Z mvuilleu $
+'  $Id: yocto_realtimeclock.vb 54332 2023-05-02 08:35:37Z seb $
 '
 '  Implements yFindRealTimeClock(), the high-level API for RealTimeClock functions
 '

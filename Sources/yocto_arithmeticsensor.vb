@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_arithmeticsensor.vb 55969 2023-08-10 09:01:35Z seb $
+'  $Id: yocto_arithmeticsensor.vb 55979 2023-08-11 08:24:13Z seb $
 '
 '  Implements yFindArithmeticSensor(), the high-level API for ArithmeticSensor functions
 '

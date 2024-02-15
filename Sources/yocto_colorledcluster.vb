@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorledcluster.vb 50281 2022-06-30 07:21:14Z mvuilleu $
+'  $Id: yocto_colorledcluster.vb 50326 2022-07-01 09:33:24Z seb $
 '
 '  Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '

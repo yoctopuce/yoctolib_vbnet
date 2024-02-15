@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_i2cport.vb 52943 2023-01-26 15:46:47Z mvuilleu $
+'  $Id: yocto_i2cport.vb 58921 2024-01-12 09:43:57Z seb $
 '
 '  Implements yFindI2cPort(), the high-level API for I2cPort functions
 '
@@ -82,6 +82,7 @@ Module yocto_i2cport
     REM --- (end of generated code: YI2cSnoopingRecord definitions)
     REM --- (generated code: YI2cSnoopingRecord attributes declaration)
     Protected _tim As Integer
+    Protected _pos As Integer
     Protected _dir As Integer
     Protected _msg As String
     REM --- (end of generated code: YI2cSnoopingRecord attributes declaration)
@@ -103,6 +104,20 @@ Module yocto_i2cport
     '''/
     Public Overridable Function get_time() As Integer
       Return Me._tim
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the absolute position of the message end.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the absolute position of the message end.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_pos() As Integer
+      Return Me._pos
     End Function
 
     '''*
@@ -143,14 +158,21 @@ Module yocto_i2cport
       Dim m as string
       Dim json As YJSONObject  = New YJSONObject(data)
       json.parse()
-      Me._tim = CInt(json.getInt("t"))
-      m = json.getString("m")
-      IF m.Chars(0)="<" Then
-        Me._dir =1
-      Else
-        Me._dir=0
+      If json.has("t") Then
+        Me._tim = CInt(json.getInt("t"))
       End If
-      Me._msg = m.Substring(1)
+      If json.has("p") Then
+        Me._pos = CInt(json.getInt("p"))
+      End If
+      If json.has("m") Then
+        m = json.getString("m")
+        If m.Chars(0) = "<" Then
+          Me._dir = 1
+        Else
+          Me._dir = 0
+        End If
+        Me._msg = m.Substring(1)
+      End If
     End Sub
 
   End Class

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 53886 2023-04-05 08:06:39Z mvuilleu $
+'  $Id: yocto_network.vb 54332 2023-05-02 08:35:37Z seb $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -71,6 +71,7 @@ Module yocto_network
   Public Const Y_USERPASSWORD_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADMINPASSWORD_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_HTTPPORT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_HTTPSPORT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_DEFAULTPAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_DISCOVERABLE_FALSE As Integer = 0
   Public Const Y_DISCOVERABLE_TRUE As Integer = 1
@@ -137,6 +138,7 @@ Module yocto_network
     Public Const USERPASSWORD_INVALID As String = YAPI.INVALID_STRING
     Public Const ADMINPASSWORD_INVALID As String = YAPI.INVALID_STRING
     Public Const HTTPPORT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const HTTPSPORT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DEFAULTPAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const DISCOVERABLE_FALSE As Integer = 0
     Public Const DISCOVERABLE_TRUE As Integer = 1
@@ -186,6 +188,7 @@ Module yocto_network
     Protected _userPassword As String
     Protected _adminPassword As String
     Protected _httpPort As Integer
+    Protected _httpsPort As Integer
     Protected _defaultPage As String
     Protected _discoverable As Integer
     Protected _wwwWatchdogDelay As Integer
@@ -219,6 +222,7 @@ Module yocto_network
       _userPassword = USERPASSWORD_INVALID
       _adminPassword = ADMINPASSWORD_INVALID
       _httpPort = HTTPPORT_INVALID
+      _httpsPort = HTTPSPORT_INVALID
       _defaultPage = DEFAULTPAGE_INVALID
       _discoverable = DISCOVERABLE_INVALID
       _wwwWatchdogDelay = WWWWATCHDOGDELAY_INVALID
@@ -277,6 +281,9 @@ Module yocto_network
       End If
       If json_val.has("httpPort") Then
         _httpPort = CInt(json_val.getLong("httpPort"))
+      End If
+      If json_val.has("httpsPort") Then
+        _httpsPort = CInt(json_val.getLong("httpsPort"))
       End If
       If json_val.has("defaultPage") Then
         _defaultPage = json_val.getString("defaultPage")
@@ -889,6 +896,62 @@ Module yocto_network
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("httpPort", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the secure TCP port used to serve the hub web UI.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the secure TCP port used to serve the hub web UI
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YNetwork.HTTPSPORT_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_httpsPort() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return HTTPSPORT_INVALID
+        End If
+      End If
+      res = Me._httpsPort
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the secure TCP port used to serve the hub web UI.
+    ''' <para>
+    '''   The default value is port 4443,
+    '''   which is the default for all Web servers. When you change this parameter, remember to call the
+    '''   <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the secure TCP port used to serve the hub web UI
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_httpsPort(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("httpsPort", rest_val)
     End Function
     '''*
     ''' <summary>
