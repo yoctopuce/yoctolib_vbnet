@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 58921 2024-01-12 09:43:57Z seb $
+'  $Id: yocto_spiport.vb 59503 2024-02-26 11:04:41Z seb $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -991,7 +991,7 @@ Module yocto_spiport
     End Function
     '''*
     ''' <summary>
-    '''   Retrieves a SPI port for a given identifier.
+    '''   Retrieves an SPI port for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -1019,7 +1019,7 @@ Module yocto_spiport
     '''   it is invoked. The returned object is nevertheless valid.
     '''   Use the method <c>YSpiPort.isOnline()</c> to test if the SPI port is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a SPI port by logical name, no error is notified: the first instance
+    '''   an SPI port by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -2001,13 +2001,13 @@ Module yocto_spiport
     '''   Continues the enumeration of SPI ports started using <c>yFirstSpiPort()</c>.
     ''' <para>
     '''   Caution: You can't make any assumption about the returned SPI ports order.
-    '''   If you want to find a specific a SPI port, use <c>SpiPort.findSpiPort()</c>
+    '''   If you want to find a specific an SPI port, use <c>SpiPort.findSpiPort()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YSpiPort</c> object, corresponding to
-    '''   a SPI port currently online, or a <c>Nothing</c> pointer
+    '''   an SPI port currently online, or a <c>Nothing</c> pointer
     '''   if there are no more SPI ports to enumerate.
     ''' </returns>
     '''/
@@ -2071,7 +2071,7 @@ Module yocto_spiport
 
   '''*
   ''' <summary>
-  '''   Retrieves a SPI port for a given identifier.
+  '''   Retrieves an SPI port for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -2099,7 +2099,7 @@ Module yocto_spiport
   '''   it is invoked. The returned object is nevertheless valid.
   '''   Use the method <c>YSpiPort.isOnline()</c> to test if the SPI port is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a SPI port by logical name, no error is notified: the first instance
+  '''   an SPI port by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>

@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 59222 2024-02-05 15:50:11Z seb $
+'* $Id: yocto_api.vb 59503 2024-02-26 11:04:41Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -781,7 +781,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.00"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H200
-  Public Const YOCTO_API_BUILD_NO As String = "59414"
+  Public Const YOCTO_API_BUILD_NO As String = "59503"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -10345,7 +10345,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Returns the sensor health state code, which is zero when there is an up-to-date measure
+    '''   Returns the sensor state code, which is zero when there is an up-to-date measure
     '''   available or a positive code if the sensor is not able to provide a measure right now.
     ''' <para>
     ''' </para>
@@ -10353,7 +10353,7 @@ Module yocto_api
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the sensor health state code, which is zero when there is an up-to-date measure
+    '''   an integer corresponding to the sensor state code, which is zero when there is an up-to-date measure
     '''   available or a positive code if the sensor is not able to provide a measure right now
     ''' </returns>
     ''' <para>
@@ -11225,7 +11225,7 @@ Module yocto_api
   '''   Recording can happen automatically, without requiring a permanent
   '''   connection to a computer.
   '''   The <c>YDataLogger</c> class controls the global parameters of the internal data
-  '''   logger. Recording control (start/stop) as well as data retreival is done at
+  '''   logger. Recording control (start/stop) as well as data retrieval is done at
   '''   sensor objects level.
   ''' </para>
   ''' </summary>
