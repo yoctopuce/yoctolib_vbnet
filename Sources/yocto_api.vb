@@ -781,7 +781,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.00"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H200
-  Public Const YOCTO_API_BUILD_NO As String = "59503"
+  Public Const YOCTO_API_BUILD_NO As String = "59526"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
