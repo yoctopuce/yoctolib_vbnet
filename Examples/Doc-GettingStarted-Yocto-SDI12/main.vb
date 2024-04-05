@@ -1,13 +1,13 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 58233 2023-12-04 10:57:58Z seb $
+'  $Id: main.vb 60119 2024-03-22 09:43:37Z seb $
 '
 '  An example that shows how to use a  Yocto-SDI12
 '
 '  You can find more information on our web site:
 '   Yocto-SDI12 documentation:
 '      https://www.yoctopuce.com/EN/products/yocto-sdi12/doc.html
-'   Visual Basic .Net V2 API Reference:
+'   Visual Basic .Net API Reference:
 '      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
 '
 ' *********************************************************************
@@ -52,7 +52,7 @@ Module Module1
         While True
             If (sdi12Port.isOnline()) Then
                 Console.SetCursorPosition(0, 0)
-                Dim singleSensor As YSdi12Sensor = sdi12Port.discoverSingleSensor()
+                Dim singleSensor As YSdi12SensorInfo = sdi12Port.discoverSingleSensor()
                 Console.WriteLine("Sensor address : " + singleSensor.get_sensorAddress())
                 Console.WriteLine("Sensor SDI-12 compatibility : " + singleSensor.get_sensorProtocol())
                 Console.WriteLine("Sensor company name : " + singleSensor.get_sensorVendor())

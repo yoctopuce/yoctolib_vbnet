@@ -1,11 +1,11 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 38840 2019-12-19 10:23:04Z seb $
+'  $Id: main.vb 60119 2024-03-22 09:43:37Z seb $
 '
 '  Doc-SaveSettings example
 '
 '  You can find more information on our web site:
-'   VB .NET API Reference:
+'   Visual Basic .Net API Reference:
 '      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
 '
 ' *********************************************************************

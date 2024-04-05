@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 59503 2024-02-26 11:04:41Z seb $
+'* $Id: yocto_api.vb 60394 2024-04-05 10:12:27Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -670,8 +670,15 @@ Module yocto_api
     End Sub
 
     Public Function getString(key As String) As String
-      Dim ystr As YJSONString = DirectCast(parsed(key), YJSONString)
-      Return ystr.getString()
+      If parsed(key).getJSONType() = YJSONType.NUMBER Then
+        Dim ynumber As YJSONNumber = DirectCast(parsed(key), YJSONNumber)
+        Return ynumber.getInt().ToString()
+      ElseIf parsed(key).getJSONType() = YJSONType.STRING Then
+        Dim ystr As YJSONString = DirectCast(parsed(key), YJSONString)
+        Return ystr.getString()
+      Else
+        Return "<JSON_getString_error>"
+      End If
     End Function
 
     Public Function getInt(key As String) As Integer
@@ -779,9 +786,9 @@ Module yocto_api
   '=======================================================
 
 
-  Public Const YOCTO_API_VERSION_STR As String = "2.00"
+  Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H200
-  Public Const YOCTO_API_BUILD_NO As String = "59526"
+  Public Const YOCTO_API_BUILD_NO As String = "60394"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1288,7 +1295,7 @@ Module yocto_api
     '''   a string containing the certificate. In case of error, returns a string starting with "error:".
     ''' </returns>
     '''/
-    Public Overridable Function DownloadHostCertificate(url As String, mstimeout As Long) As Byte()
+    Public Overridable Function DownloadHostCertificate(url As String, mstimeout As Long) As String
       Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
       Dim smallbuff As StringBuilder = New StringBuilder(4096)
       Dim bigbuff As StringBuilder
@@ -1313,11 +1320,11 @@ Module yocto_api
         Else
           certifcate = "error:" + errmsg.ToString()
         End If
-        Return YAPI.DefaultEncoding.GetBytes(certifcate)
+        Return certifcate
       Else
         certifcate = smallbuff.ToString()
       End If
-      Return YAPI.DefaultEncoding.GetBytes(certifcate)
+      Return certifcate
     End Function
 
     '''*
@@ -1557,6 +1564,12 @@ Module yocto_api
     Public Const BUFFER_TOO_SMALL As Integer = -18 REM The buffer provided is too small
     Public Const DNS_ERROR As Integer = -19     REM Error during name resolutions (invalid hostname or dns communication error)
     Public Const SSL_UNK_CERT As Integer = -20  REM The certificate is not correctly signed by the trusted CA
+
+  REM TLS / SSL definitions
+    Public Const NO_TRUSTED_CA_CHECK As Integer = 1 REM Disables certificate checking
+    Public Const NO_EXPIRATION_CHECK As Integer = 2 REM Disables certificate expiration date checking
+    Public Const NO_HOSTNAME_CHECK As Integer = 4 REM Disable hostname checking
+    Public Const LEGACY As Integer = 8          REM Allow non secure connection (similar to v1.10)
 
     REM --- (end of generated code: YFunction return codes)
     Public Shared _yapiContext As YAPIContext = New YAPIContext()
@@ -2064,7 +2077,7 @@ Module yocto_api
     '''   a string containing the certificate. In case of error, returns a string starting with "error:".
     ''' </returns>
     '''/
-    Public Shared Function DownloadHostCertificate(url As String, mstimeout As Long) As Byte()
+    Public Shared Function DownloadHostCertificate(url As String, mstimeout As Long) As String
         YAPI.InitAPI(0, Nothing)
         return _yapiContext.DownloadHostCertificate(url, mstimeout)
     End Function
@@ -3014,9 +3027,10 @@ Module yocto_api
   Public Const YAPI_SSL_UNK_CERT As Integer = -20  REM The certificate is not correctly signed by the trusted CA
 
   REM TLS / SSL definitions
-  Public Const NO_TRUSTED_CA_CHECK As Integer = 1 REM Disables certificate checking
-  Public Const NO_EXPIRATION_CHECK As Integer = 2 REM Disables certificate expiration date checking
-  Public Const NO_HOSTNAME_CHECK As Integer = 4 REM Disable hostname checking
+  Public Const YAPI_NO_TRUSTED_CA_CHECK As Integer = 1 REM Disables certificate checking
+  Public Const YAPI_NO_EXPIRATION_CHECK As Integer = 2 REM Disables certificate expiration date checking
+  Public Const YAPI_NO_HOSTNAME_CHECK As Integer = 4 REM Disable hostname checking
+  Public Const YAPI_LEGACY As Integer = 8          REM Allow non secure connection (similar to v1.10)
 
   Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING

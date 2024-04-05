@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_i2cport.vb 58921 2024-01-12 09:43:57Z seb $
+'  $Id: yocto_i2cport.vb 59693 2024-03-11 07:31:56Z seb $
 '
 '  Implements yFindI2cPort(), the high-level API for I2cPort functions
 '
@@ -1800,6 +1800,9 @@ Module yocto_i2cport
     '''   the maximum number of milliseconds to wait for a message if none is found
     '''   in the receive buffer.
     ''' </param>
+    ''' <param name="maxMsg">
+    '''   the maximum number of messages to be returned by the function; up to 254.
+    ''' </param>
     ''' <returns>
     '''   an array of <c>YI2cSnoopingRecord</c> objects containing the messages found, if any.
     ''' </returns>
@@ -1807,7 +1810,7 @@ Module yocto_i2cport
     '''   On failure, throws an exception or returns an empty array.
     ''' </para>
     '''/
-    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YI2cSnoopingRecord)
+    Public Overridable Function snoopMessagesEx(maxWait As Integer, maxMsg As Integer) As List(Of YI2cSnoopingRecord)
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
@@ -1815,7 +1818,7 @@ Module yocto_i2cport
       Dim res As List(Of YI2cSnoopingRecord) = New List(Of YI2cSnoopingRecord)()
       Dim idx As Integer = 0
 
-      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0"
+      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&t=0&len=" + Convert.ToString(maxMsg)
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
@@ -1833,6 +1836,31 @@ Module yocto_i2cport
       End While
 
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves messages (both direction) in the I2C port buffer, starting at current position.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   If no message is found, the search waits for one up to the specified maximum timeout
+    '''   (in milliseconds).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a message if none is found
+    '''   in the receive buffer.
+    ''' </param>
+    ''' <returns>
+    '''   an array of <c>YI2cSnoopingRecord</c> objects containing the messages found, if any.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YI2cSnoopingRecord)
+      Return Me.snoopMessagesEx(maxWait, 255)
     End Function
 
 

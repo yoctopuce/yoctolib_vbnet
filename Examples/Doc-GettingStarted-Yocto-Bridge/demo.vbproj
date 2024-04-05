@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <StartupObject>ConsoleApplication1.Module1</StartupObject>
     <RootNamespace>ConsoleApplication1</RootNamespace>
-    <AssemblyName>demo</AssemblyName>
+    <AssemblyName>Doc-GettingStarted-Yocto-Bridge</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Console</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -22,7 +22,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>demo.xml</DocumentationFile>
+    <DocumentationFile>Doc-GettingStarted-Yocto-Bridge.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
@@ -34,7 +34,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>demo.xml</DocumentationFile>
+    <DocumentationFile>Doc-GettingStarted-Yocto-Bridge.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
@@ -71,68 +71,32 @@
     <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Sources\yocto_api.vb">
-      <Link>yocto\yocto_api.vb</Link>
-    </Compile>
-    
-<Compile Include="..\..\Sources\yocto_genericsensor.vb">
-<Link>yocto_api\yocto_genericsensor.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_temperature.vb">
-<Link>yocto_api\yocto_temperature.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_weighscale.vb">
-<Link>yocto_api\yocto_weighscale.vb</Link>
-</Compile>
-
     <Compile Include="main.vb" />
-    <Compile Include="My Project\AssemblyInfo.vb" />
-    <Compile Include="My Project\Application.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Application.myapp</DependentUpon>
+    <Compile Include="..\..\Sources\yocto_genericsensor.vb">
+      <Link>Yoctopuce\{yocto_genericsensor.vb}</Link>
     </Compile>
-    <Compile Include="My Project\Resources.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
+    <Compile Include="..\..\Sources\yocto_temperature.vb">
+      <Link>Yoctopuce\{yocto_temperature.vb}</Link>
     </Compile>
-    <Compile Include="My Project\Settings.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    <Compile Include="..\..\Sources\yocto_weighscale.vb">
+      <Link>Yoctopuce\{yocto_weighscale.vb}</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_api.vb">
+      <Link>Yoctopuce\{yocto_api.vb}</Link>
+    </Compile>
+  
+    <Compile Include="Properties\AssemblyInfo.vb" />  
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="My Project\Resources.resx">
-      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
-      <CustomToolNamespace>My.Resources</CustomToolNamespace>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="My Project\Application.myapp">
-      <Generator>MyApplicationCodeGenerator</Generator>
-      <LastGenOutput>Application.Designer.vb</LastGenOutput>
-    </None>
-    <None Include="My Project\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <CustomToolNamespace>My</CustomToolNamespace>
-      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
+
+        <Content Include="..\..\Sources\dll\amd64\yapi.dll">
+      <Link>amd64\yapi.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\..\Sources\dll\yapi.dll">
       <Link>yapi.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </Content>  
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

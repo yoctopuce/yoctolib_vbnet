@@ -183,12 +183,13 @@ Module yocto_sdi12port
 
   End Class
 
-  Public Class YSdi12Sensor
-    REM --- (end of generated code: YSdi12Sensor class start)
-    REM --- (generated code: YSdi12Sensor definitions)
-    REM --- (end of generated code: YSdi12Sensor definitions)
-    REM --- (generated code: YSdi12Sensor attributes declaration)
+  Public Class YSdi12SensorInfo
+    REM --- (end of generated code: YSdi12SensorInfo class start)
+    REM --- (generated code: YSdi12SensorInfo definitions)
+    REM --- (end of generated code: YSdi12SensorInfo definitions)
+    REM --- (generated code: YSdi12SensorInfo attributes declaration)
     Protected _sdi12Port As YSdi12Port
+    Protected _isValid As Boolean
     Protected _addr As String
     Protected _proto As String
     Protected _mfg As String
@@ -196,13 +197,31 @@ Module yocto_sdi12port
     Protected _ver As String
     Protected _sn As String
     Protected _valuesDesc As List(Of List(Of String))
-    REM --- (end of generated code: YSdi12Sensor attributes declaration)
+    REM --- (end of generated code: YSdi12SensorInfo attributes declaration)
 
-    REM --- (generated code: YSdi12Sensor private methods declaration)
+    REM --- (generated code: YSdi12SensorInfo private methods declaration)
 
-    REM --- (end of generated code: YSdi12Sensor private methods declaration)
+    REM --- (end of generated code: YSdi12SensorInfo private methods declaration)
 
-    REM --- (generated code: YSdi12Sensor public methods declaration)
+    Public Overridable Sub _throw(errcode As Integer, msg As String)
+      Me._sdi12Port._throw(errcode,msg)
+    End Sub
+
+    REM --- (generated code: YSdi12SensorInfo public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the sensor state.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the sensor state.
+    ''' </returns>
+    '''/
+    Public Overridable Function isValid() As Boolean
+      Return Me._isValid
+    End Function
+
     '''*
     ''' <summary>
     '''   Returns the sensor address.
@@ -291,6 +310,8 @@ Module yocto_sdi12port
     ''' <summary>
     '''   Returns the number of sensor measurements.
     ''' <para>
+    '''   This function only works if the sensor is in version 1.4 SDI-12
+    '''   and supports metadata commands.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -305,6 +326,8 @@ Module yocto_sdi12port
     ''' <summary>
     '''   Returns the sensor measurement command.
     ''' <para>
+    '''   This function only works if the sensor is in version 1.4 SDI-12
+    '''   and supports metadata commands.
     ''' </para>
     ''' </summary>
     ''' <param name="measureIndex">
@@ -312,9 +335,14 @@ Module yocto_sdi12port
     ''' </param>
     ''' <returns>
     '''   the sensor measurement command.
+    '''   On failure, throws an exception or returns an empty string.
     ''' </returns>
     '''/
     Public Overridable Function get_measureCommand(measureIndex As Integer) As String
+      If Not(measureIndex < Me._valuesDesc.Count) Then
+        me._throw( YAPI.INVALID_ARGUMENT,  "Invalid measure index")
+        return ""
+      end if
       Return Me._valuesDesc(measureIndex)(0)
     End Function
 
@@ -322,6 +350,8 @@ Module yocto_sdi12port
     ''' <summary>
     '''   Returns sensor measurement position.
     ''' <para>
+    '''   This function only works if the sensor is in version 1.4 SDI-12
+    '''   and supports metadata commands.
     ''' </para>
     ''' </summary>
     ''' <param name="measureIndex">
@@ -329,9 +359,14 @@ Module yocto_sdi12port
     ''' </param>
     ''' <returns>
     '''   the sensor measurement command.
+    '''   On failure, throws an exception or returns 0.
     ''' </returns>
     '''/
     Public Overridable Function get_measurePosition(measureIndex As Integer) As Integer
+      If Not(measureIndex < Me._valuesDesc.Count) Then
+        me._throw( YAPI.INVALID_ARGUMENT,  "Invalid measure index")
+        return 0
+      end if
       Return YAPI._atoi(Me._valuesDesc(measureIndex)(2))
     End Function
 
@@ -339,6 +374,8 @@ Module yocto_sdi12port
     ''' <summary>
     '''   Returns the measured value symbol.
     ''' <para>
+    '''   This function only works if the sensor is in version 1.4 SDI-12
+    '''   and supports metadata commands.
     ''' </para>
     ''' </summary>
     ''' <param name="measureIndex">
@@ -346,9 +383,14 @@ Module yocto_sdi12port
     ''' </param>
     ''' <returns>
     '''   the sensor measurement command.
+    '''   On failure, throws an exception or returns an empty string.
     ''' </returns>
     '''/
     Public Overridable Function get_measureSymbol(measureIndex As Integer) As String
+      If Not(measureIndex < Me._valuesDesc.Count) Then
+        me._throw( YAPI.INVALID_ARGUMENT,  "Invalid measure index")
+        return ""
+      end if
       Return Me._valuesDesc(measureIndex)(3)
     End Function
 
@@ -356,6 +398,8 @@ Module yocto_sdi12port
     ''' <summary>
     '''   Returns the unit of the measured value.
     ''' <para>
+    '''   This function only works if the sensor is in version 1.4 SDI-12
+    '''   and supports metadata commands.
     ''' </para>
     ''' </summary>
     ''' <param name="measureIndex">
@@ -363,9 +407,14 @@ Module yocto_sdi12port
     ''' </param>
     ''' <returns>
     '''   the sensor measurement command.
+    '''   On failure, throws an exception or returns an empty string.
     ''' </returns>
     '''/
     Public Overridable Function get_measureUnit(measureIndex As Integer) As String
+      If Not(measureIndex < Me._valuesDesc.Count) Then
+        me._throw( YAPI.INVALID_ARGUMENT,  "Invalid measure index")
+        return ""
+      end if
       Return Me._valuesDesc(measureIndex)(4)
     End Function
 
@@ -373,6 +422,8 @@ Module yocto_sdi12port
     ''' <summary>
     '''   Returns the description of the measured value.
     ''' <para>
+    '''   This function only works if the sensor is in version 1.4 SDI-12
+    '''   and supports metadata commands.
     ''' </para>
     ''' </summary>
     ''' <param name="measureIndex">
@@ -380,9 +431,14 @@ Module yocto_sdi12port
     ''' </param>
     ''' <returns>
     '''   the sensor measurement command.
+    '''   On failure, throws an exception or returns an empty string.
     ''' </returns>
     '''/
     Public Overridable Function get_measureDescription(measureIndex As Integer) As String
+      If Not(measureIndex < Me._valuesDesc.Count) Then
+        me._throw( YAPI.INVALID_ARGUMENT,  "Invalid measure index")
+        return ""
+      end if
       Return Me._valuesDesc(measureIndex)(5)
     End Function
 
@@ -402,6 +458,7 @@ Module yocto_sdi12port
           Me._model = errmsg
           Me._ver = errmsg
           Me._sn = errmsg
+          Me._isValid = False
         Else
           Me._addr = (infoStr).Substring( 0, 1)
           Me._proto = (infoStr).Substring( 1, 2)
@@ -409,6 +466,7 @@ Module yocto_sdi12port
           Me._model = (infoStr).Substring( 11, 6)
           Me._ver = (infoStr).Substring( 17, 3)
           Me._sn = (infoStr).Substring( 20, (infoStr).Length-20)
+          Me._isValid = True
         End If
       End If
     End Sub
@@ -465,7 +523,7 @@ Module yocto_sdi12port
 
 
 
-    REM --- (end of generated code: YSdi12Sensor public methods declaration)
+    REM --- (end of generated code: YSdi12SensorInfo public methods declaration)
 
 
 
@@ -2166,18 +2224,18 @@ Module yocto_sdi12port
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   the reply returned by the sensor, as a YSdi12Sensor object.
+    '''   the reply returned by the sensor, as a YSdi12SensorInfo object.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns an empty string.
     ''' </para>
     '''/
-    Public Overridable Function discoverSingleSensor() As YSdi12Sensor
+    Public Overridable Function discoverSingleSensor() As YSdi12SensorInfo
       Dim resStr As String
 
       resStr = Me.querySdi12("?","",5000)
       If (resStr = "") Then
-        Return New YSdi12Sensor(Me, "ERSensor Not Found")
+        Return New YSdi12SensorInfo(Me, "ERSensor Not Found")
       End If
 
       Return Me.getSensorInformation(resStr)
@@ -2193,14 +2251,14 @@ Module yocto_sdi12port
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   all the information from every connected sensor, as an array of YSdi12Sensor object.
+    '''   all the information from every connected sensor, as an array of YSdi12SensorInfo object.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns an empty string.
     ''' </para>
     '''/
-    Public Overridable Function discoverAllSensors() As List(Of YSdi12Sensor)
-      Dim sensors As List(Of YSdi12Sensor) = New List(Of YSdi12Sensor)()
+    Public Overridable Function discoverAllSensors() As List(Of YSdi12SensorInfo)
+      Dim sensors As List(Of YSdi12SensorInfo) = New List(Of YSdi12SensorInfo)()
       Dim idSens As List(Of String) = New List(Of String)()
       Dim res As String
       Dim i As Integer = 0
@@ -2314,14 +2372,14 @@ Module yocto_sdi12port
     '''   New sensor address, as a string
     ''' </param>
     ''' <returns>
-    '''   the sensor address and information , as a YSdi12Sensor object.
+    '''   the sensor address and information , as a YSdi12SensorInfo object.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns an empty string.
     ''' </para>
     '''/
-    Public Overridable Function changeAddress(oldAddress As String, newAddress As String) As YSdi12Sensor
-      Dim addr As YSdi12Sensor
+    Public Overridable Function changeAddress(oldAddress As String, newAddress As String) As YSdi12SensorInfo
+      Dim addr As YSdi12SensorInfo
 
       Me.querySdi12(oldAddress, "A" + newAddress,1000)
       addr = Me.getSensorInformation(newAddress)
@@ -2345,15 +2403,15 @@ Module yocto_sdi12port
     '''   On failure, throws an exception or returns an empty string.
     ''' </para>
     '''/
-    Public Overridable Function getSensorInformation(sensorAddr As String) As YSdi12Sensor
+    Public Overridable Function getSensorInformation(sensorAddr As String) As YSdi12SensorInfo
       Dim res As String
-      Dim sensor As YSdi12Sensor
+      Dim sensor As YSdi12SensorInfo
 
       res = Me.querySdi12(sensorAddr,"I",1000)
       If (res = "") Then
-        Return New YSdi12Sensor(Me, "ERSensor Not Found")
+        Return New YSdi12SensorInfo(Me, "ERSensor Not Found")
       End If
-      sensor = New YSdi12Sensor(Me, res)
+      sensor = New YSdi12SensorInfo(Me, res)
       sensor._queryValueInfo()
       Return sensor
     End Function
@@ -2423,6 +2481,9 @@ Module yocto_sdi12port
     '''   the maximum number of milliseconds to wait for a message if none is found
     '''   in the receive buffer.
     ''' </param>
+    ''' <param name="maxMsg">
+    '''   the maximum number of messages to be returned by the function; up to 254.
+    ''' </param>
     ''' <returns>
     '''   an array of <c>YSdi12SnoopingRecord</c> objects containing the messages found, if any.
     ''' </returns>
@@ -2430,7 +2491,7 @@ Module yocto_sdi12port
     '''   On failure, throws an exception or returns an empty array.
     ''' </para>
     '''/
-    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YSdi12SnoopingRecord)
+    Public Overridable Function snoopMessagesEx(maxWait As Integer, maxMsg As Integer) As List(Of YSdi12SnoopingRecord)
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
@@ -2438,7 +2499,7 @@ Module yocto_sdi12port
       Dim res As List(Of YSdi12SnoopingRecord) = New List(Of YSdi12SnoopingRecord)()
       Dim idx As Integer = 0
 
-      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0"
+      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&t=0&len=" + Convert.ToString(maxMsg)
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
@@ -2456,6 +2517,31 @@ Module yocto_sdi12port
       End While
 
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves messages (both direction) in the SDI12 port buffer, starting at current position.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   If no message is found, the search waits for one up to the specified maximum timeout
+    '''   (in milliseconds).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a message if none is found
+    '''   in the receive buffer.
+    ''' </param>
+    ''' <returns>
+    '''   an array of <c>YSdi12SnoopingRecord</c> objects containing the messages found, if any.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YSdi12SnoopingRecord)
+      Return Me.snoopMessagesEx(maxWait, 255)
     End Function
 
 

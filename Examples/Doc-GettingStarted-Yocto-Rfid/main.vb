@@ -1,13 +1,13 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 55641 2023-07-26 09:43:42Z seb $
+'  $Id: main.vb 60135 2024-03-25 08:14:08Z seb $
 '
-'  An example that shows how to use a  Yocto-Rfid-xxxxx
+'  An example that shows how to use a  Yocto-RFID-15693
 '
 '  You can find more information on our web site:
-'  Yocto-RFID-15693 documentation:
+'   Yocto-RFID-15693 documentation:
 '      https://www.yoctopuce.com/EN/products/yocto-rfid-15693/doc.html
-'   VB .NET API Reference:
+'   Visual Basic .Net API Reference:
 '      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
 '
 ' *********************************************************************

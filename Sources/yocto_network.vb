@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 54332 2023-05-02 08:35:37Z seb $
+'  $Id: yocto_network.vb 60214 2024-03-26 13:01:50Z mvuilleu $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -72,6 +72,11 @@ Module yocto_network
   Public Const Y_ADMINPASSWORD_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_HTTPPORT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_HTTPSPORT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_SECURITYMODE_UNDEFINED As Integer = 0
+  Public Const Y_SECURITYMODE_LEGACY As Integer = 1
+  Public Const Y_SECURITYMODE_MIXED As Integer = 2
+  Public Const Y_SECURITYMODE_SECURE As Integer = 3
+  Public Const Y_SECURITYMODE_INVALID As Integer = -1
   Public Const Y_DEFAULTPAGE_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_DISCOVERABLE_FALSE As Integer = 0
   Public Const Y_DISCOVERABLE_TRUE As Integer = 1
@@ -139,6 +144,11 @@ Module yocto_network
     Public Const ADMINPASSWORD_INVALID As String = YAPI.INVALID_STRING
     Public Const HTTPPORT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const HTTPSPORT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const SECURITYMODE_UNDEFINED As Integer = 0
+    Public Const SECURITYMODE_LEGACY As Integer = 1
+    Public Const SECURITYMODE_MIXED As Integer = 2
+    Public Const SECURITYMODE_SECURE As Integer = 3
+    Public Const SECURITYMODE_INVALID As Integer = -1
     Public Const DEFAULTPAGE_INVALID As String = YAPI.INVALID_STRING
     Public Const DISCOVERABLE_FALSE As Integer = 0
     Public Const DISCOVERABLE_TRUE As Integer = 1
@@ -189,6 +199,7 @@ Module yocto_network
     Protected _adminPassword As String
     Protected _httpPort As Integer
     Protected _httpsPort As Integer
+    Protected _securityMode As Integer
     Protected _defaultPage As String
     Protected _discoverable As Integer
     Protected _wwwWatchdogDelay As Integer
@@ -223,6 +234,7 @@ Module yocto_network
       _adminPassword = ADMINPASSWORD_INVALID
       _httpPort = HTTPPORT_INVALID
       _httpsPort = HTTPSPORT_INVALID
+      _securityMode = SECURITYMODE_INVALID
       _defaultPage = DEFAULTPAGE_INVALID
       _discoverable = DISCOVERABLE_INVALID
       _wwwWatchdogDelay = WWWWATCHDOGDELAY_INVALID
@@ -284,6 +296,9 @@ Module yocto_network
       End If
       If json_val.has("httpsPort") Then
         _httpsPort = CInt(json_val.getLong("httpsPort"))
+      End If
+      If json_val.has("securityMode") Then
+        _securityMode = CInt(json_val.getLong("securityMode"))
       End If
       If json_val.has("defaultPage") Then
         _defaultPage = json_val.getString("defaultPage")
@@ -952,6 +967,76 @@ Module yocto_network
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("httpsPort", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the security level chosen to prevent unauthorized access to the server.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>YNetwork.SECURITYMODE_UNDEFINED</c>, <c>YNetwork.SECURITYMODE_LEGACY</c>,
+    '''   <c>YNetwork.SECURITYMODE_MIXED</c> and <c>YNetwork.SECURITYMODE_SECURE</c> corresponding to the
+    '''   security level chosen to prevent unauthorized access to the server
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YNetwork.SECURITYMODE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_securityMode() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return SECURITYMODE_INVALID
+        End If
+      End If
+      res = Me._securityMode
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the security level used to prevent unauthorized access to the server.
+    ''' <para>
+    '''   The value <c>UNDEFINED</c> causes the security configuration wizard to be
+    '''   displayed the next time you log on to the Web console.
+    '''   The value <c>LEGACY</c> offers unencrypted HTTP access by default, and
+    '''   is designed to provide compatibility with legacy applications that do not
+    '''   handle password or do not support <c>HTTPS</c>. But it should
+    '''   only be used when system security is guaranteed by other means, such as the
+    '''   use of a firewall.
+    '''   The value <c>MIXED</c> requires the configuration of passwords, and allows
+    '''   access via both HTTP (unencrypted) and HTTPS (encrypted), while requiring
+    '''   the Yoctopuce API to be tolerant of certificate characteristics.
+    '''   The value <c>SECURE</c> requires the configuration of passwords and the
+    '''   use of secure communications in all cases.
+    '''   When you change this parameter, remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a value among <c>YNetwork.SECURITYMODE_UNDEFINED</c>, <c>YNetwork.SECURITYMODE_LEGACY</c>,
+    '''   <c>YNetwork.SECURITYMODE_MIXED</c> and <c>YNetwork.SECURITYMODE_SECURE</c> corresponding to the
+    '''   security level used to prevent unauthorized access to the server
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_securityMode(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("securityMode", rest_val)
     End Function
     '''*
     ''' <summary>

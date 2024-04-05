@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <StartupObject>ConsoleApplication1.Module1</StartupObject>
     <RootNamespace>ConsoleApplication1</RootNamespace>
-    <AssemblyName>demo</AssemblyName>
+    <AssemblyName>Doc-ModuleControl</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Console</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -22,7 +22,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>demo.xml</DocumentationFile>
+    <DocumentationFile>Doc-ModuleControl.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
@@ -34,7 +34,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>demo.xml</DocumentationFile>
+    <DocumentationFile>Doc-ModuleControl.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
@@ -71,278 +71,242 @@
     <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Sources\yocto_api.vb">
-      <Link>yocto\yocto_api.vb</Link>
-    </Compile>
-    
-<Compile Include="..\..\Sources\yocto_accelerometer.vb">
-<Link>yocto_api\yocto_accelerometer.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_altitude.vb">
-<Link>yocto_api\yocto_altitude.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_anbutton.vb">
-<Link>yocto_api\yocto_anbutton.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_arithmeticsensor.vb">
-<Link>yocto_api\yocto_arithmeticsensor.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_audioin.vb">
-<Link>yocto_api\yocto_audioin.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_audioout.vb">
-<Link>yocto_api\yocto_audioout.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_bluetoothlink.vb">
-<Link>yocto_api\yocto_bluetoothlink.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_buzzer.vb">
-<Link>yocto_api\yocto_buzzer.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_carbondioxide.vb">
-<Link>yocto_api\yocto_carbondioxide.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_cellular.vb">
-<Link>yocto_api\yocto_cellular.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_colorled.vb">
-<Link>yocto_api\yocto_colorled.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_colorledcluster.vb">
-<Link>yocto_api\yocto_colorledcluster.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_compass.vb">
-<Link>yocto_api\yocto_compass.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_current.vb">
-<Link>yocto_api\yocto_current.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_currentloopoutput.vb">
-<Link>yocto_api\yocto_currentloopoutput.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_daisychain.vb">
-<Link>yocto_api\yocto_daisychain.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_digitalio.vb">
-<Link>yocto_api\yocto_digitalio.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_display.vb">
-<Link>yocto_api\yocto_display.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_dualpower.vb">
-<Link>yocto_api\yocto_dualpower.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_files.vb">
-<Link>yocto_api\yocto_files.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_genericsensor.vb">
-<Link>yocto_api\yocto_genericsensor.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_gps.vb">
-<Link>yocto_api\yocto_gps.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_groundspeed.vb">
-<Link>yocto_api\yocto_groundspeed.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_gyro.vb">
-<Link>yocto_api\yocto_gyro.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_hubport.vb">
-<Link>yocto_api\yocto_hubport.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_humidity.vb">
-<Link>yocto_api\yocto_humidity.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_i2cport.vb">
-<Link>yocto_api\yocto_i2cport.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_inputcapture.vb">
-<Link>yocto_api\yocto_inputcapture.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_inputchain.vb">
-<Link>yocto_api\yocto_inputchain.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_latitude.vb">
-<Link>yocto_api\yocto_latitude.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_led.vb">
-<Link>yocto_api\yocto_led.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_lightsensor.vb">
-<Link>yocto_api\yocto_lightsensor.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_longitude.vb">
-<Link>yocto_api\yocto_longitude.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_magnetometer.vb">
-<Link>yocto_api\yocto_magnetometer.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_messagebox.vb">
-<Link>yocto_api\yocto_messagebox.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_motor.vb">
-<Link>yocto_api\yocto_motor.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_multiaxiscontroller.vb">
-<Link>yocto_api\yocto_multiaxiscontroller.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_multicellweighscale.vb">
-<Link>yocto_api\yocto_multicellweighscale.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_multisenscontroller.vb">
-<Link>yocto_api\yocto_multisenscontroller.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_network.vb">
-<Link>yocto_api\yocto_network.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_oscontrol.vb">
-<Link>yocto_api\yocto_oscontrol.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_power.vb">
-<Link>yocto_api\yocto_power.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_poweroutput.vb">
-<Link>yocto_api\yocto_poweroutput.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_powersupply.vb">
-<Link>yocto_api\yocto_powersupply.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_pressure.vb">
-<Link>yocto_api\yocto_pressure.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_proximity.vb">
-<Link>yocto_api\yocto_proximity.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_pwminput.vb">
-<Link>yocto_api\yocto_pwminput.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_pwmoutput.vb">
-<Link>yocto_api\yocto_pwmoutput.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_pwmpowersource.vb">
-<Link>yocto_api\yocto_pwmpowersource.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_quadraturedecoder.vb">
-<Link>yocto_api\yocto_quadraturedecoder.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_rangefinder.vb">
-<Link>yocto_api\yocto_rangefinder.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_realtimeclock.vb">
-<Link>yocto_api\yocto_realtimeclock.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_refframe.vb">
-<Link>yocto_api\yocto_refframe.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_relay.vb">
-<Link>yocto_api\yocto_relay.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_rfidreader.vb">
-<Link>yocto_api\yocto_rfidreader.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_sdi12port.vb">
-<Link>yocto_api\yocto_sdi12port.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_segmenteddisplay.vb">
-<Link>yocto_api\yocto_segmenteddisplay.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_serialport.vb">
-<Link>yocto_api\yocto_serialport.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_servo.vb">
-<Link>yocto_api\yocto_servo.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_spiport.vb">
-<Link>yocto_api\yocto_spiport.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_steppermotor.vb">
-<Link>yocto_api\yocto_steppermotor.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_temperature.vb">
-<Link>yocto_api\yocto_temperature.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_threshold.vb">
-<Link>yocto_api\yocto_threshold.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_tilt.vb">
-<Link>yocto_api\yocto_tilt.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_tvoc.vb">
-<Link>yocto_api\yocto_tvoc.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_voc.vb">
-<Link>yocto_api\yocto_voc.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_voltage.vb">
-<Link>yocto_api\yocto_voltage.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_voltageoutput.vb">
-<Link>yocto_api\yocto_voltageoutput.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_wakeupmonitor.vb">
-<Link>yocto_api\yocto_wakeupmonitor.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_wakeupschedule.vb">
-<Link>yocto_api\yocto_wakeupschedule.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_watchdog.vb">
-<Link>yocto_api\yocto_watchdog.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_weighscale.vb">
-<Link>yocto_api\yocto_weighscale.vb</Link>
-</Compile>
-<Compile Include="..\..\Sources\yocto_wireless.vb">
-<Link>yocto_api\yocto_wireless.vb</Link>
-</Compile>
-
     <Compile Include="main.vb" />
-    <Compile Include="My Project\AssemblyInfo.vb" />
-    <Compile Include="My Project\Application.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Application.myapp</DependentUpon>
+    <Compile Include="..\..\Sources\yocto_accelerometer.vb">
+      <Link>Yoctopuce\{yocto_accelerometer.vb}</Link>
     </Compile>
-    <Compile Include="My Project\Resources.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
+    <Compile Include="..\..\Sources\yocto_altitude.vb">
+      <Link>Yoctopuce\{yocto_altitude.vb}</Link>
     </Compile>
-    <Compile Include="My Project\Settings.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    <Compile Include="..\..\Sources\yocto_anbutton.vb">
+      <Link>Yoctopuce\{yocto_anbutton.vb}</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_arithmeticsensor.vb">
+      <Link>Yoctopuce\{yocto_arithmeticsensor.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_audioin.vb">
+      <Link>Yoctopuce\{yocto_audioin.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_audioout.vb">
+      <Link>Yoctopuce\{yocto_audioout.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_bluetoothlink.vb">
+      <Link>Yoctopuce\{yocto_bluetoothlink.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_buzzer.vb">
+      <Link>Yoctopuce\{yocto_buzzer.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_carbondioxide.vb">
+      <Link>Yoctopuce\{yocto_carbondioxide.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_cellular.vb">
+      <Link>Yoctopuce\{yocto_cellular.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_colorled.vb">
+      <Link>Yoctopuce\{yocto_colorled.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_colorledcluster.vb">
+      <Link>Yoctopuce\{yocto_colorledcluster.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_compass.vb">
+      <Link>Yoctopuce\{yocto_compass.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_current.vb">
+      <Link>Yoctopuce\{yocto_current.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_currentloopoutput.vb">
+      <Link>Yoctopuce\{yocto_currentloopoutput.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_daisychain.vb">
+      <Link>Yoctopuce\{yocto_daisychain.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_digitalio.vb">
+      <Link>Yoctopuce\{yocto_digitalio.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_display.vb">
+      <Link>Yoctopuce\{yocto_display.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_dualpower.vb">
+      <Link>Yoctopuce\{yocto_dualpower.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_files.vb">
+      <Link>Yoctopuce\{yocto_files.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_genericsensor.vb">
+      <Link>Yoctopuce\{yocto_genericsensor.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_gps.vb">
+      <Link>Yoctopuce\{yocto_gps.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_groundspeed.vb">
+      <Link>Yoctopuce\{yocto_groundspeed.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_gyro.vb">
+      <Link>Yoctopuce\{yocto_gyro.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_hubport.vb">
+      <Link>Yoctopuce\{yocto_hubport.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_humidity.vb">
+      <Link>Yoctopuce\{yocto_humidity.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_i2cport.vb">
+      <Link>Yoctopuce\{yocto_i2cport.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_inputcapture.vb">
+      <Link>Yoctopuce\{yocto_inputcapture.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_inputchain.vb">
+      <Link>Yoctopuce\{yocto_inputchain.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_latitude.vb">
+      <Link>Yoctopuce\{yocto_latitude.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_led.vb">
+      <Link>Yoctopuce\{yocto_led.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_lightsensor.vb">
+      <Link>Yoctopuce\{yocto_lightsensor.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_longitude.vb">
+      <Link>Yoctopuce\{yocto_longitude.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_magnetometer.vb">
+      <Link>Yoctopuce\{yocto_magnetometer.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_messagebox.vb">
+      <Link>Yoctopuce\{yocto_messagebox.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_motor.vb">
+      <Link>Yoctopuce\{yocto_motor.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_multiaxiscontroller.vb">
+      <Link>Yoctopuce\{yocto_multiaxiscontroller.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_multicellweighscale.vb">
+      <Link>Yoctopuce\{yocto_multicellweighscale.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_multisenscontroller.vb">
+      <Link>Yoctopuce\{yocto_multisenscontroller.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_network.vb">
+      <Link>Yoctopuce\{yocto_network.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_oscontrol.vb">
+      <Link>Yoctopuce\{yocto_oscontrol.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_power.vb">
+      <Link>Yoctopuce\{yocto_power.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_poweroutput.vb">
+      <Link>Yoctopuce\{yocto_poweroutput.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_powersupply.vb">
+      <Link>Yoctopuce\{yocto_powersupply.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_pressure.vb">
+      <Link>Yoctopuce\{yocto_pressure.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_proximity.vb">
+      <Link>Yoctopuce\{yocto_proximity.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_pwminput.vb">
+      <Link>Yoctopuce\{yocto_pwminput.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_pwmoutput.vb">
+      <Link>Yoctopuce\{yocto_pwmoutput.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_pwmpowersource.vb">
+      <Link>Yoctopuce\{yocto_pwmpowersource.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_quadraturedecoder.vb">
+      <Link>Yoctopuce\{yocto_quadraturedecoder.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_rangefinder.vb">
+      <Link>Yoctopuce\{yocto_rangefinder.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_realtimeclock.vb">
+      <Link>Yoctopuce\{yocto_realtimeclock.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_refframe.vb">
+      <Link>Yoctopuce\{yocto_refframe.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_relay.vb">
+      <Link>Yoctopuce\{yocto_relay.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_rfidreader.vb">
+      <Link>Yoctopuce\{yocto_rfidreader.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_sdi12port.vb">
+      <Link>Yoctopuce\{yocto_sdi12port.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_segmenteddisplay.vb">
+      <Link>Yoctopuce\{yocto_segmenteddisplay.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_serialport.vb">
+      <Link>Yoctopuce\{yocto_serialport.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_servo.vb">
+      <Link>Yoctopuce\{yocto_servo.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_spiport.vb">
+      <Link>Yoctopuce\{yocto_spiport.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_steppermotor.vb">
+      <Link>Yoctopuce\{yocto_steppermotor.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_temperature.vb">
+      <Link>Yoctopuce\{yocto_temperature.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_threshold.vb">
+      <Link>Yoctopuce\{yocto_threshold.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_tilt.vb">
+      <Link>Yoctopuce\{yocto_tilt.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_tvoc.vb">
+      <Link>Yoctopuce\{yocto_tvoc.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_voc.vb">
+      <Link>Yoctopuce\{yocto_voc.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_voltage.vb">
+      <Link>Yoctopuce\{yocto_voltage.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_voltageoutput.vb">
+      <Link>Yoctopuce\{yocto_voltageoutput.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_wakeupmonitor.vb">
+      <Link>Yoctopuce\{yocto_wakeupmonitor.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_wakeupschedule.vb">
+      <Link>Yoctopuce\{yocto_wakeupschedule.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_watchdog.vb">
+      <Link>Yoctopuce\{yocto_watchdog.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_weighscale.vb">
+      <Link>Yoctopuce\{yocto_weighscale.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_wireless.vb">
+      <Link>Yoctopuce\{yocto_wireless.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_api.vb">
+      <Link>Yoctopuce\{yocto_api.vb}</Link>
+    </Compile>
+  
+    <Compile Include="Properties\AssemblyInfo.vb" />  
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="My Project\Resources.resx">
-      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
-      <CustomToolNamespace>My.Resources</CustomToolNamespace>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="My Project\Application.myapp">
-      <Generator>MyApplicationCodeGenerator</Generator>
-      <LastGenOutput>Application.Designer.vb</LastGenOutput>
-    </None>
-    <None Include="My Project\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <CustomToolNamespace>My</CustomToolNamespace>
-      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
+
+        <Content Include="..\..\Sources\dll\amd64\yapi.dll">
+      <Link>amd64\yapi.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\..\Sources\dll\yapi.dll">
       <Link>yapi.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </Content>  
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

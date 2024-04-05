@@ -262,14 +262,14 @@ Module yocto_inputcapture
       mult3 = 1
       If (recOfs < Me._recOfs) Then
         REM // load optional value multiplier
-        mult1 = Me._decodeU16(sdata, Me._recOfs)
+        mult1 = Me._decodeU16(sdata, recOfs)
         recOfs = recOfs + 2
         If (Me._var2size > 0) Then
-          mult2 = Me._decodeU16(sdata, Me._recOfs)
+          mult2 = Me._decodeU16(sdata, recOfs)
           recOfs = recOfs + 2
         End If
         If (Me._var3size > 0) Then
-          mult3 = Me._decodeU16(sdata, Me._recOfs)
+          mult3 = Me._decodeU16(sdata, recOfs)
           recOfs = recOfs + 2
         End If
       End If

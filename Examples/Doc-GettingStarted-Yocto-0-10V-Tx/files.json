@@ -1,0 +1,13 @@
+{
+    "main": "main.vb",
+    "other_files": [],
+    "ylib": [
+        "yocto_voltageoutput",
+        "yocto_api"
+    ],
+    "skip": true,
+    "xcode": false,
+    "vstudio": true,
+    "gnu": false,
+    "cb": false
+}

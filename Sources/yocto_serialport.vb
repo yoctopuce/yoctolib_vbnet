@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 58921 2024-01-12 09:43:57Z seb $
+'* $Id: yocto_serialport.vb 59693 2024-03-11 07:31:56Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -1912,6 +1912,9 @@ Module yocto_serialport
     '''   the maximum number of milliseconds to wait for a message if none is found
     '''   in the receive buffer.
     ''' </param>
+    ''' <param name="maxMsg">
+    '''   the maximum number of messages to be returned by the function; up to 254.
+    ''' </param>
     ''' <returns>
     '''   an array of <c>YSnoopingRecord</c> objects containing the messages found, if any.
     '''   Binary messages are converted to hexadecimal representation.
@@ -1920,7 +1923,7 @@ Module yocto_serialport
     '''   On failure, throws an exception or returns an empty array.
     ''' </para>
     '''/
-    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YSnoopingRecord)
+    Public Overridable Function snoopMessagesEx(maxWait As Integer, maxMsg As Integer) As List(Of YSnoopingRecord)
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
       Dim msgarr As List(Of String) = New List(Of String)()
@@ -1928,7 +1931,7 @@ Module yocto_serialport
       Dim res As List(Of YSnoopingRecord) = New List(Of YSnoopingRecord)()
       Dim idx As Integer = 0
 
-      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0"
+      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&t=0&len=" + Convert.ToString(maxMsg)
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
@@ -1946,6 +1949,34 @@ Module yocto_serialport
       End While
 
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves messages (both direction) in the serial port buffer, starting at current position.
+    ''' <para>
+    '''   This function will only compare and return printable characters in the message strings.
+    '''   Binary protocols are handled as hexadecimal strings.
+    ''' </para>
+    ''' <para>
+    '''   If no message is found, the search waits for one up to the specified maximum timeout
+    '''   (in milliseconds).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="maxWait">
+    '''   the maximum number of milliseconds to wait for a message if none is found
+    '''   in the receive buffer.
+    ''' </param>
+    ''' <returns>
+    '''   an array of <c>YSnoopingRecord</c> objects containing the messages found, if any.
+    '''   Binary messages are converted to hexadecimal representation.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty array.
+    ''' </para>
+    '''/
+    Public Overridable Function snoopMessages(maxWait As Integer) As List(Of YSnoopingRecord)
+      Return Me.snoopMessagesEx(maxWait, 255)
     End Function
 
     '''*
