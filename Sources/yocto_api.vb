@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 60394 2024-04-05 10:12:27Z seb $
+'* $Id: yocto_api.vb 60510 2024-04-12 09:37:02Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -788,7 +788,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H200
-  Public Const YOCTO_API_BUILD_NO As String = "60394"
+  Public Const YOCTO_API_BUILD_NO As String = "61039"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1361,12 +1361,42 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Set the path of Certificate Authority file on local filesystem.
+    ''' <para>
+    '''   This method takes as a parameter the path of a file containing all certificates in PEM format.
+    '''   For technical reasons, only one file can be specified. So if you need to connect to several Hubs
+    '''   instances with self-signed certificates, you'll need to use
+    '''   a single file containing all the certificates end-to-end. Passing a empty string will restore the
+    '''   default settings. This option is only supported by PHP library.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="certificatePath">
+    '''   the path of the file containing all certificates in PEM format.
+    ''' </param>
+    ''' <returns>
+    '''   an empty string if the certificate has been added correctly.
+    '''   In case of error, returns a string starting with "error:".
+    ''' </returns>
+    '''/
+    Public Overridable Function SetTrustedCertificatesList(certificatePath As String) As String
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim res As Integer = 0
+      res = _yapiSetTrustedCertificatesList(New StringBuilder(certificatePath), errmsg)
+      If (res < 0) Then
+        Return errmsg.ToString()
+      Else
+        Return ""
+      End If
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Enables or disables certain TLS/SSL certificate checks.
     ''' <para>
     ''' </para>
     ''' </summary>
-    ''' <param name="options">
-    '''   The options: <c>YAPI.NO_TRUSTED_CA_CHECK</c>,
+    ''' <param name="opts">
+    '''   The options are <c>YAPI.NO_TRUSTED_CA_CHECK</c>,
     '''   <c>YAPI.NO_EXPIRATION_CHECK</c>, <c>YAPI.NO_HOSTNAME_CHECK</c>.
     ''' </param>
     ''' <returns>
@@ -1374,10 +1404,10 @@ Module yocto_api
     '''   On error, returns a string beginning with "error:".
     ''' </returns>
     '''/
-    Public Overridable Function SetNetworkSecurityOptions(options As Integer) As String
+    Public Overridable Function SetNetworkSecurityOptions(opts As Integer) As String
       Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
       Dim res As Integer = 0
-      res = _yapiSetNetworkSecurityOptions(options, errmsg)
+      res = _yapiSetNetworkSecurityOptions(opts, errmsg)
       If (res < 0) Then
         Return errmsg.ToString()
       Else
@@ -2105,12 +2135,35 @@ Module yocto_api
     End Function
     '''*
     ''' <summary>
+    '''   Set the path of Certificate Authority file on local filesystem.
+    ''' <para>
+    '''   This method takes as a parameter the path of a file containing all certificates in PEM format.
+    '''   For technical reasons, only one file can be specified. So if you need to connect to several Hubs
+    '''   instances with self-signed certificates, you'll need to use
+    '''   a single file containing all the certificates end-to-end. Passing a empty string will restore the
+    '''   default settings. This option is only supported by PHP library.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="certificatePath">
+    '''   the path of the file containing all certificates in PEM format.
+    ''' </param>
+    ''' <returns>
+    '''   an empty string if the certificate has been added correctly.
+    '''   In case of error, returns a string starting with "error:".
+    ''' </returns>
+    '''/
+    Public Shared Function SetTrustedCertificatesList(certificatePath As String) As String
+        YAPI.InitAPI(0, Nothing)
+        return _yapiContext.SetTrustedCertificatesList(certificatePath)
+    End Function
+    '''*
+    ''' <summary>
     '''   Enables or disables certain TLS/SSL certificate checks.
     ''' <para>
     ''' </para>
     ''' </summary>
-    ''' <param name="options">
-    '''   The options: <c>YAPI.NO_TRUSTED_CA_CHECK</c>,
+    ''' <param name="opts">
+    '''   The options are <c>YAPI.NO_TRUSTED_CA_CHECK</c>,
     '''   <c>YAPI.NO_EXPIRATION_CHECK</c>, <c>YAPI.NO_HOSTNAME_CHECK</c>.
     ''' </param>
     ''' <returns>
@@ -2118,9 +2171,9 @@ Module yocto_api
     '''   On error, returns a string beginning with "error:".
     ''' </returns>
     '''/
-    Public Shared Function SetNetworkSecurityOptions(options As Integer) As String
+    Public Shared Function SetNetworkSecurityOptions(opts As Integer) As String
         YAPI.InitAPI(0, Nothing)
-        return _yapiContext.SetNetworkSecurityOptions(options)
+        return _yapiContext.SetNetworkSecurityOptions(opts)
     End Function
     '''*
     ''' <summary>
@@ -13180,6 +13233,9 @@ Module yocto_api
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiSetHubIntAttr", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiSetHubIntAttr(ByVal hubref As Integer, ByVal attrname As StringBuilder, ByVal value As Integer) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiSetTrustedCertificatesList", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiSetTrustedCertificatesList(ByVal certificatePath As StringBuilder, ByVal errmsg As StringBuilder) As Integer
   End Function
     REM --- (end of generated code: YFunction dlldef)
 
