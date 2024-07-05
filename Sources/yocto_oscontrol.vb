@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_oscontrol.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: yocto_oscontrol.vb 61342 2024-06-11 08:30:46Z seb $
 '
 '  Implements yFindOsControl(), the high-level API for OsControl functions
 '
@@ -53,7 +53,7 @@ Module yocto_oscontrol
    REM --- (end of YOsControl yapiwrapper)
   REM --- (YOsControl globals)
 
-  Public Const Y_SHUTDOWNCOUNTDOWN_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_SHUTDOWNCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
   Public Delegate Sub YOsControlValueCallback(ByVal func As YOsControl, ByVal value As String)
   Public Delegate Sub YOsControlTimedReportCallback(ByVal func As YOsControl, ByVal measure As YMeasure)
   REM --- (end of YOsControl globals)
@@ -74,7 +74,7 @@ Module yocto_oscontrol
     REM --- (end of YOsControl class start)
 
     REM --- (YOsControl definitions)
-    Public Const SHUTDOWNCOUNTDOWN_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const SHUTDOWNCOUNTDOWN_INVALID As Integer = YAPI.INVALID_INT
     REM --- (end of YOsControl definitions)
 
     REM --- (YOsControl attributes declaration)
@@ -260,6 +260,26 @@ Module yocto_oscontrol
     '''/
     Public Overridable Function shutdown(secBeforeShutDown As Integer) As Integer
       Return Me.set_shutdownCountdown(secBeforeShutDown)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Schedules an OS reboot after a given number of seconds.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="secBeforeReboot">
+    '''   number of seconds before reboot
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function reboot(secBeforeReboot As Integer) As Integer
+      Return Me.set_shutdownCountdown(0 - secBeforeReboot)
     End Function
 
 

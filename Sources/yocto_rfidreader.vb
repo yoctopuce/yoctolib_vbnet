@@ -348,7 +348,7 @@ Module yocto_rfidreader
 
     '''*
     ''' <summary>
-    '''   Force the use of single-block commands to access RFID tag memory blocks.
+    '''   Forces the use of single-block commands to access RFID tag memory blocks.
     ''' <para>
     '''   By default, the Yoctopuce library uses the most efficient access strategy
     '''   generally available for each tag type, but you can force the use of
@@ -362,7 +362,7 @@ Module yocto_rfidreader
 
     '''*
     ''' <summary>
-    '''   Force the use of multi-block commands to access RFID tag memory blocks.
+    '''   Forces the use of multi-block commands to access RFID tag memory blocks.
     ''' <para>
     '''   By default, the Yoctopuce library uses the most efficient access strategy
     '''   generally available for each tag type, but you can force the use of
@@ -378,7 +378,7 @@ Module yocto_rfidreader
 
     '''*
     ''' <summary>
-    '''   Enable direct access to RFID tag control blocks.
+    '''   Enables direct access to RFID tag control blocks.
     ''' <para>
     '''   By default, Yoctopuce library read and write functions only work
     '''   on data blocks and automatically skip special blocks, as specific functions are provided
@@ -408,7 +408,7 @@ Module yocto_rfidreader
 
     '''*
     ''' <summary>
-    '''   Enable simulation mode to check the affected block range as well
+    '''   Enables simulation mode to check the affected block range as well
     '''   as access rights.
     ''' <para>
     '''   When this option is active, the operation is
@@ -1505,7 +1505,7 @@ Module yocto_rfidreader
 
     '''*
     ''' <summary>
-    '''   Change an RFID tag configuration to prevents any further write to
+    '''   Changes an RFID tag configuration to prevents any further write to
     '''   the selected blocks.
     ''' <para>
     '''   This operation is definitive and irreversible.
@@ -2191,7 +2191,7 @@ Module yocto_rfidreader
 
     '''*
     ''' <summary>
-    '''   Change an RFID tag AFI byte (ISO 15693 only).
+    '''   Changes an RFID tag AFI byte (ISO 15693 only).
     ''' <para>
     ''' </para>
     ''' </summary>
@@ -2313,7 +2313,7 @@ Module yocto_rfidreader
 
     '''*
     ''' <summary>
-    '''   Change an RFID tag DSFID byte (ISO 15693 only).
+    '''   Changes an RFID tag DSFID byte (ISO 15693 only).
     ''' <para>
     ''' </para>
     ''' </summary>
