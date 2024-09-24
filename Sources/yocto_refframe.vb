@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_refframe.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: yocto_refframe.vb 62185 2024-08-19 09:57:14Z seb $
 '
 '  Implements yFindRefFrame(), the high-level API for RefFrame functions
 '
@@ -89,7 +89,7 @@ end enum
 
   '''*
   ''' <summary>
-  '''   The <c>YRefFrame</c> class is used to setup the base orientation of the Yoctopuce inertial
+  '''   The <c>YRefFrame</c> class is used to set up the base orientation of the Yoctopuce inertial
   '''   sensors.
   ''' <para>
   '''   Thanks to this, orientation functions relative to the earth surface plane
@@ -224,7 +224,7 @@ end enum
     '''   heading and the reference bearing indicated here.
     ''' </para>
     ''' <para>
-    '''   For instance, if you setup as reference bearing the value of the earth
+    '''   For instance, if you set up as reference bearing the value of the earth
     '''   magnetic declination, the compass will provide the orientation relative
     '''   to the geographic North.
     ''' </para>
@@ -497,7 +497,7 @@ end enum
       If (position < 0) Then
         Return Y_MOUNTPOSITION.INVALID
       End If
-      return CType(((position) >> (2)), Y_MOUNTPOSITION)
+      return CType((position >> 2), Y_MOUNTPOSITION)
     End Function
 
     '''*
@@ -571,7 +571,7 @@ end enum
     '''/
     Public Overridable Function set_mountPosition(position As Y_MOUNTPOSITION, orientation As Y_MOUNTORIENTATION) As Integer
       Dim mixedPos As Integer = 0
-      mixedPos = ((position) << (2)) + orientation
+      mixedPos = (position << 2) + orientation
       return Me.set_mountPos(mixedPos)
     End Function
 
@@ -1156,9 +1156,9 @@ end enum
         End If
       End If
       If (scaleExp > 0) Then
-        scaleX = ((scaleX) >> (scaleExp))
-        scaleY = ((scaleY) >> (scaleExp))
-        scaleZ = ((scaleZ) >> (scaleExp))
+        scaleX = (scaleX >> scaleExp)
+        scaleY = (scaleY >> scaleExp)
+        scaleZ = (scaleZ >> scaleExp)
       End If
       If (scaleX < 0) Then
         scaleX = scaleX + 1024
@@ -1169,8 +1169,8 @@ end enum
       If (scaleZ < 0) Then
         scaleZ = scaleZ + 1024
       End If
-      scaleLo = ((((scaleY) And (15))) << (12)) + ((scaleX) << (2)) + scaleExp
-      scaleHi = ((scaleZ) << (6)) + ((scaleY) >> (4))
+      scaleLo = (((scaleY) And (15)) << 12) + (scaleX << 2) + scaleExp
+      scaleHi = (scaleZ << 6) + (scaleY >> 4)
       REM // Save calibration parameters
       newcalib = "5," + Convert.ToString( shiftX) + "," + Convert.ToString( shiftY) + "," + Convert.ToString( shiftZ) + "," + Convert.ToString( scaleLo) + "," + Convert.ToString(scaleHi)
       Me._calibStage = 0

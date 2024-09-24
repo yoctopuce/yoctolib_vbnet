@@ -1,3 +1,7 @@
-VBNetV2 v2.0.61813
+VBNetV2 v2.0.62710
 
-- Fix potential never ending loop on HTTP redirection
+- Add support Windows ARM
+- Add logs for net hub connection state
+- Fix crash if network discovery cannot be started correctly
+- YAPI.Testhub("net") return YAPI.INVALID_ARGUMENT
+- Bump project target to .NET framework 4.7.1

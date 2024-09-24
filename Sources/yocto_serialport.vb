@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 59693 2024-03-11 07:31:56Z seb $
+'* $Id: yocto_serialport.vb 62185 2024-08-19 09:57:14Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -1493,7 +1493,7 @@ Module yocto_serialport
       If (bufflen < 100) Then
         Return Me.sendCommand("$" + hexString)
       End If
-      bufflen = ((bufflen) >> (1))
+      bufflen = (bufflen >> 1)
       ReDim buff(bufflen-1)
       idx = 0
       While (idx < bufflen)
@@ -2130,7 +2130,7 @@ Module yocto_serialport
       Dim replen As Integer = 0
       Dim hexb As Integer = 0
       funCode = pduBytes(0)
-      nib = ((funCode) >> (4))
+      nib = (funCode >> 4)
       pat = "" + ( slaveNo).ToString("X02") + "[" + ( nib).ToString("X") + "" + ( (nib+8)).ToString("X") + "]" + (((funCode) And (15))).ToString("X") + ".*"
       cmd = "" + ( slaveNo).ToString("X02") + "" + (funCode).ToString("X02")
       i = 1
@@ -2156,7 +2156,7 @@ Module yocto_serialport
       end if
       If (reps.Count > 1) Then
         rep = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(reps(0)))
-        replen = (((rep).Length - 3) >> (1))
+        replen = (((rep).Length - 3) >> 1)
         i = 0
         While (i < replen)
           hexb = Convert.ToInt32((rep).Substring(2 * i + 3, 2), 16)
@@ -2219,9 +2219,9 @@ Module yocto_serialport
       Dim mask As Integer = 0
 
       pdu.Add(&H01)
-      pdu.Add(((pduAddr) >> (8)))
+      pdu.Add((pduAddr >> 8))
       pdu.Add(((pduAddr) And (&Hff)))
-      pdu.Add(((nBits) >> (8)))
+      pdu.Add((nBits >> 8))
       pdu.Add(((nBits) And (&Hff)))
 
 
@@ -2249,7 +2249,7 @@ Module yocto_serialport
           val = reply(idx)
           mask = 1
         Else
-          mask = ((mask) << (1))
+          mask = (mask << 1)
         End If
       End While
 
@@ -2289,9 +2289,9 @@ Module yocto_serialport
       Dim mask As Integer = 0
 
       pdu.Add(&H02)
-      pdu.Add(((pduAddr) >> (8)))
+      pdu.Add((pduAddr >> 8))
       pdu.Add(((pduAddr) And (&Hff)))
-      pdu.Add(((nBits) >> (8)))
+      pdu.Add((nBits >> 8))
       pdu.Add(((nBits) And (&Hff)))
 
 
@@ -2319,7 +2319,7 @@ Module yocto_serialport
           val = reply(idx)
           mask = 1
         Else
-          mask = ((mask) << (1))
+          mask = (mask << 1)
         End If
       End While
 
@@ -2362,9 +2362,9 @@ Module yocto_serialport
       end if
 
       pdu.Add(&H03)
-      pdu.Add(((pduAddr) >> (8)))
+      pdu.Add((pduAddr >> 8))
       pdu.Add(((pduAddr) And (&Hff)))
-      pdu.Add(((nWords) >> (8)))
+      pdu.Add((nWords >> 8))
       pdu.Add(((nWords) And (&Hff)))
 
 
@@ -2379,7 +2379,7 @@ Module yocto_serialport
       regpos = 0
       idx = 2
       While (regpos < nWords)
-        val = ((reply(idx)) << (8))
+        val = ((reply(idx)) << 8)
         idx = idx + 1
         val = val + reply(idx)
         idx = idx + 1
@@ -2422,9 +2422,9 @@ Module yocto_serialport
       Dim val As Integer = 0
 
       pdu.Add(&H04)
-      pdu.Add(((pduAddr) >> (8)))
+      pdu.Add((pduAddr >> 8))
       pdu.Add(((pduAddr) And (&Hff)))
-      pdu.Add(((nWords) >> (8)))
+      pdu.Add((nWords >> 8))
       pdu.Add(((nWords) And (&Hff)))
 
 
@@ -2439,7 +2439,7 @@ Module yocto_serialport
       regpos = 0
       idx = 2
       While (regpos < nWords)
-        val = ((reply(idx)) << (8))
+        val = ((reply(idx)) << 8)
         idx = idx + 1
         val = val + reply(idx)
         idx = idx + 1
@@ -2483,7 +2483,7 @@ Module yocto_serialport
       End If
 
       pdu.Add(&H05)
-      pdu.Add(((pduAddr) >> (8)))
+      pdu.Add((pduAddr >> 8))
       pdu.Add(((pduAddr) And (&Hff)))
       pdu.Add(value)
       pdu.Add(&H00)
@@ -2534,12 +2534,12 @@ Module yocto_serialport
       Dim res As Integer = 0
       res = 0
       nBits = bits.Count
-      nBytes = (((nBits + 7)) >> (3))
+      nBytes = ((nBits + 7) >> 3)
 
       pdu.Add(&H0f)
-      pdu.Add(((pduAddr) >> (8)))
+      pdu.Add((pduAddr >> 8))
       pdu.Add(((pduAddr) And (&Hff)))
-      pdu.Add(((nBits) >> (8)))
+      pdu.Add((nBits >> 8))
       pdu.Add(((nBits) And (&Hff)))
       pdu.Add(nBytes)
       bitpos = 0
@@ -2555,7 +2555,7 @@ Module yocto_serialport
           val = 0
           mask = 1
         Else
-          mask = ((mask) << (1))
+          mask = (mask << 1)
         End If
       End While
       If (mask <> 1) Then
@@ -2570,7 +2570,7 @@ Module yocto_serialport
       If (reply(0) <> pdu(0)) Then
         Return res
       End If
-      res = ((reply(3)) << (8))
+      res = ((reply(3)) << 8)
       res = res + reply(4)
       Return res
     End Function
@@ -2605,9 +2605,9 @@ Module yocto_serialport
       res = 0
 
       pdu.Add(&H06)
-      pdu.Add(((pduAddr) >> (8)))
+      pdu.Add((pduAddr >> 8))
       pdu.Add(((pduAddr) And (&Hff)))
-      pdu.Add(((value) >> (8)))
+      pdu.Add((value >> 8))
       pdu.Add(((value) And (&Hff)))
 
 
@@ -2658,15 +2658,15 @@ Module yocto_serialport
       nBytes = 2 * nWords
 
       pdu.Add(&H10)
-      pdu.Add(((pduAddr) >> (8)))
+      pdu.Add((pduAddr >> 8))
       pdu.Add(((pduAddr) And (&Hff)))
-      pdu.Add(((nWords) >> (8)))
+      pdu.Add((nWords >> 8))
       pdu.Add(((nWords) And (&Hff)))
       pdu.Add(nBytes)
       regpos = 0
       While (regpos < nWords)
         val = values(regpos)
-        pdu.Add(((val) >> (8)))
+        pdu.Add((val >> 8))
         pdu.Add(((val) And (&Hff)))
         regpos = regpos + 1
       End While
@@ -2679,7 +2679,7 @@ Module yocto_serialport
       If (reply(0) <> pdu(0)) Then
         Return res
       End If
-      res = ((reply(3)) << (8))
+      res = ((reply(3)) << 8)
       res = res + reply(4)
       Return res
     End Function
@@ -2727,19 +2727,19 @@ Module yocto_serialport
       nBytes = 2 * nWriteWords
 
       pdu.Add(&H17)
-      pdu.Add(((pduReadAddr) >> (8)))
+      pdu.Add((pduReadAddr >> 8))
       pdu.Add(((pduReadAddr) And (&Hff)))
-      pdu.Add(((nReadWords) >> (8)))
+      pdu.Add((nReadWords >> 8))
       pdu.Add(((nReadWords) And (&Hff)))
-      pdu.Add(((pduWriteAddr) >> (8)))
+      pdu.Add((pduWriteAddr >> 8))
       pdu.Add(((pduWriteAddr) And (&Hff)))
-      pdu.Add(((nWriteWords) >> (8)))
+      pdu.Add((nWriteWords >> 8))
       pdu.Add(((nWriteWords) And (&Hff)))
       pdu.Add(nBytes)
       regpos = 0
       While (regpos < nWriteWords)
         val = values(regpos)
-        pdu.Add(((val) >> (8)))
+        pdu.Add((val >> 8))
         pdu.Add(((val) And (&Hff)))
         regpos = regpos + 1
       End While
@@ -2756,7 +2756,7 @@ Module yocto_serialport
       regpos = 0
       idx = 2
       While (regpos < nReadWords)
-        val = ((reply(idx)) << (8))
+        val = ((reply(idx)) << 8)
         idx = idx + 1
         val = val + reply(idx)
         idx = idx + 1

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_micropython.vb 58154 2023-11-30 13:45:48Z mvuilleu $
+'  $Id: yocto_micropython.vb 62280 2024-08-26 14:39:58Z seb $
 '
 '  Implements yFindMicroPython(), the high-level API for MicroPython functions
 '
@@ -54,6 +54,8 @@ Module yocto_micropython
   REM --- (YMicroPython globals)
 
   Public Const Y_LASTMSG_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_HEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_XHEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CURRENTSCRIPT_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_STARTUPSCRIPT_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
@@ -82,6 +84,8 @@ Module yocto_micropython
 
     REM --- (YMicroPython definitions)
     Public Const LASTMSG_INVALID As String = YAPI.INVALID_STRING
+    Public Const HEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const XHEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CURRENTSCRIPT_INVALID As String = YAPI.INVALID_STRING
     Public Const STARTUPSCRIPT_INVALID As String = YAPI.INVALID_STRING
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
@@ -89,6 +93,8 @@ Module yocto_micropython
 
     REM --- (YMicroPython attributes declaration)
     Protected _lastMsg As String
+    Protected _heapUsage As Integer
+    Protected _xheapUsage As Integer
     Protected _currentScript As String
     Protected _startupScript As String
     Protected _command As String
@@ -105,6 +111,8 @@ Module yocto_micropython
       _classname = "MicroPython"
       REM --- (YMicroPython attributes initialization)
       _lastMsg = LASTMSG_INVALID
+      _heapUsage = HEAPUSAGE_INVALID
+      _xheapUsage = XHEAPUSAGE_INVALID
       _currentScript = CURRENTSCRIPT_INVALID
       _startupScript = STARTUPSCRIPT_INVALID
       _command = COMMAND_INVALID
@@ -119,6 +127,12 @@ Module yocto_micropython
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("lastMsg") Then
         _lastMsg = json_val.getString("lastMsg")
+      End If
+      If json_val.has("heapUsage") Then
+        _heapUsage = CInt(json_val.getLong("heapUsage"))
+      End If
+      If json_val.has("xheapUsage") Then
+        _xheapUsage = CInt(json_val.getLong("xheapUsage"))
       End If
       If json_val.has("currentScript") Then
         _currentScript = json_val.getString("currentScript")
@@ -158,6 +172,62 @@ Module yocto_micropython
         End If
       End If
       res = Me._lastMsg
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the percentage of micropython main memory in use,
+    '''   as observed at the end of the last garbage collection.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the percentage of micropython main memory in use,
+    '''   as observed at the end of the last garbage collection
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMicroPython.HEAPUSAGE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_heapUsage() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return HEAPUSAGE_INVALID
+        End If
+      End If
+      res = Me._heapUsage
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the percentage of micropython external memory in use,
+    '''   as observed at the end of the last garbage collection.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the percentage of micropython external memory in use,
+    '''   as observed at the end of the last garbage collection
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMicroPython.XHEAPUSAGE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_xheapUsage() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return XHEAPUSAGE_INVALID
+        End If
+      End If
+      res = Me._xheapUsage
       Return res
     End Function
 
@@ -428,7 +498,7 @@ Module yocto_micropython
     '''/
     Public Overridable Function eval(codeName As String, mpyCode As String) As Integer
       Dim fullname As String
-      Dim res As inr
+      Dim res As Integer = 0
       fullname = "mpy:" + codeName
       res = Me._upload(fullname, YAPI.DefaultEncoding.GetBytes(mpyCode))
       Return res
@@ -483,7 +553,6 @@ Module yocto_micropython
     Public Overridable Function get_lastLogs() As String
       Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
-      Dim endpos As Integer = 0
       Dim res As String
 
       buff = Me._download("mpy.txt")
@@ -525,12 +594,12 @@ Module yocto_micropython
       If (Not (callback Is Nothing)) Then
         Me.registerValueCallback(AddressOf yInternalEventCallback)
       Else
-        Me.registerValueCallback(CType(Nothing, YMicroPythonLogCallback))
+        Me.registerValueCallback(CType(Nothing, YMicroPythonValueCallback))
       End If
       Return 0
     End Function
 
-    Public Overridable Function get_logCallback() As YMicroPythonLogCallback_callback
+    Public Overridable Function get_logCallback() As YMicroPythonLogCallback
       Return Me._logCallback
     End Function
 

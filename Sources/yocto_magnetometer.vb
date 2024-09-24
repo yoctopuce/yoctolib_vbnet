@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_magnetometer.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: yocto_magnetometer.vb 61964 2024-07-29 15:54:55Z seb $
 '
 '  Implements yFindMagnetometer(), the high-level API for Magnetometer functions
 '
@@ -70,7 +70,7 @@ Module yocto_magnetometer
   '''   It can be
   '''   used to read the current value and unit of any sensor, read the min/max
   '''   value, configure autonomous recording frequency and access recorded data.
-  '''   It also provide a function to register a callback invoked each time the
+  '''   It also provides a function to register a callback invoked each time the
   '''   observed value changes, or at a predefined interval. Using this class rather
   '''   than a specific subclass makes it possible to create generic applications
   '''   that work with any Yoctopuce sensor, even those that do not yet exist.

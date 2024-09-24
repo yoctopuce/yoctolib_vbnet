@@ -1,8 +1,8 @@
 ' ********************************************************************
 '
-'  $Id: yocto_tilt.vb 61964 2024-07-29 15:54:55Z seb $
+'  $Id: svn_id $
 '
-'  Implements yFindTilt(), the high-level API for Tilt functions
+'  Implements yFindSpectralChannel(), the high-level API for SpectralChannel functions
 '
 '  - - - - - - - - - License information: - - - - - - - - -
 '
@@ -43,158 +43,92 @@ Imports YFUN_DESCR = System.Int32
 Imports System.Runtime.InteropServices
 Imports System.Text
 
-Module yocto_tilt
+Module yocto_spectralchannel
 
-    REM --- (YTilt return codes)
-    REM --- (end of YTilt return codes)
-    REM --- (YTilt dlldef)
-    REM --- (end of YTilt dlldef)
-   REM --- (YTilt yapiwrapper)
-   REM --- (end of YTilt yapiwrapper)
-  REM --- (YTilt globals)
+    REM --- (YSpectralChannel return codes)
+    REM --- (end of YSpectralChannel return codes)
+    REM --- (YSpectralChannel dlldef)
+    REM --- (end of YSpectralChannel dlldef)
+   REM --- (YSpectralChannel yapiwrapper)
+   REM --- (end of YSpectralChannel yapiwrapper)
+  REM --- (YSpectralChannel globals)
 
-  Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
-  Public Const Y_AXIS_X As Integer = 0
-  Public Const Y_AXIS_Y As Integer = 1
-  Public Const Y_AXIS_Z As Integer = 2
-  Public Const Y_AXIS_INVALID As Integer = -1
-  Public Delegate Sub YTiltValueCallback(ByVal func As YTilt, ByVal value As String)
-  Public Delegate Sub YTiltTimedReportCallback(ByVal func As YTilt, ByVal measure As YMeasure)
-  REM --- (end of YTilt globals)
+  Public Const Y_RAWCOUNT_INVALID As Integer = YAPI.INVALID_INT
+  Public Delegate Sub YSpectralChannelValueCallback(ByVal func As YSpectralChannel, ByVal value As String)
+  Public Delegate Sub YSpectralChannelTimedReportCallback(ByVal func As YSpectralChannel, ByVal measure As YMeasure)
+  REM --- (end of YSpectralChannel globals)
 
-  REM --- (YTilt class start)
+  REM --- (YSpectralChannel class start)
 
   '''*
   ''' <summary>
-  '''   The <c>YSensor</c> class is the parent class for all Yoctopuce sensor types.
+  '''   The <c>YSpectralChannel</c> class allows you to read and configure Yoctopuce spectral analysis channels.
   ''' <para>
-  '''   It can be
-  '''   used to read the current value and unit of any sensor, read the min/max
-  '''   value, configure autonomous recording frequency and access recorded data.
-  '''   It also provides a function to register a callback invoked each time the
-  '''   observed value changes, or at a predefined interval. Using this class rather
-  '''   than a specific subclass makes it possible to create generic applications
-  '''   that work with any Yoctopuce sensor, even those that do not yet exist.
-  '''   Note: The <c>YAnButton</c> class is the only analog input which does not inherit
-  '''   from <c>YSensor</c>.
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
-  Public Class YTilt
+  Public Class YSpectralChannel
     Inherits YSensor
-    REM --- (end of YTilt class start)
+    REM --- (end of YSpectralChannel class start)
 
-    REM --- (YTilt definitions)
-    Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
-    Public Const AXIS_X As Integer = 0
-    Public Const AXIS_Y As Integer = 1
-    Public Const AXIS_Z As Integer = 2
-    Public Const AXIS_INVALID As Integer = -1
-    REM --- (end of YTilt definitions)
+    REM --- (YSpectralChannel definitions)
+    Public Const RAWCOUNT_INVALID As Integer = YAPI.INVALID_INT
+    REM --- (end of YSpectralChannel definitions)
 
-    REM --- (YTilt attributes declaration)
-    Protected _bandwidth As Integer
-    Protected _axis As Integer
-    Protected _valueCallbackTilt As YTiltValueCallback
-    Protected _timedReportCallbackTilt As YTiltTimedReportCallback
-    REM --- (end of YTilt attributes declaration)
+    REM --- (YSpectralChannel attributes declaration)
+    Protected _rawCount As Integer
+    Protected _valueCallbackSpectralChannel As YSpectralChannelValueCallback
+    Protected _timedReportCallbackSpectralChannel As YSpectralChannelTimedReportCallback
+    REM --- (end of YSpectralChannel attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
-      _classname = "Tilt"
-      REM --- (YTilt attributes initialization)
-      _bandwidth = BANDWIDTH_INVALID
-      _axis = AXIS_INVALID
-      _valueCallbackTilt = Nothing
-      _timedReportCallbackTilt = Nothing
-      REM --- (end of YTilt attributes initialization)
+      _classname = "SpectralChannel"
+      REM --- (YSpectralChannel attributes initialization)
+      _rawCount = RAWCOUNT_INVALID
+      _valueCallbackSpectralChannel = Nothing
+      _timedReportCallbackSpectralChannel = Nothing
+      REM --- (end of YSpectralChannel attributes initialization)
     End Sub
 
-    REM --- (YTilt private methods declaration)
+    REM --- (YSpectralChannel private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
-      If json_val.has("bandwidth") Then
-        _bandwidth = CInt(json_val.getLong("bandwidth"))
-      End If
-      If json_val.has("axis") Then
-        _axis = CInt(json_val.getLong("axis"))
+      If json_val.has("rawCount") Then
+        _rawCount = CInt(json_val.getLong("rawCount"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YTilt private methods declaration)
+    REM --- (end of YSpectralChannel private methods declaration)
 
-    REM --- (YTilt public methods declaration)
+    REM --- (YSpectralChannel public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the measure update frequency, measured in Hz.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the measure update frequency, measured in Hz
+    '''   an integer
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YTilt.BANDWIDTH_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YSpectralChannel.RAWCOUNT_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_bandwidth() As Integer
+    Public Function get_rawCount() As Integer
       Dim res As Integer = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return BANDWIDTH_INVALID
+          Return RAWCOUNT_INVALID
         End If
       End If
-      res = Me._bandwidth
-      Return res
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the measure update frequency, measured in Hz.
-    ''' <para>
-    '''   When the
-    '''   frequency is lower, the device performs averaging.
-    '''   Remember to call the <c>saveToFlash()</c>
-    '''   method of the module if the modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   an integer corresponding to the measure update frequency, measured in Hz
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_bandwidth(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("bandwidth", rest_val)
-    End Function
-    Public Function get_axis() As Integer
-      Dim res As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return AXIS_INVALID
-        End If
-      End If
-      res = Me._axis
+      res = Me._rawCount
       Return res
     End Function
 
     '''*
     ''' <summary>
-    '''   Retrieves a tilt sensor for a given identifier.
+    '''   Retrieves a spectral analysis channel for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -218,11 +152,11 @@ Module yocto_tilt
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the tilt sensor is online at the time
+    '''   This function does not require that the spectral analysis channel is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YTilt.isOnline()</c> to test if the tilt sensor is
+    '''   Use the method <c>YSpectralChannel.isOnline()</c> to test if the spectral analysis channel is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a tilt sensor by logical name, no error is notified: the first instance
+    '''   a spectral analysis channel by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -235,19 +169,19 @@ Module yocto_tilt
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the tilt sensor, for instance
-    '''   <c>Y3DMK002.tilt1</c>.
+    '''   a string that uniquely characterizes the spectral analysis channel, for instance
+    '''   <c>MyDevice.spectralChannel1</c>.
     ''' </param>
     ''' <returns>
-    '''   a <c>YTilt</c> object allowing you to drive the tilt sensor.
+    '''   a <c>YSpectralChannel</c> object allowing you to drive the spectral analysis channel.
     ''' </returns>
     '''/
-    Public Shared Function FindTilt(func As String) As YTilt
-      Dim obj As YTilt
-      obj = CType(YFunction._FindFromCache("Tilt", func), YTilt)
+    Public Shared Function FindSpectralChannel(func As String) As YSpectralChannel
+      Dim obj As YSpectralChannel
+      obj = CType(YFunction._FindFromCache("SpectralChannel", func), YSpectralChannel)
       If ((obj Is Nothing)) Then
-        obj = New YTilt(func)
-        YFunction._AddToCache("Tilt", func, obj)
+        obj = New YSpectralChannel(func)
+        YFunction._AddToCache("SpectralChannel", func, obj)
       End If
       Return obj
     End Function
@@ -270,14 +204,14 @@ Module yocto_tilt
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerValueCallback(callback As YTiltValueCallback) As Integer
+    Public Overloads Function registerValueCallback(callback As YSpectralChannelValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
         YFunction._UpdateValueCallbackList(Me, True)
       Else
         YFunction._UpdateValueCallbackList(Me, False)
       End If
-      Me._valueCallbackTilt = callback
+      Me._valueCallbackSpectralChannel = callback
       REM // Immediately invoke value callback with current value
       If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
@@ -289,8 +223,8 @@ Module yocto_tilt
     End Function
 
     Public Overrides Function _invokeValueCallback(value As String) As Integer
-      If (Not (Me._valueCallbackTilt Is Nothing)) Then
-        Me._valueCallbackTilt(Me, value)
+      If (Not (Me._valueCallbackSpectralChannel Is Nothing)) Then
+        Me._valueCallbackSpectralChannel(Me, value)
       Else
         MyBase._invokeValueCallback(value)
       End If
@@ -315,7 +249,7 @@ Module yocto_tilt
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerTimedReportCallback(callback As YTiltTimedReportCallback) As Integer
+    Public Overloads Function registerTimedReportCallback(callback As YSpectralChannelTimedReportCallback) As Integer
       Dim sensor As YSensor
       sensor = Me
       If (Not (callback Is Nothing)) Then
@@ -323,84 +257,36 @@ Module yocto_tilt
       Else
         YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
-      Me._timedReportCallbackTilt = callback
+      Me._timedReportCallbackSpectralChannel = callback
       Return 0
     End Function
 
     Public Overrides Function _invokeTimedReportCallback(value As YMeasure) As Integer
-      If (Not (Me._timedReportCallbackTilt Is Nothing)) Then
-        Me._timedReportCallbackTilt(Me, value)
+      If (Not (Me._timedReportCallbackSpectralChannel Is Nothing)) Then
+        Me._timedReportCallbackSpectralChannel(Me, value)
       Else
         MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
     End Function
 
-    '''*
-    ''' <summary>
-    '''   Performs a zero calibration for the tilt measurement (Yocto-Inclinometer only).
-    ''' <para>
-    '''   When this method is invoked, a simple shift (translation)
-    '''   is applied so that the current position is reported as a zero angle.
-    '''   Be aware that this shift will also affect the measurement boundaries.
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function calibrateToZero() As Integer
-      Dim currentRawVal As Double = 0
-      Dim rawVals As List(Of Double) = New List(Of Double)()
-      Dim refVals As List(Of Double) = New List(Of Double)()
-      currentRawVal = Me.get_currentRawValue()
-      rawVals.Clear()
-      refVals.Clear()
-      rawVals.Add(currentRawVal)
-      refVals.Add(0.0)
-
-
-      Return Me.calibrateFromPoints(rawVals, refVals)
-    End Function
 
     '''*
     ''' <summary>
-    '''   Cancels any previous zero calibration for the tilt measurement (Yocto-Inclinometer only).
+    '''   Continues the enumeration of spectral analysis channels started using <c>yFirstSpectralChannel()</c>.
     ''' <para>
-    '''   This function restores the factory zero calibration.
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function restoreZeroCalibration() As Integer
-      Return Me._setAttr("calibrationParam", "0")
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Continues the enumeration of tilt sensors started using <c>yFirstTilt()</c>.
-    ''' <para>
-    '''   Caution: You can't make any assumption about the returned tilt sensors order.
-    '''   If you want to find a specific a tilt sensor, use <c>Tilt.findTilt()</c>
+    '''   Caution: You can't make any assumption about the returned spectral analysis channels order.
+    '''   If you want to find a specific a spectral analysis channel, use <c>SpectralChannel.findSpectralChannel()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YTilt</c> object, corresponding to
-    '''   a tilt sensor currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more tilt sensors to enumerate.
+    '''   a pointer to a <c>YSpectralChannel</c> object, corresponding to
+    '''   a spectral analysis channel currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more spectral analysis channels to enumerate.
     ''' </returns>
     '''/
-    Public Function nextTilt() As YTilt
+    Public Function nextSpectralChannel() As YSpectralChannel
       Dim hwid As String = ""
       If (YISERR(_nextFunction(hwid))) Then
         Return Nothing
@@ -408,24 +294,24 @@ Module yocto_tilt
       If (hwid = "") Then
         Return Nothing
       End If
-      Return YTilt.FindTilt(hwid)
+      Return YSpectralChannel.FindSpectralChannel(hwid)
     End Function
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of tilt sensors currently accessible.
+    '''   Starts the enumeration of spectral analysis channels currently accessible.
     ''' <para>
-    '''   Use the method <c>YTilt.nextTilt()</c> to iterate on
-    '''   next tilt sensors.
+    '''   Use the method <c>YSpectralChannel.nextSpectralChannel()</c> to iterate on
+    '''   next spectral analysis channels.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YTilt</c> object, corresponding to
-    '''   the first tilt sensor currently online, or a <c>Nothing</c> pointer
+    '''   a pointer to a <c>YSpectralChannel</c> object, corresponding to
+    '''   the first spectral analysis channel currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
-    Public Shared Function FirstTilt() As YTilt
+    Public Shared Function FirstSpectralChannel() As YSpectralChannel
       Dim v_fundescr(1) As YFUN_DESCR
       Dim dev As YDEV_DESCR
       Dim neededsize, err As Integer
@@ -434,7 +320,7 @@ Module yocto_tilt
       Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
       Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
 
-      err = yapiGetFunctionsByClass("Tilt", 0, p, size, neededsize, errmsg)
+      err = yapiGetFunctionsByClass("SpectralChannel", 0, p, size, neededsize, errmsg)
       Marshal.Copy(p, v_fundescr, 0, 1)
       Marshal.FreeHGlobal(p)
 
@@ -449,18 +335,18 @@ Module yocto_tilt
       If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
         Return Nothing
       End If
-      Return YTilt.FindTilt(serial + "." + funcId)
+      Return YSpectralChannel.FindSpectralChannel(serial + "." + funcId)
     End Function
 
-    REM --- (end of YTilt public methods declaration)
+    REM --- (end of YSpectralChannel public methods declaration)
 
   End Class
 
-  REM --- (YTilt functions)
+  REM --- (YSpectralChannel functions)
 
   '''*
   ''' <summary>
-  '''   Retrieves a tilt sensor for a given identifier.
+  '''   Retrieves a spectral analysis channel for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -484,11 +370,11 @@ Module yocto_tilt
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the tilt sensor is online at the time
+  '''   This function does not require that the spectral analysis channel is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YTilt.isOnline()</c> to test if the tilt sensor is
+  '''   Use the method <c>YSpectralChannel.isOnline()</c> to test if the spectral analysis channel is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a tilt sensor by logical name, no error is notified: the first instance
+  '''   a spectral analysis channel by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -501,36 +387,36 @@ Module yocto_tilt
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the tilt sensor, for instance
-  '''   <c>Y3DMK002.tilt1</c>.
+  '''   a string that uniquely characterizes the spectral analysis channel, for instance
+  '''   <c>MyDevice.spectralChannel1</c>.
   ''' </param>
   ''' <returns>
-  '''   a <c>YTilt</c> object allowing you to drive the tilt sensor.
+  '''   a <c>YSpectralChannel</c> object allowing you to drive the spectral analysis channel.
   ''' </returns>
   '''/
-  Public Function yFindTilt(ByVal func As String) As YTilt
-    Return YTilt.FindTilt(func)
+  Public Function yFindSpectralChannel(ByVal func As String) As YSpectralChannel
+    Return YSpectralChannel.FindSpectralChannel(func)
   End Function
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of tilt sensors currently accessible.
+  '''   Starts the enumeration of spectral analysis channels currently accessible.
   ''' <para>
-  '''   Use the method <c>YTilt.nextTilt()</c> to iterate on
-  '''   next tilt sensors.
+  '''   Use the method <c>YSpectralChannel.nextSpectralChannel()</c> to iterate on
+  '''   next spectral analysis channels.
   ''' </para>
   ''' </summary>
   ''' <returns>
-  '''   a pointer to a <c>YTilt</c> object, corresponding to
-  '''   the first tilt sensor currently online, or a <c>Nothing</c> pointer
+  '''   a pointer to a <c>YSpectralChannel</c> object, corresponding to
+  '''   the first spectral analysis channel currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
-  Public Function yFirstTilt() As YTilt
-    Return YTilt.FirstTilt()
+  Public Function yFirstSpectralChannel() As YSpectralChannel
+    Return YSpectralChannel.FirstSpectralChannel()
   End Function
 
 
-  REM --- (end of YTilt functions)
+  REM --- (end of YSpectralChannel functions)
 
 End Module

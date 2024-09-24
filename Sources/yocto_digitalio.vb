@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_digitalio.vb 61494 2024-06-17 08:12:29Z seb $
+'  $Id: yocto_digitalio.vb 62185 2024-08-19 09:57:14Z seb $
 '
 '  Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '
@@ -74,7 +74,7 @@ Module yocto_digitalio
   ''' <summary>
   '''   The <c>YDigitalIO</c> class allows you drive a Yoctopuce digital input/output port.
   ''' <para>
-  '''   It can be used to setup the direction of each channel, to read the state of each channel
+  '''   It can be used to set up the direction of each channel, to read the state of each channel
   '''   and to switch the state of each channel configures as an output.
   '''   You can work on all channels at once, or one by one. Most functions
   '''   use a binary representation for channels where bit 0 matches channel #0 , bit 1 matches channel
@@ -689,7 +689,7 @@ Module yocto_digitalio
     Public Overridable Function get_bitState(bitno As Integer) As Integer
       Dim portVal As Integer = 0
       portVal = Me.get_portState()
-      Return ((((portVal) >> (bitno))) And (1))
+      Return (((portVal >> bitno)) And (1))
     End Function
 
     '''*
@@ -766,7 +766,7 @@ Module yocto_digitalio
     Public Overridable Function get_bitDirection(bitno As Integer) As Integer
       Dim portDir As Integer = 0
       portDir = Me.get_portDirection()
-      Return ((((portDir) >> (bitno))) And (1))
+      Return (((portDir >> bitno)) And (1))
     End Function
 
     '''*
@@ -820,7 +820,7 @@ Module yocto_digitalio
     Public Overridable Function get_bitPolarity(bitno As Integer) As Integer
       Dim portPol As Integer = 0
       portPol = Me.get_portPolarity()
-      Return ((((portPol) >> (bitno))) And (1))
+      Return (((portPol >> bitno)) And (1))
     End Function
 
     '''*
@@ -877,7 +877,7 @@ Module yocto_digitalio
     Public Overridable Function get_bitOpenDrain(bitno As Integer) As Integer
       Dim portOpenDrain As Integer = 0
       portOpenDrain = Me.get_portOpenDrain()
-      Return ((((portOpenDrain) >> (bitno))) And (1))
+      Return (((portOpenDrain >> bitno)) And (1))
     End Function
 
     '''*

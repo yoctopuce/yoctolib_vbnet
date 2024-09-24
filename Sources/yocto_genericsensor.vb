@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_genericsensor.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: yocto_genericsensor.vb 61964 2024-07-29 15:54:55Z seb $
 '
 '  Implements yFindGenericSensor(), the high-level API for GenericSensor functions
 '
@@ -378,7 +378,7 @@ Module yocto_genericsensor
     ''' <summary>
     '''   Changes the electric signal bias for zero shift adjustment.
     ''' <para>
-    '''   If your electric signal reads positive when it should be zero, setup
+    '''   If your electric signal reads positive when it should be zero, set up
     '''   a positive signalBias of the same value to fix the zero shift.
     '''   Remember to call the <c>saveToFlash()</c>
     '''   method of the module if the modification must be kept.

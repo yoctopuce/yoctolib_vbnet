@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 59693 2024-03-11 07:31:56Z seb $
+'  $Id: yocto_spiport.vb 62185 2024-08-19 09:57:14Z seb $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -1601,7 +1601,7 @@ Module yocto_spiport
       If (bufflen < 100) Then
         Return Me.sendCommand("$" + hexString)
       End If
-      bufflen = ((bufflen) >> (1))
+      bufflen = (bufflen >> 1)
       ReDim buff(bufflen-1)
       idx = 0
       While (idx < bufflen)

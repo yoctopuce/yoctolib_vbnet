@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 60214 2024-03-26 13:01:50Z mvuilleu $
+'  $Id: yocto_network.vb 61964 2024-07-29 15:54:55Z seb $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -526,7 +526,7 @@ Module yocto_network
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   If the network interface is setup to use a static IP address, the string starts with "STATIC:" and
+    '''   If the network interface is set up to use a static IP address, the string starts with "STATIC:" and
     '''   is followed by three
     '''   parameters, separated by "/". The first is the device IP address, followed by the subnet mask
     '''   length, and finally the
@@ -2029,7 +2029,7 @@ Module yocto_network
 
     '''*
     ''' <summary>
-    '''   Setup periodic HTTP callbacks (simplified function).
+    '''   Set up periodic HTTP callbacks (simplified function).
     ''' <para>
     ''' </para>
     ''' </summary>

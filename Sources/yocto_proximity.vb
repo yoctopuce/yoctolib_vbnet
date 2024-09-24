@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_proximity.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: yocto_proximity.vb 61964 2024-07-29 15:54:55Z seb $
 '
 '  Implements yFindProximity(), the high-level API for Proximity functions
 '
@@ -81,7 +81,7 @@ Module yocto_proximity
   ''' <para>
   '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
   '''   to register callback functions, and to access the autonomous datalogger.
-  '''   This class adds the ability to setup a detection threshold and to count the
+  '''   This class adds the ability to set up a detection threshold and to count the
   '''   number of detected state changes.
   ''' </para>
   ''' </summary>

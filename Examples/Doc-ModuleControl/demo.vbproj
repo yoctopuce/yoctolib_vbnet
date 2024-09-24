@@ -177,6 +177,9 @@
     <Compile Include="..\..\Sources\yocto_messagebox.vb">
       <Link>Yoctopuce\{yocto_messagebox.vb}</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_micropython.vb">
+      <Link>Yoctopuce\{yocto_micropython.vb}</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_motor.vb">
       <Link>Yoctopuce\{yocto_motor.vb}</Link>
     </Compile>
@@ -248,6 +251,12 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_servo.vb">
       <Link>Yoctopuce\{yocto_servo.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_spectralchannel.vb">
+      <Link>Yoctopuce\{yocto_spectralchannel.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_spectralsensor.vb">
+      <Link>Yoctopuce\{yocto_spectralsensor.vb}</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_spiport.vb">
       <Link>Yoctopuce\{yocto_spiport.vb}</Link>

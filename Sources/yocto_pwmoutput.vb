@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwmoutput.vb 58921 2024-01-12 09:43:57Z seb $
+'  $Id: yocto_pwmoutput.vb 61964 2024-07-29 15:54:55Z seb $
 '
 '  Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '
@@ -78,7 +78,7 @@ Module yocto_pwmoutput
   ''' <summary>
   '''   The <c>YPwmOutput</c> class allows you to drive a pulse-width modulated output (PWM).
   ''' <para>
-  '''   You can configure the frequency as well as the duty cycle, and setup progressive
+  '''   You can configure the frequency as well as the duty cycle, and set up progressive
   '''   transitions.
   ''' </para>
   ''' </summary>

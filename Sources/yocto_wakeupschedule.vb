@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupschedule.vb 56252 2023-08-23 10:06:05Z seb $
+'  $Id: yocto_wakeupschedule.vb 62185 2024-08-19 09:57:14Z seb $
 '
 '  Implements yFindWakeUpSchedule(), the high-level API for WakeUpSchedule functions
 '
@@ -677,7 +677,7 @@ Module yocto_wakeupschedule
       Dim res As Long = 0
 
       res = Me.get_minutesB()
-      res = ((res) << (30))
+      res = (res << 30)
       res = res + Me.get_minutesA()
       Return res
     End Function
@@ -700,7 +700,7 @@ Module yocto_wakeupschedule
     '''/
     Public Overridable Function set_minutes(bitmap As Long) As Integer
       Me.set_minutesA(CInt(((bitmap) And (&H3fffffff))))
-      bitmap = ((bitmap) >> (30))
+      bitmap = (bitmap >> 30)
       Return Me.set_minutesB(CInt(((bitmap) And (&H3fffffff))))
     End Function
 

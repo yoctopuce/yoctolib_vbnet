@@ -1610,8 +1610,8 @@ Module yocto_rfidreader
       binRes = YAPI._hexStrToBin(Me._json_get_key(json, "bitmap"))
       idx = 0
       While (idx < nBlocks)
-        val = binRes(((idx) >> (3)))
-        isLocked = (((val) And (((1) << (((idx) And (7)))))) <> 0)
+        val = binRes((idx >> 3))
+        isLocked = (((val) And ((1 << ((idx) And (7))))) <> 0)
         res.Add(isLocked)
         idx = idx + 1
       End While
@@ -1677,8 +1677,8 @@ Module yocto_rfidreader
       binRes = YAPI._hexStrToBin(Me._json_get_key(json, "bitmap"))
       idx = 0
       While (idx < nBlocks)
-        val = binRes(((idx) >> (3)))
-        isLocked = (((val) And (((1) << (((idx) And (7)))))) <> 0)
+        val = binRes((idx >> 3))
+        isLocked = (((val) And ((1 << ((idx) And (7))))) <> 0)
         res.Add(isLocked)
         idx = idx + 1
       End While
@@ -2064,7 +2064,7 @@ Module yocto_rfidreader
       Dim idx As Integer = 0
       Dim hexb As Integer = 0
       bufflen = (hexString).Length
-      bufflen = ((bufflen) >> (1))
+      bufflen = (bufflen >> 1)
       If (bufflen <= 16) Then
         REM // short data, use an URL-based command
         optstr = options.imm_getParams()

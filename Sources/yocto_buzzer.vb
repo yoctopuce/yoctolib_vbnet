@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_buzzer.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: yocto_buzzer.vb 62185 2024-08-19 09:57:14Z seb $
 '
 '  Implements yFindBuzzer(), the high-level API for Buzzer functions
 '
@@ -667,7 +667,7 @@ Module yocto_buzzer
             End If
             pitch = prevPitch + dNote
             freq = CType(Math.Round(440 * Math.exp(pitch * 0.05776226504666)), Integer)
-            ms16 = ((ms) >> (4))
+            ms16 = (ms >> 4)
             rest = 0
             If (typ = 3) Then
               rest = 2 * ms16

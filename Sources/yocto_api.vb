@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 60510 2024-04-12 09:37:02Z seb $
+'* $Id: yocto_api.vb 62185 2024-08-19 09:57:14Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -788,7 +788,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H200
-  Public Const YOCTO_API_BUILD_NO As String = "61813"
+  Public Const YOCTO_API_BUILD_NO As String = "62710"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2401,7 +2401,7 @@ Module yocto_api
     ''' <para>
     '''   From an operating system standpoint, it is generally not required to call
     '''   this function since the OS will automatically free allocated resources
-    '''   once your program is completed. However there are two situations when
+    '''   once your program is completed. However, there are two situations when
     '''   you may really want to use that function:
     ''' </para>
     ''' <para>
@@ -2428,7 +2428,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Setup the Yoctopuce library to use modules connected on a given machine.
+    '''   Set up the Yoctopuce library to use modules connected on a given machine.
     ''' <para>
     '''   Idealy this
     '''   call will be made once at the begining of your application.  The
@@ -2449,7 +2449,7 @@ Module yocto_api
     '''   computer, use the IP address 127.0.0.1. If the given IP is unresponsive, <c>yRegisterHub</c>
     '''   will not return until a time-out defined by <c>ySetNetworkTimeout</c> has elapsed.
     '''   However, it is possible to preventively test a connection  with <c>yTestHub</c>.
-    '''   If you cannot afford a network time-out, you can use the non blocking <c>yPregisterHub</c>
+    '''   If you cannot afford a network time-out, you can use the non-blocking <c>yPregisterHub</c>
     '''   function that will establish the connection as soon as it is available.
     ''' </para>
     ''' <para>
@@ -2467,7 +2467,7 @@ Module yocto_api
     '''   while trying to access the USB modules. In particular, this means
     '''   that you must stop the VirtualHub software before starting
     '''   an application that uses direct USB access. The workaround
-    '''   for this limitation is to setup the library to use the VirtualHub
+    '''   for this limitation is to set up the library to use the VirtualHub
     '''   rather than direct USB access.
     ''' </para>
     ''' <para>
@@ -2561,7 +2561,7 @@ Module yocto_api
 
     '''*
     ''' <summary>
-    '''   Setup the Yoctopuce library to no more use modules connected on a previously
+    '''   Set up the Yoctopuce library to no more use modules connected on a previously
     '''   registered machine with RegisterHub.
     ''' <para>
     ''' </para>
@@ -2841,7 +2841,7 @@ Module yocto_api
     '''   Checks if a given string is valid as logical name for a module or a function.
     ''' <para>
     '''   A valid logical name has a maximum of 19 characters, all among
-    '''   <c>A..Z</c>, <c>a..z</c>, <c>0..9</c>, <c>_</c>, and <c>-</c>.
+    '''   <c>A...Z</c>, <c>a...z</c>, <c>0...9</c>, <c>_</c>, and <c>-</c>.
     '''   If you try to configure a logical name with an incorrect string,
     '''   the invalid characters are ignored.
     ''' </para>
@@ -3661,8 +3661,8 @@ Module yocto_api
       Dim fRef As Double = 0
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
       REM // decode sequence header to extract data
-      Me._runNo = encoded(0) + (((encoded(1)) << (16)))
-      Me._utcStamp = encoded(2) + (((encoded(3)) << (16)))
+      Me._runNo = encoded(0) + (((encoded(1)) << 16))
+      Me._utcStamp = encoded(2) + (((encoded(3)) << 16))
       val = encoded(4)
       Me._isAvg = (((val) And (&H100)) = 0)
       samplesPerHour = ((val) And (&Hff))
@@ -3741,9 +3741,9 @@ Module yocto_api
       End If
       REM // decode min/avg/max values for the sequence
       If (Me._nRows > 0) Then
-        Me._avgVal = Me._decodeAvg(encoded(8) + (((((encoded(9)) Xor (&H8000))) << (16))), 1)
-        Me._minVal = Me._decodeVal(encoded(10) + (((encoded(11)) << (16))))
-        Me._maxVal = Me._decodeVal(encoded(12) + (((encoded(13)) << (16))))
+        Me._avgVal = Me._decodeAvg(encoded(8) + ((((encoded(9)) Xor (&H8000)) << 16)), 1)
+        Me._minVal = Me._decodeVal(encoded(10) + (((encoded(11)) << 16)))
+        Me._maxVal = Me._decodeVal(encoded(12) + (((encoded(13)) << 16)))
       End If
       Return 0
     End Function
@@ -3771,9 +3771,9 @@ Module yocto_api
             dat.Add(Double.NaN)
             dat.Add(Double.NaN)
           Else
-            dat.Add(Me._decodeVal(udat(idx + 2) + (((udat(idx + 3)) << (16)))))
-            dat.Add(Me._decodeAvg(udat(idx) + (((((udat(idx + 1)) Xor (&H8000))) << (16))), 1))
-            dat.Add(Me._decodeVal(udat(idx + 4) + (((udat(idx + 5)) << (16)))))
+            dat.Add(Me._decodeVal(udat(idx + 2) + (((udat(idx + 3)) << 16))))
+            dat.Add(Me._decodeAvg(udat(idx) + ((((udat(idx + 1)) Xor (&H8000)) << 16)), 1))
+            dat.Add(Me._decodeVal(udat(idx + 4) + (((udat(idx + 5)) << 16))))
           End If
           idx = idx + 6
           Me._values.Add(New List(Of Double)(dat))
@@ -3784,7 +3784,7 @@ Module yocto_api
           If ((udat(idx) = 65535) AndAlso (udat(idx + 1) = 65535)) Then
             dat.Add(Double.NaN)
           Else
-            dat.Add(Me._decodeAvg(udat(idx) + (((((udat(idx + 1)) Xor (&H8000))) << (16))), 1))
+            dat.Add(Me._decodeAvg(udat(idx) + ((((udat(idx + 1)) Xor (&H8000)) << 16)), 1))
           End If
           Me._values.Add(New List(Of Double)(dat))
           idx = idx + 2
@@ -8568,13 +8568,13 @@ Module yocto_api
     '''/
     Public Overridable Function get_allSettings() As Byte()
       Dim settings As Byte() = New Byte(){}
-      Dim json As Byte() = New Byte(){}
+      Dim json_bin As Byte() = New Byte(){}
       Dim res As Byte() = New Byte(){}
       Dim sep As String
       Dim name As String
       Dim item As String
       Dim t_type As String
-      Dim id As String
+      Dim pageid As String
       Dim url As String
       Dim file_data As String
       Dim file_data_bin As Byte() = New Byte(){}
@@ -8596,11 +8596,11 @@ Module yocto_api
           url = "api/" +  templist(ii_0) + "/sensorType"
           t_type = YAPI.DefaultEncoding.GetString(Me._download(url))
           If (t_type = "RES_NTC" OrElse t_type = "RES_LINEAR") Then
-            id = ( templist(ii_0)).Substring( 11, ( templist(ii_0)).Length - 11)
-            If (id = "") Then
-              id = "1"
+            pageid = ( templist(ii_0)).Substring( 11, ( templist(ii_0)).Length - 11)
+            If (pageid = "") Then
+              pageid = "1"
             End If
-            temp_data_bin = Me._download("extra.json?page=" + id)
+            temp_data_bin = Me._download("extra.json?page=" + pageid)
             If ((temp_data_bin).Length > 0) Then
               item = "" +  sep + "{""fid"":""" +   templist(ii_0) + """, ""json"":" + YAPI.DefaultEncoding.GetString(temp_data_bin) + "}" + vbLf + ""
               ext_settings = ext_settings + item
@@ -8611,11 +8611,11 @@ Module yocto_api
       Next ii_0
       ext_settings = ext_settings + "]," + vbLf + """files"":["
       If (Me.hasFunction("files")) Then
-        json = Me._download("files.json?a=dir&f=")
-        If ((json).Length = 0) Then
-          Return json
+        json_bin = Me._download("files.json?a=dir&f=")
+        If ((json_bin).Length = 0) Then
+          Return json_bin
         End If
-        filelist = Me._json_get_array(json)
+        filelist = Me._json_get_array(json_bin)
         sep = ""
         Dim ii_1 As Integer
         For ii_1 = 0 To  filelist.Count - 1
@@ -8698,19 +8698,19 @@ Module yocto_api
     '''/
     Public Overridable Function set_allSettingsAndFiles(settings As Byte()) As Integer
       Dim down As Byte() = New Byte(){}
-      Dim json As String
+      Dim json_bin As String
       Dim json_api As String
       Dim json_files As String
       Dim json_extra As String
       Dim fuperror As Integer = 0
       Dim globalres As Integer = 0
       fuperror = 0
-      json = YAPI.DefaultEncoding.GetString(settings)
-      json_api = Me._get_json_path(json, "api")
+      json_bin = YAPI.DefaultEncoding.GetString(settings)
+      json_api = Me._get_json_path(json_bin, "api")
       If (json_api = "") Then
         Return Me.set_allSettings(settings)
       End If
-      json_extra = Me._get_json_path(json, "extras")
+      json_extra = Me._get_json_path(json_bin, "extras")
       If (Not (json_extra = "")) Then
         Me.set_extraSettings(json_extra)
       End If
@@ -8727,7 +8727,7 @@ Module yocto_api
           me._throw( YAPI.IO_ERROR,  "format failed")
           return YAPI.IO_ERROR
         end if
-        json_files = Me._get_json_path(json, "files")
+        json_files = Me._get_json_path(json_bin, "files")
         files = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(json_files))
         Dim ii_0 As Integer
         For ii_0 = 0 To  files.Count - 1
@@ -9147,7 +9147,6 @@ Module yocto_api
       Dim value As String
       Dim url As String
       Dim tmp As String
-      Dim new_calib As String
       Dim sensorType As String
       Dim unit_name As String
       Dim newval As String
@@ -9239,121 +9238,121 @@ Module yocto_api
         If (fun = "services") Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "firmwareRelease")) Then
+        If (do_update AndAlso (attr = "firmwareRelease")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "usbCurrent")) Then
+        If (do_update AndAlso (attr = "usbCurrent")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "upTime")) Then
+        If (do_update AndAlso (attr = "upTime")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "persistentSettings")) Then
+        If (do_update AndAlso (attr = "persistentSettings")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "adminPassword")) Then
+        If (do_update AndAlso (attr = "adminPassword")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "userPassword")) Then
+        If (do_update AndAlso (attr = "userPassword")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "rebootCountdown")) Then
+        If (do_update AndAlso (attr = "rebootCountdown")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "advertisedValue")) Then
+        If (do_update AndAlso (attr = "advertisedValue")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "poeCurrent")) Then
+        If (do_update AndAlso (attr = "poeCurrent")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "readiness")) Then
+        If (do_update AndAlso (attr = "readiness")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "ipAddress")) Then
+        If (do_update AndAlso (attr = "ipAddress")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "subnetMask")) Then
+        If (do_update AndAlso (attr = "subnetMask")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "router")) Then
+        If (do_update AndAlso (attr = "router")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "linkQuality")) Then
+        If (do_update AndAlso (attr = "linkQuality")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "ssid")) Then
+        If (do_update AndAlso (attr = "ssid")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "channel")) Then
+        If (do_update AndAlso (attr = "channel")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "security")) Then
+        If (do_update AndAlso (attr = "security")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "message")) Then
+        If (do_update AndAlso (attr = "message")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "signalValue")) Then
+        If (do_update AndAlso (attr = "signalValue")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "currentValue")) Then
+        If (do_update AndAlso (attr = "currentValue")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "currentRawValue")) Then
+        If (do_update AndAlso (attr = "currentRawValue")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "currentRunIndex")) Then
+        If (do_update AndAlso (attr = "currentRunIndex")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "pulseTimer")) Then
+        If (do_update AndAlso (attr = "pulseTimer")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "lastTimePressed")) Then
+        If (do_update AndAlso (attr = "lastTimePressed")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "lastTimeReleased")) Then
+        If (do_update AndAlso (attr = "lastTimeReleased")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "filesCount")) Then
+        If (do_update AndAlso (attr = "filesCount")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "freeSpace")) Then
+        If (do_update AndAlso (attr = "freeSpace")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "timeUTC")) Then
+        If (do_update AndAlso (attr = "timeUTC")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "rtcTime")) Then
+        If (do_update AndAlso (attr = "rtcTime")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "unixTime")) Then
+        If (do_update AndAlso (attr = "unixTime")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "dateTime")) Then
+        If (do_update AndAlso (attr = "dateTime")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "rawValue")) Then
+        If (do_update AndAlso (attr = "rawValue")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "lastMsg")) Then
+        If (do_update AndAlso (attr = "lastMsg")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "delayedPulseTimer")) Then
+        If (do_update AndAlso (attr = "delayedPulseTimer")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "rxCount")) Then
+        If (do_update AndAlso (attr = "rxCount")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "txCount")) Then
+        If (do_update AndAlso (attr = "txCount")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "msgCount")) Then
+        If (do_update AndAlso (attr = "msgCount")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "rxMsgCount")) Then
+        If (do_update AndAlso (attr = "rxMsgCount")) Then
           do_update = False
         End If
-        If ((do_update) AndAlso (attr = "txMsgCount")) Then
+        If (do_update AndAlso (attr = "txMsgCount")) Then
           do_update = False
         End If
         If (do_update) Then
@@ -9377,7 +9376,6 @@ Module yocto_api
             old_calib = ""
             unit_name = ""
             sensorType = ""
-            new_calib = newval
             j = 0
             found = False
             While ((j < old_jpath.Count) AndAlso Not (found))
@@ -9820,7 +9818,7 @@ Module yocto_api
   '''   It can be
   '''   used to read the current value and unit of any sensor, read the min/max
   '''   value, configure autonomous recording frequency and access recorded data.
-  '''   It also provide a function to register a callback invoked each time the
+  '''   It also provides a function to register a callback invoked each time the
   '''   observed value changes, or at a predefined interval. Using this class rather
   '''   than a specific subclass makes it possible to create generic applications
   '''   that work with any Yoctopuce sensor, even those that do not yet exist.
@@ -11055,7 +11053,7 @@ Module yocto_api
         If (((byteVal) And (&H80)) <> 0) Then
           avgRaw = avgRaw - poww
         End If
-        sublen = 1 + ((((report(1)) >> (2))) And (3))
+        sublen = 1 + ((((report(1)) >> 2)) And (3))
         poww = 1
         difRaw = 0
         While ((sublen > 0) AndAlso (i < report.Count))
@@ -11066,7 +11064,7 @@ Module yocto_api
           sublen = sublen - 1
         End While
         minRaw = avgRaw - difRaw
-        sublen = 1 + ((((report(1)) >> (4))) And (3))
+        sublen = 1 + ((((report(1)) >> 4)) And (3))
         poww = 1
         difRaw = 0
         While ((sublen > 0) AndAlso (i < report.Count))
@@ -11817,12 +11815,12 @@ Module yocto_api
       Return Me.parse_dataSets(Me._download("logger.json"))
     End Function
 
-    Public Overridable Function parse_dataSets(json As Byte()) As List(Of YDataSet)
+    Public Overridable Function parse_dataSets(jsonbuff As Byte()) As List(Of YDataSet)
       Dim dslist As List(Of String) = New List(Of String)()
       Dim dataset As YDataSet
       Dim res As List(Of YDataSet) = New List(Of YDataSet)()
 
-      dslist = Me._json_get_array(json)
+      dslist = Me._json_get_array(jsonbuff)
       res.Clear()
       Dim ii_0 As Integer
       For ii_0 = 0 To dslist.Count - 1
@@ -12566,7 +12564,7 @@ Module yocto_api
   ''' <para>
   '''   From an operating system standpoint, it is generally not required to call
   '''   this function since the OS will automatically free allocated resources
-  '''   once your program is completed. However there are two situations when
+  '''   once your program is completed. However, there are two situations when
   '''   you may really want to use that function:
   ''' </para>
   ''' <para>
@@ -12590,7 +12588,7 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   Setup the Yoctopuce library to use modules connected on a given machine.
+  '''   Set up the Yoctopuce library to use modules connected on a given machine.
   ''' <para>
   '''   Idealy this
   '''   call will be made once at the begining of your application.  The
@@ -12611,7 +12609,7 @@ Module yocto_api
   '''   computer, use the IP address 127.0.0.1. If the given IP is unresponsive, <c>yRegisterHub</c>
   '''   will not return until a time-out defined by <c>ySetNetworkTimeout</c> has elapsed.
   '''   However, it is possible to preventively test a connection  with <c>yTestHub</c>.
-  '''   If you cannot afford a network time-out, you can use the non blocking <c>yPregisterHub</c>
+  '''   If you cannot afford a network time-out, you can use the non-blocking <c>yPregisterHub</c>
   '''   function that will establish the connection as soon as it is available.
   ''' </para>
   ''' <para>
@@ -12629,7 +12627,7 @@ Module yocto_api
   '''   while trying to access the USB modules. In particular, this means
   '''   that you must stop the VirtualHub software before starting
   '''   an application that uses direct USB access. The workaround
-  '''   for this limitation is to setup the library to use the VirtualHub
+  '''   for this limitation is to set up the library to use the VirtualHub
   '''   rather than direct USB access.
   ''' </para>
   ''' <para>
@@ -12699,7 +12697,7 @@ Module yocto_api
 
   '''*
   ''' <summary>
-  '''   Setup the Yoctopuce library to no more use modules connected on a previously
+  '''   Set up the Yoctopuce library to no more use modules connected on a previously
   '''   registered machine with RegisterHub.
   ''' <para>
   ''' </para>
@@ -12878,7 +12876,7 @@ Module yocto_api
   '''   Checks if a given string is valid as logical name for a module or a function.
   ''' <para>
   '''   A valid logical name has a maximum of 19 characters, all among
-  '''   <c>A..Z</c>, <c>a..z</c>, <c>0..9</c>, <c>_</c>, and <c>-</c>.
+  '''   <c>A...Z</c>, <c>a...z</c>, <c>0...9</c>, <c>_</c>, and <c>-</c>.
   '''   If you try to configure a logical name with an incorrect string,
   '''   the invalid characters are ignored.
   ''' </para>

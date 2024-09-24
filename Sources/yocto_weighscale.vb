@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_weighscale.vb 55979 2023-08-11 08:24:13Z seb $
+'  $Id: yocto_weighscale.vb 62185 2024-08-19 09:57:14Z seb $
 '
 '  Implements yFindWeighScale(), the high-level API for WeighScale functions
 '
@@ -782,7 +782,7 @@ Module yocto_weighscale
       bin_json = Me._download("extra.json?page=" + Convert.ToString((4*YAPI._atoi(id))+tableIndex))
       paramlist = Me._json_get_array(bin_json)
       REM // convert all values to float and append records
-      siz = ((paramlist.Count) >> (1))
+      siz = (paramlist.Count >> 1)
       tempValues.Clear()
       compValues.Clear()
       idx = 0

@@ -1820,7 +1820,7 @@ Module yocto_sdi12port
       If (bufflen < 100) Then
         Return Me.sendCommand("$" + hexString)
       End If
-      bufflen = ((bufflen) >> (1))
+      bufflen = (bufflen >> 1)
       ReDim buff(bufflen-1)
       idx = 0
       While (idx < bufflen)

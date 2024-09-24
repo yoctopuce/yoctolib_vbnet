@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 55633 2023-07-26 09:18:40Z seb $
+'* $Id: yocto_messagebox.vb 62185 2024-08-19 09:57:14Z seb $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -156,7 +156,7 @@ Module yocto_messagebox
     End Function
 
     Public Overridable Function get_dcs() As Integer
-      Return ((Me._mclass) Or ((((Me._alphab) << (2)))))
+      Return ((Me._mclass) Or (((Me._alphab << 2))))
     End Function
 
     Public Overridable Function get_timestamp() As String
@@ -193,7 +193,7 @@ Module yocto_messagebox
       End If
       If (Me._alphab = 2) Then
         REM // using UCS-2 alphabet
-        isosize = (((Me._udata).Length) >> (1))
+        isosize = (((Me._udata).Length) >> 1)
         ReDim isolatin(isosize-1)
         i = 0
         While (i < isosize)
@@ -217,7 +217,7 @@ Module yocto_messagebox
       End If
       If (Me._alphab = 2) Then
         REM // using UCS-2 alphabet
-        unisize = (((Me._udata).Length) >> (1))
+        unisize = (((Me._udata).Length) >> 1)
         res.Clear()
         i = 0
         While (i < unisize)
@@ -338,7 +338,7 @@ Module yocto_messagebox
     End Function
 
     Public Overridable Function set_dcs(val As Integer) As Integer
-      Me._alphab = (((((val) >> (2)))) And (3))
+      Me._alphab = ((((val >> 2))) And (3))
       Me._mclass = ((val) And (16+3))
       Me._npdu = 0
       Return YAPI.SUCCESS
@@ -516,13 +516,13 @@ Module yocto_messagebox
         uni = val(i)
         If (uni >= 65536) Then
           surrogate = uni - 65536
-          uni = (((((surrogate) >> (10))) And (1023))) + 55296
-          udata( udatalen) = Convert.ToByte(((uni) >> (8)) And &HFF)
+          uni = ((((surrogate >> 10)) And (1023))) + 55296
+          udata( udatalen) = Convert.ToByte((uni >> 8) And &HFF)
           udata( udatalen+1) = Convert.ToByte(((uni) And (255)) And &HFF)
           udatalen = udatalen + 2
           uni = (((surrogate) And (1023))) + 56320
         End If
-        udata( udatalen) = Convert.ToByte(((uni) >> (8)) And &HFF)
+        udata( udatalen) = Convert.ToByte((uni >> 8) And &HFF)
         udata( udatalen+1) = Convert.ToByte(((uni) And (255)) And &HFF)
         udatalen = udatalen + 2
         i = i + 1
@@ -627,7 +627,7 @@ Module yocto_messagebox
         res( 0) = Convert.ToByte(0 And &HFF)
         Return res
       End If
-      ReDim res(2+((numlen+1) >> (1))-1)
+      ReDim res(2+((numlen+1) >> 1)-1)
       res( 0) = Convert.ToByte(numlen And &HFF)
       If (bytes(0) = 43) Then
         res( 1) = Convert.ToByte(145 And &HFF)
@@ -643,7 +643,7 @@ Module yocto_messagebox
           If (((numlen) And (1)) = 0) Then
             digit = val - 48
           Else
-            res( ((numlen) >> (1))) = Convert.ToByte(digit + 16*(val-48) And &HFF)
+            res( (numlen >> 1)) = Convert.ToByte(digit + 16*(val-48) And &HFF)
           End If
           numlen = numlen + 1
         End If
@@ -651,7 +651,7 @@ Module yocto_messagebox
       End While
       REM // pad with F if needed
       If (((numlen) And (1)) <> 0) Then
-        res( ((numlen) >> (1))) = Convert.ToByte(digit + 240 And &HFF)
+        res( (numlen >> 1)) = Convert.ToByte(digit + 240 And &HFF)
       End If
       Return res
     End Function
@@ -686,8 +686,8 @@ Module yocto_messagebox
           Else
             byt = addr(ofs+rpos)
             rpos = rpos + 1
-            gsm7( i) = Convert.ToByte(((carry) Or ((((((byt) << (nbits)))) And (127)))) And &HFF)
-            carry = ((byt) >> ((7 - nbits)))
+            gsm7( i) = Convert.ToByte(((carry) Or (((((byt << nbits))) And (127)))) And &HFF)
+            carry = (byt >> (7 - nbits))
             nbits = nbits + 1
           End If
           i = i + 1
@@ -698,15 +698,15 @@ Module yocto_messagebox
         If (addrType = 16) Then
           res = "+"
         End If
-        siz = (((siz+1)) >> (1))
+        siz = ((siz+1) >> 1)
         i = 0
         While (i < siz)
           byt = addr(ofs+i+1)
-          res = "" +  res + "" + ( ((byt) And (15))).ToString("x") + "" + (((byt) >> (4))).ToString("x")
+          res = "" +  res + "" + ( ((byt) And (15))).ToString("x") + "" + ((byt >> 4)).ToString("x")
           i = i + 1
         End While
         REM // remove padding digit if needed
-        If (((addr(ofs+siz)) >> (4)) = 15) Then
+        If (((addr(ofs+siz)) >> 4) = 15) Then
           res = (res).Substring( 0, (res).Length-1)
         End If
         Return res
@@ -764,7 +764,7 @@ Module yocto_messagebox
           If ((v2 >= 48) AndAlso (v2 < 58)) Then
             v1 = v1 - 48
             v2 = v2 - 48
-            res( n) = Convert.ToByte((((v2) << (4))) + v1 And &HFF)
+            res( n) = Convert.ToByte(((v2 << 4)) + v1 And &HFF)
             n = n + 1
             i = i + 1
           End If
@@ -828,7 +828,7 @@ Module yocto_messagebox
       i = 0
       While ((i < siz) AndAlso (i < 6))
         byt = exp(ofs+i)
-        res = "" +  res + "" + ( ((byt) And (15))).ToString("x") + "" + (((byt) >> (4))).ToString("x")
+        res = "" +  res + "" + ( ((byt) And (15))).ToString("x") + "" + ((byt >> 4)).ToString("x")
         If (i < 3) Then
           If (i < 2) Then
             res = "" + res + "-"
@@ -849,8 +849,8 @@ Module yocto_messagebox
           byt = byt - 8
           sign = "-"
         End If
-        byt = (10*(((byt) And (15)))) + (((byt) >> (4)))
-        hh = "" + Convert.ToString(((byt) >> (2)))
+        byt = (10*(((byt) And (15)))) + ((byt >> 4))
+        hh = "" + Convert.ToString((byt >> 2))
         ss = "" + Convert.ToString(15*(((byt) And (3))))
         If ((hh).Length<2) Then
           hh = "0" + hh
@@ -934,10 +934,10 @@ Module yocto_messagebox
             nbits = 7
           Else
             thi_b = Me._udata(i)
-            res( wpos) = Convert.ToByte(((carry) Or ((((((thi_b) << (nbits)))) And (255)))) And &HFF)
+            res( wpos) = Convert.ToByte(((carry) Or (((((thi_b << nbits))) And (255)))) And &HFF)
             wpos = wpos + 1
             nbits = nbits - 1
-            carry = ((thi_b) >> ((7 - nbits)))
+            carry = (thi_b >> (7 - nbits))
           End If
           i = i + 1
         End While
@@ -1186,12 +1186,12 @@ Module yocto_messagebox
           tslen = 0
         End If
       End If
-      rpos = rpos + ((((addrlen+3)) >> (1)))
+      rpos = rpos + (((addrlen+3) >> 1))
       Me._pid = pdu(rpos)
       rpos = rpos + 1
       dcs = pdu(rpos)
       rpos = rpos + 1
-      Me._alphab = (((((dcs) >> (2)))) And (3))
+      Me._alphab = ((((dcs >> 2))) And (3))
       Me._mclass = ((dcs) And (16+3))
       Me._stamp = Me.decodeTimeStamp(pdu, rpos, tslen)
       rpos = rpos + tslen
@@ -1217,7 +1217,7 @@ Module yocto_messagebox
           If (nbits > 0) Then
             thi_b = pdu(rpos)
             rpos = rpos + 1
-            carry = ((thi_b) >> (nbits))
+            carry = (thi_b >> nbits)
             nbits = 8 - nbits
           End If
         Else
@@ -1241,8 +1241,8 @@ Module yocto_messagebox
           Else
             thi_b = pdu(rpos)
             rpos = rpos + 1
-            Me._udata( i) = Convert.ToByte(((carry) Or ((((((thi_b) << (nbits)))) And (127)))) And &HFF)
-            carry = ((thi_b) >> ((7 - nbits)))
+            Me._udata( i) = Convert.ToByte(((carry) Or (((((thi_b << nbits))) And (127)))) And &HFF)
+            carry = (thi_b >> (7 - nbits))
             nbits = nbits + 1
           End If
           i = i + 1
@@ -1814,9 +1814,9 @@ Module yocto_messagebox
         Me.clearCache()
         bitmapStr = Me.get_slotsBitmap()
         newBitmap = YAPI._hexStrToBin(bitmapStr)
-        idx = ((slot) >> (3))
+        idx = (slot >> 3)
         If (idx < (newBitmap).Length) Then
-          bitVal = ((1) << ((((slot) And (7)))))
+          bitVal = (1 << (((slot) And (7))))
           If ((((newBitmap(idx)) And (bitVal))) <> 0) Then
             Me._prevBitmapStr = ""
             int_res = Me.set_command("DS" + Convert.ToString(slot))
@@ -2280,9 +2280,9 @@ Module yocto_messagebox
       While (pduIdx < Me._pdus.Count)
         sms = Me._pdus(pduIdx)
         slot = sms.get_slot()
-        idx = ((slot) >> (3))
+        idx = (slot >> 3)
         If (idx < (newBitmap).Length) Then
-          bitVal = ((1) << ((((slot) And (7)))))
+          bitVal = (1 << (((slot) And (7))))
           If ((((newBitmap(idx)) And (bitVal))) <> 0) Then
             newArr.Add(sms)
             If (sms.get_concatCount() = 0) Then
@@ -2308,8 +2308,8 @@ Module yocto_messagebox
       REM // receive new messages
       slot = 0
       While (slot < nslots)
-        idx = ((slot) >> (3))
-        bitVal = ((1) << ((((slot) And (7)))))
+        idx = (slot >> 3)
+        bitVal = (1 << (((slot) And (7))))
         prevBit = 0
         If (idx < (prevBitmap).Length) Then
           prevBit = ((prevBitmap(idx)) And (bitVal))

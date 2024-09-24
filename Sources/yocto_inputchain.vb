@@ -810,7 +810,7 @@ Module yocto_inputchain
     ''' <summary>
     '''   Resets the application watchdog countdown.
     ''' <para>
-    '''   If you have setup a non-zero <c>watchdogPeriod</c>, you should
+    '''   If you have set up a non-zero <c>watchdogPeriod</c>, you should
     '''   call this function on a regular basis to prevent the application
     '''   inactivity error to be triggered.
     ''' </para>
@@ -1014,9 +1014,9 @@ Module yocto_inputchain
         idx = idx - 1
         digit = Convert.ToInt32((hexstr).Substring( idx, 1), 16)
         res.Add(((digit) And (1)))
-        res.Add(((((digit) >> (1))) And (1)))
-        res.Add(((((digit) >> (2))) And (1)))
-        res.Add(((((digit) >> (3))) And (1)))
+        res.Add((((digit >> 1)) And (1)))
+        res.Add((((digit >> 2)) And (1)))
+        res.Add((((digit >> 3)) And (1)))
       End While
 
       Return res
