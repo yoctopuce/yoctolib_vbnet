@@ -1,4 +1,4 @@
-VBNetV2 v2.0.62710
+VBNetV2 v2.0.62733
 
 - Add support Windows ARM
 - Add logs for net hub connection state
