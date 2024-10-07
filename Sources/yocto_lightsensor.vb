@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_lightsensor.vb 45306 2021-05-26 08:04:16Z web $
+'  $Id: yocto_lightsensor.vb 62830 2024-10-01 09:03:52Z seb $
 '
 '  Implements yFindLightSensor(), the high-level API for LightSensor functions
 '

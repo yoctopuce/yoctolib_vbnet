@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_micropython.vb 62733 2024-09-24 08:45:41Z seb $
+'  $Id: yocto_micropython.vb 62774 2024-09-27 06:37:23Z seb $
 '
 '  Implements yFindMicroPython(), the high-level API for MicroPython functions
 '
@@ -60,8 +60,8 @@ Module yocto_micropython
   Public Const Y_STARTUPSCRIPT_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YMicroPythonValueCallback(ByVal func As YMicroPython, ByVal value As String)
-  Public Delegate Sub YMicroPythonLogCallback(ByVal obj As YMicroPython, ByVal logline As String)
   Public Delegate Sub YMicroPythonTimedReportCallback(ByVal func As YMicroPython, ByVal measure As YMeasure)
+  Public Delegate Sub YMicroPythonLogCallback(ByVal obj As YMicroPython, ByVal logline As String)
   Public Delegate Sub YEventCallback(ByVal func As YMicroPython, ByVal logline As String)
 
   Sub yInternalEventCallback(ByVal func As YMicroPython, ByVal value As String)

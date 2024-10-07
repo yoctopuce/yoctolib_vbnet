@@ -1,7 +1,4 @@
-VBNetV2 v2.0.62733
+VBNetV2 v2.0.62875
 
-- Add support Windows ARM
-- Add logs for net hub connection state
-- Fix crash if network discovery cannot be started correctly
-- YAPI.Testhub("net") return YAPI.INVALID_ARGUMENT
-- Bump project target to .NET framework 4.7.1
+- Fix connection to YoctoHub with very old firmware
+- Fix crash if Network discovery cannot be started correctly
