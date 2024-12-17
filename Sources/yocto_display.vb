@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 43619 2021-01-29 09:14:45Z mvuilleu $
+'* $Id: yocto_display.vb 63328 2024-11-13 09:35:22Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -1802,7 +1802,7 @@ end enum
       Dim idx As Integer = 0
       layercount = Me.get_layerCount()
       If Not((layerId >= 0) AndAlso (layerId < layercount)) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid DisplayLayer index")
+        me._throw(YAPI.INVALID_ARGUMENT, "invalid DisplayLayer index")
         return Nothing
       end if
       If (Me._allDisplayLayers.Count = 0) Then

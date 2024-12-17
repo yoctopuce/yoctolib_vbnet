@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_refframe.vb 62185 2024-08-19 09:57:14Z seb $
+'  $Id: yocto_refframe.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindRefFrame(), the high-level API for RefFrame functions
 '
@@ -664,20 +664,20 @@ end enum
         While (idx < stopidx)
           b = Me._calibDataAcc(idx)
           If (a > b) Then
-            Me._calibDataAcc( idx-1) = b
-            Me._calibDataAcc( idx) = a
+            Me._calibDataAcc(idx-1) = b
+            Me._calibDataAcc(idx) = a
             xa = Me._calibDataAccX(idx-1)
             xb = Me._calibDataAccX(idx)
-            Me._calibDataAccX( idx-1) = xb
-            Me._calibDataAccX( idx) = xa
+            Me._calibDataAccX(idx-1) = xb
+            Me._calibDataAccX(idx) = xa
             xa = Me._calibDataAccY(idx-1)
             xb = Me._calibDataAccY(idx)
-            Me._calibDataAccY( idx-1) = xb
-            Me._calibDataAccY( idx) = xa
+            Me._calibDataAccY(idx-1) = xb
+            Me._calibDataAccY(idx) = xa
             xa = Me._calibDataAccZ(idx-1)
             xb = Me._calibDataAccZ(idx)
-            Me._calibDataAccZ( idx-1) = xb
-            Me._calibDataAccZ( idx) = xa
+            Me._calibDataAccZ(idx-1) = xb
+            Me._calibDataAccZ(idx) = xa
             changed = changed + 1
           Else
             a = b
@@ -879,9 +879,7 @@ end enum
       intpos = (Me._calibStage - 1) * Me._calibCount
       Me._calibSort(intpos, intpos + Me._calibCount)
       intpos = intpos + (Me._calibCount \ 2)
-      Me._calibLogMsg = "Stage " + Convert.ToString( Me._calibStage) + ": median is " + Convert.ToString(
-      CType(Math.Round(1000*Me._calibDataAccX(intpos)), Integer)) + "," + Convert.ToString(
-      CType(Math.Round(1000*Me._calibDataAccY(intpos)), Integer)) + "," + Convert.ToString(CType(Math.Round(1000*Me._calibDataAccZ(intpos)), Integer))
+      Me._calibLogMsg = "Stage " + Convert.ToString(Me._calibStage) + ": median is " + Convert.ToString(CType(Math.Round(1000*Me._calibDataAccX(intpos)), Integer)) + "," + Convert.ToString(CType(Math.Round(1000*Me._calibDataAccY(intpos)), Integer)) + "," + Convert.ToString(CType(Math.Round(1000*Me._calibDataAccZ(intpos)), Integer))
       REM // move to next stage
       Me._calibStage = Me._calibStage + 1
       If (Me._calibStage < 7) Then
@@ -920,7 +918,7 @@ end enum
         yVal = Me._calibDataAccY(intpos) - Me._calibAccYOfs
         zVal = Me._calibDataAccZ(intpos) - Me._calibAccZOfs
         norm = Math.sqrt(xVal * xVal + yVal * yVal + zVal * zVal)
-        Me._calibDataAcc( intpos) = norm
+        Me._calibDataAcc(intpos) = norm
         intpos = intpos + 1
       End While
       idx = 0
@@ -1172,7 +1170,7 @@ end enum
       scaleLo = (((scaleY) And (15)) << 12) + (scaleX << 2) + scaleExp
       scaleHi = (scaleZ << 6) + (scaleY >> 4)
       REM // Save calibration parameters
-      newcalib = "5," + Convert.ToString( shiftX) + "," + Convert.ToString( shiftY) + "," + Convert.ToString( shiftZ) + "," + Convert.ToString( scaleLo) + "," + Convert.ToString(scaleHi)
+      newcalib = "5," + Convert.ToString(shiftX) + "," + Convert.ToString(shiftY) + "," + Convert.ToString(shiftZ) + "," + Convert.ToString(scaleLo) + "," + Convert.ToString(scaleHi)
       Me._calibStage = 0
       Return Me.set_calibrationParam(newcalib)
     End Function

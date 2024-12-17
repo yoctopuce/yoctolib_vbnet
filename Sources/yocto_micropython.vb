@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_micropython.vb 62774 2024-09-27 06:37:23Z seb $
+'  $Id: yocto_micropython.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindMicroPython(), the high-level API for MicroPython functions
 '
@@ -58,6 +58,9 @@ Module yocto_micropython
   Public Const Y_XHEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CURRENTSCRIPT_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_STARTUPSCRIPT_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_DEBUGMODE_OFF As Integer = 0
+  Public Const Y_DEBUGMODE_ON As Integer = 1
+  Public Const Y_DEBUGMODE_INVALID As Integer = -1
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YMicroPythonValueCallback(ByVal func As YMicroPython, ByVal value As String)
   Public Delegate Sub YMicroPythonTimedReportCallback(ByVal func As YMicroPython, ByVal measure As YMeasure)
@@ -89,6 +92,9 @@ Module yocto_micropython
     Public Const XHEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CURRENTSCRIPT_INVALID As String = YAPI.INVALID_STRING
     Public Const STARTUPSCRIPT_INVALID As String = YAPI.INVALID_STRING
+    Public Const DEBUGMODE_OFF As Integer = 0
+    Public Const DEBUGMODE_ON As Integer = 1
+    Public Const DEBUGMODE_INVALID As Integer = -1
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YMicroPython definitions)
 
@@ -98,6 +104,7 @@ Module yocto_micropython
     Protected _xheapUsage As Integer
     Protected _currentScript As String
     Protected _startupScript As String
+    Protected _debugMode As Integer
     Protected _command As String
     Protected _valueCallbackMicroPython As YMicroPythonValueCallback
     Protected _logCallback As YMicroPythonLogCallback
@@ -116,6 +123,7 @@ Module yocto_micropython
       _xheapUsage = XHEAPUSAGE_INVALID
       _currentScript = CURRENTSCRIPT_INVALID
       _startupScript = STARTUPSCRIPT_INVALID
+      _debugMode = DEBUGMODE_INVALID
       _command = COMMAND_INVALID
       _valueCallbackMicroPython = Nothing
       _prevCbPos = 0
@@ -140,6 +148,9 @@ Module yocto_micropython
       End If
       If json_val.has("startupScript") Then
         _startupScript = json_val.getString("startupScript")
+      End If
+      If json_val.has("debugMode") Then
+        If (json_val.getInt("debugMode") > 0) Then _debugMode = 1 Else _debugMode = 0
       End If
       If json_val.has("command") Then
         _command = json_val.getString("command")
@@ -342,6 +353,60 @@ Module yocto_micropython
       rest_val = newval
       Return _setAttr("startupScript", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the activation state of micropython debugging interface.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YMicroPython.DEBUGMODE_OFF</c> or <c>YMicroPython.DEBUGMODE_ON</c>, according to the
+    '''   activation state of micropython debugging interface
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMicroPython.DEBUGMODE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_debugMode() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return DEBUGMODE_INVALID
+        End If
+      End If
+      res = Me._debugMode
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the activation state of micropython debugging interface.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YMicroPython.DEBUGMODE_OFF</c> or <c>YMicroPython.DEBUGMODE_ON</c>, according to the
+    '''   activation state of micropython debugging interface
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_debugMode(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("debugMode", rest_val)
+    End Function
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -525,7 +590,7 @@ Module yocto_micropython
 
       res = Me.set_command("Z")
       If Not(res = YAPI.SUCCESS) Then
-        me._throw( YAPI.IO_ERROR,  "unable to trigger MicroPython reset")
+        me._throw(YAPI.IO_ERROR, "unable to trigger MicroPython reset")
         return YAPI.IO_ERROR
       end if
       REM // Wait until the reset is effective
@@ -561,7 +626,7 @@ Module yocto_micropython
       While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
         bufflen = bufflen - 1
       End While
-      res = (YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen)
+      res = (YAPI.DefaultEncoding.GetString(buff)).Substring(0, bufflen)
       Return res
     End Function
 
@@ -645,10 +710,10 @@ Module yocto_micropython
         endPos = endPos - 1
       End While
       If Not(endPos > 0) Then
-        me._throw( YAPI.IO_ERROR,  "fail to download micropython logs")
+        me._throw(YAPI.IO_ERROR, "fail to download micropython logs")
         return YAPI.IO_ERROR
       end if
-      lenStr = (contentStr).Substring( endPos+1, (contentStr).Length-(endPos+1))
+      lenStr = (contentStr).Substring(endPos+1, (contentStr).Length-(endPos+1))
       REM // update processed event position pointer
       Me._logPos = YAPI._atoi(lenStr)
       If (Me._isFirstCb) Then
@@ -659,14 +724,14 @@ Module yocto_micropython
       REM // now generate callbacks for each complete log line
       endPos = endPos - 1
       If Not(content(endPos) = 10) Then
-        me._throw( YAPI.IO_ERROR,  "fail to download micropython logs")
+        me._throw(YAPI.IO_ERROR, "fail to download micropython logs")
         return YAPI.IO_ERROR
       end if
-      contentStr = (contentStr).Substring( 0, endPos)
+      contentStr = (contentStr).Substring(0, endPos)
       msgArr = New List(Of String)(contentStr.Split(vbLf.ToCharArray()))
       arrLen = msgArr.Count - 1
       If (arrLen > 0) Then
-        logMsg = "" +  Me._prevPartialLog + "" + msgArr(0)
+        logMsg = "" + Me._prevPartialLog + "" + msgArr(0)
         If (Not (Me._logCallback Is Nothing)) Then
           Me._logCallback(Me, logMsg)
         End If
@@ -680,7 +745,7 @@ Module yocto_micropython
           arrPos = arrPos + 1
         End While
       End If
-      Me._prevPartialLog = "" +  Me._prevPartialLog + "" + msgArr(arrLen)
+      Me._prevPartialLog = "" + Me._prevPartialLog + "" + msgArr(arrLen)
       Return YAPI.SUCCESS
     End Function
 

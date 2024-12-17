@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 62185 2024-08-19 09:57:14Z seb $
+'* $Id: yocto_api.vb 63704 2024-12-16 10:05:02Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -60,11 +60,38 @@ Imports yUrlRef = System.Int16
 Imports System.Runtime.InteropServices
 Imports System.Buffer
 Imports System.Globalization
+Imports System.IO
 Imports System.Text
 Imports System.Math
 Imports System.Threading
 
 Module yocto_api
+  Friend Class yMemoryStream
+    Inherits MemoryStream
+    Public Sub New()
+      MyBase.New()
+    End Sub
+
+    Public Sub New(capacity As Integer)
+      MyBase.New(capacity)
+    End Sub
+
+    Public Sub Append(c As Char)
+      Dim tmp As Char() = {c}
+      Dim b As Byte() = YAPI.DefaultEncoding.GetBytes(tmp)
+      Write(b, 0, b.Length)
+    End Sub
+
+    Public Sub Append(bin As Byte())
+      Write(bin, 0, bin.Length)
+    End Sub
+
+    Public Sub Append(s As String)
+      Dim b As Byte() = YAPI.DefaultEncoding.GetBytes(s)
+      Write(b, 0, b.Length)
+    End Sub
+  End Class
+
   Public MustInherit Class YJSONContent
     Friend _data As String
     Friend _data_start As Integer
@@ -152,7 +179,7 @@ Module yocto_api
       Return (errmsg & Convert.ToString(" near ")) + _data.Substring(ststart, cur_pos - ststart) + _data.Substring(cur_pos, stend - cur_pos)
     End Function
 
-    Public MustOverride Function toJSON() As String
+    Public MustOverride Function toJSON() As Byte()
   End Class
 
   Friend Class YJSONArray
@@ -287,18 +314,18 @@ Module yocto_api
       _arrayValue.Add(strobj)
     End Sub
 
-    Public Overrides Function toJSON() As String
-      Dim res As New StringBuilder()
+    Public Overrides Function toJSON() As Byte()
+      Dim res As New yMemoryStream()
       res.Append("["c)
       Dim sep As String = ""
       For Each yjsonContent As YJSONContent In _arrayValue
-        Dim subres As String = yjsonContent.toJSON()
+        Dim subres As Byte() = yjsonContent.toJSON()
         res.Append(sep)
         res.Append(subres)
         sep = ","
       Next
       res.Append("]"c)
-      Return res.ToString()
+      Return res.ToArray()
     End Function
 
     Public Overrides Function ToString() As String
@@ -373,8 +400,8 @@ Module yocto_api
       Throw New System.Exception(FormatError("unexpected end of data", cur_pos))
     End Function
 
-    Public Overrides Function toJSON() As String
-      Dim res As New StringBuilder(_stringValue.Length * 2)
+    Public Overrides Function toJSON() As Byte()
+      Dim res As New yMemoryStream(_stringValue.Length * 2)
       res.Append(""""c)
       For Each c As Char In _stringValue
         Select Case c
@@ -408,7 +435,7 @@ Module yocto_api
         End Select
       Next
       res.Append(""""c)
-      Return res.ToString()
+      Return res.ToArray()
     End Function
 
     Public Function getString() As String
@@ -455,28 +482,33 @@ Module yocto_api
           _intValue = Convert.ToInt64(int_part)
           _isFloat = True
         ElseIf sti < "0"c OrElse sti > "9"c Then
-          Dim numberpart As String = _data.Substring(start, cur_pos - start)
-          If _isFloat Then
-            _doubleValue = Convert.ToDouble(numberpart)
-          Else
-            _intValue = Convert.ToInt64(numberpart)
-          End If
-          If neg Then
-            _doubleValue = 0 - _doubleValue
-            _intValue = 0 - _intValue
-          End If
-          Return cur_pos - _data_start
+          Return getnumber(cur_pos, start, neg)
         End If
         cur_pos += 1
       End While
-      Throw New System.Exception(FormatError("unexpected end of data", cur_pos))
+      Return getnumber(cur_pos, start, neg)
     End Function
 
-    Public Overrides Function toJSON() As String
+    Private Function getnumber(cur_pos As Integer, start As Integer, neg As Boolean) As Integer
+
+      Dim numberpart As String = _data.Substring(start, cur_pos - start)
       If _isFloat Then
-        Return _doubleValue.ToString()
+        _doubleValue = Convert.ToDouble(numberpart)
       Else
-        Return _intValue.ToString()
+        _intValue = Convert.ToInt64(numberpart)
+      End If
+      If neg Then
+        _doubleValue = 0 - _doubleValue
+        _intValue = 0 - _intValue
+      End If
+      Return cur_pos - _data_start
+    End Function
+
+    Public Overrides Function toJSON() As Byte()
+      If _isFloat Then
+        Return YAPI.DefaultEncoding.GetBytes(_doubleValue.ToString())
+      Else
+        Return YAPI.DefaultEncoding.GetBytes(_intValue.ToString())
       End If
     End Function
 
@@ -700,13 +732,13 @@ Module yocto_api
       Return yint.getDouble()
     End Function
 
-    Public Overrides Function toJSON() As String
-      Dim res As New StringBuilder()
+    Public Overrides Function toJSON() As Byte()
+      Dim res As New yMemoryStream()
       res.Append("{"c)
       Dim sep As String = ""
       For Each key As String In parsed.Keys.ToArray()
         Dim subContent As YJSONContent = parsed(key)
-        Dim subres As String = subContent.toJSON()
+        Dim subres As Byte() = subContent.toJSON()
         res.Append(sep)
         res.Append(""""c)
         res.Append(key)
@@ -715,7 +747,7 @@ Module yocto_api
         sep = ","
       Next
       res.Append("}"c)
-      Return res.ToString()
+      Return res.ToArray()
     End Function
 
     Public Overrides Function ToString() As String
@@ -788,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H200
-  Public Const YOCTO_API_BUILD_NO As String = "62875"
+  Public Const YOCTO_API_BUILD_NO As String = "63744"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1017,7 +1049,7 @@ Module yocto_api
     ''' <para>
     '''   The default value is inherited from <c>ySetNetworkTimeout</c>
     '''   at the time when the hub is registered, but it can be updated
-    '''   afterwards for each specific hub if necessary.
+    '''   afterward for each specific hub if necessary.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -1037,7 +1069,7 @@ Module yocto_api
     ''' <para>
     '''   The default value is inherited from <c>ySetNetworkTimeout</c>
     '''   at the time when the hub is registered, but it can be updated
-    '''   afterwards for each specific hub if necessary.
+    '''   afterward for each specific hub if necessary.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -1421,7 +1453,7 @@ Module yocto_api
     ''' <para>
     '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
-    '''   but depending or you network you may want to change this delay,
+    '''   but depending on your network you may want to change this delay,
     '''   gor example if your network infrastructure is based on a GSM connection.
     ''' </para>
     ''' <para>
@@ -1442,7 +1474,7 @@ Module yocto_api
     ''' <para>
     '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
-    '''   but depending or you network you may want to change this delay,
+    '''   but depending on your network you may want to change this delay,
     '''   for example if your network infrastructure is based on a GSM connection.
     ''' </para>
     ''' </summary>
@@ -2181,7 +2213,7 @@ Module yocto_api
     ''' <para>
     '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
-    '''   but depending or you network you may want to change this delay,
+    '''   but depending on your network you may want to change this delay,
     '''   gor example if your network infrastructure is based on a GSM connection.
     ''' </para>
     ''' <para>
@@ -2202,7 +2234,7 @@ Module yocto_api
     ''' <para>
     '''   This delay impacts only the YoctoHubs and VirtualHub
     '''   which are accessible through the network. By default, this delay is of 20000 milliseconds,
-    '''   but depending or you network you may want to change this delay,
+    '''   but depending on your network you may want to change this delay,
     '''   for example if your network infrastructure is based on a GSM connection.
     ''' </para>
     ''' </summary>
@@ -3330,7 +3362,7 @@ Module yocto_api
             Return Me._progress
           End If
           If (Me._progress < 95) Then
-            prod_prefix = (m.get_productName()).Substring( 0, 8)
+            prod_prefix = (m.get_productName()).Substring(0, 8)
             If (prod_prefix = "YoctoHub") Then
               YAPI.Sleep(1000, Nothing)
               Me._progress = Me._progress + 1
@@ -3533,7 +3565,7 @@ Module yocto_api
       leng = (err).Length
       If ((leng >= 6) AndAlso ("error:" = (err).Substring(0, 6))) Then
         Me._progress = -1
-        Me._progress_msg = (err).Substring( 6, leng - 6)
+        Me._progress_msg = (err).Substring(6, leng - 6)
       Else
         Me._progress = 0
         Me._progress_c = 0
@@ -3802,15 +3834,13 @@ Module yocto_api
 
     Public Overridable Function _get_url() As String
       Dim url As String
-      url = "logger.json?id=" +
-      Me._functionId + "&run=" + Convert.ToString(Me._runNo) + "&utc=" + Convert.ToString(Me._utcStamp)
+      url = "logger.json?id=" + Me._functionId + "&run=" + Convert.ToString(Me._runNo) + "&utc=" + Convert.ToString(Me._utcStamp)
       Return url
     End Function
 
     Public Overridable Function _get_baseurl() As String
       Dim url As String
-      url = "logger.json?id=" +
-      Me._functionId + "&run=" + Convert.ToString(Me._runNo) + "&utc="
+      url = "logger.json?id=" + Me._functionId + "&run=" + Convert.ToString(Me._runNo) + "&utc="
       Return url
     End Function
 
@@ -4583,33 +4613,33 @@ Module yocto_api
 
       REM // Parse complete streams
       Dim ii_0 As Integer
-      For ii_0 = 0 To  Me._streams.Count - 1
-        streamStartTimeMs = Math.Round( Me._streams(ii_0).get_realStartTimeUTC() * 1000)
-        streamDuration =  Me._streams(ii_0).get_realDuration()
+      For ii_0 = 0 To Me._streams.Count - 1
+        streamStartTimeMs = Math.Round(Me._streams(ii_0).get_realStartTimeUTC() * 1000)
+        streamDuration = Me._streams(ii_0).get_realDuration()
         streamEndTimeMs = streamStartTimeMs + Math.Round(streamDuration * 1000)
         If ((streamStartTimeMs >= Me._startTimeMs) AndAlso ((Me._endTimeMs = 0) OrElse (streamEndTimeMs <= Me._endTimeMs))) Then
           REM // stream that are completely inside the dataset
-          previewMinVal =  Me._streams(ii_0).get_minValue()
-          previewAvgVal =  Me._streams(ii_0).get_averageValue()
-          previewMaxVal =  Me._streams(ii_0).get_maxValue()
+          previewMinVal = Me._streams(ii_0).get_minValue()
+          previewAvgVal = Me._streams(ii_0).get_averageValue()
+          previewMaxVal = Me._streams(ii_0).get_maxValue()
           previewStartMs = streamStartTimeMs
           previewStopMs = streamEndTimeMs
           previewDuration = streamDuration
         Else
           REM // stream that are partially in the dataset
           REM // we need to parse data to filter value outside the dataset
-          If (Not ( Me._streams(ii_0)._wasLoaded())) Then
-            url =  Me._streams(ii_0)._get_url()
+          If (Not (Me._streams(ii_0)._wasLoaded())) Then
+            url = Me._streams(ii_0)._get_url()
             data = Me._parent._download(url)
             Me._streams(ii_0)._parseStream(data)
           End If
-          dataRows =  Me._streams(ii_0).get_dataRows()
+          dataRows = Me._streams(ii_0).get_dataRows()
           If (dataRows.Count = 0) Then
             Return Me.get_progress()
           End If
           tim = streamStartTimeMs
-          fitv = Math.Round( Me._streams(ii_0).get_firstDataSamplesInterval() * 1000)
-          itv = Math.Round( Me._streams(ii_0).get_dataSamplesInterval() * 1000)
+          fitv = Math.Round(Me._streams(ii_0).get_firstDataSamplesInterval() * 1000)
+          itv = Math.Round(Me._streams(ii_0).get_dataSamplesInterval() * 1000)
           nCols = dataRows(0).Count
           minCol = 0
           If (nCols > 2) Then
@@ -4718,9 +4748,8 @@ Module yocto_api
       Dim suffixes As List(Of String) = New List(Of String)()
       Dim idx As Integer = 0
       Dim bulkFile As Byte() = New Byte(){}
-      Dim streamStr As List(Of String) = New List(Of String)()
       Dim urlIdx As Integer = 0
-      Dim streamBin As Byte() = New Byte(){}
+      Dim streamBin As List(Of Byte()) = New List(Of Byte())()
 
       If (progress <> Me._progress) Then
         Return Me._progress
@@ -4796,14 +4825,13 @@ Module yocto_api
           idx = idx + 1
         End While
         bulkFile = Me._parent._download(url)
-        streamStr = Me._parent._json_get_array(bulkFile)
+        streamBin = Me._parent._json_get_array(bulkFile)
         urlIdx = 0
         idx = Me._progress
-        While ((idx < Me._streams.Count) AndAlso (urlIdx < suffixes.Count) AndAlso (urlIdx < streamStr.Count))
+        While ((idx < Me._streams.Count) AndAlso (urlIdx < suffixes.Count) AndAlso (urlIdx < streamBin.Count))
           stream = Me._streams(idx)
           If ((stream._get_baseurl() = baseurl) AndAlso (stream._get_urlsuffix() = suffixes(urlIdx))) Then
-            streamBin = YAPI.DefaultEncoding.GetBytes(streamStr(urlIdx))
-            stream._parseStream(streamBin)
+            stream._parseStream(streamBin(urlIdx))
             urlIdx = urlIdx + 1
           End If
           idx = idx + 1
@@ -4841,7 +4869,7 @@ Module yocto_api
         Return Me._hardwareId
       End If
       mo = Me._parent.get_module()
-      Me._hardwareId = "" +  mo.get_serialNumber() + "." + Me.get_functionId()
+      Me._hardwareId = "" + mo.get_serialNumber() + "." + Me.get_functionId()
       Return Me._hardwareId
     End Function
 
@@ -5385,12 +5413,12 @@ Module yocto_api
             If (currprogress < 0) Then
               currprogress = 100
             End If
-            Me._progresss( s) = currprogress
+            Me._progresss(s) = currprogress
             measures = Me._datasets(s).get_measures()
           End While
           If (idx < measures.Count) Then
             currnexttim = measures(idx).get_endTimeUTC()
-            Me._nexttim( s) = currnexttim
+            Me._nexttim(s) = currnexttim
           End If
         End If
         If (currnexttim > 0) Then
@@ -5416,8 +5444,8 @@ Module yocto_api
           measures = Me._datasets(s).get_measures()
           newvalue = measures(idx).get_averageValue()
           datarec.Add(newvalue)
-          Me._nexttim( s) = 0.0
-          Me._nextidx( s) = idx + 1
+          Me._nexttim(s) = 0.0
+          Me._nextidx(s) = idx + 1
         Else
           datarec.Add(Double.NaN)
         End If
@@ -6497,7 +6525,7 @@ Module yocto_api
     Public Overridable Function loadAttribute(attrName As String) As String
       Dim url As String
       Dim attrVal As Byte() = New Byte(){}
-      url = "api/" +  Me.get_functionId() + "/" + attrName
+      url = "api/" + Me.get_functionId() + "/" + attrName
       attrVal = Me._download(url)
       Return YAPI.DefaultEncoding.GetString(attrVal)
     End Function
@@ -6913,10 +6941,10 @@ Module yocto_api
       Throw New YAPI_Exception(YAPI.INVALID_ARGUMENT, (Convert.ToString("No key ") & key) + "in JSON struct")
     End Function
 
-    Public Function _json_get_array(data As Byte()) As List(Of String)
+    Public Function _json_get_array(data As Byte()) As List(Of Byte())
       Dim array As New YJSONArray(YAPI.DefaultEncoding.GetString(data))
       array.parse()
-      Dim list As New List(Of String)()
+      Dim list As New List(Of Byte())()
       Dim len As Integer = array.Length
       For i As Integer = 0 To len - 1
         Dim o As YJSONContent = array.[get](i)
@@ -6933,11 +6961,11 @@ Module yocto_api
     End Function
 
 
-    Private Function get_json_path_struct(jsonObject As YJSONObject, paths As String(), ofs As Integer) As String
+    Private Function get_json_path_struct(jsonObject As YJSONObject, paths As String(), ofs As Integer) As Byte()
 
       Dim key As String = paths(ofs)
       If Not jsonObject.has(key) Then
-        Return ""
+        Return New Byte() {}
       End If
 
       Dim obj As YJSONContent = jsonObject.[get](key)
@@ -6952,19 +6980,19 @@ Module yocto_api
           Return get_json_path_struct(jsonObject.getYJSONObject(key), paths, ofs + 1)
         End If
       End If
-      Return ""
+      Return New Byte() {}
     End Function
 
-    Private Function get_json_path_array(jsonArray As YJSONArray, paths As String(), ofs As Integer) As String
+    Private Function get_json_path_array(jsonArray As YJSONArray, paths As String(), ofs As Integer) As Byte()
       Dim key As Integer = Convert.ToInt32(paths(ofs))
       If jsonArray.Length <= key Then
-        Return ""
+        Return New Byte() {}
       End If
 
       Dim obj As YJSONContent = jsonArray.[get](key)
       If obj IsNot Nothing Then
         If paths.Length = ofs + 1 Then
-          Return obj.ToString()
+          Return obj.toJSON()
         End If
 
         If TypeOf obj Is YJSONArray Then
@@ -6973,27 +7001,35 @@ Module yocto_api
           Return get_json_path_struct(jsonArray.getYJSONObject(key), paths, ofs + 1)
         End If
       End If
-      Return ""
+      Return New Byte() {}
     End Function
 
 
-    Public Function _get_json_path(ByVal json As String, ByVal path As String) As String
+    Public Function _get_json_path(ByVal json As Byte(), ByVal path As String) As Byte()
 
       Dim jsonObject As YJSONObject = Nothing
-      jsonObject = New YJSONObject(json)
+      jsonObject = New YJSONObject(YAPI.DefaultEncoding.GetString(json))
       jsonObject.parse()
       Dim split As String() = path.Split(New Char() {"\"c, "|"c})
       Return get_json_path_struct(jsonObject, split, 0)
     End Function
 
-    Public Function _decode_json_string(ByVal json As String) As String
+
+    Public Function _decode_json_int(ByVal json As Byte()) As Integer
+      Dim s As String = YAPI.DefaultEncoding.GetString(json)
+      Dim obj As YJSONNumber = New YJSONNumber(s, 0, s.Length)
+      obj.parse()
+      Return obj.getInt()
+    End Function
+
+    Public Function _decode_json_string(ByVal json As Byte()) As String
       Dim len As Integer
       Dim buffer As StringBuilder
       Dim decoded_len As Integer
       len = json.Length
       buffer = New StringBuilder(len)
       If len > 0 Then
-        decoded_len = _yapiJsonDecodeString(New StringBuilder(json), buffer)
+        decoded_len = _yapiJsonDecodeString(New StringBuilder(YAPI.DefaultEncoding.GetString(json)), buffer)
       End If
       Return buffer.ToString()
     End Function
@@ -8246,7 +8282,7 @@ Module yocto_api
       prodname = Me.get_productName()
       prodrel = Me.get_productRelease()
       If (prodrel > 1) Then
-        fullname = "" +  prodname + " rev. " + Chr(64 + prodrel)
+        fullname = "" + prodname + " rev. " + Chr(64 + prodrel)
       Else
         fullname = prodname
       End If
@@ -8525,6 +8561,7 @@ Module yocto_api
         Me._throw(YAPI.IO_ERROR, "Unable to get device settings")
         settings = YAPI.DefaultEncoding.GetBytes("error:Unable to get device settings")
       End If
+
       Return New YFirmwareUpdate(serial, path, settings, force)
     End Function
 
@@ -8568,7 +8605,7 @@ Module yocto_api
     '''/
     Public Overridable Function get_allSettings() As Byte()
       Dim settings As Byte() = New Byte(){}
-      Dim json_bin As Byte() = New Byte(){}
+      Dim json As Byte() = New Byte(){}
       Dim res As Byte() = New Byte(){}
       Dim sep As String
       Dim name As String
@@ -8580,7 +8617,7 @@ Module yocto_api
       Dim file_data_bin As Byte() = New Byte(){}
       Dim temp_data_bin As Byte() = New Byte(){}
       Dim ext_settings As String
-      Dim filelist As List(Of String) = New List(Of String)()
+      Dim filelist As List(Of Byte()) = New List(Of Byte())()
       Dim templist As List(Of String) = New List(Of String)()
 
       settings = Me._download("api.json")
@@ -8591,18 +8628,18 @@ Module yocto_api
       templist = Me.get_functionIds("Temperature")
       sep = ""
       Dim ii_0 As Integer
-      For ii_0 = 0 To  templist.Count - 1
+      For ii_0 = 0 To templist.Count - 1
         If (YAPI._atoi(Me.get_firmwareRelease()) > 9000) Then
-          url = "api/" +  templist(ii_0) + "/sensorType"
+          url = "api/" + templist(ii_0) + "/sensorType"
           t_type = YAPI.DefaultEncoding.GetString(Me._download(url))
           If (t_type = "RES_NTC" OrElse t_type = "RES_LINEAR") Then
-            pageid = ( templist(ii_0)).Substring( 11, ( templist(ii_0)).Length - 11)
+            pageid = (templist(ii_0)).Substring(11, (templist(ii_0)).Length - 11)
             If (pageid = "") Then
               pageid = "1"
             End If
             temp_data_bin = Me._download("extra.json?page=" + pageid)
             If ((temp_data_bin).Length > 0) Then
-              item = "" +  sep + "{""fid"":""" +   templist(ii_0) + """, ""json"":" + YAPI.DefaultEncoding.GetString(temp_data_bin) + "}" + vbLf + ""
+              item = "" + sep + "{""fid"":""" + templist(ii_0) + """, ""json"":" + YAPI.DefaultEncoding.GetString(temp_data_bin) + "}" + vbLf + ""
               ext_settings = ext_settings + item
               sep = ","
             End If
@@ -8611,19 +8648,19 @@ Module yocto_api
       Next ii_0
       ext_settings = ext_settings + "]," + vbLf + """files"":["
       If (Me.hasFunction("files")) Then
-        json_bin = Me._download("files.json?a=dir&f=")
-        If ((json_bin).Length = 0) Then
-          Return json_bin
+        json = Me._download("files.json?a=dir&f=")
+        If ((json).Length = 0) Then
+          Return json
         End If
-        filelist = Me._json_get_array(json_bin)
+        filelist = Me._json_get_array(json)
         sep = ""
         Dim ii_1 As Integer
-        For ii_1 = 0 To  filelist.Count - 1
-          name = Me._json_get_key(YAPI.DefaultEncoding.GetBytes( filelist(ii_1)), "name")
+        For ii_1 = 0 To filelist.Count - 1
+          name = Me._json_get_key(filelist(ii_1), "name")
           If (((name).Length > 0) AndAlso Not (name = "startupConf.json")) Then
             file_data_bin = Me._download(Me._escapeAttr(name))
             file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
-            item = "" +  sep + "{""name"":""" +  name + """, ""data"":""" + file_data + """}" + vbLf + ""
+            item = "" + sep + "{""name"":""" + name + """, ""data"":""" + file_data + """}" + vbLf + ""
             ext_settings = ext_settings + item
             sep = ","
           End If
@@ -8634,10 +8671,12 @@ Module yocto_api
     End Function
 
     Public Overridable Function loadThermistorExtra(funcId As String, jsonExtra As String) As Integer
-      Dim values As List(Of String) = New List(Of String)()
+      Dim values As List(Of Byte()) = New List(Of Byte())()
       Dim url As String
       Dim curr As String
+      Dim binCurr As Byte() = New Byte(){}
       Dim currTemp As String
+      Dim binCurrTemp As Byte() = New Byte(){}
       Dim ofs As Integer = 0
       Dim size As Integer = 0
       url = "api/" + funcId + ".json?command=Z"
@@ -8648,9 +8687,11 @@ Module yocto_api
       ofs = 0
       size = values.Count
       While (ofs + 1 < size)
-        curr = values(ofs)
-        currTemp = values(ofs + 1)
-        url = "api/" +  funcId + ".json?command=m" +  curr + ":" + currTemp
+        binCurr = values(ofs)
+        binCurrTemp = values(ofs + 1)
+        curr = Me._json_get_string(binCurr)
+        currTemp = Me._json_get_string(binCurrTemp)
+        url = "api/" + funcId + ".json?command=m" + curr + ":" + currTemp
         Me._download(url)
         ofs = ofs + 2
       End While
@@ -8658,17 +8699,18 @@ Module yocto_api
     End Function
 
     Public Overridable Function set_extraSettings(jsonExtra As String) As Integer
-      Dim extras As List(Of String) = New List(Of String)()
+      Dim extras As List(Of Byte()) = New List(Of Byte())()
+      Dim tmp As Byte() = New Byte(){}
       Dim functionId As String
-      Dim data As String
+      Dim data As Byte() = New Byte(){}
       extras = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(jsonExtra))
       Dim ii_0 As Integer
-      For ii_0 = 0 To  extras.Count - 1
-        functionId = Me._get_json_path( extras(ii_0), "fid")
-        functionId = Me._decode_json_string(functionId)
-        data = Me._get_json_path( extras(ii_0), "json")
+      For ii_0 = 0 To extras.Count - 1
+        tmp = Me._get_json_path(extras(ii_0), "fid")
+        functionId = Me._json_get_string(tmp)
+        data = Me._get_json_path(extras(ii_0), "json")
         If (Me.hasFunction(functionId)) Then
-          Me.loadThermistorExtra(functionId, data)
+          Me.loadThermistorExtra(functionId, YAPI.DefaultEncoding.GetString(data))
         End If
       Next ii_0
       Return YAPI.SUCCESS
@@ -8698,43 +8740,43 @@ Module yocto_api
     '''/
     Public Overridable Function set_allSettingsAndFiles(settings As Byte()) As Integer
       Dim down As Byte() = New Byte(){}
-      Dim json_bin As String
-      Dim json_api As String
-      Dim json_files As String
-      Dim json_extra As String
+      Dim json_bin As Byte() = New Byte(){}
+      Dim json_api As Byte() = New Byte(){}
+      Dim json_files As Byte() = New Byte(){}
+      Dim json_extra As Byte() = New Byte(){}
       Dim fuperror As Integer = 0
       Dim globalres As Integer = 0
       fuperror = 0
-      json_bin = YAPI.DefaultEncoding.GetString(settings)
-      json_api = Me._get_json_path(json_bin, "api")
-      If (json_api = "") Then
+      json_api = Me._get_json_path(settings, "api")
+      If ((json_api).Length = 0) Then
         Return Me.set_allSettings(settings)
       End If
-      json_extra = Me._get_json_path(json_bin, "extras")
-      If (Not (json_extra = "")) Then
-        Me.set_extraSettings(json_extra)
+      json_extra = Me._get_json_path(settings, "extras")
+      If ((json_extra).Length > 0) Then
+        Me.set_extraSettings(YAPI.DefaultEncoding.GetString(json_extra))
       End If
-      Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
+      Me.set_allSettings(json_api)
       If (Me.hasFunction("files")) Then
-        Dim files As List(Of String) = New List(Of String)()
+        Dim files As List(Of Byte()) = New List(Of Byte())()
         Dim res As String
+        Dim tmp As Byte() = New Byte(){}
         Dim name As String
         Dim data As String
         down = Me._download("files.json?a=format")
-        res = Me._get_json_path(YAPI.DefaultEncoding.GetString(down), "res")
-        res = Me._decode_json_string(res)
+        down = Me._get_json_path(down, "res")
+        res = Me._json_get_string(down)
         If Not(res = "ok") Then
-          me._throw( YAPI.IO_ERROR,  "format failed")
+          me._throw(YAPI.IO_ERROR, "format failed")
           return YAPI.IO_ERROR
         end if
-        json_files = Me._get_json_path(json_bin, "files")
-        files = Me._json_get_array(YAPI.DefaultEncoding.GetBytes(json_files))
+        json_files = Me._get_json_path(settings, "files")
+        files = Me._json_get_array(json_files)
         Dim ii_0 As Integer
-        For ii_0 = 0 To  files.Count - 1
-          name = Me._get_json_path( files(ii_0), "name")
-          name = Me._decode_json_string(name)
-          data = Me._get_json_path( files(ii_0), "data")
-          data = Me._decode_json_string(data)
+        For ii_0 = 0 To files.Count - 1
+          tmp = Me._get_json_path(files(ii_0), "name")
+          name = Me._json_get_string(tmp)
+          tmp = Me._get_json_path(files(ii_0), "data")
+          data = Me._json_get_string(tmp)
           If (name = "") Then
             fuperror = fuperror + 1
           Else
@@ -8743,9 +8785,9 @@ Module yocto_api
         Next ii_0
       End If
       REM // Apply settings a second time for file-dependent settings and dynamic sensor nodes
-      globalres = Me.set_allSettings(YAPI.DefaultEncoding.GetBytes(json_api))
+      globalres = Me.set_allSettings(json_api)
       If Not(fuperror = 0) Then
-        me._throw( YAPI.IO_ERROR,  "Error during file upload")
+        me._throw(YAPI.IO_ERROR, "Error during file upload")
         return YAPI.IO_ERROR
       end if
       Return globalres
@@ -9014,10 +9056,10 @@ Module yocto_api
         While (i < calibData.Count)
           If (paramScale > 0) Then
             REM // scalar decoding
-            calibData( i) = (calibData(i) - paramOffset) / paramScale
+            calibData(i) = (calibData(i) - paramOffset) / paramScale
           Else
             REM // floating-point decoding
-            calibData( i) = YAPI._decimalToDouble(CType(Math.Round(calibData(i)), Integer))
+            calibData(i) = YAPI._decimalToDouble(CType(Math.Round(calibData(i)), Integer))
           End If
           i = i + 1
         End While
@@ -9124,12 +9166,12 @@ Module yocto_api
     Public Overridable Function set_allSettings(settings As Byte()) As Integer
       Dim restoreLast As List(Of String) = New List(Of String)()
       Dim old_json_flat As Byte() = New Byte(){}
-      Dim old_dslist As List(Of String) = New List(Of String)()
+      Dim old_dslist As List(Of Byte()) = New List(Of Byte())()
       Dim old_jpath As List(Of String) = New List(Of String)()
       Dim old_jpath_len As List(Of Integer) = New List(Of Integer)()
       Dim old_val_arr As List(Of String) = New List(Of String)()
       Dim actualSettings As Byte() = New Byte(){}
-      Dim new_dslist As List(Of String) = New List(Of String)()
+      Dim new_dslist As List(Of Byte()) = New List(Of Byte())()
       Dim new_jpath As List(Of String) = New List(Of String)()
       Dim new_jpath_len As List(Of Integer) = New List(Of Integer)()
       Dim new_val_arr As List(Of String) = New List(Of String)()
@@ -9145,8 +9187,11 @@ Module yocto_api
       Dim fun As String
       Dim attr As String
       Dim value As String
+      Dim old_serial As String
+      Dim new_serial As String
       Dim url As String
       Dim tmp As String
+      Dim binTmp As Byte() = New Byte(){}
       Dim sensorType As String
       Dim unit_name As String
       Dim newval As String
@@ -9156,11 +9201,11 @@ Module yocto_api
       Dim do_update As Boolean
       Dim found As Boolean
       res = YAPI.SUCCESS
-      tmp = YAPI.DefaultEncoding.GetString(settings)
-      tmp = Me._get_json_path(tmp, "api")
-      If (Not (tmp = "")) Then
-        settings = YAPI.DefaultEncoding.GetBytes(tmp)
+      binTmp = Me._get_json_path(settings, "api")
+      If ((binTmp).Length > 0) Then
+        settings = binTmp
       End If
+      old_serial = ""
       oldval = ""
       newval = ""
       old_json_flat = Me._flattenJsonStruct(settings)
@@ -9170,7 +9215,7 @@ Module yocto_api
 
       Dim ii_0 As Integer
       For ii_0 = 0 To old_dslist.Count - 1
-        each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(old_dslist(ii_0)))
+        each_str = Me._json_get_string(old_dslist(ii_0))
         REM // split json path and attr
         leng = (each_str).Length
         eqpos = each_str.IndexOf("=")
@@ -9178,12 +9223,15 @@ Module yocto_api
           Me._throw(YAPI.INVALID_ARGUMENT, "Invalid settings")
           Return YAPI.INVALID_ARGUMENT
         End If
-        jpath = (each_str).Substring( 0, eqpos)
+        jpath = (each_str).Substring(0, eqpos)
         eqpos = eqpos + 1
-        value = (each_str).Substring( eqpos, leng - eqpos)
+        value = (each_str).Substring(eqpos, leng - eqpos)
         old_jpath.Add(jpath)
         old_jpath_len.Add((jpath).Length)
         old_val_arr.Add(value)
+        If (jpath = "module/serialNumber") Then
+          old_serial = value
+        End If
       Next ii_0
 
 
@@ -9196,6 +9244,10 @@ Module yocto_api
           YAPI.Sleep(500, Nothing)
           actualSettings = Me._download("api.json")
       End Try
+      new_serial = Me.get_serialNumber()
+      If (old_serial = new_serial OrElse old_serial = "") Then
+        old_serial = "_NO_SERIAL_FILTER_"
+      End If
       actualSettings = Me._flattenJsonStruct(actualSettings)
       new_dslist = Me._json_get_array(actualSettings)
 
@@ -9204,7 +9256,7 @@ Module yocto_api
       Dim ii_1 As Integer
       For ii_1 = 0 To new_dslist.Count - 1
         REM // remove quotes
-        each_str = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(new_dslist(ii_1)))
+        each_str = Me._json_get_string(new_dslist(ii_1))
         REM // split json path and attr
         leng = (each_str).Length
         eqpos = each_str.IndexOf("=")
@@ -9212,9 +9264,9 @@ Module yocto_api
           Me._throw(YAPI.INVALID_ARGUMENT, "Invalid settings")
           Return YAPI.INVALID_ARGUMENT
         End If
-        jpath = (each_str).Substring( 0, eqpos)
+        jpath = (each_str).Substring(0, eqpos)
         eqpos = eqpos + 1
-        value = (each_str).Substring( eqpos, leng - eqpos)
+        value = (each_str).Substring(eqpos, leng - eqpos)
         new_jpath.Add(jpath)
         new_jpath_len.Add((jpath).Length)
         new_val_arr.Add(value)
@@ -9231,9 +9283,9 @@ Module yocto_api
         If ((cpos < 0) OrElse (leng = 0)) Then
           Continue While
         End If
-        fun = (njpath).Substring( 0, cpos)
+        fun = (njpath).Substring(0, cpos)
         cpos = cpos + 1
-        attr = (njpath).Substring( cpos, leng - cpos)
+        attr = (njpath).Substring(cpos, leng - cpos)
         do_update = True
         If (fun = "services") Then
           do_update = False
@@ -9357,14 +9409,14 @@ Module yocto_api
         End If
         If (do_update) Then
           do_update = False
-          newval = new_val_arr(i)
           j = 0
           found = False
+          newval = new_val_arr(i)
           While ((j < old_jpath.Count) AndAlso Not (found))
             If ((new_jpath_len(i) = old_jpath_len(j)) AndAlso (new_jpath(i) = old_jpath(j))) Then
               found = True
               oldval = old_val_arr(j)
-              If (Not (newval = oldval)) Then
+              If (Not (newval = oldval) AndAlso Not (oldval = old_serial)) Then
                 do_update = True
               End If
             End If
@@ -9510,7 +9562,7 @@ Module yocto_api
     '''   Returns the icon of the module.
     ''' <para>
     '''   The icon is a PNG image and does not
-    '''   exceeds 1536 bytes.
+    '''   exceed 1536 bytes.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -10712,6 +10764,7 @@ Module yocto_api
         Return Nothing
       End If
       hwid = serial + ".dataLogger"
+
       logger = YDataLogger.FindDataLogger(hwid)
       Return logger
     End Function
@@ -10734,7 +10787,7 @@ Module yocto_api
 
       res = Me._download("api/dataLogger/recording?recording=1")
       If Not((res).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "unable to start datalogger")
+        me._throw(YAPI.IO_ERROR, "unable to start datalogger")
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS
@@ -10755,7 +10808,7 @@ Module yocto_api
 
       res = Me._download("api/dataLogger/recording?recording=0")
       If Not((res).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "unable to stop datalogger")
+        me._throw(YAPI.IO_ERROR, "unable to stop datalogger")
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS
@@ -10805,6 +10858,7 @@ Module yocto_api
 
       funcid = Me.get_functionId()
       funit = Me.get_unit()
+
       Return New YDataSet(Me, funcid, funit, startTime, endTime)
     End Function
 
@@ -10966,7 +11020,7 @@ Module yocto_api
       res = "" + Convert.ToString(YOCTO_CALIB_TYPE_OFS)
       idx = 0
       While (idx < npt)
-        res = "" +  res + "," + YAPI._floatToStr( rawValues(idx)) + "," + YAPI._floatToStr(refValues(idx))
+        res = "" + res + "," + YAPI._floatToStr(rawValues(idx)) + "," + YAPI._floatToStr(refValues(idx))
         idx = idx + 1
       End While
       Return res
@@ -11816,16 +11870,17 @@ Module yocto_api
     End Function
 
     Public Overridable Function parse_dataSets(jsonbuff As Byte()) As List(Of YDataSet)
-      Dim dslist As List(Of String) = New List(Of String)()
+      Dim dslist As List(Of Byte()) = New List(Of Byte())()
       Dim dataset As YDataSet
       Dim res As List(Of YDataSet) = New List(Of YDataSet)()
+
 
       dslist = Me._json_get_array(jsonbuff)
       res.Clear()
       Dim ii_0 As Integer
       For ii_0 = 0 To dslist.Count - 1
         dataset = New YDataSet(Me)
-        dataset._parse(dslist(ii_0))
+        dataset._parse(YAPI.DefaultEncoding.GetString(dslist(ii_0)))
         res.Add(dataset)
       Next ii_0
       Return res
@@ -12163,7 +12218,7 @@ Module yocto_api
       _report = Nothing
       _timestamp = 0
       _duration = 0
-      _beacon = - 1
+      _beacon = -1
     End Sub
 
     Public Sub New(ByVal fun As YSensor, ByVal timestamp As Double, ByVal duration As Double, ByVal report As List(Of Integer))
@@ -12185,7 +12240,7 @@ Module yocto_api
       _report = Nothing
       _timestamp = 0
       _duration = 0
-      _beacon = - 1
+      _beacon = -1
     End Sub
 
     Public Sub New(ByVal modul As YModule, ByVal beacon As Integer)
@@ -12367,27 +12422,27 @@ Module yocto_api
 
     If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then Exit Sub
     modul = YModule.FindModule(infos.serial + ".module")
-    if (YModule._moduleCallbackList.ContainsKey(modul) AndAlso YModule._moduleCallbackList(modul) > 0) then
+    If (YModule._moduleCallbackList.ContainsKey(modul) AndAlso YModule._moduleCallbackList(modul) > 0) Then
       ev = New DataEvent(modul)
       _DataEvents.Add(ev)
-    end if
+    End If
   End Sub
 
 
-  public sub native_yBeaconChangeCallback(byval d As YDEV_DESCR, ByVal beacon As Integer)
+  Public Sub native_yBeaconChangeCallback(ByVal d As YDEV_DESCR, ByVal beacon As Integer)
 
-    dim ev as DataEvent
+    Dim ev As DataEvent
     Dim modul As YModule
     Dim infos As yDeviceSt = emptyDeviceSt()
     Dim errmsg As String = ""
 
     If (yapiGetDeviceInfo(d, infos, errmsg) <> YAPI_SUCCESS) Then Exit Sub
     modul = YModule.FindModule(infos.serial + ".module")
-    if (YModule._moduleCallbackList.ContainsKey(modul) AndAlso YModule._moduleCallbackList(modul) > 0) then
-      ev = new DataEvent(modul, beacon)
+    If (YModule._moduleCallbackList.ContainsKey(modul) AndAlso YModule._moduleCallbackList(modul) > 0) Then
+      ev = New DataEvent(modul, beacon)
       _DataEvents.Add(ev)
-    end if
-  End sub
+    End If
+  End Sub
 
 
   Private Sub queuesCleanUp()

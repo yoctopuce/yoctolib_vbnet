@@ -192,7 +192,7 @@ Module yocto_inputcapture
 
       buffSize = (sdata).Length
       If Not(buffSize >= 24) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "Invalid snapshot data (too short)")
+        me._throw(YAPI.INVALID_ARGUMENT, "Invalid snapshot data (too short)")
         return YAPI.INVALID_ARGUMENT
       end if
       Me._fmt = sdata(0)
@@ -200,19 +200,19 @@ Module yocto_inputcapture
       Me._var2size = sdata(2) - 48
       Me._var3size = sdata(3) - 48
       If Not(Me._fmt = 83) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "Unsupported snapshot format")
+        me._throw(YAPI.INVALID_ARGUMENT, "Unsupported snapshot format")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not((Me._var1size >= 2) AndAlso (Me._var1size <= 4)) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "Invalid sample size")
+        me._throw(YAPI.INVALID_ARGUMENT, "Invalid sample size")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not((Me._var2size >= 0) AndAlso (Me._var1size <= 4)) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "Invalid sample size")
+        me._throw(YAPI.INVALID_ARGUMENT, "Invalid sample size")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not((Me._var3size >= 0) AndAlso (Me._var1size <= 4)) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "Invalid sample size")
+        me._throw(YAPI.INVALID_ARGUMENT, "Invalid sample size")
         return YAPI.INVALID_ARGUMENT
       end if
       If (Me._var2size = 0) Then
@@ -236,20 +236,20 @@ Module yocto_inputcapture
       Me._trigUTC = Me._trigUTC + (ms / 1000.0)
       recOfs = 24
       While (sdata(recOfs) >= 32)
-        Me._var1unit = "" +  Me._var1unit + "" + Chr(sdata(recOfs))
+        Me._var1unit = "" + Me._var1unit + "" + Chr(sdata(recOfs))
         recOfs = recOfs + 1
       End While
       If (Me._var2size > 0) Then
         recOfs = recOfs + 1
         While (sdata(recOfs) >= 32)
-          Me._var2unit = "" +  Me._var2unit + "" + Chr(sdata(recOfs))
+          Me._var2unit = "" + Me._var2unit + "" + Chr(sdata(recOfs))
           recOfs = recOfs + 1
         End While
       End If
       If (Me._var3size > 0) Then
         recOfs = recOfs + 1
         While (sdata(recOfs) >= 32)
-          Me._var3unit = "" +  Me._var3unit + "" + Chr(sdata(recOfs))
+          Me._var3unit = "" + Me._var3unit + "" + Chr(sdata(recOfs))
           recOfs = recOfs + 1
         End While
       End If
@@ -454,7 +454,7 @@ Module yocto_inputcapture
     '''/
     Public Overridable Function get_serie2Unit() As String
       If Not(Me._nVars >= 2) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "There is no serie 2 in this capture data")
+        me._throw(YAPI.INVALID_ARGUMENT, "There is no serie 2 in this capture data")
         return ""
       end if
       Return Me._var2unit
@@ -474,7 +474,7 @@ Module yocto_inputcapture
     '''/
     Public Overridable Function get_serie3Unit() As String
       If Not(Me._nVars >= 3) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "There is no serie 3 in this capture data")
+        me._throw(YAPI.INVALID_ARGUMENT, "There is no serie 3 in this capture data")
         return ""
       end if
       Return Me._var3unit
@@ -522,7 +522,7 @@ Module yocto_inputcapture
     '''/
     Public Overridable Function get_serie2Values() As List(Of Double)
       If Not(Me._nVars >= 2) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "There is no serie 2 in this capture data")
+        me._throw(YAPI.INVALID_ARGUMENT, "There is no serie 2 in this capture data")
         return Me._var2samples
       end if
       Return Me._var2samples
@@ -548,7 +548,7 @@ Module yocto_inputcapture
     '''/
     Public Overridable Function get_serie3Values() As List(Of Double)
       If Not(Me._nVars >= 3) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "There is no serie 3 in this capture data")
+        me._throw(YAPI.INVALID_ARGUMENT, "There is no serie 3 in this capture data")
         return Me._var3samples
       end if
       Return Me._var3samples
@@ -1284,7 +1284,7 @@ Module yocto_inputcapture
         msDuration = 1000
       End If
       snapStart = (-msDuration \ 2)
-      snapUrl = "snap.bin?t=" + Convert.ToString( snapStart) + "&d=" + Convert.ToString(msDuration)
+      snapUrl = "snap.bin?t=" + Convert.ToString(snapStart) + "&d=" + Convert.ToString(msDuration)
 
       snapData = Me._download(snapUrl)
       Return New YInputCaptureData(Me, snapData)

@@ -456,7 +456,7 @@ Module yocto_rfidreader
       End If
       res = "&o=" + Convert.ToString(opt)
       If (Me.KeyType <> 0) Then
-        res = "" +  res + "&k=" + ( Me.KeyType).ToString("x02") + ":" + Me.HexKey
+        res = "" + res + "&k=" + (Me.KeyType).ToString("x02") + ":" + Me.HexKey
       End If
       Return res
     End Function
@@ -1066,7 +1066,7 @@ Module yocto_rfidreader
           errMsg = "Radio is OFF (refreshRate=0)."
         End If
         If (errBlk >= 0) Then
-          errMsg = "" +  errMsg + " (block " + Convert.ToString(errBlk) + ")"
+          errMsg = "" + errMsg + " (block " + Convert.ToString(errBlk) + ")"
         End If
       End If
       Me._tagId = tagId
@@ -1409,7 +1409,7 @@ Module yocto_rfidreader
       status.imm_init(tagId, errCode, errBlk, fab, lab)
       retcode = status.get_yapiError()
       If Not(retcode = YAPI.SUCCESS) Then
-        me._throw( retcode,  status.get_errorMessage())
+        me._throw(retcode, status.get_errorMessage())
         return retcode
       end if
       Return YAPI.SUCCESS
@@ -1439,7 +1439,7 @@ Module yocto_rfidreader
     '''/
     Public Overridable Function get_tagIdList() As List(Of String)
       Dim json As Byte() = New Byte(){}
-      Dim jsonList As List(Of String) = New List(Of String)()
+      Dim jsonList As List(Of Byte()) = New List(Of Byte())()
       Dim taglist As List(Of String) = New List(Of String)()
 
       json = Me._download("rfid.json?a=list")
@@ -1448,7 +1448,7 @@ Module yocto_rfidreader
         jsonList = Me._json_get_array(json)
         Dim ii_0 As Integer
         For ii_0 = 0 To jsonList.Count - 1
-          taglist.Add(Me._json_get_string(YAPI.DefaultEncoding.GetBytes(jsonList(ii_0))))
+          taglist.Add(Me._json_get_string(jsonList(ii_0)))
         Next ii_0
       End If
       Return taglist
@@ -2006,7 +2006,7 @@ Module yocto_rfidreader
       idx = 0
       While (idx < bufflen)
         hexb = byteList(idx)
-        buff( idx) = Convert.ToByte(hexb And &HFF)
+        buff(idx) = Convert.ToByte(hexb And &HFF)
         idx = idx + 1
       End While
 
@@ -2076,8 +2076,8 @@ Module yocto_rfidreader
         ReDim buff(bufflen-1)
         idx = 0
         While (idx < bufflen)
-          hexb = Convert.ToInt32((hexString).Substring( 2 * idx, 2), 16)
-          buff( idx) = Convert.ToByte(hexb And &HFF)
+          hexb = Convert.ToInt32((hexString).Substring(2 * idx, 2), 16)
+          buff(idx) = Convert.ToByte(hexb And &HFF)
           idx = idx + 1
         End While
         Return Me.tagWriteBin(tagId, firstBlock, buff, options, status)
@@ -2488,13 +2488,13 @@ Module yocto_rfidreader
         eventArr = New List(Of String)(contentStr.Split(vbLf.ToCharArray()))
         arrLen = eventArr.Count
         If Not(arrLen > 0) Then
-          me._throw( YAPI.IO_ERROR,  "fail to download events")
+          me._throw(YAPI.IO_ERROR, "fail to download events")
           return YAPI.IO_ERROR
         end if
         REM // first element of array is the new position preceeded by '@'
         arrPos = 1
         lenStr = eventArr(0)
-        lenStr = (lenStr).Substring( 1, (lenStr).Length-1)
+        lenStr = (lenStr).Substring(1, (lenStr).Length-1)
         REM // update processed event position pointer
         Me._eventPos = YAPI._atoi(lenStr)
       Else
@@ -2505,14 +2505,14 @@ Module yocto_rfidreader
         eventArr = New List(Of String)(contentStr.Split(vbLf.ToCharArray()))
         arrLen = eventArr.Count
         If Not(arrLen > 0) Then
-          me._throw( YAPI.IO_ERROR,  "fail to download events")
+          me._throw(YAPI.IO_ERROR, "fail to download events")
           return YAPI.IO_ERROR
         end if
         REM // last element of array is the new position preceeded by '@'
         arrPos = 0
         arrLen = arrLen - 1
         lenStr = eventArr(arrLen)
-        lenStr = (lenStr).Substring( 1, (lenStr).Length-1)
+        lenStr = (lenStr).Substring(1, (lenStr).Length-1)
         REM // update processed event position pointer
         Me._eventPos = YAPI._atoi(lenStr)
       End If
@@ -2522,18 +2522,18 @@ Module yocto_rfidreader
         eventLen = (eventStr).Length
         typePos = eventStr.IndexOf(":")+1
         If ((eventLen >= 14) AndAlso (typePos > 10)) Then
-          hexStamp = (eventStr).Substring( 0, 8)
+          hexStamp = (eventStr).Substring(0, 8)
           intStamp = Convert.ToInt32(hexStamp, 16)
           If (intStamp >= Me._eventStamp) Then
             Me._eventStamp = intStamp
-            binMStamp = YAPI.DefaultEncoding.GetBytes((eventStr).Substring( 8, 2))
+            binMStamp = YAPI.DefaultEncoding.GetBytes((eventStr).Substring(8, 2))
             msStamp = (binMStamp(0)-64) * 32 + binMStamp(1)
             evtStamp = intStamp + (0.001 * msStamp)
             dataPos = eventStr.IndexOf("=")+1
-            evtType = (eventStr).Substring( typePos, 1)
+            evtType = (eventStr).Substring(typePos, 1)
             evtData = ""
             If (dataPos > 10) Then
-              evtData = (eventStr).Substring( dataPos, eventLen-dataPos)
+              evtData = (eventStr).Substring(dataPos, eventLen-dataPos)
             End If
             If (Not (Me._eventCallback Is Nothing)) Then
               Me._eventCallback(Me, evtStamp, evtType, evtData)

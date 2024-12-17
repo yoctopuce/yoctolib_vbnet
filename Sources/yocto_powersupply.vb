@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_powersupply.vb 55633 2023-07-26 09:18:40Z seb $
+'  $Id: yocto_powersupply.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindPowerSupply(), the high-level API for PowerSupply functions
 '
@@ -744,7 +744,7 @@ Module yocto_powersupply
       If (V_target < 0.0) Then
         V_target  = 0.0
       End If
-      newval = "" + Convert.ToString( CType(Math.Round(V_target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
+      newval = "" + Convert.ToString(CType(Math.Round(V_target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
 
       Return Me.set_voltageTransition(newval)
     End Function

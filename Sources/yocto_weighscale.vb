@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_weighscale.vb 62185 2024-08-19 09:57:14Z seb $
+'  $Id: yocto_weighscale.vb 63470 2024-11-25 14:25:16Z seb $
 '
 '  Implements yFindWeighScale(), the high-level API for WeighScale functions
 '
@@ -712,7 +712,7 @@ Module yocto_weighscale
     ''' </para>
     '''/
     Public Overridable Function setupSpan(currWeight As Double, maxWeight As Double) As Integer
-      Return Me.set_command("S" + Convert.ToString( CType(Math.Round(1000*currWeight), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*maxWeight), Integer)))
+      Return Me.set_command("S" + Convert.ToString(CType(Math.Round(1000*currWeight), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*maxWeight), Integer)))
     End Function
 
     Public Overridable Function setCompensationTable(tableIndex As Integer, tempValues As List(Of Double), compValues As List(Of Double)) As Integer
@@ -726,17 +726,17 @@ Module yocto_weighscale
       Dim idxTemp As Double = 0
       siz = tempValues.Count
       If Not(siz <> 1) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "thermal compensation table must have at least two points")
+        me._throw(YAPI.INVALID_ARGUMENT, "thermal compensation table must have at least two points")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not(siz = compValues.Count) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "table sizes mismatch")
+        me._throw(YAPI.INVALID_ARGUMENT, "table sizes mismatch")
         return YAPI.INVALID_ARGUMENT
       end if
 
       res = Me.set_command("" + Convert.ToString(tableIndex) + "Z")
       If Not(res=YAPI.SUCCESS) Then
-        me._throw( YAPI.IO_ERROR,  "unable to reset thermal compensation table")
+        me._throw(YAPI.IO_ERROR, "unable to reset thermal compensation table")
         return YAPI.IO_ERROR
       end if
       REM // add records in growing temperature value
@@ -757,9 +757,9 @@ Module yocto_weighscale
           idx = idx + 1
         End While
         If (found > 0) Then
-          res = Me.set_command("" + Convert.ToString( tableIndex) + "m" + Convert.ToString( CType(Math.Round(1000*curr), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*currComp), Integer)))
+          res = Me.set_command("" + Convert.ToString(tableIndex) + "m" + Convert.ToString(CType(Math.Round(1000*curr), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*currComp), Integer)))
           If Not(res=YAPI.SUCCESS) Then
-            me._throw( YAPI.IO_ERROR,  "unable to set thermal compensation table")
+            me._throw(YAPI.IO_ERROR, "unable to set thermal compensation table")
             return YAPI.IO_ERROR
           end if
           prev = curr
@@ -771,14 +771,14 @@ Module yocto_weighscale
     Public Overridable Function loadCompensationTable(tableIndex As Integer, tempValues As List(Of Double), compValues As List(Of Double)) As Integer
       Dim id As String
       Dim bin_json As Byte() = New Byte(){}
-      Dim paramlist As List(Of String) = New List(Of String)()
+      Dim paramlist As List(Of Byte()) = New List(Of Byte())()
       Dim siz As Integer = 0
       Dim idx As Integer = 0
       Dim temp As Double = 0
       Dim comp As Double = 0
 
       id = Me.get_functionId()
-      id = (id).Substring( 10, (id).Length - 10)
+      id = (id).Substring(10, (id).Length - 10)
       bin_json = Me._download("extra.json?page=" + Convert.ToString((4*YAPI._atoi(id))+tableIndex))
       paramlist = Me._json_get_array(bin_json)
       REM // convert all values to float and append records
@@ -787,8 +787,8 @@ Module yocto_weighscale
       compValues.Clear()
       idx = 0
       While (idx < siz)
-        temp = YAPI._atof(paramlist(2*idx))/1000.0
-        comp = YAPI._atof(paramlist(2*idx+1))/1000.0
+        temp = YAPI._atof(YAPI.DefaultEncoding.GetString(paramlist(2*idx)))/1000.0
+        comp = YAPI._atof(YAPI.DefaultEncoding.GetString(paramlist(2*idx+1)))/1000.0
         tempValues.Add(temp)
         compValues.Add(comp)
         idx = idx + 1

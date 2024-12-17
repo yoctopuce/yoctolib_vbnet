@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_steppermotor.vb 61964 2024-07-29 15:54:55Z seb $
+'  $Id: yocto_steppermotor.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindStepperMotor(), the high-level API for StepperMotor functions
 '
@@ -946,19 +946,19 @@ Module yocto_steppermotor
       Dim retBin As Byte() = New Byte(){}
       Dim res As Integer = 0
       id = Me.get_functionId()
-      id = (id).Substring( 12, 1)
-      url = "cmd.txt?" +  id + "=" + command
+      id = (id).Substring(12, 1)
+      url = "cmd.txt?" + id + "=" + command
       REM //may throw an exception
       retBin = Me._download(url)
       res = retBin(0)
       If (res < 58) Then
         If Not(res = 48) Then
-          me._throw( YAPI.DEVICE_BUSY,  "Motor command pipeline is full, try again later")
+          me._throw(YAPI.DEVICE_BUSY, "Motor command pipeline is full, try again later")
           return YAPI.DEVICE_BUSY
         end if
       Else
         If Not(res = 48) Then
-          me._throw( YAPI.IO_ERROR,  "Motor command failed permanently")
+          me._throw(YAPI.IO_ERROR, "Motor command failed permanently")
           return YAPI.IO_ERROR
         end if
       End If
@@ -1153,7 +1153,7 @@ Module yocto_steppermotor
     '''/
     Public Overridable Function alertStepDir(dir As Integer) As Integer
       If Not(dir <> 0) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "direction must be +1 or -1")
+        me._throw(YAPI.INVALID_ARGUMENT, "direction must be +1 or -1")
         return YAPI.INVALID_ARGUMENT
       end if
       If (dir > 0) Then

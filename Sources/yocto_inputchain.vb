@@ -932,13 +932,13 @@ Module yocto_inputchain
       eventArr = New List(Of String)(contentStr.Split(vbLf.ToCharArray()))
       arrLen = eventArr.Count
       If Not(arrLen > 0) Then
-        me._throw( YAPI.IO_ERROR,  "fail to download events")
+        me._throw(YAPI.IO_ERROR, "fail to download events")
         return YAPI.IO_ERROR
       end if
       REM // last element of array is the new position preceeded by '@'
       arrLen = arrLen - 1
       lenStr = eventArr(arrLen)
-      lenStr = (lenStr).Substring( 1, (lenStr).Length-1)
+      lenStr = (lenStr).Substring(1, (lenStr).Length-1)
       REM // update processed event position pointer
       Me._eventPos = YAPI._atoi(lenStr)
       REM // now generate callbacks for each event received
@@ -947,21 +947,21 @@ Module yocto_inputchain
         eventStr = eventArr(arrPos)
         eventLen = (eventStr).Length
         If (eventLen >= 1) Then
-          hexStamp = (eventStr).Substring( 0, 8)
+          hexStamp = (eventStr).Substring(0, 8)
           evtStamp = Convert.ToInt32(hexStamp, 16)
           typePos = eventStr.IndexOf(":")+1
           If ((evtStamp >= Me._eventStamp) AndAlso (typePos > 8)) Then
             Me._eventStamp = evtStamp
             dataPos = eventStr.IndexOf("=")+1
-            evtType = (eventStr).Substring( typePos, 1)
+            evtType = (eventStr).Substring(typePos, 1)
             evtData = ""
             evtChange = ""
             If (dataPos > 10) Then
-              evtData = (eventStr).Substring( dataPos, (eventStr).Length-dataPos)
+              evtData = (eventStr).Substring(dataPos, (eventStr).Length-dataPos)
               If ("1234567".IndexOf(evtType) >= 0) Then
                 chainIdx = YAPI._atoi(evtType) - 1
                 evtChange = Me._strXor(evtData, Me._eventChains(chainIdx))
-                Me._eventChains( chainIdx) = evtData
+                Me._eventChains(chainIdx) = evtData
               End If
             End If
             Me._stateChangeCallback(Me, evtStamp, evtType, evtData, evtChange)
@@ -983,19 +983,19 @@ Module yocto_inputchain
       lenA = (a).Length
       lenB = (b).Length
       If (lenA > lenB) Then
-        res = (a).Substring( 0, lenA-lenB)
-        a = (a).Substring( lenA-lenB, lenB)
+        res = (a).Substring(0, lenA-lenB)
+        a = (a).Substring(lenA-lenB, lenB)
         lenA = lenB
       Else
         res = ""
-        b = (b).Substring( lenA-lenB, lenA)
+        b = (b).Substring(lenA-lenB, lenA)
       End If
       REM // scan strings and compare digit by digit
       idx = 0
       While (idx < lenA)
-        digitA = Convert.ToInt32((a).Substring( idx, 1), 16)
-        digitB = Convert.ToInt32((b).Substring( idx, 1), 16)
-        res = "" +  res + "" + (((digitA) Xor (digitB))).ToString("x")
+        digitA = Convert.ToInt32((a).Substring(idx, 1), 16)
+        digitB = Convert.ToInt32((b).Substring(idx, 1), 16)
+        res = "" + res + "" + (((digitA) Xor (digitB))).ToString("x")
         idx = idx + 1
       End While
       Return res
@@ -1012,7 +1012,7 @@ Module yocto_inputchain
       idx = hexlen
       While (idx > 0)
         idx = idx - 1
-        digit = Convert.ToInt32((hexstr).Substring( idx, 1), 16)
+        digit = Convert.ToInt32((hexstr).Substring(idx, 1), 16)
         res.Add(((digit) And (1)))
         res.Add((((digit >> 1)) And (1)))
         res.Add((((digit >> 2)) And (1)))

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_wireless.vb 54332 2023-05-02 08:35:37Z seb $
+'* $Id: yocto_wireless.vb 63470 2024-11-25 14:25:16Z seb $
 '*
 '* Implements yFindWireless(), the high-level API for Wireless functions
 '*
@@ -605,7 +605,7 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Overridable Function joinNetwork(ssid As String, securityKey As String) As Integer
-      Return Me.set_wlanConfig("INFRA:" +  ssid + "\" + securityKey)
+      Return Me.set_wlanConfig("INFRA:" + ssid + "\" + securityKey)
     End Function
 
     '''*
@@ -641,7 +641,7 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Overridable Function adhocNetwork(ssid As String, securityKey As String) As Integer
-      Return Me.set_wlanConfig("ADHOC:" +  ssid + "\" + securityKey)
+      Return Me.set_wlanConfig("ADHOC:" + ssid + "\" + securityKey)
     End Function
 
     '''*
@@ -680,7 +680,7 @@ Module yocto_wireless
     ''' </para>
     '''/
     Public Overridable Function softAPNetwork(ssid As String, securityKey As String) As Integer
-      Return Me.set_wlanConfig("SOFTAP:" +  ssid + "\" + securityKey)
+      Return Me.set_wlanConfig("SOFTAP:" + ssid + "\" + securityKey)
     End Function
 
     '''*
@@ -704,7 +704,7 @@ Module yocto_wireless
     '''/
     Public Overridable Function get_detectedWlans() As List(Of YWlanRecord)
       Dim json As Byte() = New Byte(){}
-      Dim wlanlist As List(Of String) = New List(Of String)()
+      Dim wlanlist As List(Of Byte()) = New List(Of Byte())()
       Dim res As List(Of YWlanRecord) = New List(Of YWlanRecord)()
 
       json = Me._download("wlan.json?by=name")
@@ -712,7 +712,7 @@ Module yocto_wireless
       res.Clear()
       Dim ii_0 As Integer
       For ii_0 = 0 To wlanlist.Count - 1
-        res.Add(New YWlanRecord(wlanlist(ii_0)))
+        res.Add(New YWlanRecord(YAPI.DefaultEncoding.GetString(wlanlist(ii_0))))
       Next ii_0
       Return res
     End Function

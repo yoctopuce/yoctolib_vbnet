@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multicellweighscale.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: yocto_multicellweighscale.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindMultiCellWeighScale(), the high-level API for MultiCellWeighScale functions
 '
@@ -843,7 +843,7 @@ Module yocto_multicellweighscale
     ''' </para>
     '''/
     Public Overridable Function setupSpan(currWeight As Double, maxWeight As Double) As Integer
-      Return Me.set_command("S" + Convert.ToString( CType(Math.Round(1000*currWeight), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*maxWeight), Integer)))
+      Return Me.set_command("S" + Convert.ToString(CType(Math.Round(1000*currWeight), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*maxWeight), Integer)))
     End Function
 
 

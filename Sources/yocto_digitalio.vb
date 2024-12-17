@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_digitalio.vb 62185 2024-08-19 09:57:14Z seb $
+'  $Id: yocto_digitalio.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindDigitalIO(), the high-level API for DigitalIO functions
 '
@@ -659,11 +659,11 @@ Module yocto_digitalio
     '''/
     Public Overridable Function set_bitState(bitno As Integer, bitstate As Integer) As Integer
       If Not(bitstate >= 0) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bit state")
+        me._throw(YAPI.INVALID_ARGUMENT, "invalid bit state")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not(bitstate <= 1) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bit state")
+        me._throw(YAPI.INVALID_ARGUMENT, "invalid bit state")
         return YAPI.INVALID_ARGUMENT
       end if
       Return Me.set_command("" + Chr(82+bitstate) + "" + Convert.ToString(bitno))
@@ -736,11 +736,11 @@ Module yocto_digitalio
     '''/
     Public Overridable Function set_bitDirection(bitno As Integer, bitdirection As Integer) As Integer
       If Not(bitdirection >= 0) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid direction")
+        me._throw(YAPI.INVALID_ARGUMENT, "invalid direction")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not(bitdirection <= 1) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid direction")
+        me._throw(YAPI.INVALID_ARGUMENT, "invalid direction")
         return YAPI.INVALID_ARGUMENT
       end if
       Return Me.set_command("" + Chr(73+6*bitdirection) + "" + Convert.ToString(bitno))
@@ -791,11 +791,11 @@ Module yocto_digitalio
     '''/
     Public Overridable Function set_bitPolarity(bitno As Integer, bitpolarity As Integer) As Integer
       If Not(bitpolarity >= 0) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bit polarity")
+        me._throw(YAPI.INVALID_ARGUMENT, "invalid bit polarity")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not(bitpolarity <= 1) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid bit polarity")
+        me._throw(YAPI.INVALID_ARGUMENT, "invalid bit polarity")
         return YAPI.INVALID_ARGUMENT
       end if
       Return Me.set_command("" + Chr(110+4*bitpolarity) + "" + Convert.ToString(bitno))
@@ -846,11 +846,11 @@ Module yocto_digitalio
     '''/
     Public Overridable Function set_bitOpenDrain(bitno As Integer, opendrain As Integer) As Integer
       If Not(opendrain >= 0) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid state")
+        me._throw(YAPI.INVALID_ARGUMENT, "invalid state")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not(opendrain <= 1) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "invalid state")
+        me._throw(YAPI.INVALID_ARGUMENT, "invalid state")
         return YAPI.INVALID_ARGUMENT
       end if
       Return Me.set_command("" + Chr(100-32*opendrain) + "" + Convert.ToString(bitno))
@@ -903,7 +903,7 @@ Module yocto_digitalio
     ''' </para>
     '''/
     Public Overridable Function pulse(bitno As Integer, ms_duration As Integer) As Integer
-      Return Me.set_command("Z" + Convert.ToString( bitno) + ",0," + Convert.ToString(ms_duration))
+      Return Me.set_command("Z" + Convert.ToString(bitno) + ",0," + Convert.ToString(ms_duration))
     End Function
 
     '''*

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 62185 2024-08-19 09:57:14Z seb $
+'* $Id: yocto_serialport.vb 63470 2024-11-25 14:25:16Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -1013,7 +1013,7 @@ Module yocto_serialport
     Public Overridable Function readLine() As String
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As String
 
@@ -1026,11 +1026,11 @@ Module yocto_serialport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       If (msglen = 0) Then
         Return ""
       End If
-      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
+      res = Me._json_get_string(msgarr(0))
       Return res
     End Function
 
@@ -1069,12 +1069,12 @@ Module yocto_serialport
     Public Overridable Function readMessages(pattern As String, maxWait As Integer) As List(Of String)
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As List(Of String) = New List(Of String)()
       Dim idx As Integer = 0
 
-      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&pat=" + pattern
+      url = "rxmsg.json?pos=" + Convert.ToString(Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&pat=" + pattern
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
@@ -1083,11 +1083,11 @@ Module yocto_serialport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       idx = 0
 
       While (idx < msglen)
-        res.Add(Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(idx))))
+        res.Add(Me._json_get_string(msgarr(idx)))
         idx = idx + 1
       End While
 
@@ -1149,7 +1149,7 @@ Module yocto_serialport
       databin = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
       availPosStr = YAPI.DefaultEncoding.GetString(databin)
       atPos = availPosStr.IndexOf("@")
-      res = YAPI._atoi((availPosStr).Substring( 0, atPos))
+      res = YAPI._atoi((availPosStr).Substring(0, atPos))
       Return res
     End Function
 
@@ -1162,7 +1162,7 @@ Module yocto_serialport
       databin = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
       availPosStr = YAPI.DefaultEncoding.GetString(databin)
       atPos = availPosStr.IndexOf("@")
-      res = YAPI._atoi((availPosStr).Substring( atPos+1, (availPosStr).Length-atPos-1))
+      res = YAPI._atoi((availPosStr).Substring(atPos+1, (availPosStr).Length-atPos-1))
       Return res
     End Function
 
@@ -1191,17 +1191,17 @@ Module yocto_serialport
       Dim prevpos As Integer = 0
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As String
       If ((query).Length <= 80) Then
         REM // fast query
-        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + Me._escapeAttr(query)
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString(maxWait) + "&cmd=!" + Me._escapeAttr(query)
       Else
         REM // long query
         prevpos = Me.end_tell()
         Me._upload("txdata", YAPI.DefaultEncoding.GetBytes(query + "" + vbCr + "" + vbLf + ""))
-        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&pos=" + Convert.ToString(prevpos)
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString(maxWait) + "&pos=" + Convert.ToString(prevpos)
       End If
 
       msgbin = Me._download(url)
@@ -1212,11 +1212,11 @@ Module yocto_serialport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       If (msglen = 0) Then
         Return ""
       End If
-      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
+      res = Me._json_get_string(msgarr(0))
       Return res
     End Function
 
@@ -1246,17 +1246,17 @@ Module yocto_serialport
       Dim prevpos As Integer = 0
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As String
       If ((hexString).Length <= 80) Then
         REM // fast query
-        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=$" + hexString
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString(maxWait) + "&cmd=$" + hexString
       Else
         REM // long query
         prevpos = Me.end_tell()
         Me._upload("txdata", YAPI._hexStrToBin(hexString))
-        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&pos=" + Convert.ToString(prevpos)
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString(maxWait) + "&pos=" + Convert.ToString(prevpos)
       End If
 
       msgbin = Me._download(url)
@@ -1267,11 +1267,11 @@ Module yocto_serialport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       If (msglen = 0) Then
         Return ""
       End If
-      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
+      res = Me._json_get_string(msgarr(0))
       Return res
     End Function
 
@@ -1459,7 +1459,7 @@ Module yocto_serialport
       idx = 0
       While (idx < bufflen)
         hexb = byteList(idx)
-        buff( idx) = Convert.ToByte(hexb And &HFF)
+        buff(idx) = Convert.ToByte(hexb And &HFF)
         idx = idx + 1
       End While
 
@@ -1497,8 +1497,8 @@ Module yocto_serialport
       ReDim buff(bufflen-1)
       idx = 0
       While (idx < bufflen)
-        hexb = Convert.ToInt32((hexString).Substring( 2 * idx, 2), 16)
-        buff( idx) = Convert.ToByte(hexb And &HFF)
+        hexb = Convert.ToInt32((hexString).Substring(2 * idx, 2), 16)
+        buff(idx) = Convert.ToByte(hexb And &HFF)
         idx = idx + 1
       End While
 
@@ -1651,7 +1651,7 @@ Module yocto_serialport
         nChars = 65535
       End If
 
-      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
+      buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
@@ -1661,7 +1661,7 @@ Module yocto_serialport
         bufflen = bufflen - 1
       End While
       Me._rxptr = endpos
-      res = (YAPI.DefaultEncoding.GetString(buff)).Substring( 0, bufflen)
+      res = (YAPI.DefaultEncoding.GetString(buff)).Substring(0, bufflen)
       Return res
     End Function
 
@@ -1694,7 +1694,7 @@ Module yocto_serialport
         nChars = 65535
       End If
 
-      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
+      buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
@@ -1707,7 +1707,7 @@ Module yocto_serialport
       ReDim res(bufflen-1)
       idx = 0
       While (idx < bufflen)
-        res( idx) = Convert.ToByte(buff(idx) And &HFF)
+        res(idx) = Convert.ToByte(buff(idx) And &HFF)
         idx = idx + 1
       End While
       Return res
@@ -1743,7 +1743,7 @@ Module yocto_serialport
         nChars = 65535
       End If
 
-      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nChars))
+      buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=" + Convert.ToString(nChars))
       bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
@@ -1793,7 +1793,7 @@ Module yocto_serialport
         nBytes = 65535
       End If
 
-      buff = Me._download("rxdata.bin?pos=" + Convert.ToString( Me._rxptr) + "&len=" + Convert.ToString(nBytes))
+      buff = Me._download("rxdata.bin?pos=" + Convert.ToString(Me._rxptr) + "&len=" + Convert.ToString(nBytes))
       bufflen = (buff).Length - 1
       endpos = 0
       mult = 1
@@ -1806,11 +1806,11 @@ Module yocto_serialport
       res = ""
       ofs = 0
       While (ofs + 3 < bufflen)
-        res = "" +  res + "" + ( buff(ofs)).ToString("X02") + "" + ( buff(ofs + 1)).ToString("X02") + "" + ( buff(ofs + 2)).ToString("X02") + "" + (buff(ofs + 3)).ToString("X02")
+        res = "" + res + "" + (buff(ofs)).ToString("X02") + "" + (buff(ofs + 1)).ToString("X02") + "" + (buff(ofs + 2)).ToString("X02") + "" + (buff(ofs + 3)).ToString("X02")
         ofs = ofs + 4
       End While
       While (ofs < bufflen)
-        res = "" +  res + "" + (buff(ofs)).ToString("X02")
+        res = "" + res + "" + (buff(ofs)).ToString("X02")
         ofs = ofs + 1
       End While
       Return res
@@ -1889,7 +1889,7 @@ Module yocto_serialport
 
       buff = Me._download("cts.txt")
       If Not((buff).Length = 1) Then
-        me._throw( YAPI.IO_ERROR,  "invalid CTS reply")
+        me._throw(YAPI.IO_ERROR, "invalid CTS reply")
         return YAPI.IO_ERROR
       end if
       res = buff(0) - 48
@@ -1926,12 +1926,12 @@ Module yocto_serialport
     Public Overridable Function snoopMessagesEx(maxWait As Integer, maxMsg As Integer) As List(Of YSnoopingRecord)
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As List(Of YSnoopingRecord) = New List(Of YSnoopingRecord)()
       Dim idx As Integer = 0
 
-      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&t=0&len=" + Convert.ToString(maxMsg)
+      url = "rxmsg.json?pos=" + Convert.ToString(Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0&len=" + Convert.ToString(maxMsg)
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
@@ -1940,11 +1940,11 @@ Module yocto_serialport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       idx = 0
 
       While (idx < msglen)
-        res.Add(New YSnoopingRecord(msgarr(idx)))
+        res.Add(New YSnoopingRecord(YAPI.DefaultEncoding.GetString(msgarr(idx))))
         idx = idx + 1
       End While
 
@@ -2016,7 +2016,7 @@ Module yocto_serialport
     Public Overridable Function _internalEventHandler(advstr As String) As Integer
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim idx As Integer = 0
       If (Not (Not (Me._eventCallback Is Nothing))) Then
@@ -2035,13 +2035,13 @@ Module yocto_serialport
       msglen = msglen - 1
       If (Not (Not (Me._eventCallback Is Nothing))) Then
         REM // first simulated event, use it only to initialize reference values
-        Me._eventPos = YAPI._atoi(msgarr(msglen))
+        Me._eventPos = Me._decode_json_int(msgarr(msglen))
         Return YAPI.SUCCESS
       End If
-      Me._eventPos = YAPI._atoi(msgarr(msglen))
+      Me._eventPos = Me._decode_json_int(msgarr(msglen))
       idx = 0
       While (idx < msglen)
-        Me._eventCallback(Me, New YSnoopingRecord(msgarr(idx)))
+        Me._eventCallback(Me, New YSnoopingRecord(YAPI.DefaultEncoding.GetString(msgarr(idx))))
         idx = idx + 1
       End While
       Return YAPI.SUCCESS
@@ -2066,7 +2066,7 @@ Module yocto_serialport
     '''/
     Public Overridable Function writeStxEtx(text As String) As Integer
       Dim buff As Byte() = New Byte(){}
-      buff = YAPI.DefaultEncoding.GetBytes("" + Chr( 2) + "" +  text + "" + Chr(3))
+      buff = YAPI.DefaultEncoding.GetBytes("" + Chr(2) + "" + text + "" + Chr(3))
       REM // send string using file upload
       Return Me._upload("txdata", buff)
     End Function
@@ -2124,38 +2124,38 @@ Module yocto_serialport
       Dim url As String
       Dim pat As String
       Dim msgs As Byte() = New Byte(){}
-      Dim reps As List(Of String) = New List(Of String)()
+      Dim reps As List(Of Byte()) = New List(Of Byte())()
       Dim rep As String
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim replen As Integer = 0
       Dim hexb As Integer = 0
       funCode = pduBytes(0)
       nib = (funCode >> 4)
-      pat = "" + ( slaveNo).ToString("X02") + "[" + ( nib).ToString("X") + "" + ( (nib+8)).ToString("X") + "]" + (((funCode) And (15))).ToString("X") + ".*"
-      cmd = "" + ( slaveNo).ToString("X02") + "" + (funCode).ToString("X02")
+      pat = "" + (slaveNo).ToString("X02") + "[" + (nib).ToString("X") + "" + ((nib+8)).ToString("X") + "]" + (((funCode) And (15))).ToString("X") + ".*"
+      cmd = "" + (slaveNo).ToString("X02") + "" + (funCode).ToString("X02")
       i = 1
       While (i < pduBytes.Count)
-        cmd = "" +  cmd + "" + (((pduBytes(i)) And (&Hff))).ToString("X02")
+        cmd = "" + cmd + "" + (((pduBytes(i)) And (&Hff))).ToString("X02")
         i = i + 1
       End While
       If ((cmd).Length <= 80) Then
         REM // fast query
-        url = "rxmsg.json?cmd=:" +  cmd + "&pat=:" + pat
+        url = "rxmsg.json?cmd=:" + cmd + "&pat=:" + pat
       Else
         REM // long query
         prevpos = Me.end_tell()
         Me._upload("txdata:", YAPI._hexStrToBin(cmd))
-        url = "rxmsg.json?pos=" + Convert.ToString( prevpos) + "&maxw=2000&pat=:" + pat
+        url = "rxmsg.json?pos=" + Convert.ToString(prevpos) + "&maxw=2000&pat=:" + pat
       End If
 
       msgs = Me._download(url)
       reps = Me._json_get_array(msgs)
       If Not(reps.Count > 1) Then
-        me._throw( YAPI.IO_ERROR,  "no reply from MODBUS slave")
+        me._throw(YAPI.IO_ERROR, "no reply from MODBUS slave")
         return res
       end if
       If (reps.Count > 1) Then
-        rep = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(reps(0)))
+        rep = Me._json_get_string(reps(0))
         replen = (((rep).Length - 3) >> 1)
         i = 0
         While (i < replen)
@@ -2166,19 +2166,19 @@ Module yocto_serialport
         If (res(0) <> funCode) Then
           i = res(1)
           If Not(i > 1) Then
-            me._throw( YAPI.NOT_SUPPORTED,  "MODBUS error: unsupported function code")
+            me._throw(YAPI.NOT_SUPPORTED, "MODBUS error: unsupported function code")
             return res
           end if
           If Not(i > 2) Then
-            me._throw( YAPI.INVALID_ARGUMENT,  "MODBUS error: illegal data address")
+            me._throw(YAPI.INVALID_ARGUMENT, "MODBUS error: illegal data address")
             return res
           end if
           If Not(i > 3) Then
-            me._throw( YAPI.INVALID_ARGUMENT,  "MODBUS error: illegal data value")
+            me._throw(YAPI.INVALID_ARGUMENT, "MODBUS error: illegal data value")
             return res
           end if
           If Not(i > 4) Then
-            me._throw( YAPI.INVALID_ARGUMENT,  "MODBUS error: failed to execute function")
+            me._throw(YAPI.INVALID_ARGUMENT, "MODBUS error: failed to execute function")
             return res
           end if
         End If
@@ -2357,7 +2357,7 @@ Module yocto_serialport
       Dim idx As Integer = 0
       Dim val As Integer = 0
       If Not(nWords<=256) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "Cannot read more than 256 words")
+        me._throw(YAPI.INVALID_ARGUMENT, "Cannot read more than 256 words")
         return res
       end if
 

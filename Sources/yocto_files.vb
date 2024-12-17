@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 54332 2023-05-02 08:35:37Z seb $
+'* $Id: yocto_files.vb 63470 2024-11-25 14:25:16Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -379,7 +379,7 @@ Module yocto_files
       json = Me.sendCommand("format")
       res = Me._json_get_key(json, "res")
       If Not(res = "ok") Then
-        me._throw( YAPI.IO_ERROR,  "format failed")
+        me._throw(YAPI.IO_ERROR, "format failed")
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS
@@ -407,14 +407,14 @@ Module yocto_files
     '''/
     Public Overridable Function get_list(pattern As String) As List(Of YFileRecord)
       Dim json As Byte() = New Byte(){}
-      Dim filelist As List(Of String) = New List(Of String)()
+      Dim filelist As List(Of Byte()) = New List(Of Byte())()
       Dim res As List(Of YFileRecord) = New List(Of YFileRecord)()
       json = Me.sendCommand("dir&f=" + pattern)
       filelist = Me._json_get_array(json)
       res.Clear()
       Dim ii_0 As Integer
       For ii_0 = 0 To filelist.Count - 1
-        res.Add(New YFileRecord(filelist(ii_0)))
+        res.Add(New YFileRecord(YAPI.DefaultEncoding.GetString(filelist(ii_0))))
       Next ii_0
       Return res
     End Function
@@ -437,7 +437,7 @@ Module yocto_files
     '''/
     Public Overridable Function fileExist(filename As String) As Boolean
       Dim json As Byte() = New Byte(){}
-      Dim filelist As List(Of String) = New List(Of String)()
+      Dim filelist As List(Of Byte()) = New List(Of Byte())()
       If ((filename).Length = 0) Then
         Return False
       End If
@@ -520,7 +520,7 @@ Module yocto_files
       json = Me.sendCommand("del&f=" + pathname)
       res  = Me._json_get_key(json, "res")
       If Not(res = "ok") Then
-        me._throw( YAPI.IO_ERROR,  "unable to remove file")
+        me._throw(YAPI.IO_ERROR, "unable to remove file")
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS

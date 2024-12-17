@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupmonitor.vb 48191 2022-01-20 12:04:58Z web $
+'  $Id: yocto_wakeupmonitor.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '
@@ -523,7 +523,7 @@ Module yocto_wakeupmonitor
       Dim currTime As Integer = 0
       currTime = CInt(Me.get_rtcTime())
       If Not(currTime <> 0) Then
-        me._throw( YAPI.RTC_NOT_READY,  "RTC time not set")
+        me._throw(YAPI.RTC_NOT_READY, "RTC time not set")
         return YAPI.RTC_NOT_READY
       end if
       Me.set_nextWakeUp(Me._endOfTime)
@@ -557,7 +557,7 @@ Module yocto_wakeupmonitor
       Dim currTime As Integer = 0
       currTime = CInt(Me.get_rtcTime())
       If Not(currTime <> 0) Then
-        me._throw( YAPI.RTC_NOT_READY,  "RTC time not set")
+        me._throw(YAPI.RTC_NOT_READY, "RTC time not set")
         return YAPI.RTC_NOT_READY
       end if
       Me.set_nextWakeUp(currTime+secUntilWakeUp)
@@ -591,7 +591,7 @@ Module yocto_wakeupmonitor
       Dim currTime As Integer = 0
       currTime = CInt(Me.get_rtcTime())
       If Not(currTime <> 0) Then
-        me._throw( YAPI.RTC_NOT_READY,  "RTC time not set")
+        me._throw(YAPI.RTC_NOT_READY, "RTC time not set")
         return YAPI.RTC_NOT_READY
       end if
       Me.set_nextWakeUp(wakeUpTime)

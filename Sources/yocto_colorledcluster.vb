@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorledcluster.vb 62185 2024-08-19 09:57:14Z seb $
+'  $Id: yocto_colorledcluster.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '
@@ -1152,9 +1152,9 @@ Module yocto_colorledcluster
       idx = 0
       While (idx < listlen)
         rgb = rgbList(idx)
-        buff( 3*idx) = Convert.ToByte((((rgb >> 16)) And (255)) And &HFF)
-        buff( 3*idx+1) = Convert.ToByte((((rgb >> 8)) And (255)) And &HFF)
-        buff( 3*idx+2) = Convert.ToByte(((rgb) And (255)) And &HFF)
+        buff(3*idx) = Convert.ToByte((((rgb >> 16)) And (255)) And &HFF)
+        buff(3*idx+1) = Convert.ToByte((((rgb >> 8)) And (255)) And &HFF)
+        buff(3*idx+2) = Convert.ToByte(((rgb) And (255)) And &HFF)
         idx = idx + 1
       End While
 
@@ -1198,9 +1198,9 @@ Module yocto_colorledcluster
       idx = 0
       While (idx < listlen)
         rgb = rgbList(idx)
-        buff( 3*idx) = Convert.ToByte((((rgb >> 16)) And (255)) And &HFF)
-        buff( 3*idx+1) = Convert.ToByte((((rgb >> 8)) And (255)) And &HFF)
-        buff( 3*idx+2) = Convert.ToByte(((rgb) And (255)) And &HFF)
+        buff(3*idx) = Convert.ToByte((((rgb >> 16)) And (255)) And &HFF)
+        buff(3*idx+1) = Convert.ToByte((((rgb >> 8)) And (255)) And &HFF)
+        buff(3*idx+2) = Convert.ToByte(((rgb) And (255)) And &HFF)
         idx = idx + 1
       End While
 
@@ -1294,9 +1294,9 @@ Module yocto_colorledcluster
       idx = 0
       While (idx < listlen)
         hsl = hslList(idx)
-        buff( 3*idx) = Convert.ToByte((((hsl >> 16)) And (255)) And &HFF)
-        buff( 3*idx+1) = Convert.ToByte((((hsl >> 8)) And (255)) And &HFF)
-        buff( 3*idx+2) = Convert.ToByte(((hsl) And (255)) And &HFF)
+        buff(3*idx) = Convert.ToByte((((hsl >> 16)) And (255)) And &HFF)
+        buff(3*idx+1) = Convert.ToByte((((hsl >> 8)) And (255)) And &HFF)
+        buff(3*idx+2) = Convert.ToByte(((hsl) And (255)) And &HFF)
         idx = idx + 1
       End While
 
@@ -1369,9 +1369,9 @@ Module yocto_colorledcluster
       idx = 0
       While (idx < listlen)
         hsl = hslList(idx)
-        buff( 3*idx) = Convert.ToByte((((hsl >> 16)) And (255)) And &HFF)
-        buff( 3*idx+1) = Convert.ToByte((((hsl >> 8)) And (255)) And &HFF)
-        buff( 3*idx+2) = Convert.ToByte(((hsl) And (255)) And &HFF)
+        buff(3*idx) = Convert.ToByte((((hsl >> 16)) And (255)) And &HFF)
+        buff(3*idx+1) = Convert.ToByte((((hsl >> 8)) And (255)) And &HFF)
+        buff(3*idx+2) = Convert.ToByte(((hsl) And (255)) And &HFF)
         idx = idx + 1
       End While
 

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_voltageoutput.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: yocto_voltageoutput.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindVoltageOutput(), the high-level API for VoltageOutput functions
 '
@@ -371,7 +371,7 @@ Module yocto_voltageoutput
       If (V_target > 10.0) Then
         V_target = 10.0
       End If
-      newval = "" + Convert.ToString( CType(Math.Round(V_target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
+      newval = "" + Convert.ToString(CType(Math.Round(V_target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
 
       Return Me.set_voltageTransition(newval)
     End Function

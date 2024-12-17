@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwmoutput.vb 61964 2024-07-29 15:54:55Z seb $
+'  $Id: yocto_pwmoutput.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '
@@ -760,7 +760,7 @@ Module yocto_pwmoutput
       If (ms_target < 0.0) Then
         ms_target = 0.0
       End If
-      newval = "" + Convert.ToString( CType(Math.Round(ms_target*65536), Integer)) + "ms:" + Convert.ToString(ms_duration)
+      newval = "" + Convert.ToString(CType(Math.Round(ms_target*65536), Integer)) + "ms:" + Convert.ToString(ms_duration)
       Return Me.set_pwmTransition(newval)
     End Function
 
@@ -793,7 +793,7 @@ Module yocto_pwmoutput
       If (target > 100.0) Then
         target = 100.0
       End If
-      newval = "" + Convert.ToString( CType(Math.Round(target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
+      newval = "" + Convert.ToString(CType(Math.Round(target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
       Return Me.set_pwmTransition(newval)
     End Function
 
@@ -822,7 +822,7 @@ Module yocto_pwmoutput
       If (target < 0.001) Then
         target = 0.001
       End If
-      newval = "" + YAPI._floatToStr( target) + "Hz:" + Convert.ToString(ms_duration)
+      newval = "" + YAPI._floatToStr(target) + "Hz:" + Convert.ToString(ms_duration)
       Return Me.set_pwmTransition(newval)
     End Function
 
@@ -852,7 +852,7 @@ Module yocto_pwmoutput
     '''/
     Public Overridable Function phaseMove(target As Double, ms_duration As Integer) As Integer
       Dim newval As String
-      newval = "" + YAPI._floatToStr( target) + "ps:" + Convert.ToString(ms_duration)
+      newval = "" + YAPI._floatToStr(target) + "ps:" + Convert.ToString(ms_duration)
       Return Me.set_pwmTransition(newval)
     End Function
 
@@ -882,7 +882,7 @@ Module yocto_pwmoutput
       If (ms_target < 0.0) Then
         ms_target = 0.0
       End If
-      newval = "" + Convert.ToString( CType(Math.Round(ms_target*65536), Integer)) + "ms*" + Convert.ToString(n_pulses)
+      newval = "" + Convert.ToString(CType(Math.Round(ms_target*65536), Integer)) + "ms*" + Convert.ToString(n_pulses)
       Return Me.set_pwmTransition(newval)
     End Function
 
@@ -915,7 +915,7 @@ Module yocto_pwmoutput
       If (target > 100.0) Then
         target = 100.0
       End If
-      newval = "" + Convert.ToString( CType(Math.Round(target*65536), Integer)) + "*" + Convert.ToString(n_pulses)
+      newval = "" + Convert.ToString(CType(Math.Round(target*65536), Integer)) + "*" + Convert.ToString(n_pulses)
       Return Me.set_pwmTransition(newval)
     End Function
 
@@ -944,7 +944,7 @@ Module yocto_pwmoutput
       If (target < 0.001) Then
         target = 0.001
       End If
-      newval = "" + YAPI._floatToStr( target) + "Hz*" + Convert.ToString(n_pulses)
+      newval = "" + YAPI._floatToStr(target) + "Hz*" + Convert.ToString(n_pulses)
       Return Me.set_pwmTransition(newval)
     End Function
 

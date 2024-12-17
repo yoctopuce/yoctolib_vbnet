@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multisenscontroller.vb 61964 2024-07-29 15:54:55Z seb $
+'  $Id: yocto_multisenscontroller.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindMultiSensController(), the high-level API for MultiSensController functions
 '
@@ -453,17 +453,17 @@ Module yocto_multisenscontroller
       cmd = "A" + Convert.ToString(addr)
       res = Me.set_command(cmd)
       If Not(res = YAPI.SUCCESS) Then
-        me._throw( YAPI.IO_ERROR,  "unable to trigger address change")
+        me._throw(YAPI.IO_ERROR, "unable to trigger address change")
         return YAPI.IO_ERROR
       end if
       YAPI.Sleep(1500, Nothing)
       res = Me.get_lastAddressDetected()
       If Not(res > 0) Then
-        me._throw( YAPI.IO_ERROR,  "IR sensor not found")
+        me._throw(YAPI.IO_ERROR, "IR sensor not found")
         return YAPI.IO_ERROR
       end if
       If Not(res = addr) Then
-        me._throw( YAPI.IO_ERROR,  "address change failed")
+        me._throw(YAPI.IO_ERROR, "address change failed")
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS
@@ -488,7 +488,7 @@ Module yocto_multisenscontroller
       Dim res As Integer = 0
       res = Me.set_command("a")
       If Not(res = YAPI.SUCCESS) Then
-        me._throw( YAPI.IO_ERROR,  "unable to trigger address detection")
+        me._throw(YAPI.IO_ERROR, "unable to trigger address detection")
         return res
       end if
       YAPI.Sleep(1000, Nothing)

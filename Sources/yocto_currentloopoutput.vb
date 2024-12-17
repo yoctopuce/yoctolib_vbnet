@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_currentloopoutput.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: yocto_currentloopoutput.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindCurrentLoopOutput(), the high-level API for CurrentLoopOutput functions
 '
@@ -418,7 +418,7 @@ Module yocto_currentloopoutput
       If (mA_target > 21.0) Then
         mA_target = 21.0
       End If
-      newval = "" + Convert.ToString( CType(Math.Round(mA_target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
+      newval = "" + Convert.ToString(CType(Math.Round(mA_target*65536), Integer)) + ":" + Convert.ToString(ms_duration)
 
       Return Me.set_currentTransition(newval)
     End Function

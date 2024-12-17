@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_arithmeticsensor.vb 55979 2023-08-11 08:24:13Z seb $
+'  $Id: yocto_arithmeticsensor.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindArithmeticSensor(), the high-level API for ArithmeticSensor functions
 '
@@ -359,17 +359,17 @@ Module yocto_arithmeticsensor
       Dim diags As String
       Dim resval As Double = 0
       id = Me.get_functionId()
-      id = (id).Substring( 16, (id).Length - 16)
+      id = (id).Substring(16, (id).Length - 16)
       fname = "arithmExpr" + id + ".txt"
 
-      content = "// " +  descr + "" + vbLf + "" + expr
+      content = "// " + descr + "" + vbLf + "" + expr
       data = Me._uploadEx(fname, YAPI.DefaultEncoding.GetBytes(content))
       diags = YAPI.DefaultEncoding.GetString(data)
       If Not((diags).Substring(0, 8) = "Result: ") Then
-        me._throw( YAPI.INVALID_ARGUMENT,  diags)
+        me._throw(YAPI.INVALID_ARGUMENT, diags)
         return YAPI.INVALID_DOUBLE
       end if
-      resval = YAPI._atof((diags).Substring( 8, (diags).Length-8))
+      resval = YAPI._atof((diags).Substring(8, (diags).Length-8))
       Return resval
     End Function
 
@@ -393,13 +393,13 @@ Module yocto_arithmeticsensor
       Dim content As String
       Dim idx As Integer = 0
       id = Me.get_functionId()
-      id = (id).Substring( 16, (id).Length - 16)
+      id = (id).Substring(16, (id).Length - 16)
       fname = "arithmExpr" + id + ".txt"
 
       content = YAPI.DefaultEncoding.GetString(Me._download(fname))
       idx = content.IndexOf("" + vbLf + "")
       If (idx > 0) Then
-        content = (content).Substring( idx+1, (content).Length-(idx+1))
+        content = (content).Substring(idx+1, (content).Length-(idx+1))
       End If
       Return content
     End Function
@@ -442,11 +442,11 @@ Module yocto_arithmeticsensor
       Dim fname As String
       siz = inputValues.Count
       If Not(siz > 1) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "auxiliary function must be defined by at least two points")
+        me._throw(YAPI.INVALID_ARGUMENT, "auxiliary function must be defined by at least two points")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not(siz = outputValues.Count) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "table sizes mismatch")
+        me._throw(YAPI.INVALID_ARGUMENT, "table sizes mismatch")
         return YAPI.INVALID_ARGUMENT
       end if
       defstr = ""
@@ -454,7 +454,7 @@ Module yocto_arithmeticsensor
       While (idx < siz)
         inputVal = inputValues(idx)
         outputVal = outputValues(idx)
-        defstr = "" +  defstr + "" + YAPI._floatToStr( inputVal) + ":" + YAPI._floatToStr(outputVal) + "" + vbLf + ""
+        defstr = "" + defstr + "" + YAPI._floatToStr(inputVal) + ":" + YAPI._floatToStr(outputVal) + "" + vbLf + ""
         idx = idx + 1
       End While
       fname = "userMap" + name + ".txt"
@@ -496,7 +496,7 @@ Module yocto_arithmeticsensor
       defbin = Me._download(fname)
       siz = (defbin).Length
       If Not(siz > 0) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "auxiliary function does not exist")
+        me._throw(YAPI.INVALID_ARGUMENT, "auxiliary function does not exist")
         return YAPI.INVALID_ARGUMENT
       end if
       inputValues.Clear()

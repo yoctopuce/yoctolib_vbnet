@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 61964 2024-07-29 15:54:55Z seb $
+'* $Id: yocto_cellular.vb 63328 2024-11-13 09:35:22Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -1295,7 +1295,7 @@ Module yocto_cellular
       Dim gsmMsg As String
       gsmMsg = Me.get_message()
       If Not((gsmMsg).Substring(0, 13) = "Enter SIM PUK") Then
-        me._throw(YAPI.INVALID_ARGUMENT,  "PUK not expected at this time")
+        me._throw(YAPI.INVALID_ARGUMENT, "PUK not expected at this time")
         return YAPI.INVALID_ARGUMENT
       end if
       If (newPin = "") Then
@@ -1389,19 +1389,19 @@ Module yocto_cellular
       cmdLen = (cmd).Length
       chrPos = cmd.IndexOf("#")
       While (chrPos >= 0)
-        cmd = "" +  (cmd).Substring( 0, chrPos) + "" + Chr( 37) + "23" + (cmd).Substring( chrPos+1, cmdLen-chrPos-1)
+        cmd = "" + (cmd).Substring(0, chrPos) + "" + Chr(37) + "23" + (cmd).Substring(chrPos+1, cmdLen-chrPos-1)
         cmdLen = cmdLen + 2
         chrPos = cmd.IndexOf("#")
       End While
       chrPos = cmd.IndexOf("+")
       While (chrPos >= 0)
-        cmd = "" +  (cmd).Substring( 0, chrPos) + "" + Chr( 37) + "2B" + (cmd).Substring( chrPos+1, cmdLen-chrPos-1)
+        cmd = "" + (cmd).Substring(0, chrPos) + "" + Chr(37) + "2B" + (cmd).Substring(chrPos+1, cmdLen-chrPos-1)
         cmdLen = cmdLen + 2
         chrPos = cmd.IndexOf("+")
       End While
       chrPos = cmd.IndexOf("=")
       While (chrPos >= 0)
-        cmd = "" +  (cmd).Substring( 0, chrPos) + "" + Chr( 37) + "3D" + (cmd).Substring( chrPos+1, cmdLen-chrPos-1)
+        cmd = "" + (cmd).Substring(0, chrPos) + "" + Chr(37) + "3D" + (cmd).Substring(chrPos+1, cmdLen-chrPos-1)
         cmdLen = cmdLen + 2
         chrPos = cmd.IndexOf("=")
       End While
@@ -1421,14 +1421,14 @@ Module yocto_cellular
         If (buff(idx) = 64) Then
           REM // continuation detected
           suffixlen = bufflen - idx
-          cmd = "at.txt?cmd=" + (buffstr).Substring( buffstrlen - suffixlen, suffixlen)
-          buffstr = (buffstr).Substring( 0, buffstrlen - suffixlen)
+          cmd = "at.txt?cmd=" + (buffstr).Substring(buffstrlen - suffixlen, suffixlen)
+          buffstr = (buffstr).Substring(0, buffstrlen - suffixlen)
           waitMore = waitMore - 1
         Else
           REM // request complete
           waitMore = 0
         End If
-        res = "" +  res + "" + buffstr
+        res = "" + res + "" + buffstr
       End While
       Return res
     End Function
@@ -1459,14 +1459,14 @@ Module yocto_cellular
       idx = cops.IndexOf("(")
       While (idx >= 0)
         slen = slen - (idx+1)
-        cops = (cops).Substring( idx+1, slen)
+        cops = (cops).Substring(idx+1, slen)
         idx = cops.IndexOf("""")
         If (idx > 0) Then
           slen = slen - (idx+1)
-          cops = (cops).Substring( idx+1, slen)
+          cops = (cops).Substring(idx+1, slen)
           idx = cops.IndexOf("""")
           If (idx > 0) Then
-            res.Add((cops).Substring( 0, idx))
+            res.Add((cops).Substring(0, idx))
           End If
         End If
         idx = cops.IndexOf("(")
@@ -6042,7 +6042,7 @@ Module yocto_cellular
       lines = New List(Of String)(profiles.Split(vbLf.ToCharArray()))
       nlines = lines.Count
       If Not(nlines > 0) Then
-        me._throw( YAPI.IO_ERROR,  "fail to retrieve profile list")
+        me._throw(YAPI.IO_ERROR, "fail to retrieve profile list")
         return res
       end if
       res.Clear()
@@ -6051,7 +6051,7 @@ Module yocto_cellular
         line = lines(idx)
         cpos = line.IndexOf(":")
         If (cpos > 0) Then
-          profno = YAPI._atoi((line).Substring( 0, cpos))
+          profno = YAPI._atoi((line).Substring(0, cpos))
           If (profno > 1) Then
             res.Add(line)
           End If

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_i2cport.vb 59693 2024-03-11 07:31:56Z seb $
+'  $Id: yocto_i2cport.vb 63470 2024-11-25 14:25:16Z seb $
 '
 '  Implements yFindI2cPort(), the high-level API for I2cPort functions
 '
@@ -961,7 +961,7 @@ Module yocto_i2cport
     Public Overridable Function readLine() As String
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As String
 
@@ -974,11 +974,11 @@ Module yocto_i2cport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       If (msglen = 0) Then
         Return ""
       End If
-      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
+      res = Me._json_get_string(msgarr(0))
       Return res
     End Function
 
@@ -1017,12 +1017,12 @@ Module yocto_i2cport
     Public Overridable Function readMessages(pattern As String, maxWait As Integer) As List(Of String)
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As List(Of String) = New List(Of String)()
       Dim idx As Integer = 0
 
-      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&pat=" + pattern
+      url = "rxmsg.json?pos=" + Convert.ToString(Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&pat=" + pattern
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
@@ -1031,11 +1031,11 @@ Module yocto_i2cport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       idx = 0
 
       While (idx < msglen)
-        res.Add(Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(idx))))
+        res.Add(Me._json_get_string(msgarr(idx)))
         idx = idx + 1
       End While
 
@@ -1097,7 +1097,7 @@ Module yocto_i2cport
       databin = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
       availPosStr = YAPI.DefaultEncoding.GetString(databin)
       atPos = availPosStr.IndexOf("@")
-      res = YAPI._atoi((availPosStr).Substring( 0, atPos))
+      res = YAPI._atoi((availPosStr).Substring(0, atPos))
       Return res
     End Function
 
@@ -1110,7 +1110,7 @@ Module yocto_i2cport
       databin = Me._download("rxcnt.bin?pos=" + Convert.ToString(Me._rxptr))
       availPosStr = YAPI.DefaultEncoding.GetString(databin)
       atPos = availPosStr.IndexOf("@")
-      res = YAPI._atoi((availPosStr).Substring( atPos+1, (availPosStr).Length-atPos-1))
+      res = YAPI._atoi((availPosStr).Substring(atPos+1, (availPosStr).Length-atPos-1))
       Return res
     End Function
 
@@ -1139,17 +1139,17 @@ Module yocto_i2cport
       Dim prevpos As Integer = 0
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As String
       If ((query).Length <= 80) Then
         REM // fast query
-        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=!" + Me._escapeAttr(query)
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString(maxWait) + "&cmd=!" + Me._escapeAttr(query)
       Else
         REM // long query
         prevpos = Me.end_tell()
         Me._upload("txdata", YAPI.DefaultEncoding.GetBytes(query + "" + vbCr + "" + vbLf + ""))
-        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&pos=" + Convert.ToString(prevpos)
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString(maxWait) + "&pos=" + Convert.ToString(prevpos)
       End If
 
       msgbin = Me._download(url)
@@ -1160,11 +1160,11 @@ Module yocto_i2cport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       If (msglen = 0) Then
         Return ""
       End If
-      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
+      res = Me._json_get_string(msgarr(0))
       Return res
     End Function
 
@@ -1194,17 +1194,17 @@ Module yocto_i2cport
       Dim prevpos As Integer = 0
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As String
       If ((hexString).Length <= 80) Then
         REM // fast query
-        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&cmd=$" + hexString
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString(maxWait) + "&cmd=$" + hexString
       Else
         REM // long query
         prevpos = Me.end_tell()
         Me._upload("txdata", YAPI._hexStrToBin(hexString))
-        url = "rxmsg.json?len=1&maxw=" + Convert.ToString( maxWait) + "&pos=" + Convert.ToString(prevpos)
+        url = "rxmsg.json?len=1&maxw=" + Convert.ToString(maxWait) + "&pos=" + Convert.ToString(prevpos)
       End If
 
       msgbin = Me._download(url)
@@ -1215,11 +1215,11 @@ Module yocto_i2cport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       If (msglen = 0) Then
         Return ""
       End If
-      res = Me._json_get_string(YAPI.DefaultEncoding.GetBytes(msgarr(0)))
+      res = Me._json_get_string(msgarr(0))
       Return res
     End Function
 
@@ -1327,23 +1327,23 @@ Module yocto_i2cport
       idx = 0
       While (idx < nBytes)
         val = buff(idx)
-        msg = "" +  msg + "" + (val).ToString("x02")
+        msg = "" + msg + "" + (val).ToString("x02")
         idx = idx + 1
       End While
 
       reply = Me.queryLine(msg,1000)
       If Not((reply).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "No response from I2C device")
+        me._throw(YAPI.IO_ERROR, "No response from I2C device")
         return YAPI.IO_ERROR
       end if
       idx = reply.IndexOf("[N]!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "No I2C ACK received")
+        me._throw(YAPI.IO_ERROR, "No I2C ACK received")
         return YAPI.IO_ERROR
       end if
       idx = reply.IndexOf("!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "I2C protocol error")
+        me._throw(YAPI.IO_ERROR, "I2C protocol error")
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS
@@ -1380,23 +1380,23 @@ Module yocto_i2cport
       idx = 0
       While (idx < nBytes)
         val = values(idx)
-        msg = "" +  msg + "" + (val).ToString("x02")
+        msg = "" + msg + "" + (val).ToString("x02")
         idx = idx + 1
       End While
 
       reply = Me.queryLine(msg,1000)
       If Not((reply).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "No response from I2C device")
+        me._throw(YAPI.IO_ERROR, "No response from I2C device")
         return YAPI.IO_ERROR
       end if
       idx = reply.IndexOf("[N]!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "No I2C ACK received")
+        me._throw(YAPI.IO_ERROR, "No I2C ACK received")
         return YAPI.IO_ERROR
       end if
       idx = reply.IndexOf("!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "I2C protocol error")
+        me._throw(YAPI.IO_ERROR, "I2C protocol error")
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS
@@ -1435,7 +1435,7 @@ Module yocto_i2cport
       Dim rcvbytes As Byte() = New Byte(){}
       ReDim rcvbytes(0-1)
       If Not(rcvCount<=512) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "Cannot read more than 512 bytes")
+        me._throw(YAPI.INVALID_ARGUMENT, "Cannot read more than 512 bytes")
         return rcvbytes
       end if
       msg = "@" + (slaveAddr).ToString("x02") + ":"
@@ -1443,7 +1443,7 @@ Module yocto_i2cport
       idx = 0
       While (idx < nBytes)
         val = buff(idx)
-        msg = "" +  msg + "" + (val).ToString("x02")
+        msg = "" + msg + "" + (val).ToString("x02")
         idx = idx + 1
       End While
       idx = 0
@@ -1453,7 +1453,7 @@ Module yocto_i2cport
           idx = idx + 255
         End While
         If (rcvCount - idx > 2) Then
-          msg = "" +  msg + "xx*" + ((rcvCount - idx)).ToString("X02")
+          msg = "" + msg + "xx*" + ((rcvCount - idx)).ToString("X02")
           idx = rcvCount
         End If
       End If
@@ -1464,20 +1464,20 @@ Module yocto_i2cport
 
       reply = Me.queryLine(msg,1000)
       If Not((reply).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "No response from I2C device")
+        me._throw(YAPI.IO_ERROR, "No response from I2C device")
         return rcvbytes
       end if
       idx = reply.IndexOf("[N]!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "No I2C ACK received")
+        me._throw(YAPI.IO_ERROR, "No I2C ACK received")
         return rcvbytes
       end if
       idx = reply.IndexOf("!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "I2C protocol error")
+        me._throw(YAPI.IO_ERROR, "I2C protocol error")
         return rcvbytes
       end if
-      reply = (reply).Substring( (reply).Length-2*rcvCount, 2*rcvCount)
+      reply = (reply).Substring((reply).Length-2*rcvCount, 2*rcvCount)
       rcvbytes = YAPI._hexStrToBin(reply)
       Return rcvbytes
     End Function
@@ -1516,7 +1516,7 @@ Module yocto_i2cport
       Dim res As List(Of Integer) = New List(Of Integer)()
       res.Clear()
       If Not(rcvCount<=512) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "Cannot read more than 512 bytes")
+        me._throw(YAPI.INVALID_ARGUMENT, "Cannot read more than 512 bytes")
         return res
       end if
       msg = "@" + (slaveAddr).ToString("x02") + ":"
@@ -1524,7 +1524,7 @@ Module yocto_i2cport
       idx = 0
       While (idx < nBytes)
         val = values(idx)
-        msg = "" +  msg + "" + (val).ToString("x02")
+        msg = "" + msg + "" + (val).ToString("x02")
         idx = idx + 1
       End While
       idx = 0
@@ -1534,7 +1534,7 @@ Module yocto_i2cport
           idx = idx + 255
         End While
         If (rcvCount - idx > 2) Then
-          msg = "" +  msg + "xx*" + ((rcvCount - idx)).ToString("X02")
+          msg = "" + msg + "xx*" + ((rcvCount - idx)).ToString("X02")
           idx = rcvCount
         End If
       End If
@@ -1545,20 +1545,20 @@ Module yocto_i2cport
 
       reply = Me.queryLine(msg,1000)
       If Not((reply).Length > 0) Then
-        me._throw( YAPI.IO_ERROR,  "No response from I2C device")
+        me._throw(YAPI.IO_ERROR, "No response from I2C device")
         return res
       end if
       idx = reply.IndexOf("[N]!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "No I2C ACK received")
+        me._throw(YAPI.IO_ERROR, "No I2C ACK received")
         return res
       end if
       idx = reply.IndexOf("!")
       If Not(idx < 0) Then
-        me._throw( YAPI.IO_ERROR,  "I2C protocol error")
+        me._throw(YAPI.IO_ERROR, "I2C protocol error")
         return res
       end if
-      reply = (reply).Substring( (reply).Length-2*rcvCount, 2*rcvCount)
+      reply = (reply).Substring((reply).Length-2*rcvCount, 2*rcvCount)
       rcvbytes = YAPI._hexStrToBin(reply)
       res.Clear()
       idx = 0
@@ -1744,7 +1744,7 @@ Module yocto_i2cport
       idx = 0
       While (idx < nBytes)
         val = buff(idx)
-        msg = "" +  msg + "" + (val).ToString("x02")
+        msg = "" + msg + "" + (val).ToString("x02")
         idx = idx + 1
       End While
 
@@ -1779,7 +1779,7 @@ Module yocto_i2cport
       idx = 0
       While (idx < nBytes)
         val = byteList(idx)
-        msg = "" +  msg + "" + (val).ToString("x02")
+        msg = "" + msg + "" + (val).ToString("x02")
         idx = idx + 1
       End While
 
@@ -1813,12 +1813,12 @@ Module yocto_i2cport
     Public Overridable Function snoopMessagesEx(maxWait As Integer, maxMsg As Integer) As List(Of YI2cSnoopingRecord)
       Dim url As String
       Dim msgbin As Byte() = New Byte(){}
-      Dim msgarr As List(Of String) = New List(Of String)()
+      Dim msgarr As List(Of Byte()) = New List(Of Byte())()
       Dim msglen As Integer = 0
       Dim res As List(Of YI2cSnoopingRecord) = New List(Of YI2cSnoopingRecord)()
       Dim idx As Integer = 0
 
-      url = "rxmsg.json?pos=" + Convert.ToString( Me._rxptr) + "&maxw=" + Convert.ToString( maxWait) + "&t=0&len=" + Convert.ToString(maxMsg)
+      url = "rxmsg.json?pos=" + Convert.ToString(Me._rxptr) + "&maxw=" + Convert.ToString(maxWait) + "&t=0&len=" + Convert.ToString(maxMsg)
       msgbin = Me._download(url)
       msgarr = Me._json_get_array(msgbin)
       msglen = msgarr.Count
@@ -1827,11 +1827,11 @@ Module yocto_i2cport
       End If
       REM // last element of array is the new position
       msglen = msglen - 1
-      Me._rxptr = YAPI._atoi(msgarr(msglen))
+      Me._rxptr = Me._decode_json_int(msgarr(msglen))
       idx = 0
 
       While (idx < msglen)
-        res.Add(New YI2cSnoopingRecord(msgarr(idx)))
+        res.Add(New YI2cSnoopingRecord(YAPI.DefaultEncoding.GetString(msgarr(idx))))
         idx = idx + 1
       End While
 

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_multiaxiscontroller.vb 48030 2022-01-12 09:23:52Z seb $
+'  $Id: yocto_multiaxiscontroller.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindMultiAxisController(), the high-level API for MultiAxisController functions
 '
@@ -341,12 +341,12 @@ Module yocto_multiaxiscontroller
       res = retBin(0)
       If (res < 58) Then
         If Not(res = 48) Then
-          me._throw( YAPI.DEVICE_BUSY,  "Motor command pipeline is full, try again later")
+          me._throw(YAPI.DEVICE_BUSY, "Motor command pipeline is full, try again later")
           return YAPI.DEVICE_BUSY
         end if
       Else
         If Not(res = 48) Then
-          me._throw( YAPI.IO_ERROR,  "Motor command failed permanently")
+          me._throw(YAPI.IO_ERROR, "Motor command failed permanently")
           return YAPI.IO_ERROR
         end if
       End If
@@ -390,7 +390,7 @@ Module yocto_multiaxiscontroller
       cmd = "H" + Convert.ToString(CType(Math.Round(1000*speed(0)), Integer))
       i = 1
       While (i < ndim)
-        cmd = "" +  cmd + "," + Convert.ToString(CType(Math.Round(1000*speed(i)), Integer))
+        cmd = "" + cmd + "," + Convert.ToString(CType(Math.Round(1000*speed(i)), Integer))
         i = i + 1
       End While
       Return Me.sendCommand(cmd)
@@ -421,7 +421,7 @@ Module yocto_multiaxiscontroller
       cmd = "M" + Convert.ToString(CType(Math.Round(16*absPos(0)), Integer))
       i = 1
       While (i < ndim)
-        cmd = "" +  cmd + "," + Convert.ToString(CType(Math.Round(16*absPos(i)), Integer))
+        cmd = "" + cmd + "," + Convert.ToString(CType(Math.Round(16*absPos(i)), Integer))
         i = i + 1
       End While
       Return Me.sendCommand(cmd)
@@ -452,7 +452,7 @@ Module yocto_multiaxiscontroller
       cmd = "m" + Convert.ToString(CType(Math.Round(16*relPos(0)), Integer))
       i = 1
       While (i < ndim)
-        cmd = "" +  cmd + "," + Convert.ToString(CType(Math.Round(16*relPos(i)), Integer))
+        cmd = "" + cmd + "," + Convert.ToString(CType(Math.Round(16*relPos(i)), Integer))
         i = i + 1
       End While
       Return Me.sendCommand(cmd)

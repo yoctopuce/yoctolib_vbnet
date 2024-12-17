@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 61964 2024-07-29 15:54:55Z seb $
+'  $Id: yocto_network.vb 63328 2024-11-13 09:35:22Z seb $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '
@@ -1930,7 +1930,7 @@ Module yocto_network
     ''' </para>
     '''/
     Public Overridable Function useDHCP(fallbackIpAddr As String, fallbackSubnetMaskLen As Integer, fallbackRouter As String) As Integer
-      Return Me.set_ipConfig("DHCP:" +  fallbackIpAddr + "/" + Convert.ToString( fallbackSubnetMaskLen) + "/" + fallbackRouter)
+      Return Me.set_ipConfig("DHCP:" + fallbackIpAddr + "/" + Convert.ToString(fallbackSubnetMaskLen) + "/" + fallbackRouter)
     End Function
 
     '''*
@@ -1978,7 +1978,7 @@ Module yocto_network
     ''' </para>
     '''/
     Public Overridable Function useStaticIP(ipAddress As String, subnetMaskLen As Integer, router As String) As Integer
-      Return Me.set_ipConfig("STATIC:" +  ipAddress + "/" + Convert.ToString( subnetMaskLen) + "/" + router)
+      Return Me.set_ipConfig("STATIC:" + ipAddress + "/" + Convert.ToString(subnetMaskLen) + "/" + router)
     End Function
 
     '''*

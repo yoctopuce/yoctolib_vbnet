@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 62185 2024-08-19 09:57:14Z seb $
+'  $Id: yocto_temperature.vb 63470 2024-11-25 14:25:16Z seb $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '
@@ -571,17 +571,17 @@ Module yocto_temperature
       Dim idxres As Double = 0
       siz = tempValues.Count
       If Not(siz >= 2) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "thermistor response table must have at least two points")
+        me._throw(YAPI.INVALID_ARGUMENT, "thermistor response table must have at least two points")
         return YAPI.INVALID_ARGUMENT
       end if
       If Not(siz = resValues.Count) Then
-        me._throw( YAPI.INVALID_ARGUMENT,  "table sizes mismatch")
+        me._throw(YAPI.INVALID_ARGUMENT, "table sizes mismatch")
         return YAPI.INVALID_ARGUMENT
       end if
 
       res = Me.set_command("Z")
       If Not(res=YAPI.SUCCESS) Then
-        me._throw( YAPI.IO_ERROR,  "unable to reset thermistor parameters")
+        me._throw(YAPI.IO_ERROR, "unable to reset thermistor parameters")
         return YAPI.IO_ERROR
       end if
       REM // add records in growing resistance value
@@ -602,9 +602,9 @@ Module yocto_temperature
           idx = idx + 1
         End While
         If (found > 0) Then
-          res = Me.set_command("m" + Convert.ToString( CType(Math.Round(1000*curr), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*currTemp), Integer)))
+          res = Me.set_command("m" + Convert.ToString(CType(Math.Round(1000*curr), Integer)) + ":" + Convert.ToString(CType(Math.Round(1000*currTemp), Integer)))
           If Not(res=YAPI.SUCCESS) Then
-            me._throw( YAPI.IO_ERROR,  "unable to reset thermistor parameters")
+            me._throw(YAPI.IO_ERROR, "unable to reset thermistor parameters")
             return YAPI.IO_ERROR
           end if
           prev = curr
@@ -644,7 +644,7 @@ Module yocto_temperature
     Public Overridable Function loadThermistorResponseTable(tempValues As List(Of Double), resValues As List(Of Double)) As Integer
       Dim id As String
       Dim bin_json As Byte() = New Byte(){}
-      Dim paramlist As List(Of String) = New List(Of String)()
+      Dim paramlist As List(Of Byte()) = New List(Of Byte())()
       Dim templist As List(Of Double) = New List(Of Double)()
       Dim siz As Integer = 0
       Dim idx As Integer = 0
@@ -657,7 +657,7 @@ Module yocto_temperature
       resValues.Clear()
 
       id = Me.get_functionId()
-      id = (id).Substring( 11, (id).Length - 11)
+      id = (id).Substring(11, (id).Length - 11)
       If (id = "") Then
         id = "1"
       End If
@@ -668,7 +668,7 @@ Module yocto_temperature
       templist.Clear()
       idx = 0
       While (idx < siz)
-        temp = YAPI._atof(paramlist(2*idx+1))/1000.0
+        temp = YAPI._atof(YAPI.DefaultEncoding.GetString(paramlist(2*idx+1)))/1000.0
         templist.Add(temp)
         idx = idx + 1
       End While
@@ -686,7 +686,7 @@ Module yocto_temperature
           temp = templist(idx)
           If ((temp > prev) AndAlso (temp < curr)) Then
             curr = temp
-            currRes = YAPI._atof(paramlist(2*idx))/1000.0
+            currRes = YAPI._atof(YAPI.DefaultEncoding.GetString(paramlist(2*idx)))/1000.0
             found = 1
           End If
           idx = idx + 1
