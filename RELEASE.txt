@@ -1,5 +1,4 @@
-VBNetV2 v2.0.63744
+VBNetV2 v2.0.63797
 
-- Fix network discovery for Windows host with only WiFi interface
-- Better logs verbosity of connection to VirtualHub for Web
-- Update Mbed-TLS lib (v3.6.2)
+(Misc)- purepython:now use const() for float as well //63791
+(Misc)- ympy_cross:fix Windows compilation //63792
