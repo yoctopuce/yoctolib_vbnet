@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_rangefinder.vb 53034 2023-02-02 10:16:55Z seb $
+'  $Id: yocto_rangefinder.vb 64098 2025-01-08 10:59:39Z seb $
 '
 '  Implements yFindRangeFinder(), the high-level API for RangeFinder functions
 '
@@ -562,7 +562,7 @@ Module yocto_rangefinder
     '''   That
     '''   calibration process needs no physical interaction with the sensor. It is performed
     '''   automatically at device startup, but it is recommended to start it again when the
-    '''   temperature delta since the latest calibration exceeds 8°C.
+    '''   temperature delta since the latest calibration exceeds 8 degrees Celsius.
     ''' </para>
     ''' </summary>
     ''' <returns>

@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_colorledcluster.vb 63328 2024-11-13 09:35:22Z seb $
+'  $Id: yocto_colorledcluster.vb 64098 2025-01-08 10:59:39Z seb $
 '
 '  Implements yFindColorLedCluster(), the high-level API for ColorLedCluster functions
 '
@@ -646,9 +646,9 @@ Module yocto_colorledcluster
     '''   autonomous manner.
     ''' <para>
     '''   The transition is performed in the HSL space. In HSL, hue is a circular
-    '''   value (0..360°). There are always two paths to perform the transition: by increasing
+    '''   value (0..360 deg). There are always two paths to perform the transition: by increasing
     '''   or by decreasing the hue. The module selects the shortest transition.
-    '''   If the difference is exactly 180°, the module selects the transition which increases
+    '''   If the difference is exactly 180 deg, the module selects the transition which increases
     '''   the hue.
     ''' </para>
     ''' </summary>

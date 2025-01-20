@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_cellular.vb 63328 2024-11-13 09:35:22Z seb $
+'* $Id: yocto_cellular.vb 64028 2025-01-06 15:19:41Z seb $
 '*
 '* Implements yFindCellular(), the high-level API for Cellular functions
 '*
@@ -1676,7 +1676,7 @@ Module yocto_cellular
                         Return "SFR"
                       End If
                       If (plmnid = 20814) Then
-                        Return "SNCF Réseau"
+                        Return "SNCF Reseau"
                       End If
                     Else
                       If (plmnid = 20815) Then
@@ -2080,7 +2080,7 @@ Module yocto_cellular
                         Return "DNA"
                       End If
                       If (plmnid = 24414) Then
-                        Return "Ålcom"
+                        Return "Alcom"
                       End If
                     Else
                       If (plmnid < 24601) Then
@@ -2220,7 +2220,7 @@ Module yocto_cellular
                         Return "Moldcell"
                       End If
                       If (plmnid = 25905) Then
-                        Return "Unité"
+                        Return "Unite"
                       End If
                     Else
                       If (plmnid < 26002) Then
@@ -2325,7 +2325,7 @@ Module yocto_cellular
                     Else
                       If (plmnid < 27404) Then
                         If (plmnid = 27401) Then
-                          Return "Síminn"
+                          Return "Siminn"
                         End If
                         If (plmnid = 27402) Then
                           Return "Vodafone IS"
@@ -2437,10 +2437,10 @@ Module yocto_cellular
                         Return "Vodafone TR"
                       End If
                       If (plmnid = 28603) Then
-                        Return "Türk Telekom"
+                        Return "Turk Telekom"
                       End If
                       If (plmnid = 28801) Then
-                        Return "Føroya Tele"
+                        Return "Foroya Tele"
                       End If
                       If (plmnid = 28802) Then
                         Return "Hey"
@@ -2522,10 +2522,10 @@ Module yocto_cellular
                         Return "Orange GF"
                       End If
                       If (plmnid = 34002) Then
-                        Return "SFR Caraïbe BL/GF/GP/MF/MQ"
+                        Return "SFR Caraibe BL/GF/GP/MF/MQ"
                       End If
                       If (plmnid = 34002) Then
-                        Return "SFR Caraïbe GF"
+                        Return "SFR Caraibe GF"
                       End If
                       If (plmnid = 34003) Then
                         Return "Chippie BL/GF/GP/MF/MQ"
@@ -4178,7 +4178,7 @@ Module yocto_cellular
                         Return "GreenN"
                       End If
                       If (plmnid = 61207) Then
-                        Return "café"
+                        Return "cafe"
                       End If
                     Else
                       If (plmnid < 61303) Then
@@ -4673,7 +4673,7 @@ Module yocto_cellular
                           Return "Orange YT/RE"
                         End If
                         If (plmnid = 64701) Then
-                          Return "Maoré Mobile"
+                          Return "Maore Mobile"
                         End If
                         If (plmnid = 64702) Then
                           Return "Only"
@@ -4688,7 +4688,7 @@ Module yocto_cellular
                         Return "Free YT/RE"
                       End If
                       If (plmnid = 64710) Then
-                        Return "SFR Réunion"
+                        Return "SFR Reunion"
                       End If
                       If (plmnid = 64801) Then
                         Return "Net*One"
@@ -4842,10 +4842,10 @@ Module yocto_cellular
                         End If
                       Else
                         If (plmnid = 71201) Then
-                          Return "Kölbi ICE"
+                          Return "Kolbi ICE"
                         End If
                         If (plmnid = 71202) Then
-                          Return "Kölbi ICE"
+                          Return "Kolbi ICE"
                         End If
                         If (plmnid = 71203) Then
                           Return "Claro CR"

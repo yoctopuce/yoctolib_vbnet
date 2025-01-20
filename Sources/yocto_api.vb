@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 63704 2024-12-16 10:05:02Z seb $
+'* $Id: yocto_api.vb 64238 2025-01-16 10:19:02Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -820,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H200
-  Public Const YOCTO_API_BUILD_NO As String = "63797"
+  Public Const YOCTO_API_BUILD_NO As String = "64286"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1273,6 +1273,34 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Returns the path to the dynamic YAPI library.
+    ''' <para>
+    '''   This function is useful for debugging problems loading the
+    '''   dynamic library YAPI. This function is supported by the C#, Python and VB languages. The other
+    '''   libraries return an
+    '''   empty string.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string containing the path of the YAPI dynamic library.
+    ''' </returns>
+    '''/
+    Public Overridable Function GetYAPISharedLibraryPath() As String
+      Dim errmsg As StringBuilder = New StringBuilder(YOCTO_ERRMSG_LEN)
+      Dim smallbuff As StringBuilder = New StringBuilder(4096)
+      Dim res As Integer = 0
+      Dim path As String
+      res = _yapiGetDLLPath(smallbuff, 4096, errmsg)
+      If (res < 0) Then
+        path = "error:" + errmsg.ToString()
+      Else
+        path = smallbuff.ToString()
+      End If
+      Return path
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Adds a UDEV rule which authorizes all users to access Yoctopuce modules
     '''   connected to the USB ports.
     ''' <para>
@@ -1631,7 +1659,7 @@ Module yocto_api
     Public Const NO_TRUSTED_CA_CHECK As Integer = 1 REM Disables certificate checking
     Public Const NO_EXPIRATION_CHECK As Integer = 2 REM Disables certificate expiration date checking
     Public Const NO_HOSTNAME_CHECK As Integer = 4 REM Disable hostname checking
-    Public Const LEGACY As Integer = 8          REM Allow non secure connection (similar to v1.10)
+    Public Const LEGACY As Integer = 8          REM Allow non-secure connection (similar to v1.10)
 
     REM --- (end of generated code: YFunction return codes)
     Public Shared _yapiContext As YAPIContext = New YAPIContext()
@@ -2097,6 +2125,24 @@ Module yocto_api
     Public Shared Function GetDeviceListValidity() As Integer
         YAPI.InitAPI(0, Nothing)
         return _yapiContext.GetDeviceListValidity()
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the path to the dynamic YAPI library.
+    ''' <para>
+    '''   This function is useful for debugging problems loading the
+    '''   dynamic library YAPI. This function is supported by the C#, Python and VB languages. The other
+    '''   libraries return an
+    '''   empty string.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string containing the path of the YAPI dynamic library.
+    ''' </returns>
+    '''/
+    Public Shared Function GetYAPISharedLibraryPath() As String
+        YAPI.InitAPI(0, Nothing)
+        return _yapiContext.GetYAPISharedLibraryPath()
     End Function
     '''*
     ''' <summary>
@@ -3115,7 +3161,7 @@ Module yocto_api
   Public Const YAPI_NO_TRUSTED_CA_CHECK As Integer = 1 REM Disables certificate checking
   Public Const YAPI_NO_EXPIRATION_CHECK As Integer = 2 REM Disables certificate expiration date checking
   Public Const YAPI_NO_HOSTNAME_CHECK As Integer = 4 REM Disable hostname checking
-  Public Const YAPI_LEGACY As Integer = 8          REM Allow non secure connection (similar to v1.10)
+  Public Const YAPI_LEGACY As Integer = 8          REM Allow non-secure connection (similar to v1.10)
 
   Public Const Y_LOGICALNAME_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ADVERTISEDVALUE_INVALID As String = YAPI.INVALID_STRING
