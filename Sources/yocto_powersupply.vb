@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_powersupply.vb 63328 2024-11-13 09:35:22Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindPowerSupply(), the high-level API for PowerSupply functions
 '

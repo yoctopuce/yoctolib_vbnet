@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 60119 2024-03-22 09:43:37Z seb $
+'  $Id: main.vb 65360 2025-03-26 11:51:12Z tiago $
 '
 '  An example that shows how to use a  Yocto-Spectral
 '
@@ -11,9 +11,9 @@
 '      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
 '
 ' *********************************************************************
-
+Imports System
+Imports System.Threading
 Module Module1
-
   Private Sub Usage()
     Dim ex = System.AppDomain.CurrentDomain.FriendlyName
     Console.WriteLine("Usage")
@@ -25,10 +25,11 @@ Module Module1
   End Sub
 
   Sub Main()
+
     Dim argv() As String = System.Environment.GetCommandLineArgs()
     Dim errmsg As String = ""
     Dim target As String
-    Dim spectralSensor As YSpectralSensor
+    Dim colorSensor As YColorSensor
 
     If argv.Length < 1 Then Usage()
 
@@ -41,29 +42,32 @@ Module Module1
     End If
 
     If target = "any" Then
-      spectralSensor = YSpectralSensor.FirstSpectralSensor()
-      If spectralSensor Is Nothing Then
+      colorSensor = YColorSensor.FirstColorSensor()
+      If colorSensor Is Nothing Then
         Console.WriteLine("No module connected (check USB cable) ")
         End
       End If
-      target = spectralSensor.get_module().get_serialNumber()
+      target = colorSensor.get_module().get_serialNumber()
     End If
-    spectralSensor = YSpectralSensor.FindSpectralSensor(target + ".spectralSensor")
+    colorSensor = YColorSensor.FindColorSensor(target + ".colorSensor")
 
-    If (spectralSensor.isOnline()) Then
-      spectralSensor.set_gain(6)
-      spectralSensor.set_integrationTime(150)
-      spectralSensor.set_ledCurrent(6)
+    If (colorSensor.isOnline()) Then
+      colorSensor.set_workingMode(0)
+      colorSensor.set_estimationModel(0)
 
-      Console.WriteLine("Currente Color : " + spectralSensor.get_nearSimpleColor())
-      Console.WriteLine("Color HEX : #" + spectralSensor.get_estimatedRGB().ToString("x"))
+
+      While colorSensor.isOnline()
+        Console.WriteLine("Currente Color : " + colorSensor.get_nearSimpleColor())
+        Console.WriteLine("RGB HEX : #" + colorSensor.get_estimatedRGB().ToString("x"))
+        Console.WriteLine("---------------------------------")
+        System.Threading.Thread.Sleep(5000)
+      End While
     Else
       Console.WriteLine("Module not connected (check identification and USB cable)")
     End If
     REM wait 5 sec to show the output
-    System.Threading.Thread.Sleep(5000)
+
 
     YAPI.FreeAPI()
   End Sub
-
 End Module

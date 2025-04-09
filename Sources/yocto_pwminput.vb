@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwminput.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindPwmInput(), the high-level API for PwmInput functions
 '
@@ -72,6 +72,7 @@ Module yocto_pwminput
   Public Const Y_PWMREPORTMODE_PWM_PERIODCOUNT As Integer = 10
   Public Const Y_PWMREPORTMODE_INVALID As Integer = -1
   Public Const Y_DEBOUNCEPERIOD_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_MINFREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_EDGESPERPERIOD_INVALID As Integer = YAPI.INVALID_UINT
   Public Delegate Sub YPwmInputValueCallback(ByVal func As YPwmInput, ByVal value As String)
@@ -115,6 +116,7 @@ Module yocto_pwminput
     Public Const PWMREPORTMODE_PWM_PERIODCOUNT As Integer = 10
     Public Const PWMREPORTMODE_INVALID As Integer = -1
     Public Const DEBOUNCEPERIOD_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const MINFREQUENCY_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const BANDWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const EDGESPERPERIOD_INVALID As Integer = YAPI.INVALID_UINT
     REM --- (end of YPwmInput definitions)
@@ -128,6 +130,7 @@ Module yocto_pwminput
     Protected _pulseTimer As Long
     Protected _pwmReportMode As Integer
     Protected _debouncePeriod As Integer
+    Protected _minFrequency As Double
     Protected _bandwidth As Integer
     Protected _edgesPerPeriod As Integer
     Protected _valueCallbackPwmInput As YPwmInputValueCallback
@@ -146,6 +149,7 @@ Module yocto_pwminput
       _pulseTimer = PULSETIMER_INVALID
       _pwmReportMode = PWMREPORTMODE_INVALID
       _debouncePeriod = DEBOUNCEPERIOD_INVALID
+      _minFrequency = MINFREQUENCY_INVALID
       _bandwidth = BANDWIDTH_INVALID
       _edgesPerPeriod = EDGESPERPERIOD_INVALID
       _valueCallbackPwmInput = Nothing
@@ -179,6 +183,9 @@ Module yocto_pwminput
       End If
       If json_val.has("debouncePeriod") Then
         _debouncePeriod = CInt(json_val.getLong("debouncePeriod"))
+      End If
+      If json_val.has("minFrequency") Then
+        _minFrequency = Math.Round(json_val.getDouble("minFrequency") / 65.536) / 1000.0
       End If
       If json_val.has("bandwidth") Then
         _bandwidth = CInt(json_val.getLong("bandwidth"))
@@ -511,6 +518,61 @@ Module yocto_pwminput
       rest_val = Ltrim(Str(newval))
       Return _setAttr("debouncePeriod", rest_val)
     End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the minimum detected frequency, in Hz.
+    ''' <para>
+    '''   Slower signals will be consider as zero frequency.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the minimum detected frequency, in Hz
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_minFrequency(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("minFrequency", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the minimum detected frequency, in Hz.
+    ''' <para>
+    '''   Slower signals will be consider as zero frequency.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the minimum detected frequency, in Hz
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YPwmInput.MINFREQUENCY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_minFrequency() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return MINFREQUENCY_INVALID
+        End If
+      End If
+      res = Me._minFrequency
+      Return res
+    End Function
+
     '''*
     ''' <summary>
     '''   Returns the input signal sampling rate, in kHz.
@@ -741,7 +803,24 @@ Module yocto_pwminput
 
     '''*
     ''' <summary>
-    '''   Returns the pulse counter value as well as its timer.
+    '''   Resets the periodicity detection algorithm.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function resetPeriodDetection() As Integer
+      Return Me.set_bandwidth(Me.get_bandwidth())
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Resets the pulse counter value as well as its timer.
     ''' <para>
     ''' </para>
     ''' </summary>

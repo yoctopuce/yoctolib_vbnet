@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pwmoutput.vb 63328 2024-11-13 09:35:22Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindPwmOutput(), the high-level API for PwmOutput functions
 '

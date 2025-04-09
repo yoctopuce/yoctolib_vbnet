@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_weighscale.vb 63470 2024-11-25 14:25:16Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindWeighScale(), the high-level API for WeighScale functions
 '

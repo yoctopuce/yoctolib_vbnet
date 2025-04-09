@@ -2,10 +2,8 @@
     "main": "main.vb",
     "other_files": [],
     "ylib": [
-        "yocto_files",
-        "yocto_genericsensor",
-        "yocto_i2cport",
-        "yocto_poweroutput",
+        "yocto_colorsensor",
+        "yocto_spectralchannel",
         "yocto_api"
     ],
     "skip": true,

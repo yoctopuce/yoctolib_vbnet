@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_pressure.vb 38899 2019-12-20 17:21:03Z mvuilleu $
+'  $Id: svn_id $
 '
 '  Implements yFindPressure(), the high-level API for Pressure functions
 '

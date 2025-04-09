@@ -1,10 +1,10 @@
 Imports System
 Imports System.Reflection
 Imports System.Runtime.InteropServices
-<Assembly: AssemblyTitle("Doc-GettingStarted-Yocto-I2C")> 
+<Assembly: AssemblyTitle("Doc-GettingStarted-Yocto-Spectral")> 
 <Assembly: AssemblyDescription("")> 
 <Assembly: AssemblyCompany("")> 
-<Assembly: AssemblyProduct("Doc-GettingStarted-Yocto-I2C")> 
+<Assembly: AssemblyProduct("Doc-GettingStarted-Yocto-Spectral")> 
 <Assembly: AssemblyCopyright("Copyright ©  2012")> 
 <Assembly: AssemblyTrademark("")> 
 <Assembly: ComVisible(False)>

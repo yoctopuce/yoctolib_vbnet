@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_motor.vb 50694 2022-08-18 09:01:12Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindMotor(), the high-level API for Motor functions
 '

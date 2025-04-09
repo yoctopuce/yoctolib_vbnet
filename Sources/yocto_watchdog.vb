@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_watchdog.vb 44548 2021-04-13 09:56:42Z mvuilleu $
+'  $Id: svn_id $
 '
 '  Implements yFindWatchdog(), the high-level API for Watchdog functions
 '

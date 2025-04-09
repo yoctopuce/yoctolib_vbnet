@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_network.vb 63328 2024-11-13 09:35:22Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindNetwork(), the high-level API for Network functions
 '

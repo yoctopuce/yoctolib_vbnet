@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_temperature.vb 63470 2024-11-25 14:25:16Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindTemperature(), the high-level API for Temperature functions
 '

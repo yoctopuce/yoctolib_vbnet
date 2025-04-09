@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_buzzer.vb 62185 2024-08-19 09:57:14Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindBuzzer(), the high-level API for Buzzer functions
 '

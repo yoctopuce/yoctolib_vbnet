@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_lightsensor.vb 62830 2024-10-01 09:03:52Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindLightSensor(), the high-level API for LightSensor functions
 '

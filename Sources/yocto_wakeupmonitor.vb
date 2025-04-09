@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_wakeupmonitor.vb 63328 2024-11-13 09:35:22Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 '
@@ -62,6 +62,7 @@ Module yocto_wakeupmonitor
   Public Const Y_WAKEUPREASON_EXTSIG1 As Integer = 3
   Public Const Y_WAKEUPREASON_SCHEDULE1 As Integer = 4
   Public Const Y_WAKEUPREASON_SCHEDULE2 As Integer = 5
+  Public Const Y_WAKEUPREASON_SCHEDULE3 As Integer = 6
   Public Const Y_WAKEUPREASON_INVALID As Integer = -1
   Public Const Y_WAKEUPSTATE_SLEEPING As Integer = 0
   Public Const Y_WAKEUPSTATE_AWAKE As Integer = 1
@@ -95,6 +96,7 @@ Module yocto_wakeupmonitor
     Public Const WAKEUPREASON_EXTSIG1 As Integer = 3
     Public Const WAKEUPREASON_SCHEDULE1 As Integer = 4
     Public Const WAKEUPREASON_SCHEDULE2 As Integer = 5
+    Public Const WAKEUPREASON_SCHEDULE3 As Integer = 6
     Public Const WAKEUPREASON_INVALID As Integer = -1
     Public Const WAKEUPSTATE_SLEEPING As Integer = 0
     Public Const WAKEUPSTATE_AWAKE As Integer = 1
@@ -324,8 +326,8 @@ Module yocto_wakeupmonitor
     ''' <returns>
     '''   a value among <c>YWakeUpMonitor.WAKEUPREASON_USBPOWER</c>, <c>YWakeUpMonitor.WAKEUPREASON_EXTPOWER</c>,
     '''   <c>YWakeUpMonitor.WAKEUPREASON_ENDOFSLEEP</c>, <c>YWakeUpMonitor.WAKEUPREASON_EXTSIG1</c>,
-    '''   <c>YWakeUpMonitor.WAKEUPREASON_SCHEDULE1</c> and <c>YWakeUpMonitor.WAKEUPREASON_SCHEDULE2</c>
-    '''   corresponding to the latest wake up reason
+    '''   <c>YWakeUpMonitor.WAKEUPREASON_SCHEDULE1</c>, <c>YWakeUpMonitor.WAKEUPREASON_SCHEDULE2</c> and
+    '''   <c>YWakeUpMonitor.WAKEUPREASON_SCHEDULE3</c> corresponding to the latest wake up reason
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YWakeUpMonitor.WAKEUPREASON_INVALID</c>.

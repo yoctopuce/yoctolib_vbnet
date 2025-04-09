@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 64238 2025-01-16 10:19:02Z seb $
+'* $Id: yocto_api.vb 65643 2025-04-08 09:37:02Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -819,8 +819,8 @@ Module yocto_api
 
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
-  Public Const YOCTO_API_VERSION_BCD As Integer = &H200
-  Public Const YOCTO_API_BUILD_NO As String = "64286"
+  Public Const YOCTO_API_VERSION_BCD As Integer = &H0201
+  Public Const YOCTO_API_BUILD_NO As String = "65654"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2371,7 +2371,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return YOCTO_API_VERSION_STR + "." + YOCTO_API_BUILD_NO + " (" + version + ")"
+      Return  "2.1.654 (" + version + ")"
     End Function
 
 
@@ -8607,7 +8607,6 @@ Module yocto_api
         Me._throw(YAPI.IO_ERROR, "Unable to get device settings")
         settings = YAPI.DefaultEncoding.GetBytes("error:Unable to get device settings")
       End If
-
       Return New YFirmwareUpdate(serial, path, settings, force)
     End Function
 
@@ -8694,7 +8693,7 @@ Module yocto_api
       Next ii_0
       ext_settings = ext_settings + "]," + vbLf + """files"":["
       If (Me.hasFunction("files")) Then
-        json = Me._download("files.json?a=dir&f=")
+        json = Me._download("files.json?a=dir&d=1&f=")
         If ((json).Length = 0) Then
           Return json
         End If
@@ -8704,8 +8703,12 @@ Module yocto_api
         For ii_1 = 0 To filelist.Count - 1
           name = Me._json_get_key(filelist(ii_1), "name")
           If (((name).Length > 0) AndAlso Not (name = "startupConf.json")) Then
-            file_data_bin = Me._download(Me._escapeAttr(name))
-            file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
+            If ((name).Substring((name).Length-1, 1) = "/") Then
+              file_data = ""
+            Else
+              file_data_bin = Me._download(Me._escapeAttr(name))
+              file_data = YAPI._bytesToHexStr(file_data_bin, 0, file_data_bin.Length)
+            End If
             item = "" + sep + "{""name"":""" + name + """, ""data"":""" + file_data + """}" + vbLf + ""
             ext_settings = ext_settings + item
             sep = ","
@@ -10810,7 +10813,6 @@ Module yocto_api
         Return Nothing
       End If
       hwid = serial + ".dataLogger"
-
       logger = YDataLogger.FindDataLogger(hwid)
       Return logger
     End Function
@@ -10904,7 +10906,6 @@ Module yocto_api
 
       funcid = Me.get_functionId()
       funit = Me.get_unit()
-
       Return New YDataSet(Me, funcid, funit, startTime, endTime)
     End Function
 
@@ -11919,7 +11920,6 @@ Module yocto_api
       Dim dslist As List(Of Byte()) = New List(Of Byte())()
       Dim dataset As YDataSet
       Dim res As List(Of YDataSet) = New List(Of YDataSet)()
-
 
       dslist = Me._json_get_array(jsonbuff)
       res.Clear()

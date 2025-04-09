@@ -1,7 +1,3 @@
-VBNetV2 v2.0.64286
+VBNetV2 v2.1.654
 
-- Add YAPI::GetYAPISharedLibraryPath Method
-- Use GlobalAlloc on Windows instead of malloc
-- Fix some memory leak
-- Fix YHub->isReadOnly() result if connected as admin on a protected hub.
-- Remove exotic char form YCellular class
+- test build version

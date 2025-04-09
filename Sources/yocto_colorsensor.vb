@@ -2,7 +2,7 @@
 '
 '  $Id: svn_id $
 '
-'  Implements yFindSpectralSensor(), the high-level API for SpectralSensor functions
+'  Implements yFindColorSensor(), the high-level API for ColorSensor functions
 '
 '  - - - - - - - - - License information: - - - - - - - - -
 '
@@ -43,24 +43,27 @@ Imports YFUN_DESCR = System.Int32
 Imports System.Runtime.InteropServices
 Imports System.Text
 
-Module yocto_spectralsensor
+Module yocto_colorsensor
 
-    REM --- (YSpectralSensor return codes)
-    REM --- (end of YSpectralSensor return codes)
-    REM --- (YSpectralSensor dlldef)
-    REM --- (end of YSpectralSensor dlldef)
-   REM --- (YSpectralSensor yapiwrapper)
-   REM --- (end of YSpectralSensor yapiwrapper)
-  REM --- (YSpectralSensor globals)
+    REM --- (YColorSensor return codes)
+    REM --- (end of YColorSensor return codes)
+    REM --- (YColorSensor dlldef)
+    REM --- (end of YColorSensor dlldef)
+   REM --- (YColorSensor yapiwrapper)
+   REM --- (end of YColorSensor yapiwrapper)
+  REM --- (YColorSensor globals)
 
-  Public Const Y_LEDCURRENT_INVALID As Integer = YAPI.INVALID_INT
-  Public Const Y_RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Const Y_INTEGRATIONTIME_INVALID As Integer = YAPI.INVALID_INT
-  Public Const Y_GAIN_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_ESTIMATIONMODEL_REFLECTION As Integer = 0
   Public Const Y_ESTIMATIONMODEL_EMISSION As Integer = 1
   Public Const Y_ESTIMATIONMODEL_INVALID As Integer = -1
+  Public Const Y_WORKINGMODE_AUTO As Integer = 0
+  Public Const Y_WORKINGMODE_EXPERT As Integer = 1
+  Public Const Y_WORKINGMODE_INVALID As Integer = -1
   Public Const Y_SATURATION_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_LEDCURRENT_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_LEDCALIBRATION_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_INTEGRATIONTIME_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_GAIN_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ESTIMATEDRGB_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ESTIMATEDHSL_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ESTIMATEDXYZ_INVALID As String = YAPI.INVALID_STRING
@@ -70,37 +73,49 @@ Module yocto_spectralsensor
   Public Const Y_NEARRAL3_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_NEARHTMLCOLOR_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_NEARSIMPLECOLOR_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_LEDCURRENTATPOWERON_INVALID As Integer = YAPI.INVALID_INT
-  Public Const Y_INTEGRATIONTIMEATPOWERON_INVALID As Integer = YAPI.INVALID_INT
-  Public Const Y_GAINATPOWERON_INVALID As Integer = YAPI.INVALID_INT
-  Public Delegate Sub YSpectralSensorValueCallback(ByVal func As YSpectralSensor, ByVal value As String)
-  Public Delegate Sub YSpectralSensorTimedReportCallback(ByVal func As YSpectralSensor, ByVal measure As YMeasure)
-  REM --- (end of YSpectralSensor globals)
+  Public Const Y_NEARSIMPLECOLORINDEX_BROWN As Integer = 0
+  Public Const Y_NEARSIMPLECOLORINDEX_RED As Integer = 1
+  Public Const Y_NEARSIMPLECOLORINDEX_ORANGE As Integer = 2
+  Public Const Y_NEARSIMPLECOLORINDEX_YELLOW As Integer = 3
+  Public Const Y_NEARSIMPLECOLORINDEX_WHITE As Integer = 4
+  Public Const Y_NEARSIMPLECOLORINDEX_GRAY As Integer = 5
+  Public Const Y_NEARSIMPLECOLORINDEX_BLACK As Integer = 6
+  Public Const Y_NEARSIMPLECOLORINDEX_GREEN As Integer = 7
+  Public Const Y_NEARSIMPLECOLORINDEX_BLUE As Integer = 8
+  Public Const Y_NEARSIMPLECOLORINDEX_PURPLE As Integer = 9
+  Public Const Y_NEARSIMPLECOLORINDEX_PINK As Integer = 10
+  Public Const Y_NEARSIMPLECOLORINDEX_INVALID As Integer = -1
+  Public Delegate Sub YColorSensorValueCallback(ByVal func As YColorSensor, ByVal value As String)
+  Public Delegate Sub YColorSensorTimedReportCallback(ByVal func As YColorSensor, ByVal measure As YMeasure)
+  REM --- (end of YColorSensor globals)
 
-  REM --- (YSpectralSensor class start)
+  REM --- (YColorSensor class start)
 
   '''*
   ''' <summary>
-  '''   The <c>YSpectralSensor</c> class allows you to read and configure Yoctopuce spectral sensors.
+  '''   The <c>YColorSensor</c> class allows you to read and configure Yoctopuce color sensors.
   ''' <para>
   '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
   '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
-  Public Class YSpectralSensor
+  Public Class YColorSensor
     Inherits YFunction
-    REM --- (end of YSpectralSensor class start)
+    REM --- (end of YColorSensor class start)
 
-    REM --- (YSpectralSensor definitions)
-    Public Const LEDCURRENT_INVALID As Integer = YAPI.INVALID_INT
-    Public Const RESOLUTION_INVALID As Double = YAPI.INVALID_DOUBLE
-    Public Const INTEGRATIONTIME_INVALID As Integer = YAPI.INVALID_INT
-    Public Const GAIN_INVALID As Integer = YAPI.INVALID_INT
+    REM --- (YColorSensor definitions)
     Public Const ESTIMATIONMODEL_REFLECTION As Integer = 0
     Public Const ESTIMATIONMODEL_EMISSION As Integer = 1
     Public Const ESTIMATIONMODEL_INVALID As Integer = -1
+    Public Const WORKINGMODE_AUTO As Integer = 0
+    Public Const WORKINGMODE_EXPERT As Integer = 1
+    Public Const WORKINGMODE_INVALID As Integer = -1
     Public Const SATURATION_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const LEDCURRENT_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const LEDCALIBRATION_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const INTEGRATIONTIME_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const GAIN_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ESTIMATEDRGB_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ESTIMATEDHSL_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ESTIMATEDXYZ_INVALID As String = YAPI.INVALID_STRING
@@ -110,18 +125,28 @@ Module yocto_spectralsensor
     Public Const NEARRAL3_INVALID As String = YAPI.INVALID_STRING
     Public Const NEARHTMLCOLOR_INVALID As String = YAPI.INVALID_STRING
     Public Const NEARSIMPLECOLOR_INVALID As String = YAPI.INVALID_STRING
-    Public Const LEDCURRENTATPOWERON_INVALID As Integer = YAPI.INVALID_INT
-    Public Const INTEGRATIONTIMEATPOWERON_INVALID As Integer = YAPI.INVALID_INT
-    Public Const GAINATPOWERON_INVALID As Integer = YAPI.INVALID_INT
-    REM --- (end of YSpectralSensor definitions)
+    Public Const NEARSIMPLECOLORINDEX_BROWN As Integer = 0
+    Public Const NEARSIMPLECOLORINDEX_RED As Integer = 1
+    Public Const NEARSIMPLECOLORINDEX_ORANGE As Integer = 2
+    Public Const NEARSIMPLECOLORINDEX_YELLOW As Integer = 3
+    Public Const NEARSIMPLECOLORINDEX_WHITE As Integer = 4
+    Public Const NEARSIMPLECOLORINDEX_GRAY As Integer = 5
+    Public Const NEARSIMPLECOLORINDEX_BLACK As Integer = 6
+    Public Const NEARSIMPLECOLORINDEX_GREEN As Integer = 7
+    Public Const NEARSIMPLECOLORINDEX_BLUE As Integer = 8
+    Public Const NEARSIMPLECOLORINDEX_PURPLE As Integer = 9
+    Public Const NEARSIMPLECOLORINDEX_PINK As Integer = 10
+    Public Const NEARSIMPLECOLORINDEX_INVALID As Integer = -1
+    REM --- (end of YColorSensor definitions)
 
-    REM --- (YSpectralSensor attributes declaration)
+    REM --- (YColorSensor attributes declaration)
+    Protected _estimationModel As Integer
+    Protected _workingMode As Integer
+    Protected _saturation As Integer
     Protected _ledCurrent As Integer
-    Protected _resolution As Double
+    Protected _ledCalibration As Integer
     Protected _integrationTime As Integer
     Protected _gain As Integer
-    Protected _estimationModel As Integer
-    Protected _saturation As Integer
     Protected _estimatedRGB As Integer
     Protected _estimatedHSL As Integer
     Protected _estimatedXYZ As String
@@ -131,22 +156,21 @@ Module yocto_spectralsensor
     Protected _nearRAL3 As String
     Protected _nearHTMLColor As String
     Protected _nearSimpleColor As String
-    Protected _ledCurrentAtPowerOn As Integer
-    Protected _integrationTimeAtPowerOn As Integer
-    Protected _gainAtPowerOn As Integer
-    Protected _valueCallbackSpectralSensor As YSpectralSensorValueCallback
-    REM --- (end of YSpectralSensor attributes declaration)
+    Protected _nearSimpleColorIndex As Integer
+    Protected _valueCallbackColorSensor As YColorSensorValueCallback
+    REM --- (end of YColorSensor attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
-      _classname = "SpectralSensor"
-      REM --- (YSpectralSensor attributes initialization)
+      _classname = "ColorSensor"
+      REM --- (YColorSensor attributes initialization)
+      _estimationModel = ESTIMATIONMODEL_INVALID
+      _workingMode = WORKINGMODE_INVALID
+      _saturation = SATURATION_INVALID
       _ledCurrent = LEDCURRENT_INVALID
-      _resolution = RESOLUTION_INVALID
+      _ledCalibration = LEDCALIBRATION_INVALID
       _integrationTime = INTEGRATIONTIME_INVALID
       _gain = GAIN_INVALID
-      _estimationModel = ESTIMATIONMODEL_INVALID
-      _saturation = SATURATION_INVALID
       _estimatedRGB = ESTIMATEDRGB_INVALID
       _estimatedHSL = ESTIMATEDHSL_INVALID
       _estimatedXYZ = ESTIMATEDXYZ_INVALID
@@ -156,33 +180,34 @@ Module yocto_spectralsensor
       _nearRAL3 = NEARRAL3_INVALID
       _nearHTMLColor = NEARHTMLCOLOR_INVALID
       _nearSimpleColor = NEARSIMPLECOLOR_INVALID
-      _ledCurrentAtPowerOn = LEDCURRENTATPOWERON_INVALID
-      _integrationTimeAtPowerOn = INTEGRATIONTIMEATPOWERON_INVALID
-      _gainAtPowerOn = GAINATPOWERON_INVALID
-      _valueCallbackSpectralSensor = Nothing
-      REM --- (end of YSpectralSensor attributes initialization)
+      _nearSimpleColorIndex = NEARSIMPLECOLORINDEX_INVALID
+      _valueCallbackColorSensor = Nothing
+      REM --- (end of YColorSensor attributes initialization)
     End Sub
 
-    REM --- (YSpectralSensor private methods declaration)
+    REM --- (YColorSensor private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("estimationModel") Then
+        _estimationModel = CInt(json_val.getLong("estimationModel"))
+      End If
+      If json_val.has("workingMode") Then
+        _workingMode = CInt(json_val.getLong("workingMode"))
+      End If
+      If json_val.has("saturation") Then
+        _saturation = CInt(json_val.getLong("saturation"))
+      End If
       If json_val.has("ledCurrent") Then
         _ledCurrent = CInt(json_val.getLong("ledCurrent"))
       End If
-      If json_val.has("resolution") Then
-        _resolution = Math.Round(json_val.getDouble("resolution") / 65.536) / 1000.0
+      If json_val.has("ledCalibration") Then
+        _ledCalibration = CInt(json_val.getLong("ledCalibration"))
       End If
       If json_val.has("integrationTime") Then
         _integrationTime = CInt(json_val.getLong("integrationTime"))
       End If
       If json_val.has("gain") Then
         _gain = CInt(json_val.getLong("gain"))
-      End If
-      If json_val.has("estimationModel") Then
-        _estimationModel = CInt(json_val.getLong("estimationModel"))
-      End If
-      If json_val.has("saturation") Then
-        _saturation = CInt(json_val.getLong("saturation"))
       End If
       If json_val.has("estimatedRGB") Then
         _estimatedRGB = CInt(json_val.getLong("estimatedRGB"))
@@ -211,27 +236,156 @@ Module yocto_spectralsensor
       If json_val.has("nearSimpleColor") Then
         _nearSimpleColor = json_val.getString("nearSimpleColor")
       End If
-      If json_val.has("ledCurrentAtPowerOn") Then
-        _ledCurrentAtPowerOn = CInt(json_val.getLong("ledCurrentAtPowerOn"))
-      End If
-      If json_val.has("integrationTimeAtPowerOn") Then
-        _integrationTimeAtPowerOn = CInt(json_val.getLong("integrationTimeAtPowerOn"))
-      End If
-      If json_val.has("gainAtPowerOn") Then
-        _gainAtPowerOn = CInt(json_val.getLong("gainAtPowerOn"))
+      If json_val.has("nearSimpleColorIndex") Then
+        _nearSimpleColorIndex = CInt(json_val.getLong("nearSimpleColorIndex"))
       End If
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YSpectralSensor private methods declaration)
+    REM --- (end of YColorSensor private methods declaration)
 
-    REM --- (YSpectralSensor public methods declaration)
+    REM --- (YColorSensor public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns the model for color estimation.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YColorSensor.ESTIMATIONMODEL_REFLECTION</c> or <c>YColorSensor.ESTIMATIONMODEL_EMISSION</c>,
+    '''   according to the model for color estimation
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATIONMODEL_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_estimationModel() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return ESTIMATIONMODEL_INVALID
+        End If
+      End If
+      res = Me._estimationModel
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the model for color estimation.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YColorSensor.ESTIMATIONMODEL_REFLECTION</c> or <c>YColorSensor.ESTIMATIONMODEL_EMISSION</c>,
+    '''   according to the model for color estimation
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_estimationModel(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("estimationModel", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the active working mode.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YColorSensor.WORKINGMODE_AUTO</c> or <c>YColorSensor.WORKINGMODE_EXPERT</c>, according to
+    '''   the active working mode
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.WORKINGMODE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_workingMode() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return WORKINGMODE_INVALID
+        End If
+      End If
+      res = Me._workingMode
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the operating mode.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YColorSensor.WORKINGMODE_AUTO</c> or <c>YColorSensor.WORKINGMODE_EXPERT</c>, according to
+    '''   the operating mode
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_workingMode(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("workingMode", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the current saturation of the sensor.
+    ''' <para>
+    '''   This function updates the sensor's saturation value.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the current saturation of the sensor
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.SATURATION_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_saturation() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return SATURATION_INVALID
+        End If
+      End If
+      res = Me._saturation
+      Return res
+    End Function
+
     '''*
     ''' <summary>
     '''   Returns the current value of the LED.
     ''' <para>
-    '''   This method retrieves the current flowing through the LED
-    '''   and returns it as an integer or an object.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -240,7 +394,7 @@ Module yocto_spectralsensor
     '''   an integer corresponding to the current value of the LED
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.LEDCURRENT_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorSensor.LEDCURRENT_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_ledCurrent() As Integer
@@ -282,20 +436,44 @@ Module yocto_spectralsensor
       rest_val = Ltrim(Str(newval))
       Return _setAttr("ledCurrent", rest_val)
     End Function
+    '''*
+    ''' <summary>
+    '''   Returns the LED current at calibration.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the LED current at calibration
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.LEDCALIBRATION_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_ledCalibration() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return LEDCALIBRATION_INVALID
+        End If
+      End If
+      res = Me._ledCalibration
+      Return res
+    End Function
+
 
     '''*
     ''' <summary>
-    '''   Changes the resolution of the measured physical values.
+    '''   Sets the LED current for calibration.
     ''' <para>
-    '''   The resolution corresponds to the numerical precision
-    '''   when displaying value. It does not change the precision of the measure itself.
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a floating point number corresponding to the resolution of the measured physical values
+    '''   an integer
     ''' </param>
     ''' <para>
     ''' </para>
@@ -306,39 +484,11 @@ Module yocto_spectralsensor
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_resolution(ByVal newval As Double) As Integer
+    Public Function set_ledCalibration(ByVal newval As Integer) As Integer
       Dim rest_val As String
-      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
-      Return _setAttr("resolution", rest_val)
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("ledCalibration", rest_val)
     End Function
-    '''*
-    ''' <summary>
-    '''   Returns the resolution of the measured values.
-    ''' <para>
-    '''   The resolution corresponds to the numerical precision
-    '''   of the measures, which is not always the same as the actual precision of the sensor.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a floating point number corresponding to the resolution of the measured values
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.RESOLUTION_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_resolution() As Double
-      Dim res As Double = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return RESOLUTION_INVALID
-        End If
-      End If
-      res = Me._resolution
-      Return res
-    End Function
-
     '''*
     ''' <summary>
     '''   Returns the current integration time.
@@ -353,7 +503,7 @@ Module yocto_spectralsensor
     '''   an integer corresponding to the current integration time
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.INTEGRATIONTIME_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorSensor.INTEGRATIONTIME_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_integrationTime() As Integer
@@ -370,17 +520,18 @@ Module yocto_spectralsensor
 
     '''*
     ''' <summary>
-    '''   Sets the integration time for data processing.
+    '''   Changes the integration time for data processing.
     ''' <para>
-    '''   This method takes a parameter `val` and assigns it
+    '''   This method takes a parameter and assigns it
     '''   as the new integration time. This affects the duration
     '''   for which data is integrated before being processed.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer
+    '''   an integer corresponding to the integration time for data processing
     ''' </param>
     ''' <para>
     ''' </para>
@@ -398,7 +549,7 @@ Module yocto_spectralsensor
     End Function
     '''*
     ''' <summary>
-    '''   Retrieves the current gain.
+    '''   Returns the current gain.
     ''' <para>
     '''   This method updates the gain value.
     ''' </para>
@@ -406,10 +557,10 @@ Module yocto_spectralsensor
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer
+    '''   an integer corresponding to the current gain
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.GAIN_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorSensor.GAIN_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_gain() As Integer
@@ -426,17 +577,18 @@ Module yocto_spectralsensor
 
     '''*
     ''' <summary>
-    '''   Sets the gain for signal processing.
+    '''   Changes the gain for signal processing.
     ''' <para>
-    '''   This method takes a parameter `val` and assigns it
+    '''   This method takes a parameter and assigns it
     '''   as the new gain. This affects the sensitivity and
     '''   intensity of the processed signal.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer
+    '''   an integer corresponding to the gain for signal processing
     ''' </param>
     ''' <para>
     ''' </para>
@@ -454,92 +606,8 @@ Module yocto_spectralsensor
     End Function
     '''*
     ''' <summary>
-    '''   Returns the model for color estimation.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   either <c>YSpectralSensor.ESTIMATIONMODEL_REFLECTION</c> or <c>YSpectralSensor.ESTIMATIONMODEL_EMISSION</c>,
-    '''   according to the model for color estimation
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.ESTIMATIONMODEL_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_estimationModel() As Integer
-      Dim res As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return ESTIMATIONMODEL_INVALID
-        End If
-      End If
-      res = Me._estimationModel
-      Return res
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Changes the model for color estimation.
-    ''' <para>
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   either <c>YSpectralSensor.ESTIMATIONMODEL_REFLECTION</c> or <c>YSpectralSensor.ESTIMATIONMODEL_EMISSION</c>,
-    '''   according to the model for color estimation
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_estimationModel(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("estimationModel", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Returns the current saturation of the sensor.
-    ''' <para>
-    '''   This function updates the sensor's saturation value.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the current saturation of the sensor
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.SATURATION_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_saturation() As Integer
-      Dim res As Integer = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return SATURATION_INVALID
-        End If
-      End If
-      res = Me._saturation
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
     '''   Returns the estimated color in RGB format (0xRRGGBB).
     ''' <para>
-    '''   This method retrieves the estimated color values
-    '''   and returns them as an RGB object or structure.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -548,7 +616,7 @@ Module yocto_spectralsensor
     '''   an integer corresponding to the estimated color in RGB format (0xRRGGBB)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.ESTIMATEDRGB_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATEDRGB_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_estimatedRGB() As Integer
@@ -566,8 +634,6 @@ Module yocto_spectralsensor
     ''' <summary>
     '''   Returns the estimated color in HSL (Hue, Saturation, Lightness) format.
     ''' <para>
-    '''   This method retrieves the estimated color values
-    '''   and returns them as an HSL object or structure.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -576,7 +642,7 @@ Module yocto_spectralsensor
     '''   an integer corresponding to the estimated color in HSL (Hue, Saturation, Lightness) format
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.ESTIMATEDHSL_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATEDHSL_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_estimatedHSL() As Integer
@@ -594,8 +660,6 @@ Module yocto_spectralsensor
     ''' <summary>
     '''   Returns the estimated color in XYZ format.
     ''' <para>
-    '''   This method retrieves the estimated color values
-    '''   and returns them as an XYZ object or structure.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -604,7 +668,7 @@ Module yocto_spectralsensor
     '''   a string corresponding to the estimated color in XYZ format
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.ESTIMATEDXYZ_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATEDXYZ_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_estimatedXYZ() As String
@@ -622,8 +686,6 @@ Module yocto_spectralsensor
     ''' <summary>
     '''   Returns the estimated color in OkLab format.
     ''' <para>
-    '''   This method retrieves the estimated color values
-    '''   and returns them as an OkLab object or structure.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -632,7 +694,7 @@ Module yocto_spectralsensor
     '''   a string corresponding to the estimated color in OkLab format
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.ESTIMATEDOKLAB_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATEDOKLAB_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_estimatedOkLab() As String
@@ -646,6 +708,21 @@ Module yocto_spectralsensor
       Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the estimated color in RAL format.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the estimated color in RAL format
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.NEARRAL1_INVALID</c>.
+    ''' </para>
+    '''/
     Public Function get_nearRAL1() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -657,6 +734,21 @@ Module yocto_spectralsensor
       Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the estimated color in RAL format.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the estimated color in RAL format
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.NEARRAL2_INVALID</c>.
+    ''' </para>
+    '''/
     Public Function get_nearRAL2() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -668,6 +760,21 @@ Module yocto_spectralsensor
       Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the estimated color in RAL format.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the estimated color in RAL format
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.NEARRAL3_INVALID</c>.
+    ''' </para>
+    '''/
     Public Function get_nearRAL3() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -679,6 +786,21 @@ Module yocto_spectralsensor
       Return res
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the estimated HTML color .
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the estimated HTML color
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.NEARHTMLCOLOR_INVALID</c>.
+    ''' </para>
+    '''/
     Public Function get_nearHTMLColor() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -692,10 +814,8 @@ Module yocto_spectralsensor
 
     '''*
     ''' <summary>
-    '''   Returns the estimated color.
+    '''   Returns the estimated color .
     ''' <para>
-    '''   This method retrieves the estimated color values
-    '''   and returns them as the color name.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -704,7 +824,7 @@ Module yocto_spectralsensor
     '''   a string corresponding to the estimated color
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YSpectralSensor.NEARSIMPLECOLOR_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YColorSensor.NEARSIMPLECOLOR_INVALID</c>.
     ''' </para>
     '''/
     Public Function get_nearSimpleColor() As String
@@ -718,128 +838,41 @@ Module yocto_spectralsensor
       Return res
     End Function
 
-    Public Function get_ledCurrentAtPowerOn() As Integer
-      Dim res As Integer = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return LEDCURRENTATPOWERON_INVALID
-        End If
-      End If
-      res = Me._ledCurrentAtPowerOn
-      Return res
-    End Function
-
-
     '''*
     ''' <summary>
-    '''   Sets the LED current at power-on.
+    '''   Returns the estimated color as an index.
     ''' <para>
-    '''   This method takes a parameter `val` and assigns it to startupLumin, representing the LED current defined
-    '''   at startup.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
-    ''' <param name="newval">
-    '''   an integer
-    ''' </param>
-    ''' <para>
-    ''' </para>
     ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    '''   a value among <c>YColorSensor.NEARSIMPLECOLORINDEX_BROWN</c>,
+    '''   <c>YColorSensor.NEARSIMPLECOLORINDEX_RED</c>, <c>YColorSensor.NEARSIMPLECOLORINDEX_ORANGE</c>,
+    '''   <c>YColorSensor.NEARSIMPLECOLORINDEX_YELLOW</c>, <c>YColorSensor.NEARSIMPLECOLORINDEX_WHITE</c>,
+    '''   <c>YColorSensor.NEARSIMPLECOLORINDEX_GRAY</c>, <c>YColorSensor.NEARSIMPLECOLORINDEX_BLACK</c>,
+    '''   <c>YColorSensor.NEARSIMPLECOLORINDEX_GREEN</c>, <c>YColorSensor.NEARSIMPLECOLORINDEX_BLUE</c>,
+    '''   <c>YColorSensor.NEARSIMPLECOLORINDEX_PURPLE</c> and <c>YColorSensor.NEARSIMPLECOLORINDEX_PINK</c>
+    '''   corresponding to the estimated color as an index
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
+    '''   On failure, throws an exception or returns <c>YColorSensor.NEARSIMPLECOLORINDEX_INVALID</c>.
     ''' </para>
     '''/
-    Public Function set_ledCurrentAtPowerOn(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("ledCurrentAtPowerOn", rest_val)
-    End Function
-    Public Function get_integrationTimeAtPowerOn() As Integer
-      Dim res As Integer = 0
+    Public Function get_nearSimpleColorIndex() As Integer
+      Dim res As Integer
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return INTEGRATIONTIMEATPOWERON_INVALID
+          Return NEARSIMPLECOLORINDEX_INVALID
         End If
       End If
-      res = Me._integrationTimeAtPowerOn
+      res = Me._nearSimpleColorIndex
       Return res
     End Function
 
-
     '''*
     ''' <summary>
-    '''   Sets the integration time at power-on.
-    ''' <para>
-    '''   This method takes a parameter `val` and assigns it to startupIntegTime, representing the integration time
-    '''   defined at startup.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   an integer
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_integrationTimeAtPowerOn(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("integrationTimeAtPowerOn", rest_val)
-    End Function
-    Public Function get_gainAtPowerOn() As Integer
-      Dim res As Integer = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return GAINATPOWERON_INVALID
-        End If
-      End If
-      res = Me._gainAtPowerOn
-      Return res
-    End Function
-
-
-    '''*
-    ''' <summary>
-    '''   Sets the gain at power-on.
-    ''' <para>
-    '''   This method takes a parameter `val` and assigns it to startupGain, representing the gain defined at startup.
-    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <param name="newval">
-    '''   an integer
-    ''' </param>
-    ''' <para>
-    ''' </para>
-    ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Function set_gainAtPowerOn(ByVal newval As Integer) As Integer
-      Dim rest_val As String
-      rest_val = Ltrim(Str(newval))
-      Return _setAttr("gainAtPowerOn", rest_val)
-    End Function
-    '''*
-    ''' <summary>
-    '''   Retrieves a spectral sensor for a given identifier.
+    '''   Retrieves a color sensor for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -863,11 +896,11 @@ Module yocto_spectralsensor
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the spectral sensor is online at the time
+    '''   This function does not require that the color sensor is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YSpectralSensor.isOnline()</c> to test if the spectral sensor is
+    '''   Use the method <c>YColorSensor.isOnline()</c> to test if the color sensor is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a spectral sensor by logical name, no error is notified: the first instance
+    '''   a color sensor by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -880,19 +913,19 @@ Module yocto_spectralsensor
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the spectral sensor, for instance
-    '''   <c>MyDevice.spectralSensor</c>.
+    '''   a string that uniquely characterizes the color sensor, for instance
+    '''   <c>MyDevice.colorSensor</c>.
     ''' </param>
     ''' <returns>
-    '''   a <c>YSpectralSensor</c> object allowing you to drive the spectral sensor.
+    '''   a <c>YColorSensor</c> object allowing you to drive the color sensor.
     ''' </returns>
     '''/
-    Public Shared Function FindSpectralSensor(func As String) As YSpectralSensor
-      Dim obj As YSpectralSensor
-      obj = CType(YFunction._FindFromCache("SpectralSensor", func), YSpectralSensor)
+    Public Shared Function FindColorSensor(func As String) As YColorSensor
+      Dim obj As YColorSensor
+      obj = CType(YFunction._FindFromCache("ColorSensor", func), YColorSensor)
       If ((obj Is Nothing)) Then
-        obj = New YSpectralSensor(func)
-        YFunction._AddToCache("SpectralSensor", func, obj)
+        obj = New YColorSensor(func)
+        YFunction._AddToCache("ColorSensor", func, obj)
       End If
       Return obj
     End Function
@@ -915,14 +948,14 @@ Module yocto_spectralsensor
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerValueCallback(callback As YSpectralSensorValueCallback) As Integer
+    Public Overloads Function registerValueCallback(callback As YColorSensorValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
         YFunction._UpdateValueCallbackList(Me, True)
       Else
         YFunction._UpdateValueCallbackList(Me, False)
       End If
-      Me._valueCallbackSpectralSensor = callback
+      Me._valueCallbackColorSensor = callback
       REM // Immediately invoke value callback with current value
       If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
@@ -934,31 +967,55 @@ Module yocto_spectralsensor
     End Function
 
     Public Overrides Function _invokeValueCallback(value As String) As Integer
-      If (Not (Me._valueCallbackSpectralSensor Is Nothing)) Then
-        Me._valueCallbackSpectralSensor(Me, value)
+      If (Not (Me._valueCallbackColorSensor Is Nothing)) Then
+        Me._valueCallbackColorSensor(Me, value)
       Else
         MyBase._invokeValueCallback(value)
       End If
       Return 0
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Turns on the LEDs at the current used during calibration.
+    ''' <para>
+    '''   On failure, throws an exception or returns YColorSensor.DATA_INVALID.
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function turnLedOn() As Integer
+      Return Me.set_ledCurrent(Me.get_ledCalibration())
+    End Function
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of spectral sensors started using <c>yFirstSpectralSensor()</c>.
+    '''   Turns off the LEDs.
     ''' <para>
-    '''   Caution: You can't make any assumption about the returned spectral sensors order.
-    '''   If you want to find a specific a spectral sensor, use <c>SpectralSensor.findSpectralSensor()</c>
+    '''   On failure, throws an exception or returns YColorSensor.DATA_INVALID.
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function turnLedOff() As Integer
+      Return Me.set_ledCurrent(0)
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Continues the enumeration of color sensors started using <c>yFirstColorSensor()</c>.
+    ''' <para>
+    '''   Caution: You can't make any assumption about the returned color sensors order.
+    '''   If you want to find a specific a color sensor, use <c>ColorSensor.findColorSensor()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YSpectralSensor</c> object, corresponding to
-    '''   a spectral sensor currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more spectral sensors to enumerate.
+    '''   a pointer to a <c>YColorSensor</c> object, corresponding to
+    '''   a color sensor currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more color sensors to enumerate.
     ''' </returns>
     '''/
-    Public Function nextSpectralSensor() As YSpectralSensor
+    Public Function nextColorSensor() As YColorSensor
       Dim hwid As String = ""
       If (YISERR(_nextFunction(hwid))) Then
         Return Nothing
@@ -966,24 +1023,24 @@ Module yocto_spectralsensor
       If (hwid = "") Then
         Return Nothing
       End If
-      Return YSpectralSensor.FindSpectralSensor(hwid)
+      Return YColorSensor.FindColorSensor(hwid)
     End Function
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of spectral sensors currently accessible.
+    '''   Starts the enumeration of color sensors currently accessible.
     ''' <para>
-    '''   Use the method <c>YSpectralSensor.nextSpectralSensor()</c> to iterate on
-    '''   next spectral sensors.
+    '''   Use the method <c>YColorSensor.nextColorSensor()</c> to iterate on
+    '''   next color sensors.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YSpectralSensor</c> object, corresponding to
-    '''   the first spectral sensor currently online, or a <c>Nothing</c> pointer
+    '''   a pointer to a <c>YColorSensor</c> object, corresponding to
+    '''   the first color sensor currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
-    Public Shared Function FirstSpectralSensor() As YSpectralSensor
+    Public Shared Function FirstColorSensor() As YColorSensor
       Dim v_fundescr(1) As YFUN_DESCR
       Dim dev As YDEV_DESCR
       Dim neededsize, err As Integer
@@ -992,7 +1049,7 @@ Module yocto_spectralsensor
       Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
       Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
 
-      err = yapiGetFunctionsByClass("SpectralSensor", 0, p, size, neededsize, errmsg)
+      err = yapiGetFunctionsByClass("ColorSensor", 0, p, size, neededsize, errmsg)
       Marshal.Copy(p, v_fundescr, 0, 1)
       Marshal.FreeHGlobal(p)
 
@@ -1007,18 +1064,18 @@ Module yocto_spectralsensor
       If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
         Return Nothing
       End If
-      Return YSpectralSensor.FindSpectralSensor(serial + "." + funcId)
+      Return YColorSensor.FindColorSensor(serial + "." + funcId)
     End Function
 
-    REM --- (end of YSpectralSensor public methods declaration)
+    REM --- (end of YColorSensor public methods declaration)
 
   End Class
 
-  REM --- (YSpectralSensor functions)
+  REM --- (YColorSensor functions)
 
   '''*
   ''' <summary>
-  '''   Retrieves a spectral sensor for a given identifier.
+  '''   Retrieves a color sensor for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -1042,11 +1099,11 @@ Module yocto_spectralsensor
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the spectral sensor is online at the time
+  '''   This function does not require that the color sensor is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YSpectralSensor.isOnline()</c> to test if the spectral sensor is
+  '''   Use the method <c>YColorSensor.isOnline()</c> to test if the color sensor is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a spectral sensor by logical name, no error is notified: the first instance
+  '''   a color sensor by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -1059,36 +1116,36 @@ Module yocto_spectralsensor
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the spectral sensor, for instance
-  '''   <c>MyDevice.spectralSensor</c>.
+  '''   a string that uniquely characterizes the color sensor, for instance
+  '''   <c>MyDevice.colorSensor</c>.
   ''' </param>
   ''' <returns>
-  '''   a <c>YSpectralSensor</c> object allowing you to drive the spectral sensor.
+  '''   a <c>YColorSensor</c> object allowing you to drive the color sensor.
   ''' </returns>
   '''/
-  Public Function yFindSpectralSensor(ByVal func As String) As YSpectralSensor
-    Return YSpectralSensor.FindSpectralSensor(func)
+  Public Function yFindColorSensor(ByVal func As String) As YColorSensor
+    Return YColorSensor.FindColorSensor(func)
   End Function
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of spectral sensors currently accessible.
+  '''   Starts the enumeration of color sensors currently accessible.
   ''' <para>
-  '''   Use the method <c>YSpectralSensor.nextSpectralSensor()</c> to iterate on
-  '''   next spectral sensors.
+  '''   Use the method <c>YColorSensor.nextColorSensor()</c> to iterate on
+  '''   next color sensors.
   ''' </para>
   ''' </summary>
   ''' <returns>
-  '''   a pointer to a <c>YSpectralSensor</c> object, corresponding to
-  '''   the first spectral sensor currently online, or a <c>Nothing</c> pointer
+  '''   a pointer to a <c>YColorSensor</c> object, corresponding to
+  '''   the first color sensor currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
-  Public Function yFirstSpectralSensor() As YSpectralSensor
-    Return YSpectralSensor.FirstSpectralSensor()
+  Public Function yFirstColorSensor() As YColorSensor
+    Return YColorSensor.FirstColorSensor()
   End Function
 
 
-  REM --- (end of YSpectralSensor functions)
+  REM --- (end of YColorSensor functions)
 
 End Module

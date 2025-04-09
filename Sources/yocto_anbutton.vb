@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_anbutton.vb 56388 2023-09-04 15:26:27Z web $
+'  $Id: svn_id $
 '
 '  Implements yFindAnButton(), the high-level API for AnButton functions
 '

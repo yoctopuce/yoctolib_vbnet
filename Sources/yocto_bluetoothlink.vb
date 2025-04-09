@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_bluetoothlink.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: svn_id $
 '
 '  Implements yFindBluetoothLink(), the high-level API for BluetoothLink functions
 '

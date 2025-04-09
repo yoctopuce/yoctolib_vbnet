@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_power.vb 53431 2023-03-06 14:19:35Z seb $
+'  $Id: svn_id $
 '
 '  Implements yFindPower(), the high-level API for Power functions
 '

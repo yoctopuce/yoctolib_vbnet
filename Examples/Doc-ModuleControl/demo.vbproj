@@ -108,6 +108,9 @@
     <Compile Include="..\..\Sources\yocto_colorledcluster.vb">
       <Link>Yoctopuce\{yocto_colorledcluster.vb}</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_colorsensor.vb">
+      <Link>Yoctopuce\{yocto_colorsensor.vb}</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_compass.vb">
       <Link>Yoctopuce\{yocto_compass.vb}</Link>
     </Compile>
@@ -254,9 +257,6 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_spectralchannel.vb">
       <Link>Yoctopuce\{yocto_spectralchannel.vb}</Link>
-    </Compile>
-    <Compile Include="..\..\Sources\yocto_spectralsensor.vb">
-      <Link>Yoctopuce\{yocto_spectralsensor.vb}</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_spiport.vb">
       <Link>Yoctopuce\{yocto_spiport.vb}</Link>

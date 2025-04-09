@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_relay.vb 43580 2021-01-26 17:46:01Z mvuilleu $
+'  $Id: svn_id $
 '
 '  Implements yFindRelay(), the high-level API for Relay functions
 '

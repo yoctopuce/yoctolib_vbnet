@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_carbondioxide.vb 44175 2021-03-11 11:27:12Z mvuilleu $
+'  $Id: svn_id $
 '
 '  Implements yFindCarbonDioxide(), the high-level API for CarbonDioxide functions
 '
