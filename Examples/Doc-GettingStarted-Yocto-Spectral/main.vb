@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 65360 2025-03-26 11:51:12Z tiago $
+'  $Id: main.vb 65694 2025-04-09 08:11:25Z tiago $
 '
 '  An example that shows how to use a  Yocto-Spectral
 '
@@ -52,8 +52,8 @@ Module Module1
     colorSensor = YColorSensor.FindColorSensor(target + ".colorSensor")
 
     If (colorSensor.isOnline()) Then
-      colorSensor.set_workingMode(0)
-      colorSensor.set_estimationModel(0)
+      colorSensor.set_workingMode(Y_WORKINGMODE_AUTO)
+      colorSensor.set_estimationModel(Y_ESTIMATIONMODEL_REFLECTION)
 
 
       While colorSensor.isOnline()

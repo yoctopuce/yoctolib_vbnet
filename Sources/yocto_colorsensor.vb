@@ -59,11 +59,11 @@ Module yocto_colorsensor
   Public Const Y_WORKINGMODE_AUTO As Integer = 0
   Public Const Y_WORKINGMODE_EXPERT As Integer = 1
   Public Const Y_WORKINGMODE_INVALID As Integer = -1
-  Public Const Y_SATURATION_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LEDCURRENT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LEDCALIBRATION_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_INTEGRATIONTIME_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_GAIN_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_SATURATION_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ESTIMATEDRGB_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ESTIMATEDHSL_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ESTIMATEDXYZ_INVALID As String = YAPI.INVALID_STRING
@@ -72,7 +72,6 @@ Module yocto_colorsensor
   Public Const Y_NEARRAL2_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_NEARRAL3_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_NEARHTMLCOLOR_INVALID As String = YAPI.INVALID_STRING
-  Public Const Y_NEARSIMPLECOLOR_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_NEARSIMPLECOLORINDEX_BROWN As Integer = 0
   Public Const Y_NEARSIMPLECOLORINDEX_RED As Integer = 1
   Public Const Y_NEARSIMPLECOLORINDEX_ORANGE As Integer = 2
@@ -85,6 +84,7 @@ Module yocto_colorsensor
   Public Const Y_NEARSIMPLECOLORINDEX_PURPLE As Integer = 9
   Public Const Y_NEARSIMPLECOLORINDEX_PINK As Integer = 10
   Public Const Y_NEARSIMPLECOLORINDEX_INVALID As Integer = -1
+  Public Const Y_NEARSIMPLECOLOR_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YColorSensorValueCallback(ByVal func As YColorSensor, ByVal value As String)
   Public Delegate Sub YColorSensorTimedReportCallback(ByVal func As YColorSensor, ByVal measure As YMeasure)
   REM --- (end of YColorSensor globals)
@@ -95,8 +95,6 @@ Module yocto_colorsensor
   ''' <summary>
   '''   The <c>YColorSensor</c> class allows you to read and configure Yoctopuce color sensors.
   ''' <para>
-  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
-  '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
   '''/
@@ -111,11 +109,11 @@ Module yocto_colorsensor
     Public Const WORKINGMODE_AUTO As Integer = 0
     Public Const WORKINGMODE_EXPERT As Integer = 1
     Public Const WORKINGMODE_INVALID As Integer = -1
-    Public Const SATURATION_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LEDCURRENT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LEDCALIBRATION_INVALID As Integer = YAPI.INVALID_UINT
     Public Const INTEGRATIONTIME_INVALID As Integer = YAPI.INVALID_UINT
     Public Const GAIN_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const SATURATION_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ESTIMATEDRGB_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ESTIMATEDHSL_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ESTIMATEDXYZ_INVALID As String = YAPI.INVALID_STRING
@@ -124,7 +122,6 @@ Module yocto_colorsensor
     Public Const NEARRAL2_INVALID As String = YAPI.INVALID_STRING
     Public Const NEARRAL3_INVALID As String = YAPI.INVALID_STRING
     Public Const NEARHTMLCOLOR_INVALID As String = YAPI.INVALID_STRING
-    Public Const NEARSIMPLECOLOR_INVALID As String = YAPI.INVALID_STRING
     Public Const NEARSIMPLECOLORINDEX_BROWN As Integer = 0
     Public Const NEARSIMPLECOLORINDEX_RED As Integer = 1
     Public Const NEARSIMPLECOLORINDEX_ORANGE As Integer = 2
@@ -137,16 +134,17 @@ Module yocto_colorsensor
     Public Const NEARSIMPLECOLORINDEX_PURPLE As Integer = 9
     Public Const NEARSIMPLECOLORINDEX_PINK As Integer = 10
     Public Const NEARSIMPLECOLORINDEX_INVALID As Integer = -1
+    Public Const NEARSIMPLECOLOR_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YColorSensor definitions)
 
     REM --- (YColorSensor attributes declaration)
     Protected _estimationModel As Integer
     Protected _workingMode As Integer
-    Protected _saturation As Integer
     Protected _ledCurrent As Integer
     Protected _ledCalibration As Integer
     Protected _integrationTime As Integer
     Protected _gain As Integer
+    Protected _saturation As Integer
     Protected _estimatedRGB As Integer
     Protected _estimatedHSL As Integer
     Protected _estimatedXYZ As String
@@ -155,8 +153,8 @@ Module yocto_colorsensor
     Protected _nearRAL2 As String
     Protected _nearRAL3 As String
     Protected _nearHTMLColor As String
-    Protected _nearSimpleColor As String
     Protected _nearSimpleColorIndex As Integer
+    Protected _nearSimpleColor As String
     Protected _valueCallbackColorSensor As YColorSensorValueCallback
     REM --- (end of YColorSensor attributes declaration)
 
@@ -166,11 +164,11 @@ Module yocto_colorsensor
       REM --- (YColorSensor attributes initialization)
       _estimationModel = ESTIMATIONMODEL_INVALID
       _workingMode = WORKINGMODE_INVALID
-      _saturation = SATURATION_INVALID
       _ledCurrent = LEDCURRENT_INVALID
       _ledCalibration = LEDCALIBRATION_INVALID
       _integrationTime = INTEGRATIONTIME_INVALID
       _gain = GAIN_INVALID
+      _saturation = SATURATION_INVALID
       _estimatedRGB = ESTIMATEDRGB_INVALID
       _estimatedHSL = ESTIMATEDHSL_INVALID
       _estimatedXYZ = ESTIMATEDXYZ_INVALID
@@ -179,8 +177,8 @@ Module yocto_colorsensor
       _nearRAL2 = NEARRAL2_INVALID
       _nearRAL3 = NEARRAL3_INVALID
       _nearHTMLColor = NEARHTMLCOLOR_INVALID
-      _nearSimpleColor = NEARSIMPLECOLOR_INVALID
       _nearSimpleColorIndex = NEARSIMPLECOLORINDEX_INVALID
+      _nearSimpleColor = NEARSIMPLECOLOR_INVALID
       _valueCallbackColorSensor = Nothing
       REM --- (end of YColorSensor attributes initialization)
     End Sub
@@ -194,9 +192,6 @@ Module yocto_colorsensor
       If json_val.has("workingMode") Then
         _workingMode = CInt(json_val.getLong("workingMode"))
       End If
-      If json_val.has("saturation") Then
-        _saturation = CInt(json_val.getLong("saturation"))
-      End If
       If json_val.has("ledCurrent") Then
         _ledCurrent = CInt(json_val.getLong("ledCurrent"))
       End If
@@ -208,6 +203,9 @@ Module yocto_colorsensor
       End If
       If json_val.has("gain") Then
         _gain = CInt(json_val.getLong("gain"))
+      End If
+      If json_val.has("saturation") Then
+        _saturation = CInt(json_val.getLong("saturation"))
       End If
       If json_val.has("estimatedRGB") Then
         _estimatedRGB = CInt(json_val.getLong("estimatedRGB"))
@@ -233,11 +231,11 @@ Module yocto_colorsensor
       If json_val.has("nearHTMLColor") Then
         _nearHTMLColor = json_val.getString("nearHTMLColor")
       End If
-      If json_val.has("nearSimpleColor") Then
-        _nearSimpleColor = json_val.getString("nearSimpleColor")
-      End If
       If json_val.has("nearSimpleColorIndex") Then
         _nearSimpleColorIndex = CInt(json_val.getLong("nearSimpleColorIndex"))
+      End If
+      If json_val.has("nearSimpleColor") Then
+        _nearSimpleColor = json_val.getString("nearSimpleColor")
       End If
       Return MyBase._parseAttr(json_val)
     End Function
@@ -247,7 +245,7 @@ Module yocto_colorsensor
     REM --- (YColorSensor public methods declaration)
     '''*
     ''' <summary>
-    '''   Returns the model for color estimation.
+    '''   Returns the predictive model used for color estimation (reflective or emissive).
     ''' <para>
     ''' </para>
     ''' <para>
@@ -255,7 +253,7 @@ Module yocto_colorsensor
     ''' </summary>
     ''' <returns>
     '''   either <c>YColorSensor.ESTIMATIONMODEL_REFLECTION</c> or <c>YColorSensor.ESTIMATIONMODEL_EMISSION</c>,
-    '''   according to the model for color estimation
+    '''   according to the predictive model used for color estimation (reflective or emissive)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATIONMODEL_INVALID</c>.
@@ -275,7 +273,7 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Changes the model for color estimation.
+    '''   Changes the mpredictive model to be used for color estimation (reflective or emissive).
     ''' <para>
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
@@ -284,7 +282,7 @@ Module yocto_colorsensor
     ''' </summary>
     ''' <param name="newval">
     '''   either <c>YColorSensor.ESTIMATIONMODEL_REFLECTION</c> or <c>YColorSensor.ESTIMATIONMODEL_EMISSION</c>,
-    '''   according to the model for color estimation
+    '''   according to the mpredictive model to be used for color estimation (reflective or emissive)
     ''' </param>
     ''' <para>
     ''' </para>
@@ -302,15 +300,17 @@ Module yocto_colorsensor
     End Function
     '''*
     ''' <summary>
-    '''   Returns the active working mode.
+    '''   Returns the sensor working mode.
     ''' <para>
+    '''   In Auto mode, sensor parameters are automatically set based on the selected estimation model.
+    '''   In Expert mode, sensor parameters such as gain and integration time are configured manually.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   either <c>YColorSensor.WORKINGMODE_AUTO</c> or <c>YColorSensor.WORKINGMODE_EXPERT</c>, according to
-    '''   the active working mode
+    '''   the sensor working mode
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.WORKINGMODE_INVALID</c>.
@@ -330,8 +330,10 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Changes the operating mode.
+    '''   Changes the sensor working mode.
     ''' <para>
+    '''   In Auto mode, sensor parameters are automatically set based on the selected estimation model.
+    '''   In Expert mode, sensor parameters such as gain and integration time are configured manually.
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
@@ -339,7 +341,7 @@ Module yocto_colorsensor
     ''' </summary>
     ''' <param name="newval">
     '''   either <c>YColorSensor.WORKINGMODE_AUTO</c> or <c>YColorSensor.WORKINGMODE_EXPERT</c>, according to
-    '''   the operating mode
+    '''   the sensor working mode
     ''' </param>
     ''' <para>
     ''' </para>
@@ -357,41 +359,15 @@ Module yocto_colorsensor
     End Function
     '''*
     ''' <summary>
-    '''   Returns the current saturation of the sensor.
+    '''   Returns the amount of current sent to the illumination LEDs, for reflection measurements.
     ''' <para>
-    '''   This function updates the sensor's saturation value.
+    '''   The value is an integer ranging from 0 (LEDs off) to 254 (LEDs at maximum intensity).
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the current saturation of the sensor
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>YColorSensor.SATURATION_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_saturation() As Integer
-      Dim res As Integer = 0
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return SATURATION_INVALID
-        End If
-      End If
-      res = Me._saturation
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the current value of the LED.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   an integer corresponding to the current value of the LED
+    '''   an integer corresponding to the amount of current sent to the illumination LEDs, for reflection measurements
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.LEDCURRENT_INVALID</c>.
@@ -411,16 +387,15 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Changes the luminosity of the module leds.
+    '''   Changes the amount of current sent to the illumination LEDs, for reflection measurements.
     ''' <para>
-    '''   The parameter is a
-    '''   value between 0 and 254.
+    '''   The value is an integer ranging from 0 (LEDs off) to 254 (LEDs at maximum intensity).
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the luminosity of the module leds
+    '''   an integer corresponding to the amount of current sent to the illumination LEDs, for reflection measurements
     ''' </param>
     ''' <para>
     ''' </para>
@@ -438,14 +413,14 @@ Module yocto_colorsensor
     End Function
     '''*
     ''' <summary>
-    '''   Returns the LED current at calibration.
+    '''   Returns the current sent to the illumination LEDs during the last calibration.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the LED current at calibration
+    '''   an integer corresponding to the current sent to the illumination LEDs during the last calibration
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.LEDCALIBRATION_INVALID</c>.
@@ -465,8 +440,9 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Sets the LED current for calibration.
+    '''   Remember the LED current sent to the illumination LEDs during a calibration.
     ''' <para>
+    '''   Thanks to this, the device will be able to use the same current during measurements.
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
@@ -491,16 +467,16 @@ Module yocto_colorsensor
     End Function
     '''*
     ''' <summary>
-    '''   Returns the current integration time.
+    '''   Returns the current integration time for spectral measurement, in milliseconds.
     ''' <para>
-    '''   This method retrieves the integration time value
-    '''   used for data processing and returns it as an integer or an object.
+    '''   A longer integration time increase the sensitivity for low light conditions,
+    '''   but reduces the measurement rate and may lead to saturation for lighter colors.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the current integration time
+    '''   an integer corresponding to the current integration time for spectral measurement, in milliseconds
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.INTEGRATIONTIME_INVALID</c>.
@@ -520,18 +496,19 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Changes the integration time for data processing.
+    '''   Changes the integration time for spectral measurement, in milliseconds.
     ''' <para>
-    '''   This method takes a parameter and assigns it
-    '''   as the new integration time. This affects the duration
-    '''   for which data is integrated before being processed.
+    '''   A longer integration time increase the sensitivity for low light conditions,
+    '''   but reduces the measurement rate and may lead to saturation for lighter colors.
+    '''   This method can only be used when the sensor is configured in expert mode;
+    '''   when running in auto mode, the change will be ignored.
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the integration time for data processing
+    '''   an integer corresponding to the integration time for spectral measurement, in milliseconds
     ''' </param>
     ''' <para>
     ''' </para>
@@ -549,15 +526,16 @@ Module yocto_colorsensor
     End Function
     '''*
     ''' <summary>
-    '''   Returns the current gain.
+    '''   Returns the current spectral channel detector gain exponent.
     ''' <para>
-    '''   This method updates the gain value.
+    '''   For a value <c>n</c> ranging from 0 to 12, the applied gain is 2^(n-1).
+    '''   0 corresponds to a gain of 0.5, and 12 corresponds to a gain of 2048.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the current gain
+    '''   an integer corresponding to the current spectral channel detector gain exponent
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.GAIN_INVALID</c>.
@@ -577,18 +555,19 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Changes the gain for signal processing.
+    '''   Changes the spectral channel detector gain exponent.
     ''' <para>
-    '''   This method takes a parameter and assigns it
-    '''   as the new gain. This affects the sensitivity and
-    '''   intensity of the processed signal.
+    '''   For a value <c>n</c> ranging from 0 to 12, the applied gain is 2^(n-1).
+    '''   0 corresponds to a gain of 0.5, and 12 corresponds to a gain of 2048.
+    '''   This method can only be used when the sensor is configured in expert mode;
+    '''   when running in auto mode, the change will be ignored.
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   an integer corresponding to the gain for signal processing
+    '''   an integer corresponding to the spectral channel detector gain exponent
     ''' </param>
     ''' <para>
     ''' </para>
@@ -606,14 +585,54 @@ Module yocto_colorsensor
     End Function
     '''*
     ''' <summary>
-    '''   Returns the estimated color in RGB format (0xRRGGBB).
+    '''   Returns the current saturation state of the sensor, as an integer.
     ''' <para>
+    '''   Bit 0 indicates saturation of the analog sensor, which can only
+    '''   be corrected by reducing the gain parameters or the luminosity.
+    '''   Bit 1 indicates saturation of the digital interface, which can
+    '''   be corrected by reducing the integration time or the gain.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the estimated color in RGB format (0xRRGGBB)
+    '''   an integer corresponding to the current saturation state of the sensor, as an integer
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.SATURATION_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_saturation() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return SATURATION_INVALID
+        End If
+      End If
+      res = Me._saturation
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the estimated color in RGB color model (0xRRGGBB).
+    ''' <para>
+    '''   The RGB color model describes each color using a combination of 3 components:
+    ''' </para>
+    ''' <para>
+    '''   - Red (R): the intensity of red, in thee range 0...255
+    ''' </para>
+    ''' <para>
+    '''   - Green (G): the intensity of green, in thee range 0...255
+    ''' </para>
+    ''' <para>
+    '''   - Blue (B): the intensity of blue, in thee range 0...255
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the estimated color in RGB color model (0xRRGGBB)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATEDRGB_INVALID</c>.
@@ -632,14 +651,24 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Returns the estimated color in HSL (Hue, Saturation, Lightness) format.
+    '''   Returns the estimated color in HSL color model (0xHHSSLL).
     ''' <para>
+    '''   The HSL color model describes each color using a combination of 3 components:
+    ''' </para>
+    ''' <para>
+    '''   - Hue (H): the angle on the color wheel (0-360 degrees), mapped to 0...255
+    ''' </para>
+    ''' <para>
+    '''   - Saturation (S): the intensity of the color (0-100%), mapped to 0...255
+    ''' </para>
+    ''' <para>
+    '''   - Lightness (L): the brightness of the color (0-100%), mapped to 0...255
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the estimated color in HSL (Hue, Saturation, Lightness) format
+    '''   an integer corresponding to the estimated color in HSL color model (0xHHSSLL)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATEDHSL_INVALID</c>.
@@ -658,14 +687,25 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Returns the estimated color in XYZ format.
+    '''   Returns the estimated color according to the CIE XYZ color model.
     ''' <para>
+    '''   This color model is based on human vision and light perception, with three components
+    '''   represented by real numbers between 0 and 1:
+    ''' </para>
+    ''' <para>
+    '''   - X: corresponds to a component mixing sensitivity to red and green
+    ''' </para>
+    ''' <para>
+    '''   - Y: represents luminance (perceived brightness)
+    ''' </para>
+    ''' <para>
+    '''   - Z: corresponds to sensitivity to blue
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the estimated color in XYZ format
+    '''   a string corresponding to the estimated color according to the CIE XYZ color model
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATEDXYZ_INVALID</c>.
@@ -684,14 +724,27 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Returns the estimated color in OkLab format.
+    '''   Returns the estimated color according to the OkLab color model.
     ''' <para>
+    '''   OkLab is a perceptual color model that aims to align human color perception with numerical
+    '''   values, so that visually near colors are also numerically near. Colors are represented using three components:
+    ''' </para>
+    ''' <para>
+    '''   - L: lightness, a real number between 0 and 1
+    '''   -
+    ''' </para>
+    ''' <para>
+    '''   - a: color variations between green and red, between -0.5 and 0.5
+    '''   -
+    ''' </para>
+    ''' <para>
+    '''   - b: color variations between blue and yellow, between -0.5 and 0.5.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the estimated color in OkLab format
+    '''   a string corresponding to the estimated color according to the OkLab color model
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.ESTIMATEDOKLAB_INVALID</c>.
@@ -710,14 +763,14 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Returns the estimated color in RAL format.
+    '''   Returns the RAL Classic color closest to the estimated color, with a similarity ratio.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the estimated color in RAL format
+    '''   a string corresponding to the RAL Classic color closest to the estimated color, with a similarity ratio
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.NEARRAL1_INVALID</c>.
@@ -736,14 +789,14 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Returns the estimated color in RAL format.
+    '''   Returns the second closest RAL Classic color to the estimated color, with a similarity ratio.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the estimated color in RAL format
+    '''   a string corresponding to the second closest RAL Classic color to the estimated color, with a similarity ratio
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.NEARRAL2_INVALID</c>.
@@ -762,14 +815,14 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Returns the estimated color in RAL format.
+    '''   Returns the third closest RAL Classic color to the estimated color, with a similarity ratio.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the estimated color in RAL format
+    '''   a string corresponding to the third closest RAL Classic color to the estimated color, with a similarity ratio
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.NEARRAL3_INVALID</c>.
@@ -788,14 +841,14 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Returns the estimated HTML color .
+    '''   Returns the name of the HTML color closest to the estimated color.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a string corresponding to the estimated HTML color
+    '''   a string corresponding to the name of the HTML color closest to the estimated color
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.NEARHTMLCOLOR_INVALID</c>.
@@ -814,34 +867,42 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Returns the estimated color .
+    '''   Returns the index of the basic color typically used to refer to the estimated color (enumerated value).
     ''' <para>
+    '''   The list of basic colors recognized is:
     ''' </para>
     ''' <para>
+    '''   - 0 - Brown
     ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   a string corresponding to the estimated color
-    ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YColorSensor.NEARSIMPLECOLOR_INVALID</c>.
+    '''   - 1 - Red
     ''' </para>
-    '''/
-    Public Function get_nearSimpleColor() As String
-      Dim res As String
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return NEARSIMPLECOLOR_INVALID
-        End If
-      End If
-      res = Me._nearSimpleColor
-      Return res
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Returns the estimated color as an index.
     ''' <para>
+    '''   - 2 - Orange
+    ''' </para>
+    ''' <para>
+    '''   - 3 - Yellow
+    ''' </para>
+    ''' <para>
+    '''   - 4 - White
+    ''' </para>
+    ''' <para>
+    '''   - 5 - Gray
+    ''' </para>
+    ''' <para>
+    '''   - 6 - Black
+    ''' </para>
+    ''' <para>
+    '''   - 7 - Green
+    ''' </para>
+    ''' <para>
+    '''   - 8 - Blue
+    ''' </para>
+    ''' <para>
+    '''   - 9 - Purple
+    ''' </para>
+    ''' <para>
+    '''   - 10 - Pink
     ''' </para>
     ''' <para>
     ''' </para>
@@ -853,7 +914,7 @@ Module yocto_colorsensor
     '''   <c>YColorSensor.NEARSIMPLECOLORINDEX_GRAY</c>, <c>YColorSensor.NEARSIMPLECOLORINDEX_BLACK</c>,
     '''   <c>YColorSensor.NEARSIMPLECOLORINDEX_GREEN</c>, <c>YColorSensor.NEARSIMPLECOLORINDEX_BLUE</c>,
     '''   <c>YColorSensor.NEARSIMPLECOLORINDEX_PURPLE</c> and <c>YColorSensor.NEARSIMPLECOLORINDEX_PINK</c>
-    '''   corresponding to the estimated color as an index
+    '''   corresponding to the index of the basic color typically used to refer to the estimated color (enumerated value)
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.NEARSIMPLECOLORINDEX_INVALID</c>.
@@ -867,6 +928,32 @@ Module yocto_colorsensor
         End If
       End If
       res = Me._nearSimpleColorIndex
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the name of the basic color typically used to refer to the estimated color.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the name of the basic color typically used to refer to the estimated color
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.NEARSIMPLECOLOR_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_nearSimpleColor() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return NEARSIMPLECOLOR_INVALID
+        End If
+      End If
+      res = Me._nearSimpleColor
       Return res
     End Function
 
@@ -977,9 +1064,9 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Turns on the LEDs at the current used during calibration.
+    '''   Turns on the built-in illumination LEDs using the same current as used during last calibration.
     ''' <para>
-    '''   On failure, throws an exception or returns YColorSensor.DATA_INVALID.
+    '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     ''' </summary>
     '''/
@@ -989,9 +1076,9 @@ Module yocto_colorsensor
 
     '''*
     ''' <summary>
-    '''   Turns off the LEDs.
+    '''   Turns off the built-in illumination LEDs.
     ''' <para>
-    '''   On failure, throws an exception or returns YColorSensor.DATA_INVALID.
+    '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     ''' </summary>
     '''/

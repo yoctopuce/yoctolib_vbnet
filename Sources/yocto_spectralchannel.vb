@@ -107,10 +107,8 @@ Module yocto_spectralchannel
     REM --- (YSpectralChannel public methods declaration)
     '''*
     ''' <summary>
-    '''   Retrieves the raw count of data samples.
+    '''   Retrieves the raw cspectral intensity value as measured by the sensor, without any scaling or calibration.
     ''' <para>
-    '''   This method returns the current value of rawCount, representing the total number of samples collected
-    '''   by the sensor.
     ''' </para>
     ''' <para>
     ''' </para>

@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 65643 2025-04-08 09:37:02Z seb $
+'* $Id: yocto_api.vb 65865 2025-04-15 06:42:38Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -819,8 +819,8 @@ Module yocto_api
 
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
-  Public Const YOCTO_API_VERSION_BCD As Integer = &H0201
-  Public Const YOCTO_API_BUILD_NO As String = "65654"
+  Public Const YOCTO_API_VERSION_BCD As Integer = &H0200
+  Public Const YOCTO_API_BUILD_NO As String = "65866"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2371,7 +2371,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return  "2.1.654 (" + version + ")"
+      Return  "2.1.5866 (" + version + ")"
     End Function
 
 
@@ -2433,7 +2433,7 @@ Module yocto_api
         Exit Function
       End Try
 
-      If (YOCTO_API_VERSION_BCD <> dll_ver) Then
+      If (YOCTO_API_VERSION_BCD > dll_ver) Then
         errmsg = "yapi.dll does does not match the version of the Libary"
         errmsg += "(Libary=" + YOCTO_API_VERSION_STR + "." + YOCTO_API_BUILD_NO + " yapi.dll=" + version.ToString + ")"
         InitAPI = YAPI_VERSION_MISMATCH
