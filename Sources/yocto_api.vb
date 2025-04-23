@@ -820,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H0200
-  Public Const YOCTO_API_BUILD_NO As String = "65866"
+  Public Const YOCTO_API_BUILD_NO As String = "65971"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2371,7 +2371,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return  "2.1.5866 (" + version + ")"
+      Return  "2.1.5971 (" + version + ")"
     End Function
 
 
@@ -10080,7 +10080,7 @@ Module yocto_api
     ''' <para>
     '''   Note that a get_currentValue() call will *not* start a measure in the device, it
     '''   will just return the last measure that occurred in the device. Indeed, internally, each Yoctopuce
-    '''   devices is continuously making measurements at a hardware specific frequency.
+    '''   devices is continuously making measures at a hardware specific frequency.
     ''' </para>
     ''' <para>
     '''   If continuously calling  get_currentValue() leads you to performances issues, then

@@ -54,6 +54,8 @@ Module yocto_spectralchannel
   REM --- (YSpectralChannel globals)
 
   Public Const Y_RAWCOUNT_INVALID As Integer = YAPI.INVALID_INT
+  Public Const Y_CHANNELNAME_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_PEAKWAVELENGTH_INVALID As Integer = YAPI.INVALID_INT
   Public Delegate Sub YSpectralChannelValueCallback(ByVal func As YSpectralChannel, ByVal value As String)
   Public Delegate Sub YSpectralChannelTimedReportCallback(ByVal func As YSpectralChannel, ByVal measure As YMeasure)
   REM --- (end of YSpectralChannel globals)
@@ -64,7 +66,7 @@ Module yocto_spectralchannel
   ''' <summary>
   '''   The <c>YSpectralChannel</c> class allows you to read and configure Yoctopuce spectral analysis channels.
   ''' <para>
-  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   It inherits from <c>YSensor</c> class the core functions to read measures,
   '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
@@ -75,10 +77,14 @@ Module yocto_spectralchannel
 
     REM --- (YSpectralChannel definitions)
     Public Const RAWCOUNT_INVALID As Integer = YAPI.INVALID_INT
+    Public Const CHANNELNAME_INVALID As String = YAPI.INVALID_STRING
+    Public Const PEAKWAVELENGTH_INVALID As Integer = YAPI.INVALID_INT
     REM --- (end of YSpectralChannel definitions)
 
     REM --- (YSpectralChannel attributes declaration)
     Protected _rawCount As Integer
+    Protected _channelName As String
+    Protected _peakWavelength As Integer
     Protected _valueCallbackSpectralChannel As YSpectralChannelValueCallback
     Protected _timedReportCallbackSpectralChannel As YSpectralChannelTimedReportCallback
     REM --- (end of YSpectralChannel attributes declaration)
@@ -88,6 +94,8 @@ Module yocto_spectralchannel
       _classname = "SpectralChannel"
       REM --- (YSpectralChannel attributes initialization)
       _rawCount = RAWCOUNT_INVALID
+      _channelName = CHANNELNAME_INVALID
+      _peakWavelength = PEAKWAVELENGTH_INVALID
       _valueCallbackSpectralChannel = Nothing
       _timedReportCallbackSpectralChannel = Nothing
       REM --- (end of YSpectralChannel attributes initialization)
@@ -99,6 +107,12 @@ Module yocto_spectralchannel
       If json_val.has("rawCount") Then
         _rawCount = CInt(json_val.getLong("rawCount"))
       End If
+      If json_val.has("channelName") Then
+        _channelName = json_val.getString("channelName")
+      End If
+      If json_val.has("peakWavelength") Then
+        _peakWavelength = CInt(json_val.getLong("peakWavelength"))
+      End If
       Return MyBase._parseAttr(json_val)
     End Function
 
@@ -107,7 +121,7 @@ Module yocto_spectralchannel
     REM --- (YSpectralChannel public methods declaration)
     '''*
     ''' <summary>
-    '''   Retrieves the raw cspectral intensity value as measured by the sensor, without any scaling or calibration.
+    '''   Retrieves the raw spectral intensity value as measured by the sensor, without any scaling or calibration.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -128,6 +142,58 @@ Module yocto_spectralchannel
         End If
       End If
       res = Me._rawCount
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the target spectral band name.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the target spectral band name
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YSpectralChannel.CHANNELNAME_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_channelName() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return CHANNELNAME_INVALID
+        End If
+      End If
+      res = Me._channelName
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the target spectral band peak wavelenght, in nm.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the target spectral band peak wavelenght, in nm
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YSpectralChannel.PEAKWAVELENGTH_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_peakWavelength() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return PEAKWAVELENGTH_INVALID
+        End If
+      End If
+      res = Me._peakWavelength
       Return res
     End Function
 

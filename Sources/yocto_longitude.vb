@@ -63,7 +63,7 @@ Module yocto_longitude
   ''' <summary>
   '''   The <c>YLongitude</c> class allows you to read and configure Yoctopuce longitude sensors.
   ''' <para>
-  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
+  '''   It inherits from <c>YSensor</c> class the core functions to read measures,
   '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>
