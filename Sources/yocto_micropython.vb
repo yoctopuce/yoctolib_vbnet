@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: svn_id $
+'  $Id: yocto_micropython.vb 67995 2025-07-24 17:06:13Z mvuilleu $
 '
 '  Implements yFindMicroPython(), the high-level API for MicroPython functions
 '
@@ -45,19 +45,22 @@ Imports System.Text
 
 Module yocto_micropython
 
-    REM --- (YMicroPython return codes)
-    REM --- (end of YMicroPython return codes)
-    REM --- (YMicroPython dlldef)
-    REM --- (end of YMicroPython dlldef)
-   REM --- (YMicroPython yapiwrapper)
-   REM --- (end of YMicroPython yapiwrapper)
-  REM --- (YMicroPython globals)
+    REM --- (generated code: YMicroPython return codes)
+    REM --- (end of generated code: YMicroPython return codes)
+    REM --- (generated code: YMicroPython dlldef)
+    REM --- (end of generated code: YMicroPython dlldef)
+   REM --- (generated code: YMicroPython yapiwrapper)
+   REM --- (end of generated code: YMicroPython yapiwrapper)
+  REM --- (generated code: YMicroPython globals)
 
   Public Const Y_LASTMSG_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_HEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_HEAPFRAG_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_XHEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_STACKUSAGE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_CURRENTSCRIPT_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_STARTUPSCRIPT_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_STARTUPDELAY_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Const Y_DEBUGMODE_OFF As Integer = 0
   Public Const Y_DEBUGMODE_ON As Integer = 1
   Public Const Y_DEBUGMODE_INVALID As Integer = -1
@@ -70,9 +73,9 @@ Module yocto_micropython
   Sub yInternalEventCallback(ByVal func As YMicroPython, ByVal value As String)
     func._internalEventHandler(value)
   End Sub
-  REM --- (end of YMicroPython globals)
+  REM --- (end of generated code: YMicroPython globals)
 
-  REM --- (YMicroPython class start)
+  REM --- (generated code: YMicroPython class start)
 
   '''*
   ''' <summary>
@@ -84,26 +87,32 @@ Module yocto_micropython
   '''/
   Public Class YMicroPython
     Inherits YFunction
-    REM --- (end of YMicroPython class start)
+    REM --- (end of generated code: YMicroPython class start)
 
-    REM --- (YMicroPython definitions)
+    REM --- (generated code: YMicroPython definitions)
     Public Const LASTMSG_INVALID As String = YAPI.INVALID_STRING
     Public Const HEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const HEAPFRAG_INVALID As Integer = YAPI.INVALID_UINT
     Public Const XHEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const STACKUSAGE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const CURRENTSCRIPT_INVALID As String = YAPI.INVALID_STRING
     Public Const STARTUPSCRIPT_INVALID As String = YAPI.INVALID_STRING
+    Public Const STARTUPDELAY_INVALID As Double = YAPI.INVALID_DOUBLE
     Public Const DEBUGMODE_OFF As Integer = 0
     Public Const DEBUGMODE_ON As Integer = 1
     Public Const DEBUGMODE_INVALID As Integer = -1
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
-    REM --- (end of YMicroPython definitions)
+    REM --- (end of generated code: YMicroPython definitions)
 
-    REM --- (YMicroPython attributes declaration)
+    REM --- (generated code: YMicroPython attributes declaration)
     Protected _lastMsg As String
     Protected _heapUsage As Integer
+    Protected _heapFrag As Integer
     Protected _xheapUsage As Integer
+    Protected _stackUsage As Integer
     Protected _currentScript As String
     Protected _startupScript As String
+    Protected _startupDelay As Double
     Protected _debugMode As Integer
     Protected _command As String
     Protected _valueCallbackMicroPython As YMicroPythonValueCallback
@@ -112,26 +121,29 @@ Module yocto_micropython
     Protected _prevCbPos As Integer
     Protected _logPos As Integer
     Protected _prevPartialLog As String
-    REM --- (end of YMicroPython attributes declaration)
+    REM --- (end of generated code: YMicroPython attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
       _classname = "MicroPython"
-      REM --- (YMicroPython attributes initialization)
+      REM --- (generated code: YMicroPython attributes initialization)
       _lastMsg = LASTMSG_INVALID
       _heapUsage = HEAPUSAGE_INVALID
+      _heapFrag = HEAPFRAG_INVALID
       _xheapUsage = XHEAPUSAGE_INVALID
+      _stackUsage = STACKUSAGE_INVALID
       _currentScript = CURRENTSCRIPT_INVALID
       _startupScript = STARTUPSCRIPT_INVALID
+      _startupDelay = STARTUPDELAY_INVALID
       _debugMode = DEBUGMODE_INVALID
       _command = COMMAND_INVALID
       _valueCallbackMicroPython = Nothing
       _prevCbPos = 0
       _logPos = 0
-      REM --- (end of YMicroPython attributes initialization)
+      REM --- (end of generated code: YMicroPython attributes initialization)
     End Sub
 
-    REM --- (YMicroPython private methods declaration)
+    REM --- (generated code: YMicroPython private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
       If json_val.has("lastMsg") Then
@@ -140,14 +152,23 @@ Module yocto_micropython
       If json_val.has("heapUsage") Then
         _heapUsage = CInt(json_val.getLong("heapUsage"))
       End If
+      If json_val.has("heapFrag") Then
+        _heapFrag = CInt(json_val.getLong("heapFrag"))
+      End If
       If json_val.has("xheapUsage") Then
         _xheapUsage = CInt(json_val.getLong("xheapUsage"))
+      End If
+      If json_val.has("stackUsage") Then
+        _stackUsage = CInt(json_val.getLong("stackUsage"))
       End If
       If json_val.has("currentScript") Then
         _currentScript = json_val.getString("currentScript")
       End If
       If json_val.has("startupScript") Then
         _startupScript = json_val.getString("startupScript")
+      End If
+      If json_val.has("startupDelay") Then
+        _startupDelay = Math.Round(json_val.getDouble("startupDelay") / 65.536) / 1000.0
       End If
       If json_val.has("debugMode") Then
         If (json_val.getInt("debugMode") > 0) Then _debugMode = 1 Else _debugMode = 0
@@ -158,9 +179,9 @@ Module yocto_micropython
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YMicroPython private methods declaration)
+    REM --- (end of generated code: YMicroPython private methods declaration)
 
-    REM --- (YMicroPython public methods declaration)
+    REM --- (generated code: YMicroPython public methods declaration)
     '''*
     ''' <summary>
     '''   Returns the last message produced by a python script.
@@ -189,7 +210,7 @@ Module yocto_micropython
 
     '''*
     ''' <summary>
-    '''   Returns the percentage of micropython main memory in use,
+    '''   Returns the percentage of MicroPython main memory in use,
     '''   as observed at the end of the last garbage collection.
     ''' <para>
     ''' </para>
@@ -197,7 +218,7 @@ Module yocto_micropython
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the percentage of micropython main memory in use,
+    '''   an integer corresponding to the percentage of MicroPython main memory in use,
     '''   as observed at the end of the last garbage collection
     ''' </returns>
     ''' <para>
@@ -217,7 +238,7 @@ Module yocto_micropython
 
     '''*
     ''' <summary>
-    '''   Returns the percentage of micropython external memory in use,
+    '''   Returns the fragmentation ratio of MicroPython main memory,
     '''   as observed at the end of the last garbage collection.
     ''' <para>
     ''' </para>
@@ -225,7 +246,35 @@ Module yocto_micropython
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   an integer corresponding to the percentage of micropython external memory in use,
+    '''   an integer corresponding to the fragmentation ratio of MicroPython main memory,
+    '''   as observed at the end of the last garbage collection
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMicroPython.HEAPFRAG_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_heapFrag() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return HEAPFRAG_INVALID
+        End If
+      End If
+      res = Me._heapFrag
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the percentage of MicroPython external memory in use,
+    '''   as observed at the end of the last garbage collection.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the percentage of MicroPython external memory in use,
     '''   as observed at the end of the last garbage collection
     ''' </returns>
     ''' <para>
@@ -240,6 +289,34 @@ Module yocto_micropython
         End If
       End If
       res = Me._xheapUsage
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the maximum percentage of MicroPython call stack in use,
+    '''   as observed at the end of the last garbage collection.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the maximum percentage of MicroPython call stack in use,
+    '''   as observed at the end of the last garbage collection
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMicroPython.STACKUSAGE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_stackUsage() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return STACKUSAGE_INVALID
+        End If
+      End If
+      res = Me._stackUsage
       Return res
     End Function
 
@@ -353,9 +430,68 @@ Module yocto_micropython
       rest_val = newval
       Return _setAttr("startupScript", rest_val)
     End Function
+
     '''*
     ''' <summary>
-    '''   Returns the activation state of micropython debugging interface.
+    '''   Changes the wait time before running the startup script on power on, between 0.
+    ''' <para>
+    '''   1
+    '''   second and 25 seconds. Remember to call the <c>saveToFlash()</c> method of the
+    '''   module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the wait time before running the startup script on power
+    '''   on, between 0.1
+    '''   second and 25 seconds
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_startupDelay(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("startupDelay", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the wait time before running the startup script on power on,
+    '''   between 0.1 second and 25 seconds.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the wait time before running the startup script on power on,
+    '''   between 0.1 second and 25 seconds
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMicroPython.STARTUPDELAY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_startupDelay() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return STARTUPDELAY_INVALID
+        End If
+      End If
+      res = Me._startupDelay
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the activation state of MicroPython debugging interface.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -363,7 +499,7 @@ Module yocto_micropython
     ''' </summary>
     ''' <returns>
     '''   either <c>YMicroPython.DEBUGMODE_OFF</c> or <c>YMicroPython.DEBUGMODE_ON</c>, according to the
-    '''   activation state of micropython debugging interface
+    '''   activation state of MicroPython debugging interface
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YMicroPython.DEBUGMODE_INVALID</c>.
@@ -383,7 +519,7 @@ Module yocto_micropython
 
     '''*
     ''' <summary>
-    '''   Changes the activation state of micropython debugging interface.
+    '''   Changes the activation state of MicroPython debugging interface.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -391,7 +527,7 @@ Module yocto_micropython
     ''' </summary>
     ''' <param name="newval">
     '''   either <c>YMicroPython.DEBUGMODE_OFF</c> or <c>YMicroPython.DEBUGMODE_ON</c>, according to the
-    '''   activation state of micropython debugging interface
+    '''   activation state of MicroPython debugging interface
     ''' </param>
     ''' <para>
     ''' </para>
@@ -600,6 +736,26 @@ Module yocto_micropython
         state = (Me.get_advertisedValue()).Substring(0, 1)
       End While
       Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Clears MicroPython interpreter console log buffer.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function clearLogs() As Integer
+      Dim res As Integer = 0
+
+      res = Me.set_command("z")
+      Return res
     End Function
 
     '''*
@@ -817,11 +973,11 @@ Module yocto_micropython
       Return YMicroPython.FindMicroPython(serial + "." + funcId)
     End Function
 
-    REM --- (end of YMicroPython public methods declaration)
+    REM --- (end of generated code: YMicroPython public methods declaration)
 
   End Class
 
-  REM --- (YMicroPython functions)
+  REM --- (generated code: YMicroPython functions)
 
   '''*
   ''' <summary>
@@ -896,6 +1052,6 @@ Module yocto_micropython
   End Function
 
 
-  REM --- (end of YMicroPython functions)
+  REM --- (end of generated code: YMicroPython functions)
 
 End Module

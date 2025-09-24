@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 65973 2025-04-22 09:50:13Z seb $
+'* $Id: yocto_api.vb 68393 2025-08-18 07:47:04Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -820,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H0200
-  Public Const YOCTO_API_BUILD_NO As String = "66320"
+  Public Const YOCTO_API_BUILD_NO As String = "69018"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -878,6 +878,11 @@ Module yocto_api
     REM --- (end of generated code: YHub class start)
 
     REM --- (generated code: YHub definitions)
+    Public Const TRYING As Integer = 1
+    Public Const CONNECTED As Integer = 2
+    Public Const RECONNECTING As Integer = 3
+    Public Const ABORTED As Integer = 4
+    Public Const UNREGISTERED As Integer = 5
     REM --- (end of generated code: YHub definitions)
 
     REM --- (generated code: YHub attributes declaration)
@@ -986,6 +991,18 @@ Module yocto_api
     '''/
     Public Overridable Function get_connectionUrl() As String
       Return Me._getStrAttr("connectionUrl")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the state of the connection with this hub.
+    ''' <para>
+    '''   (TRYING, CONNECTED, RECONNECTING, ABORTED, UNREGISTERED)
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function get_connectionState() As Integer
+      Return Me._getIntAttr("connectionState")
     End Function
 
     '''*
@@ -1173,6 +1190,27 @@ Module yocto_api
 
     '''*
     ''' <summary>
+    '''   Retrieves hub for a given identifier.
+    ''' <para>
+    '''   The identifier can be the URL or the
+    '''   serial of the hub.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="url">
+    '''   The url or serial of the hub.
+    ''' </param>
+    ''' <returns>
+    '''   a pointer to a <c>YHub</c> object, corresponding to
+    '''   the first hub currently in use by the API, or a
+    '''   <c>Nothing</c> pointer if none has been registered.
+    ''' </returns>
+    '''/
+    Public Shared Function FindHubInUse(url As String) As YHub
+      Return YAPI.findYHubFromID(url)
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Continues the module enumeration started using <c>YHub.FirstHubInUse()</c>.
     ''' <para>
     '''   Caution: You can't make any assumption about the order of returned hubs.
@@ -1180,7 +1218,7 @@ Module yocto_api
     ''' </summary>
     ''' <returns>
     '''   a pointer to a <c>YHub</c> object, corresponding to
-    '''   the next hub currenlty in use, or a <c>Nothing</c> pointer
+    '''   the next hub currently in use, or a <c>Nothing</c> pointer
     '''   if there are no more hubs to enumerate.
     ''' </returns>
     '''/
@@ -1575,6 +1613,21 @@ Module yocto_api
       Return obj
     End Function
 
+    Public Overridable Function findYHubFromID(id As String) As YHub
+      Dim rhub As YHub
+      rhub = Me.nextHubInUseInternal(-1)
+      While (Not ((rhub Is Nothing)))
+        If (rhub.get_serialNumber() = id) Then
+          Return rhub
+        End If
+        If (rhub.get_registeredUrl() = id) Then
+          Return rhub
+        End If
+        rhub = rhub.nextHubInUse()
+      End While
+      Return rhub
+    End Function
+
 
 
     REM --- (end of generated code: YAPIContext public methods declaration)
@@ -1654,6 +1707,7 @@ Module yocto_api
     Public Const BUFFER_TOO_SMALL As Integer = -18 REM The buffer provided is too small
     Public Const DNS_ERROR As Integer = -19     REM Error during name resolutions (invalid hostname or dns communication error)
     Public Const SSL_UNK_CERT As Integer = -20  REM The certificate is not correctly signed by the trusted CA
+    Public Const UNCONFIGURED As Integer = -21  REM Remote hub is not yet configured
 
   REM TLS / SSL definitions
     Public Const NO_TRUSTED_CA_CHECK As Integer = 1 REM Disables certificate checking
@@ -1741,6 +1795,19 @@ Module yocto_api
         End If
       Next
       _escapeAttr = uchangeval
+    End Function
+
+    Friend Shared Function _bincrc(content As Byte(), ofs As Integer, len As Integer) As Integer
+      Dim crc As UInt32
+
+      Dim data As IntPtr = Marshal.AllocHGlobal(len)
+      Marshal.Copy(content, ofs, data, len)
+      crc = _yapiCRC32(data, 0, len)
+      Marshal.FreeHGlobal(data)
+      If (crc > &H7FFFFFFF) Then
+        Return CType((crc - &H100000000), Integer)
+      End If
+      Return CType(crc, Integer)
     End Function
 
 
@@ -2340,6 +2407,10 @@ Module yocto_api
         YAPI.InitAPI(0, Nothing)
         return _yapiContext.getYHubObj(hubref)
     End Function
+    Public Shared Function findYHubFromID(id As String) As YHub
+        YAPI.InitAPI(0, Nothing)
+        return _yapiContext.findYHubFromID(id)
+    End Function
    REM --- (end of generated code: YAPIContext yapiwrapper)
 
 
@@ -2371,7 +2442,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return  "2.1.6320 (" + version + ")"
+      Return  "2.1.9018 (" + version + ")"
     End Function
 
 
@@ -3156,6 +3227,7 @@ Module yocto_api
   Public Const YAPI_BUFFER_TOO_SMALL As Integer = -18 REM The buffer provided is too small
   Public Const YAPI_DNS_ERROR As Integer = -19     REM Error during name resolutions (invalid hostname or dns communication error)
   Public Const YAPI_SSL_UNK_CERT As Integer = -20  REM The certificate is not correctly signed by the trusted CA
+  Public Const YAPI_UNCONFIGURED As Integer = -21  REM Remote hub is not yet configured
 
   REM TLS / SSL definitions
   Public Const YAPI_NO_TRUSTED_CA_CHECK As Integer = 1 REM Disables certificate checking
@@ -3398,7 +3470,7 @@ Module yocto_api
           Return res
         End If
         Me._progress_c = res
-        Me._progress = (Me._progress_c * 9 \ 10)
+        Me._progress = ((Me._progress_c * 9) \ 10)
         Me._progress_msg = errmsg.ToString()
       Else
         If (((Me._settings).Length <> 0) AndAlso ( Me._progress_c <> 101)) Then
@@ -3739,8 +3811,8 @@ Module yocto_api
       Dim fRef As Double = 0
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
       REM // decode sequence header to extract data
-      Me._runNo = encoded(0) + (((encoded(1)) << 16))
-      Me._utcStamp = encoded(2) + (((encoded(3)) << 16))
+      Me._runNo = encoded(0) + ((encoded(1) << 16))
+      Me._utcStamp = encoded(2) + ((encoded(3) << 16))
       val = encoded(4)
       Me._isAvg = (((val) And (&H100)) = 0)
       samplesPerHour = ((val) And (&Hff))
@@ -3820,8 +3892,8 @@ Module yocto_api
       REM // decode min/avg/max values for the sequence
       If (Me._nRows > 0) Then
         Me._avgVal = Me._decodeAvg(encoded(8) + ((((encoded(9)) Xor (&H8000)) << 16)), 1)
-        Me._minVal = Me._decodeVal(encoded(10) + (((encoded(11)) << 16)))
-        Me._maxVal = Me._decodeVal(encoded(12) + (((encoded(13)) << 16)))
+        Me._minVal = Me._decodeVal(encoded(10) + ((encoded(11) << 16)))
+        Me._maxVal = Me._decodeVal(encoded(12) + ((encoded(13) << 16)))
       End If
       Return 0
     End Function
@@ -3849,9 +3921,9 @@ Module yocto_api
             dat.Add(Double.NaN)
             dat.Add(Double.NaN)
           Else
-            dat.Add(Me._decodeVal(udat(idx + 2) + (((udat(idx + 3)) << 16))))
+            dat.Add(Me._decodeVal(udat(idx + 2) + ((udat(idx + 3) << 16))))
             dat.Add(Me._decodeAvg(udat(idx) + ((((udat(idx + 1)) Xor (&H8000)) << 16)), 1))
-            dat.Add(Me._decodeVal(udat(idx + 4) + (((udat(idx + 5)) << 16))))
+            dat.Add(Me._decodeVal(udat(idx + 4) + ((udat(idx + 5) << 16))))
           End If
           idx = idx + 6
           Me._values.Add(New List(Of Double)(dat))
@@ -5042,7 +5114,7 @@ Module yocto_api
       If (Me._progress >= Me._streams.Count) Then
         Return 100
       End If
-      Return (1 + (1 + Me._progress) * 98 \ (1 + Me._streams.Count))
+      Return ((1 + (1 + Me._progress) * 98) \ (1 + Me._streams.Count))
     End Function
 
     '''*
@@ -7525,9 +7597,9 @@ Module yocto_api
         Exit Function
       End If
       If funcName <> "" Then
-        get_friendlyName = funcName
+        get_friendlyName = funcName + ".module"
       Else
-        get_friendlyName = snum
+        get_friendlyName = snum + ".module"
       End If
     End Function
 
@@ -8789,7 +8861,6 @@ Module yocto_api
     '''/
     Public Overridable Function set_allSettingsAndFiles(settings As Byte()) As Integer
       Dim down As Byte() = New Byte(){}
-      Dim json_bin As Byte() = New Byte(){}
       Dim json_api As Byte() = New Byte(){}
       Dim json_files As Byte() = New Byte(){}
       Dim json_extra As Byte() = New Byte(){}
@@ -9599,7 +9670,7 @@ Module yocto_api
     '''   a binary buffer with the file content
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns  <c>YAPI.INVALID_STRING</c>.
+    '''   On failure, throws an exception or returns an empty content.
     ''' </para>
     '''/
     Public Overridable Function download(pathname As String) As Byte()
@@ -9611,14 +9682,14 @@ Module yocto_api
     '''   Returns the icon of the module.
     ''' <para>
     '''   The icon is a PNG image and does not
-    '''   exceed 1536 bytes.
+    '''   exceeds 1536 bytes.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
     '''   a binary buffer with module icon, in png format.
-    '''   On failure, throws an exception or returns  <c>YAPI.INVALID_STRING</c>.
+    '''   On failure, throws an exception or returns an empty content.
     ''' </returns>
     '''/
     Public Overridable Function get_icon2d() As Byte()
@@ -9644,6 +9715,9 @@ Module yocto_api
       Dim content As Byte() = New Byte(){}
 
       content = Me._download("logs.txt")
+      If ((content).Length = 0) Then
+        Return YAPI.INVALID_STRING
+      End If
       Return YAPI.DefaultEncoding.GetString(content)
     End Function
 
@@ -10080,7 +10154,7 @@ Module yocto_api
     ''' <para>
     '''   Note that a get_currentValue() call will *not* start a measure in the device, it
     '''   will just return the last measure that occurred in the device. Indeed, internally, each Yoctopuce
-    '''   devices is continuously making measures at a hardware specific frequency.
+    '''   devices is continuously making measurements at a hardware specific frequency.
     ''' </para>
     ''' <para>
     '''   If continuously calling  get_currentValue() leads you to performances issues, then
@@ -11154,7 +11228,7 @@ Module yocto_api
         If (((byteVal) And (&H80)) <> 0) Then
           avgRaw = avgRaw - poww
         End If
-        sublen = 1 + ((((report(1)) >> 2)) And (3))
+        sublen = 1 + (((report(1) >> 2)) And (3))
         poww = 1
         difRaw = 0
         While ((sublen > 0) AndAlso (i < report.Count))
@@ -11165,7 +11239,7 @@ Module yocto_api
           sublen = sublen - 1
         End While
         minRaw = avgRaw - difRaw
-        sublen = 1 + ((((report(1)) >> 4)) And (3))
+        sublen = 1 + (((report(1) >> 4)) And (3))
         poww = 1
         difRaw = 0
         While ((sublen > 0) AndAlso (i < report.Count))
@@ -13335,6 +13409,9 @@ Module yocto_api
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiSetTrustedCertificatesList", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiSetTrustedCertificatesList(ByVal certificatePath As StringBuilder, ByVal errmsg As StringBuilder) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiCRC32", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiCRC32(ByVal data As IntPtr, ByVal ofs As Integer, ByVal len As Integer) As yu32
   End Function
     REM --- (end of generated code: YFunction dlldef)
 

@@ -2,7 +2,7 @@
 '
 '  $Id: svn_id $
 '
-'  Implements yFindVoltage(), the high-level API for Voltage functions
+'  Implements yFindVirtualSensor(), the high-level API for VirtualSensor functions
 '
 '  - - - - - - - - - License information: - - - - - - - - -
 '
@@ -43,124 +43,84 @@ Imports YFUN_DESCR = System.Int32
 Imports System.Runtime.InteropServices
 Imports System.Text
 
-Module yocto_voltage
+Module yocto_virtualsensor
 
-    REM --- (YVoltage return codes)
-    REM --- (end of YVoltage return codes)
-    REM --- (YVoltage dlldef)
-    REM --- (end of YVoltage dlldef)
-   REM --- (YVoltage yapiwrapper)
-   REM --- (end of YVoltage yapiwrapper)
-  REM --- (YVoltage globals)
+    REM --- (YVirtualSensor return codes)
+    REM --- (end of YVirtualSensor return codes)
+    REM --- (YVirtualSensor dlldef)
+    REM --- (end of YVirtualSensor dlldef)
+   REM --- (YVirtualSensor yapiwrapper)
+   REM --- (end of YVirtualSensor yapiwrapper)
+  REM --- (YVirtualSensor globals)
 
-  Public Const Y_ENABLED_FALSE As Integer = 0
-  Public Const Y_ENABLED_TRUE As Integer = 1
-  Public Const Y_ENABLED_INVALID As Integer = -1
-  Public Const Y_SIGNALBIAS_INVALID As Double = YAPI.INVALID_DOUBLE
-  Public Delegate Sub YVoltageValueCallback(ByVal func As YVoltage, ByVal value As String)
-  Public Delegate Sub YVoltageTimedReportCallback(ByVal func As YVoltage, ByVal measure As YMeasure)
-  REM --- (end of YVoltage globals)
+  Public Const Y_INVALIDVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+  Public Delegate Sub YVirtualSensorValueCallback(ByVal func As YVirtualSensor, ByVal value As String)
+  Public Delegate Sub YVirtualSensorTimedReportCallback(ByVal func As YVirtualSensor, ByVal measure As YMeasure)
+  REM --- (end of YVirtualSensor globals)
 
-  REM --- (YVoltage class start)
+  REM --- (YVirtualSensor class start)
 
   '''*
   ''' <summary>
-  '''   The <c>YVoltage</c> class allows you to read and configure Yoctopuce voltage sensors.
+  '''   The <c>YVirtualSensor</c> class allows you to use Yoctopuce virtual sensors.
   ''' <para>
-  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
-  '''   to register callback functions, and to access the autonomous datalogger.
+  '''   These sensors make it possible to show external data collected by the user
+  '''   as a Yoctopuce Sensor. This class inherits from <c>YSensor</c> class the core
+  '''   functions to read measurements, to register callback functions, and to access
+  '''   the autonomous datalogger. It adds the ability to change the sensor value as
+  '''   needed, or to mark current value as invalid.
   ''' </para>
   ''' </summary>
   '''/
-  Public Class YVoltage
+  Public Class YVirtualSensor
     Inherits YSensor
-    REM --- (end of YVoltage class start)
+    REM --- (end of YVirtualSensor class start)
 
-    REM --- (YVoltage definitions)
-    Public Const ENABLED_FALSE As Integer = 0
-    Public Const ENABLED_TRUE As Integer = 1
-    Public Const ENABLED_INVALID As Integer = -1
-    Public Const SIGNALBIAS_INVALID As Double = YAPI.INVALID_DOUBLE
-    REM --- (end of YVoltage definitions)
+    REM --- (YVirtualSensor definitions)
+    Public Const INVALIDVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
+    REM --- (end of YVirtualSensor definitions)
 
-    REM --- (YVoltage attributes declaration)
-    Protected _enabled As Integer
-    Protected _signalBias As Double
-    Protected _valueCallbackVoltage As YVoltageValueCallback
-    Protected _timedReportCallbackVoltage As YVoltageTimedReportCallback
-    REM --- (end of YVoltage attributes declaration)
+    REM --- (YVirtualSensor attributes declaration)
+    Protected _invalidValue As Double
+    Protected _valueCallbackVirtualSensor As YVirtualSensorValueCallback
+    Protected _timedReportCallbackVirtualSensor As YVirtualSensorTimedReportCallback
+    REM --- (end of YVirtualSensor attributes declaration)
 
     Public Sub New(ByVal func As String)
       MyBase.New(func)
-      _classname = "Voltage"
-      REM --- (YVoltage attributes initialization)
-      _enabled = ENABLED_INVALID
-      _signalBias = SIGNALBIAS_INVALID
-      _valueCallbackVoltage = Nothing
-      _timedReportCallbackVoltage = Nothing
-      REM --- (end of YVoltage attributes initialization)
+      _classname = "VirtualSensor"
+      REM --- (YVirtualSensor attributes initialization)
+      _invalidValue = INVALIDVALUE_INVALID
+      _valueCallbackVirtualSensor = Nothing
+      _timedReportCallbackVirtualSensor = Nothing
+      REM --- (end of YVirtualSensor attributes initialization)
     End Sub
 
-    REM --- (YVoltage private methods declaration)
+    REM --- (YVirtualSensor private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
-      If json_val.has("enabled") Then
-        If (json_val.getInt("enabled") > 0) Then _enabled = 1 Else _enabled = 0
-      End If
-      If json_val.has("signalBias") Then
-        _signalBias = Math.Round(json_val.getDouble("signalBias") / 65.536) / 1000.0
+      If json_val.has("invalidValue") Then
+        _invalidValue = Math.Round(json_val.getDouble("invalidValue") / 65.536) / 1000.0
       End If
       Return MyBase._parseAttr(json_val)
     End Function
 
-    REM --- (end of YVoltage private methods declaration)
+    REM --- (end of YVirtualSensor private methods declaration)
 
-    REM --- (YVoltage public methods declaration)
-    '''*
-    ''' <summary>
-    '''   Returns the activation state of this input.
-    ''' <para>
-    ''' </para>
-    ''' <para>
-    ''' </para>
-    ''' </summary>
-    ''' <returns>
-    '''   either <c>YVoltage.ENABLED_FALSE</c> or <c>YVoltage.ENABLED_TRUE</c>, according to the activation
-    '''   state of this input
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns <c>YVoltage.ENABLED_INVALID</c>.
-    ''' </para>
-    '''/
-    Public Function get_enabled() As Integer
-      Dim res As Integer
-      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return ENABLED_INVALID
-        End If
-      End If
-      res = Me._enabled
-      Return res
-    End Function
-
+    REM --- (YVirtualSensor public methods declaration)
 
     '''*
     ''' <summary>
-    '''   Changes the activation state of this voltage input.
+    '''   Changes the measuring unit for the measured value.
     ''' <para>
-    '''   When AC measurements are disabled,
-    '''   the device will always assume a DC signal, and vice-versa. When both AC and DC measurements
-    '''   are active, the device switches between AC and DC mode based on the relative amplitude
-    '''   of variations compared to the average value.
-    '''   Remember to call the <c>saveToFlash()</c>
-    '''   method of the module if the modification must be kept.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>YVoltage.ENABLED_FALSE</c> or <c>YVoltage.ENABLED_TRUE</c>, according to the activation
-    '''   state of this voltage input
+    '''   a string corresponding to the measuring unit for the measured value
     ''' </param>
     ''' <para>
     ''' </para>
@@ -171,26 +131,22 @@ Module yocto_voltage
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_enabled(ByVal newval As Integer) As Integer
+    Public Function set_unit(ByVal newval As String) As Integer
       Dim rest_val As String
-      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
-      Return _setAttr("enabled", rest_val)
+      rest_val = newval
+      Return _setAttr("unit", rest_val)
     End Function
 
     '''*
     ''' <summary>
-    '''   Changes the DC bias configured for zero shift adjustment.
+    '''   Changes the current value of the sensor (raw value, before calibration).
     ''' <para>
-    '''   If your DC current reads positive when it should be zero, set up
-    '''   a positive signalBias of the same value to fix the zero shift.
-    '''   Remember to call the <c>saveToFlash()</c>
-    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a floating point number corresponding to the DC bias configured for zero shift adjustment
+    '''   a floating point number corresponding to the current value of the sensor (raw value, before calibration)
     ''' </param>
     ''' <para>
     ''' </para>
@@ -201,42 +157,80 @@ Module yocto_voltage
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Function set_signalBias(ByVal newval As Double) As Integer
+    Public Function set_currentRawValue(ByVal newval As Double) As Integer
       Dim rest_val As String
       rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
-      Return _setAttr("signalBias", rest_val)
+      Return _setAttr("currentRawValue", rest_val)
+    End Function
+
+    Public Function set_sensorState(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("sensorState", rest_val)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the invalid value of the sensor, returned if the sensor is read when in invalid state
+    '''   (for instance before having been set).
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number corresponding to the invalid value of the sensor, returned if the sensor is
+    '''   read when in invalid state
+    '''   (for instance before having been set)
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_invalidValue(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("invalidValue", rest_val)
     End Function
     '''*
     ''' <summary>
-    '''   Returns the DC bias configured for zero shift adjustment.
+    '''   Returns the invalid value of the sensor, returned if the sensor is read when in invalid state
+    '''   (for instance before having been set).
     ''' <para>
-    '''   A positive bias value is used to correct a positive DC bias,
-    '''   while a negative bias value is used to correct a negative DC bias.
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a floating point number corresponding to the DC bias configured for zero shift adjustment
+    '''   a floating point number corresponding to the invalid value of the sensor, returned if the sensor is
+    '''   read when in invalid state
+    '''   (for instance before having been set)
     ''' </returns>
     ''' <para>
-    '''   On failure, throws an exception or returns <c>YVoltage.SIGNALBIAS_INVALID</c>.
+    '''   On failure, throws an exception or returns <c>YVirtualSensor.INVALIDVALUE_INVALID</c>.
     ''' </para>
     '''/
-    Public Function get_signalBias() As Double
+    Public Function get_invalidValue() As Double
       Dim res As Double = 0
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return SIGNALBIAS_INVALID
+          Return INVALIDVALUE_INVALID
         End If
       End If
-      res = Me._signalBias
+      res = Me._invalidValue
       Return res
     End Function
 
     '''*
     ''' <summary>
-    '''   Retrieves a voltage sensor for a given identifier.
+    '''   Retrieves a virtual sensor for a given identifier.
     ''' <para>
     '''   The identifier can be specified using several formats:
     ''' </para>
@@ -260,11 +254,11 @@ Module yocto_voltage
     ''' <para>
     ''' </para>
     ''' <para>
-    '''   This function does not require that the voltage sensor is online at the time
+    '''   This function does not require that the virtual sensor is online at the time
     '''   it is invoked. The returned object is nevertheless valid.
-    '''   Use the method <c>YVoltage.isOnline()</c> to test if the voltage sensor is
+    '''   Use the method <c>YVirtualSensor.isOnline()</c> to test if the virtual sensor is
     '''   indeed online at a given time. In case of ambiguity when looking for
-    '''   a voltage sensor by logical name, no error is notified: the first instance
+    '''   a virtual sensor by logical name, no error is notified: the first instance
     '''   found is returned. The search is performed first by hardware name,
     '''   then by logical name.
     ''' </para>
@@ -277,19 +271,19 @@ Module yocto_voltage
     ''' </para>
     ''' </summary>
     ''' <param name="func">
-    '''   a string that uniquely characterizes the voltage sensor, for instance
-    '''   <c>MOTORCTL.voltage</c>.
+    '''   a string that uniquely characterizes the virtual sensor, for instance
+    '''   <c>MyDevice.virtualSensor1</c>.
     ''' </param>
     ''' <returns>
-    '''   a <c>YVoltage</c> object allowing you to drive the voltage sensor.
+    '''   a <c>YVirtualSensor</c> object allowing you to drive the virtual sensor.
     ''' </returns>
     '''/
-    Public Shared Function FindVoltage(func As String) As YVoltage
-      Dim obj As YVoltage
-      obj = CType(YFunction._FindFromCache("Voltage", func), YVoltage)
+    Public Shared Function FindVirtualSensor(func As String) As YVirtualSensor
+      Dim obj As YVirtualSensor
+      obj = CType(YFunction._FindFromCache("VirtualSensor", func), YVirtualSensor)
       If ((obj Is Nothing)) Then
-        obj = New YVoltage(func)
-        YFunction._AddToCache("Voltage", func, obj)
+        obj = New YVirtualSensor(func)
+        YFunction._AddToCache("VirtualSensor", func, obj)
       End If
       Return obj
     End Function
@@ -312,14 +306,14 @@ Module yocto_voltage
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerValueCallback(callback As YVoltageValueCallback) As Integer
+    Public Overloads Function registerValueCallback(callback As YVirtualSensorValueCallback) As Integer
       Dim val As String
       If (Not (callback Is Nothing)) Then
         YFunction._UpdateValueCallbackList(Me, True)
       Else
         YFunction._UpdateValueCallbackList(Me, False)
       End If
-      Me._valueCallbackVoltage = callback
+      Me._valueCallbackVirtualSensor = callback
       REM // Immediately invoke value callback with current value
       If (Not (callback Is Nothing) AndAlso Me.isOnline()) Then
         val = Me._advertisedValue
@@ -331,8 +325,8 @@ Module yocto_voltage
     End Function
 
     Public Overrides Function _invokeValueCallback(value As String) As Integer
-      If (Not (Me._valueCallbackVoltage Is Nothing)) Then
-        Me._valueCallbackVoltage(Me, value)
+      If (Not (Me._valueCallbackVirtualSensor Is Nothing)) Then
+        Me._valueCallbackVirtualSensor(Me, value)
       Else
         MyBase._invokeValueCallback(value)
       End If
@@ -357,7 +351,7 @@ Module yocto_voltage
     ''' @noreturn
     ''' </param>
     '''/
-    Public Overloads Function registerTimedReportCallback(callback As YVoltageTimedReportCallback) As Integer
+    Public Overloads Function registerTimedReportCallback(callback As YVirtualSensorTimedReportCallback) As Integer
       Dim sensor As YSensor
       sensor = Me
       If (Not (callback Is Nothing)) Then
@@ -365,13 +359,13 @@ Module yocto_voltage
       Else
         YFunction._UpdateTimedReportCallbackList(sensor, False)
       End If
-      Me._timedReportCallbackVoltage = callback
+      Me._timedReportCallbackVirtualSensor = callback
       Return 0
     End Function
 
     Public Overrides Function _invokeTimedReportCallback(value As YMeasure) As Integer
-      If (Not (Me._timedReportCallbackVoltage Is Nothing)) Then
-        Me._timedReportCallbackVoltage(Me, value)
+      If (Not (Me._timedReportCallbackVirtualSensor Is Nothing)) Then
+        Me._timedReportCallbackVirtualSensor(Me, value)
       Else
         MyBase._invokeTimedReportCallback(value)
       End If
@@ -380,14 +374,8 @@ Module yocto_voltage
 
     '''*
     ''' <summary>
-    '''   Calibrate the device by adjusting <c>signalBias</c> so that the current
-    '''   input voltage is precisely seen as zero.
+    '''   Changes the current sensor state to invalid (as if no value would have been ever set).
     ''' <para>
-    '''   Before calling this method, make
-    '''   sure to short the power source inputs as close as possible to the connector, and
-    '''   to disconnect the load to ensure the wires don't capture radiated noise.
-    '''   Remember to call the <c>saveToFlash()</c>
-    '''   method of the module if the modification must be kept.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -397,35 +385,27 @@ Module yocto_voltage
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function zeroAdjust() As Integer
-      Dim currSignal As Double = 0
-      Dim bias As Double = 0
-      currSignal = Me.get_currentRawValue()
-      bias = Me.get_signalBias() + currSignal
-      If Not((bias > -0.5) AndAlso (bias < 0.5)) Then
-        me._throw(YAPI.INVALID_ARGUMENT, "suspicious zeroAdjust, please ensure that the power source inputs are shorted")
-        return YAPI.INVALID_ARGUMENT
-      end if
-      Return Me.set_signalBias(bias)
+    Public Overridable Function set_sensorAsInvalid() As Integer
+      Return Me.set_sensorState(1)
     End Function
 
 
     '''*
     ''' <summary>
-    '''   Continues the enumeration of voltage sensors started using <c>yFirstVoltage()</c>.
+    '''   Continues the enumeration of virtual sensors started using <c>yFirstVirtualSensor()</c>.
     ''' <para>
-    '''   Caution: You can't make any assumption about the returned voltage sensors order.
-    '''   If you want to find a specific a voltage sensor, use <c>Voltage.findVoltage()</c>
+    '''   Caution: You can't make any assumption about the returned virtual sensors order.
+    '''   If you want to find a specific a virtual sensor, use <c>VirtualSensor.findVirtualSensor()</c>
     '''   and a hardwareID or a logical name.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YVoltage</c> object, corresponding to
-    '''   a voltage sensor currently online, or a <c>Nothing</c> pointer
-    '''   if there are no more voltage sensors to enumerate.
+    '''   a pointer to a <c>YVirtualSensor</c> object, corresponding to
+    '''   a virtual sensor currently online, or a <c>Nothing</c> pointer
+    '''   if there are no more virtual sensors to enumerate.
     ''' </returns>
     '''/
-    Public Function nextVoltage() As YVoltage
+    Public Function nextVirtualSensor() As YVirtualSensor
       Dim hwid As String = ""
       If (YISERR(_nextFunction(hwid))) Then
         Return Nothing
@@ -433,24 +413,24 @@ Module yocto_voltage
       If (hwid = "") Then
         Return Nothing
       End If
-      Return YVoltage.FindVoltage(hwid)
+      Return YVirtualSensor.FindVirtualSensor(hwid)
     End Function
 
     '''*
     ''' <summary>
-    '''   Starts the enumeration of voltage sensors currently accessible.
+    '''   Starts the enumeration of virtual sensors currently accessible.
     ''' <para>
-    '''   Use the method <c>YVoltage.nextVoltage()</c> to iterate on
-    '''   next voltage sensors.
+    '''   Use the method <c>YVirtualSensor.nextVirtualSensor()</c> to iterate on
+    '''   next virtual sensors.
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a pointer to a <c>YVoltage</c> object, corresponding to
-    '''   the first voltage sensor currently online, or a <c>Nothing</c> pointer
+    '''   a pointer to a <c>YVirtualSensor</c> object, corresponding to
+    '''   the first virtual sensor currently online, or a <c>Nothing</c> pointer
     '''   if there are none.
     ''' </returns>
     '''/
-    Public Shared Function FirstVoltage() As YVoltage
+    Public Shared Function FirstVirtualSensor() As YVirtualSensor
       Dim v_fundescr(1) As YFUN_DESCR
       Dim dev As YDEV_DESCR
       Dim neededsize, err As Integer
@@ -459,7 +439,7 @@ Module yocto_voltage
       Dim size As Integer = Marshal.SizeOf(v_fundescr(0))
       Dim p As IntPtr = Marshal.AllocHGlobal(Marshal.SizeOf(v_fundescr(0)))
 
-      err = yapiGetFunctionsByClass("Voltage", 0, p, size, neededsize, errmsg)
+      err = yapiGetFunctionsByClass("VirtualSensor", 0, p, size, neededsize, errmsg)
       Marshal.Copy(p, v_fundescr, 0, 1)
       Marshal.FreeHGlobal(p)
 
@@ -474,18 +454,18 @@ Module yocto_voltage
       If (YISERR(yapiGetFunctionInfo(v_fundescr(0), dev, serial, funcId, funcName, funcVal, errmsg))) Then
         Return Nothing
       End If
-      Return YVoltage.FindVoltage(serial + "." + funcId)
+      Return YVirtualSensor.FindVirtualSensor(serial + "." + funcId)
     End Function
 
-    REM --- (end of YVoltage public methods declaration)
+    REM --- (end of YVirtualSensor public methods declaration)
 
   End Class
 
-  REM --- (YVoltage functions)
+  REM --- (YVirtualSensor functions)
 
   '''*
   ''' <summary>
-  '''   Retrieves a voltage sensor for a given identifier.
+  '''   Retrieves a virtual sensor for a given identifier.
   ''' <para>
   '''   The identifier can be specified using several formats:
   ''' </para>
@@ -509,11 +489,11 @@ Module yocto_voltage
   ''' <para>
   ''' </para>
   ''' <para>
-  '''   This function does not require that the voltage sensor is online at the time
+  '''   This function does not require that the virtual sensor is online at the time
   '''   it is invoked. The returned object is nevertheless valid.
-  '''   Use the method <c>YVoltage.isOnline()</c> to test if the voltage sensor is
+  '''   Use the method <c>YVirtualSensor.isOnline()</c> to test if the virtual sensor is
   '''   indeed online at a given time. In case of ambiguity when looking for
-  '''   a voltage sensor by logical name, no error is notified: the first instance
+  '''   a virtual sensor by logical name, no error is notified: the first instance
   '''   found is returned. The search is performed first by hardware name,
   '''   then by logical name.
   ''' </para>
@@ -526,36 +506,36 @@ Module yocto_voltage
   ''' </para>
   ''' </summary>
   ''' <param name="func">
-  '''   a string that uniquely characterizes the voltage sensor, for instance
-  '''   <c>MOTORCTL.voltage</c>.
+  '''   a string that uniquely characterizes the virtual sensor, for instance
+  '''   <c>MyDevice.virtualSensor1</c>.
   ''' </param>
   ''' <returns>
-  '''   a <c>YVoltage</c> object allowing you to drive the voltage sensor.
+  '''   a <c>YVirtualSensor</c> object allowing you to drive the virtual sensor.
   ''' </returns>
   '''/
-  Public Function yFindVoltage(ByVal func As String) As YVoltage
-    Return YVoltage.FindVoltage(func)
+  Public Function yFindVirtualSensor(ByVal func As String) As YVirtualSensor
+    Return YVirtualSensor.FindVirtualSensor(func)
   End Function
 
   '''*
   ''' <summary>
-  '''   Starts the enumeration of voltage sensors currently accessible.
+  '''   Starts the enumeration of virtual sensors currently accessible.
   ''' <para>
-  '''   Use the method <c>YVoltage.nextVoltage()</c> to iterate on
-  '''   next voltage sensors.
+  '''   Use the method <c>YVirtualSensor.nextVirtualSensor()</c> to iterate on
+  '''   next virtual sensors.
   ''' </para>
   ''' </summary>
   ''' <returns>
-  '''   a pointer to a <c>YVoltage</c> object, corresponding to
-  '''   the first voltage sensor currently online, or a <c>Nothing</c> pointer
+  '''   a pointer to a <c>YVirtualSensor</c> object, corresponding to
+  '''   the first virtual sensor currently online, or a <c>Nothing</c> pointer
   '''   if there are none.
   ''' </returns>
   '''/
-  Public Function yFirstVoltage() As YVoltage
-    Return YVoltage.FirstVoltage()
+  Public Function yFirstVirtualSensor() As YVirtualSensor
+    Return YVirtualSensor.FirstVirtualSensor()
   End Function
 
 
-  REM --- (end of YVoltage functions)
+  REM --- (end of YVirtualSensor functions)
 
 End Module

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 63470 2024-11-25 14:25:16Z seb $
+'* $Id: yocto_messagebox.vb 68482 2025-08-21 10:07:30Z mvuilleu $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -672,7 +672,7 @@ Module yocto_messagebox
       addrType = ((addr(ofs)) And (112))
       If (addrType = 80) Then
         REM // alphanumeric number
-        siz = (4*siz \ 7)
+        siz = ((4*siz) \ 7)
         ReDim gsm7(siz-1)
         rpos = 1
         carry = 0
@@ -706,7 +706,7 @@ Module yocto_messagebox
           i = i + 1
         End While
         REM // remove padding digit if needed
-        If (((addr(ofs+siz)) >> 4) = 15) Then
+        If ((addr(ofs+siz) >> 4) = 15) Then
           res = (res).Substring(0, (res).Length-1)
         End If
         Return res
@@ -2339,6 +2339,7 @@ Module yocto_messagebox
 
       Me._pdus = newArr
       REM // append complete concatenated messages
+      newAgg.Clear()
       i = 0
       While (i < nsig)
         sig = signatures(i)

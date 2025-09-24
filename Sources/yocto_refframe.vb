@@ -870,9 +870,9 @@ end enum
       Me._calibDataAccZ.Add(zVal)
       Me._calibDataAcc.Add(norm)
       Me._calibInternalPos = Me._calibInternalPos + 1
-      Me._calibProgress = 1 + 16 * (Me._calibStage - 1) + (16 * Me._calibInternalPos \ Me._calibCount)
+      Me._calibProgress = 1 + 16 * (Me._calibStage - 1) + ((16 * Me._calibInternalPos) \ Me._calibCount)
       If (Me._calibInternalPos < Me._calibCount) Then
-        Me._calibStageProgress = 1 + (99 * Me._calibInternalPos \ Me._calibCount)
+        Me._calibStageProgress = 1 + ((99 * Me._calibInternalPos) \ Me._calibCount)
         Return YAPI.SUCCESS
       End If
       REM // Stage done, compute preliminary result

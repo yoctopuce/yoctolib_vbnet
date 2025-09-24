@@ -63,7 +63,7 @@ Module yocto_tvoc
   ''' <summary>
   '''   The <c>YTvoc</c> class allows you to read and configure Yoctopuce Total Volatile Organic Compound sensors.
   ''' <para>
-  '''   It inherits from <c>YSensor</c> class the core functions to read measures,
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
   '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>

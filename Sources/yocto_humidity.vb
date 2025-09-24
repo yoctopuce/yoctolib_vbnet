@@ -65,7 +65,7 @@ Module yocto_humidity
   ''' <summary>
   '''   The <c>YHumidity</c> class allows you to read and configure Yoctopuce humidity sensors.
   ''' <para>
-  '''   It inherits from <c>YSensor</c> class the core functions to read measures,
+  '''   It inherits from <c>YSensor</c> class the core functions to read measurements,
   '''   to register callback functions, and to access the autonomous datalogger.
   ''' </para>
   ''' </summary>

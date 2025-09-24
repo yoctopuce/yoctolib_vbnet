@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 63470 2024-11-25 14:25:16Z seb $
+'* $Id: yocto_files.vb 67408 2025-06-12 08:29:48Z seb $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -168,6 +168,7 @@ Module yocto_files
     Protected _filesCount As Integer
     Protected _freeSpace As Integer
     Protected _valueCallbackFiles As YFilesValueCallback
+    Protected _ver As Integer
     REM --- (end of generated code: YFiles attributes declaration)
 
     Public Sub New(ByVal func As String)
@@ -177,6 +178,7 @@ Module yocto_files
       _filesCount = FILESCOUNT_INVALID
       _freeSpace = FREESPACE_INVALID
       _valueCallbackFiles = Nothing
+      _ver = 0
       REM --- (end of generated code: YFiles attributes initialization)
     End Sub
 
@@ -359,6 +361,22 @@ Module yocto_files
       Return Me._download(url)
     End Function
 
+    Public Overridable Function _getVersion() As Integer
+      Dim json As Byte() = New Byte(){}
+      If (Me._ver > 0) Then
+        Return Me._ver
+      End If
+      REM //may throw an exception
+      json = Me.sendCommand("info")
+      If (json(0) <> 123) Then
+        REM // ascii code for '{'
+        Me._ver = 30
+      Else
+        Me._ver = YAPI._atoi(Me._json_get_key(json, "ver"))
+      End If
+      Return Me._ver
+    End Function
+
     '''*
     ''' <summary>
     '''   Reinitialize the filesystem to its clean, unfragmented, empty state.
@@ -421,15 +439,15 @@ Module yocto_files
 
     '''*
     ''' <summary>
-    '''   Test if a file exist on the filesystem of the module.
+    '''   Tests if a file exists on the filesystem of the module.
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <param name="filename">
-    '''   the file name to test.
+    '''   the filename to test.
     ''' </param>
     ''' <returns>
-    '''   a true if the file exist, false otherwise.
+    '''   true if the file exists, false otherwise.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception.
@@ -524,6 +542,63 @@ Module yocto_files
         return YAPI.IO_ERROR
       end if
       Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the expected file CRC for a given content.
+    ''' <para>
+    '''   Note that the CRC value may vary depending on the version
+    '''   of the filesystem used by the hub, so it is important to
+    '''   use this method if a reference value needs to be computed.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="content">
+    '''   a buffer representing a file content
+    ''' </param>
+    ''' <returns>
+    '''   the 32-bit CRC summarizing the file content, as it would
+    '''   be returned by the <c>get_crc()</c> method of
+    '''   <c>YFileRecord</c> objects returned by <c>get_list()</c>.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_content_crc(content As Byte()) As Integer
+      Dim fsver As Integer = 0
+      Dim sz As Integer = 0
+      Dim blkcnt As Integer = 0
+      Dim meta As Byte() = New Byte(){}
+      Dim blkidx As Integer = 0
+      Dim blksz As Integer = 0
+      Dim part As Integer = 0
+      Dim res As Integer = 0
+      sz = (content).Length
+      If (sz = 0) Then
+        res = YAPI._bincrc(content, 0, 0)
+        Return res
+      End If
+
+      fsver = Me._getVersion()
+      If (fsver < 40) Then
+        res = YAPI._bincrc(content, 0, sz)
+        Return res
+      End If
+      blkcnt = ((sz + 255) \ 256)
+      ReDim meta(4 * blkcnt-1)
+      blkidx = 0
+      While (blkidx < blkcnt)
+        blksz = sz - blkidx * 256
+        If (blksz > 256) Then
+          blksz = 256
+        End If
+        part = ((YAPI._bincrc(content, blkidx * 256, blksz)) Xor (CType(&Hffffffff, Integer)))
+        meta(4 * blkidx) = Convert.ToByte(((part) And (255)) And &HFF)
+        meta(4 * blkidx + 1) = Convert.ToByte((((part >> 8)) And (255)) And &HFF)
+        meta(4 * blkidx + 2) = Convert.ToByte((((part >> 16)) And (255)) And &HFF)
+        meta(4 * blkidx + 3) = Convert.ToByte((((part >> 24)) And (255)) And &HFF)
+        blkidx = blkidx + 1
+      End While
+      res = ((YAPI._bincrc(meta, 0, 4 * blkcnt)) Xor (CType(&Hffffffff, Integer)))
+      Return res
     End Function
 
 

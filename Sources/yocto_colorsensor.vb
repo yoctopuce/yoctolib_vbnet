@@ -58,6 +58,7 @@ Module yocto_colorsensor
   Public Const Y_ESTIMATIONMODEL_INVALID As Integer = -1
   Public Const Y_WORKINGMODE_AUTO As Integer = 0
   Public Const Y_WORKINGMODE_EXPERT As Integer = 1
+  Public Const Y_WORKINGMODE_AUTOGAIN As Integer = 2
   Public Const Y_WORKINGMODE_INVALID As Integer = -1
   Public Const Y_LEDCURRENT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LEDCALIBRATION_INVALID As Integer = YAPI.INVALID_UINT
@@ -108,6 +109,7 @@ Module yocto_colorsensor
     Public Const ESTIMATIONMODEL_INVALID As Integer = -1
     Public Const WORKINGMODE_AUTO As Integer = 0
     Public Const WORKINGMODE_EXPERT As Integer = 1
+    Public Const WORKINGMODE_AUTOGAIN As Integer = 2
     Public Const WORKINGMODE_INVALID As Integer = -1
     Public Const LEDCURRENT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LEDCALIBRATION_INVALID As Integer = YAPI.INVALID_UINT
@@ -309,8 +311,8 @@ Module yocto_colorsensor
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   either <c>YColorSensor.WORKINGMODE_AUTO</c> or <c>YColorSensor.WORKINGMODE_EXPERT</c>, according to
-    '''   the sensor working mode
+    '''   a value among <c>YColorSensor.WORKINGMODE_AUTO</c>, <c>YColorSensor.WORKINGMODE_EXPERT</c> and
+    '''   <c>YColorSensor.WORKINGMODE_AUTOGAIN</c> corresponding to the sensor working mode
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YColorSensor.WORKINGMODE_INVALID</c>.
@@ -340,8 +342,8 @@ Module yocto_colorsensor
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   either <c>YColorSensor.WORKINGMODE_AUTO</c> or <c>YColorSensor.WORKINGMODE_EXPERT</c>, according to
-    '''   the sensor working mode
+    '''   a value among <c>YColorSensor.WORKINGMODE_AUTO</c>, <c>YColorSensor.WORKINGMODE_EXPERT</c> and
+    '''   <c>YColorSensor.WORKINGMODE_AUTOGAIN</c> corresponding to the sensor working mode
     ''' </param>
     ''' <para>
     ''' </para>

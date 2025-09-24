@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 63470 2024-11-25 14:25:16Z seb $
+'* $Id: yocto_serialport.vb 67383 2025-06-11 05:44:27Z mvuilleu $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -2379,7 +2379,7 @@ Module yocto_serialport
       regpos = 0
       idx = 2
       While (regpos < nWords)
-        val = ((reply(idx)) << 8)
+        val = (reply(idx) << 8)
         idx = idx + 1
         val = val + reply(idx)
         idx = idx + 1
@@ -2439,7 +2439,7 @@ Module yocto_serialport
       regpos = 0
       idx = 2
       While (regpos < nWords)
-        val = ((reply(idx)) << 8)
+        val = (reply(idx) << 8)
         idx = idx + 1
         val = val + reply(idx)
         idx = idx + 1
@@ -2570,7 +2570,7 @@ Module yocto_serialport
       If (reply(0) <> pdu(0)) Then
         Return res
       End If
-      res = ((reply(3)) << 8)
+      res = (reply(3) << 8)
       res = res + reply(4)
       Return res
     End Function
@@ -2679,7 +2679,7 @@ Module yocto_serialport
       If (reply(0) <> pdu(0)) Then
         Return res
       End If
-      res = ((reply(3)) << 8)
+      res = (reply(3) << 8)
       res = res + reply(4)
       Return res
     End Function
@@ -2756,7 +2756,7 @@ Module yocto_serialport
       regpos = 0
       idx = 2
       While (regpos < nReadWords)
-        val = ((reply(idx)) << 8)
+        val = (reply(idx) << 8)
         idx = idx + 1
         val = val + reply(idx)
         idx = idx + 1

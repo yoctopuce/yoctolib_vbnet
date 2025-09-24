@@ -646,7 +646,7 @@ Module yocto_buzzer
         End If
         If (ch = 46) Then
           REM // . (duration modifier)
-          num = (num * 2 \ 3)
+          num = ((num * 2) \ 3)
         End If
         If (((ch = 32) OrElse (i+1 = notesLen)) AndAlso ((note > -99) OrElse (typ <> 3))) Then
           If (num = 0) Then
