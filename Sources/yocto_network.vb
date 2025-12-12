@@ -785,8 +785,7 @@ Module yocto_network
     '''/
     Public Function set_userPassword(ByVal newval As String) As Integer
       Dim rest_val As String
-      If newval.Length > YAPI.HASH_BUF_SIZE Then
-        _throw(YAPI.INVALID_ARGUMENT, "Password too long :" + newval)
+      If Not _is_valid_pass(newval) Then
         Return YAPI.INVALID_ARGUMENT
       End If
       rest_val = newval
@@ -848,8 +847,7 @@ Module yocto_network
     '''/
     Public Function set_adminPassword(ByVal newval As String) As Integer
       Dim rest_val As String
-      If newval.Length > YAPI.HASH_BUF_SIZE Then
-        _throw(YAPI.INVALID_ARGUMENT, "Password too long :" + newval)
+      If Not _is_valid_pass(newval) Then
         Return YAPI.INVALID_ARGUMENT
       End If
       rest_val = newval

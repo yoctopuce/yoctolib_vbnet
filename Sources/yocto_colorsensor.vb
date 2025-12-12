@@ -64,6 +64,7 @@ Module yocto_colorsensor
   Public Const Y_LEDCALIBRATION_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_INTEGRATIONTIME_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_GAIN_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_AUTOGAIN_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_SATURATION_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ESTIMATEDRGB_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ESTIMATEDHSL_INVALID As Integer = YAPI.INVALID_UINT
@@ -115,6 +116,7 @@ Module yocto_colorsensor
     Public Const LEDCALIBRATION_INVALID As Integer = YAPI.INVALID_UINT
     Public Const INTEGRATIONTIME_INVALID As Integer = YAPI.INVALID_UINT
     Public Const GAIN_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const AUTOGAIN_INVALID As String = YAPI.INVALID_STRING
     Public Const SATURATION_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ESTIMATEDRGB_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ESTIMATEDHSL_INVALID As Integer = YAPI.INVALID_UINT
@@ -146,6 +148,7 @@ Module yocto_colorsensor
     Protected _ledCalibration As Integer
     Protected _integrationTime As Integer
     Protected _gain As Integer
+    Protected _autoGain As String
     Protected _saturation As Integer
     Protected _estimatedRGB As Integer
     Protected _estimatedHSL As Integer
@@ -170,6 +173,7 @@ Module yocto_colorsensor
       _ledCalibration = LEDCALIBRATION_INVALID
       _integrationTime = INTEGRATIONTIME_INVALID
       _gain = GAIN_INVALID
+      _autoGain = AUTOGAIN_INVALID
       _saturation = SATURATION_INVALID
       _estimatedRGB = ESTIMATEDRGB_INVALID
       _estimatedHSL = ESTIMATEDHSL_INVALID
@@ -205,6 +209,9 @@ Module yocto_colorsensor
       End If
       If json_val.has("gain") Then
         _gain = CInt(json_val.getLong("gain"))
+      End If
+      If json_val.has("autoGain") Then
+        _autoGain = json_val.getString("autoGain")
       End If
       If json_val.has("saturation") Then
         _saturation = CInt(json_val.getLong("saturation"))
@@ -584,6 +591,59 @@ Module yocto_colorsensor
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("gain", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the current autogain parameters of the sensor as a character string.
+    ''' <para>
+    '''   The returned parameter format is: "Min &lt; Channel &lt; Max:Saturation".
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the current autogain parameters of the sensor as a character string
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YColorSensor.AUTOGAIN_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_autoGain() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return AUTOGAIN_INVALID
+        End If
+      End If
+      res = Me._autoGain
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_autoGain(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("autoGain", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -1061,6 +1121,43 @@ Module yocto_colorsensor
         MyBase._invokeValueCallback(value)
       End If
       Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the sensor automatic gain control settings.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="channel">
+    '''   reference channel to use for automated gain control.
+    ''' </param>
+    ''' <param name="minRaw">
+    '''   lower threshold for the measured raw value, below which the gain is
+    '''   automatically increased as long as possible.
+    ''' </param>
+    ''' <param name="maxRaw">
+    '''   high threshold for the measured raw value, over which the gain is
+    '''   automatically decreased as long as possible.
+    ''' </param>
+    ''' <param name="noSatur">
+    '''   enables gain reduction in case of sensor saturation.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the operation completes successfully.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </returns>
+    '''/
+    Public Overridable Function configureAutoGain(channel As String, minRaw As Integer, maxRaw As Integer, noSatur As Boolean) As Integer
+      Dim opt As String
+      If (noSatur) Then
+        opt = "nosat"
+      Else
+        opt = ""
+      End If
+
+      Return Me.set_autoGain("" + Convert.ToString(minRaw) + " < " + channel + " < " + Convert.ToString(maxRaw) + ":" + opt)
     End Function
 
     '''*

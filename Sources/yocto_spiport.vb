@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_spiport.vb 63470 2024-11-25 14:25:16Z seb $
+'  $Id: yocto_spiport.vb 70736 2025-12-12 07:53:30Z mvuilleu $
 '
 '  Implements yFindSpiPort(), the high-level API for SpiPort functions
 '
@@ -1692,7 +1692,8 @@ Module yocto_spiport
       reqlen = 1024
       buff = Me.readBin(reqlen)
       bufflen = (buff).Length
-      If (Me._rxptr = currpos+bufflen) Then
+      If ((bufflen > 0) AndAlso (Me._rxptr = currpos+bufflen)) Then
+        REM // up to 1024 bytes in buffer, all in direction Rx
         res = buff(0)
         Me._rxptr = currpos+1
         Me._rxbuffptr = currpos
@@ -1704,7 +1705,8 @@ Module yocto_spiport
       reqlen = 16
       buff = Me.readBin(reqlen)
       bufflen = (buff).Length
-      If (Me._rxptr = currpos+bufflen) Then
+      If ((bufflen > 0) AndAlso (Me._rxptr = currpos+bufflen)) Then
+        REM // up to 16 bytes in buffer, all in direction Rx
         res = buff(0)
         Me._rxptr = currpos+1
         Me._rxbuffptr = currpos

@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 67383 2025-06-11 05:44:27Z mvuilleu $
+'* $Id: yocto_serialport.vb 70736 2025-12-12 07:53:30Z mvuilleu $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -1584,7 +1584,8 @@ Module yocto_serialport
       reqlen = 1024
       buff = Me.readBin(reqlen)
       bufflen = (buff).Length
-      If (Me._rxptr = currpos+bufflen) Then
+      If ((bufflen > 0) AndAlso (Me._rxptr = currpos+bufflen)) Then
+        REM // up to 1024 bytes in buffer, all in direction Rx
         res = buff(0)
         Me._rxptr = currpos+1
         Me._rxbuffptr = currpos
@@ -1596,7 +1597,8 @@ Module yocto_serialport
       reqlen = 16
       buff = Me.readBin(reqlen)
       bufflen = (buff).Length
-      If (Me._rxptr = currpos+bufflen) Then
+      If ((bufflen > 0) AndAlso (Me._rxptr = currpos+bufflen)) Then
+        REM // up to 16 bytes in buffer, all in direction Rx
         res = buff(0)
         Me._rxptr = currpos+1
         Me._rxbuffptr = currpos

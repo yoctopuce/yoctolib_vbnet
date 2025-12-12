@@ -1401,7 +1401,7 @@ Module yocto_colorledcluster
     ''' </para>
     '''/
     Public Overridable Function get_rgbColorBuffer(ledIndex As Integer, count As Integer) As Byte()
-      Return Me._download("rgb.bin?typ=0&pos=" + Convert.ToString(3*ledIndex) + "&len=" + Convert.ToString(3*count))
+      Return Me._download("rgb.bin?typ=" + Convert.ToString(0) + "&pos=" + Convert.ToString(3*ledIndex) + "&len=" + Convert.ToString(3*count))
     End Function
 
     '''*
@@ -1434,7 +1434,7 @@ Module yocto_colorledcluster
       Dim g As Integer = 0
       Dim b As Integer = 0
 
-      buff = Me._download("rgb.bin?typ=0&pos=" + Convert.ToString(3*ledIndex) + "&len=" + Convert.ToString(3*count))
+      buff = Me._download("rgb.bin?typ=" + Convert.ToString(0) + "&pos=" + Convert.ToString(3*ledIndex) + "&len=" + Convert.ToString(3*count))
       res.Clear()
 
       idx = 0
@@ -1478,7 +1478,7 @@ Module yocto_colorledcluster
       Dim g As Integer = 0
       Dim b As Integer = 0
 
-      buff = Me._download("rgb.bin?typ=4&pos=" + Convert.ToString(3*ledIndex) + "&len=" + Convert.ToString(3*count))
+      buff = Me._download("rgb.bin?typ=" + Convert.ToString(4) + "&pos=" + Convert.ToString(3*ledIndex) + "&len=" + Convert.ToString(3*count))
       res.Clear()
 
       idx = 0
@@ -1521,7 +1521,7 @@ Module yocto_colorledcluster
       Dim idx As Integer = 0
       Dim seq As Integer = 0
 
-      buff = Me._download("rgb.bin?typ=1&pos=" + Convert.ToString(ledIndex) + "&len=" + Convert.ToString(count))
+      buff = Me._download("rgb.bin?typ=" + Convert.ToString(1) + "&pos=" + Convert.ToString(ledIndex) + "&len=" + Convert.ToString(count))
       res.Clear()
 
       idx = 0
@@ -1564,7 +1564,7 @@ Module yocto_colorledcluster
       Dim lh As Integer = 0
       Dim ll As Integer = 0
 
-      buff = Me._download("rgb.bin?typ=2&pos=" + Convert.ToString(4*seqIndex) + "&len=" + Convert.ToString(4*count))
+      buff = Me._download("rgb.bin?typ=" + Convert.ToString(2) + "&pos=" + Convert.ToString(4*seqIndex) + "&len=" + Convert.ToString(4*count))
       res.Clear()
 
       idx = 0
@@ -1606,7 +1606,7 @@ Module yocto_colorledcluster
       Dim lh As Integer = 0
       Dim ll As Integer = 0
 
-      buff = Me._download("rgb.bin?typ=6&pos=" + Convert.ToString(seqIndex) + "&len=" + Convert.ToString(count))
+      buff = Me._download("rgb.bin?typ=" + Convert.ToString(6) + "&pos=" + Convert.ToString(seqIndex) + "&len=" + Convert.ToString(count))
       res.Clear()
 
       idx = 0
@@ -1645,7 +1645,7 @@ Module yocto_colorledcluster
       Dim idx As Integer = 0
       Dim started As Integer = 0
 
-      buff = Me._download("rgb.bin?typ=5&pos=" + Convert.ToString(seqIndex) + "&len=" + Convert.ToString(count))
+      buff = Me._download("rgb.bin?typ=" + Convert.ToString(5) + "&pos=" + Convert.ToString(seqIndex) + "&len=" + Convert.ToString(count))
       res.Clear()
 
       idx = 0
@@ -1683,7 +1683,7 @@ Module yocto_colorledcluster
       Dim idx As Integer = 0
       Dim started As Integer = 0
 
-      buff = Me._download("rgb.bin?typ=3&pos=" + Convert.ToString(seqIndex) + "&len=" + Convert.ToString(count))
+      buff = Me._download("rgb.bin?typ=" + Convert.ToString(3) + "&pos=" + Convert.ToString(seqIndex) + "&len=" + Convert.ToString(count))
       res.Clear()
 
       idx = 0
@@ -1730,39 +1730,29 @@ Module yocto_colorledcluster
       If (L<=127) Then
         temp2 = L * (255 + S)
       Else
-        temp2 = (L+S) * 255 - L*S
+        temp2 = (L + S) * 255 - L * S
       End If
       temp1 = 510 * L - temp2
       REM // R
-      temp3 = (H + 85)
-      If (temp3 > 255) Then
-        temp3 = temp3-255
-      End If
+      temp3 = (((H + 85)) And (&Hff))
       R = Me.hsl2rgbInt(temp1, temp2, temp3)
       REM // G
-      temp3 = H
-      If (temp3 > 255) Then
-        temp3 = temp3-255
-      End If
+      temp3 = ((H) And (&Hff))
       G = Me.hsl2rgbInt(temp1, temp2, temp3)
       REM // B
-      If (H >= 85) Then
-        temp3 = H - 85
-      Else
-        temp3 = H + 170
-      End If
+      temp3 = (((H + 170)) And (&Hff))
       B = Me.hsl2rgbInt(temp1, temp2, temp3)
       REM // just in case
-      If (R>255) Then
-        R=255
+      If (R > 255) Then
+        R = 255
       End If
-      If (G>255) Then
-        G=255
+      If (G > 255) Then
+        G = 255
       End If
-      If (B>255) Then
-        B=255
+      If (B > 255) Then
+        B = 255
       End If
-      res = (R << 16)+(G << 8)+B
+      res = (R << 16) + (G << 8) + B
       Return res
     End Function
 

@@ -76,7 +76,7 @@ Module Module1
         shield.Add(serial)
       ElseIf (product.StartsWith("YoctoHub-")) Then
         hubs.Add(serial)
-      ElseIf (product <> "VirtualHub") Then
+      ElseIf (Not product.StartsWith("VirtualHub")) Then
         devices.Add(serial)
       End If
       m = m.nextModule()

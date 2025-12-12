@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 68393 2025-08-18 07:47:04Z seb $
+'* $Id: yocto_api.vb 70666 2025-12-09 10:26:00Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -820,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H0200
-  Public Const YOCTO_API_BUILD_NO As String = "69018"
+  Public Const YOCTO_API_BUILD_NO As String = "70736"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2442,7 +2442,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return  "2.1.9018 (" + version + ")"
+      Return  "2.1.10736 (" + version + ")"
     End Function
 
 
@@ -3702,6 +3702,28 @@ Module yocto_api
 
   REM --- (end of generated code: YFirmwareUpdate functions)
 
+  Public Class YCalibCtx
+
+    Public src As String
+    Public typ As Integer
+    Public par As List(Of Integer)
+    Public raw As List(Of Double)
+    Public cal As List(Of Double)
+    Public hdl As yCalibrationHandler
+
+
+    Public Sub New(src As String, hdl As yCalibrationHandler, typ As Integer, par As List(Of Integer), raw As List(Of Double), cal As List(Of Double))
+      Me.src = src
+      Me.hdl = hdl
+      Me.typ = typ
+      Me.par = par
+      Me.raw = raw
+      Me.cal = cal
+    End Sub
+
+
+
+  End Class
 
   REM --- (generated code: YDataStream class start)
 
@@ -3722,7 +3744,7 @@ Module yocto_api
     REM --- (generated code: YDataStream definitions)
     REM --- (end of generated code: YDataStream definitions)
     Public Const DATA_INVALID As Double = YAPI.INVALID_DOUBLE
-
+    Protected _cal As YCalibCtx
     REM --- (generated code: YDataStream attributes declaration)
     Protected _parent As YFunction
     Protected _runNo As Integer
@@ -3740,10 +3762,6 @@ Module yocto_api
     Protected _minVal As Double
     Protected _avgVal As Double
     Protected _maxVal As Double
-    Protected _caltyp As Integer
-    Protected _calpar As List(Of Integer)
-    Protected _calraw As List(Of Double)
-    Protected _calref As List(Of Double)
     Protected _values As List(Of List(Of Double))
     Protected _isLoaded As Boolean
     REM --- (end of generated code: YDataStream attributes declaration)
@@ -3764,10 +3782,6 @@ Module yocto_api
       _minVal = 0
       _avgVal = 0
       _maxVal = 0
-      _caltyp = 0
-      _calpar = New List(Of Integer)()
-      _calraw = New List(Of Double)()
-      _calref = New List(Of Double)()
       _values = New List(Of List(Of Double))()
       REM --- (end of generated code: YDataStream attributes initialization)
     End Sub
@@ -3787,10 +3801,6 @@ Module yocto_api
       _minVal = 0
       _avgVal = 0
       _maxVal = 0
-      _caltyp = 0
-      _calpar = New List(Of Integer)()
-      _calraw = New List(Of Double)()
-      _calref = New List(Of Double)()
       _values = New List(Of List(Of Double))()
       REM --- (end of generated code: YDataStream attributes initialization)
       _initFromDataSet(dataset, encoded)
@@ -3801,14 +3811,60 @@ Module yocto_api
     REM --- (end of generated code: YDataStream private methods declaration)
 
     REM --- (generated code: YDataStream public methods declaration)
-    Public Overridable Function _initFromDataSet(dataset As YDataSet, encoded As List(Of Integer)) As Integer
-      Dim val As Integer = 0
-      Dim i As Integer = 0
+    Public Overridable Function _parseCalibArr(iCalib As List(Of Integer)) As Integer
+      Dim caltyp As Integer = 0
+      Dim calhdl As yCalibrationHandler = Nothing
       Dim maxpos As Integer = 0
-      Dim ms_offset As Integer = 0
-      Dim samplesPerHour As Integer = 0
+      Dim position As Integer = 0
+      Dim calpar As List(Of Integer) = New List(Of Integer)()
+      Dim calraw As List(Of Double) = New List(Of Double)()
+      Dim calref As List(Of Double) = New List(Of Double)()
       Dim fRaw As Double = 0
       Dim fRef As Double = 0
+      caltyp = (iCalib(0) \ 1000)
+      If (caltyp < YOCTO_CALIB_TYPE_OFS) Then
+        REM // Unknown calibration type: calibrated value will be provided by the device
+        Me._cal = Nothing
+        Return YAPI.SUCCESS
+      End If
+      calhdl = YAPI._getCalibrationHandler(caltyp)
+      If (Not (Not (calhdl Is Nothing))) Then
+        REM // Unknown calibration type: calibrated value will be provided by the device
+        Me._cal = Nothing
+        Return YAPI.SUCCESS
+      End If
+      REM // New 32 bits text format
+      maxpos = iCalib.Count
+      calpar.Clear()
+      position = 1
+      While (position < maxpos)
+        calpar.Add(iCalib(position))
+        position = position + 1
+      End While
+
+      calraw.Clear()
+      calref.Clear()
+      position = 1
+      While (position + 1 < maxpos)
+        fRaw = iCalib(position)
+        fRaw = fRaw / 1000.0
+        fRef = iCalib(position + 1)
+        fRef = fRef / 1000.0
+        calraw.Add(fRaw)
+        calref.Add(fRef)
+        position = position + 2
+      End While
+
+
+      Me._cal = new YCalibCtx("", calhdl, caltyp, calpar, calraw, calref)
+      Return YAPI.SUCCESS
+    End Function
+
+    Public Overridable Function _initFromDataSet(dataset As YDataSet, encoded As List(Of Integer)) As Integer
+      Dim val As Integer = 0
+      Dim ms_offset As Integer = 0
+      Dim samplesPerHour As Integer = 0
+      Dim caltyp As Integer = 0
       Dim iCalib As List(Of Integer) = New List(Of Integer)()
       REM // decode sequence header to extract data
       Me._runNo = encoded(0) + ((encoded(1) << 16))
@@ -3853,28 +3909,11 @@ Module yocto_api
       End If
       REM // precompute decoding parameters
       iCalib = dataset._get_calibration()
-      Me._caltyp = iCalib(0)
-      If (Me._caltyp <> 0) Then
-        Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
-        maxpos = iCalib.Count
-        Me._calpar.Clear()
-        Me._calraw.Clear()
-        Me._calref.Clear()
-        i = 1
-        While (i < maxpos)
-          Me._calpar.Add(iCalib(i))
-          i = i + 1
-        End While
-        i = 1
-        While (i + 1 < maxpos)
-          fRaw = iCalib(i)
-          fRaw = fRaw / 1000.0
-          fRef = iCalib(i + 1)
-          fRef = fRef / 1000.0
-          Me._calraw.Add(fRaw)
-          Me._calref.Add(fRef)
-          i = i + 2
-        End While
+      caltyp = iCalib(0)
+      If (caltyp = 0) Then
+        Me._cal = Nothing
+      Else
+        Me._parseCalibArr(iCalib)
       End If
       REM // preload column names for backward-compatibility
       Me._functionId = dataset.get_functionId()
@@ -3974,24 +4013,18 @@ Module yocto_api
 
     Public Overridable Function _decodeVal(w As Integer) As Double
       Dim val As Double = 0
-      val = w
-      val = val / 1000.0
-      If (Me._caltyp <> 0) Then
-        If (Not (Me._calhdl Is Nothing)) Then
-          val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
-        End If
+      val = (w) / 1000.0
+      If (Not ((Me._cal Is Nothing))) Then
+        val = Me._cal.hdl(val, Me._cal.typ, Me._cal.par, Me._cal.raw, Me._cal.cal)
       End If
       Return val
     End Function
 
     Public Overridable Function _decodeAvg(dw As Integer, count As Integer) As Double
       Dim val As Double = 0
-      val = dw
-      val = val / 1000.0
-      If (Me._caltyp <> 0) Then
-        If (Not (Me._calhdl Is Nothing)) Then
-          val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
-        End If
+      val = (dw) / 1000.0
+      If (Not ((Me._cal Is Nothing))) Then
+        val = Me._cal.hdl(val, Me._cal.typ, Me._cal.par, Me._cal.raw, Me._cal.cal)
       End If
       Return val
     End Function
@@ -4065,7 +4098,7 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Overridable Function get_startTimeUTC() As Long
-      Return CType(Math.Round(Me._startTime), Integer)
+      Return CType(Math.Round(Me._startTime), Long)
     End Function
 
     '''*
@@ -6699,6 +6732,24 @@ Module yocto_api
 
     Public Overridable Function _parserHelper() As Integer
       Return 0
+    End Function
+
+    Public Overridable Function _is_valid_pass(passwd As String) As Boolean
+      Dim tmp As String
+      If ((passwd).Length > YAPI.HASH_BUF_SIZE) Then
+        tmp = "Password too long (max " + Convert.ToString(YAPI.HASH_BUF_SIZE) + " chars) :" + passwd
+        Me._throw(YAPI.INVALID_ARGUMENT, tmp)
+        Return False
+      End If
+      If (passwd.IndexOf("@") >=0) Then
+        Me._throw(YAPI.INVALID_ARGUMENT, "Character @ is not allowed in password")
+        Return False
+      End If
+      If (passwd.IndexOf("/") >=0) Then
+        Me._throw(YAPI.INVALID_ARGUMENT, "Character / is not allowed in password")
+        Return False
+      End If
+      Return True
     End Function
 
 
@@ -10005,7 +10056,7 @@ Module yocto_api
   Public Class YSensor
     Inherits YFunction
     REM --- (end of generated code: YSensor class start)
-
+    Protected _cal As YCalibCtx
     REM --- (generated code: YSensor definitions)
     Public Const UNIT_INVALID As String = YAPI.INVALID_STRING
     Public Const CURRENTVALUE_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -10038,16 +10089,8 @@ Module yocto_api
     Protected _sensorState As Integer
     Protected _valueCallbackSensor As YSensorValueCallback
     Protected _timedReportCallbackSensor As YSensorTimedReportCallback
-    Protected _prevTimedReport As Double
+    Protected _prevTR As Double
     Protected _iresol As Double
-    Protected _offset As Double
-    Protected _scale As Double
-    Protected _decexp As Double
-    Protected _caltyp As Integer
-    Protected _calpar As List(Of Integer)
-    Protected _calraw As List(Of Double)
-    Protected _calref As List(Of Double)
-    Protected _calhdl As yCalibrationHandler
     REM --- (end of generated code: YSensor attributes declaration)
 
     Public Sub New(ByVal func As String)
@@ -10067,16 +10110,8 @@ Module yocto_api
       _sensorState = SENSORSTATE_INVALID
       _valueCallbackSensor = Nothing
       _timedReportCallbackSensor = Nothing
-      _prevTimedReport = 0
+      _prevTR = 0
       _iresol = 0
-      _offset = 0
-      _scale = 0
-      _decexp = 0
-      _caltyp = 0
-      _calpar = New List(Of Integer)()
-      _calraw = New List(Of Double)()
-      _calref = New List(Of Double)()
-      _calhdl = Nothing
       REM --- (end of generated code: YSensor attributes initialization)
     End Sub
 
@@ -10179,12 +10214,15 @@ Module yocto_api
           Return CURRENTVALUE_INVALID
         End If
       End If
-      res = Me._applyCalibration(Me._currentRawValue)
-      If (res = CURRENTVALUE_INVALID) Then
+      If ((Me._cal Is Nothing)) Then
         res = Me._currentValue
+      Else
+        res = Me._applyCalibration(Me._currentRawValue)
       End If
-      res = res * Me._iresol
-      res = Math.Round(res) / Me._iresol
+      If (res = CURRENTVALUE_INVALID) Then
+        Return res
+      End If
+      res = Math.Round(res * Me._iresol) / Me._iresol
       Return res
     End Function
 
@@ -10239,8 +10277,7 @@ Module yocto_api
           Return LOWESTVALUE_INVALID
         End If
       End If
-      res = Me._lowestValue * Me._iresol
-      res = Math.Round(res) / Me._iresol
+      res = Math.Round(Me._lowestValue * Me._iresol) / Me._iresol
       Return res
     End Function
 
@@ -10295,8 +10332,7 @@ Module yocto_api
           Return HIGHESTVALUE_INVALID
         End If
       End If
-      res = Me._highestValue * Me._iresol
-      res = Math.Round(res) / Me._iresol
+      res = Math.Round(Me._highestValue * Me._iresol) / Me._iresol
       Return res
     End Function
 
@@ -10717,120 +10753,22 @@ Module yocto_api
     End Function
 
     Public Overrides Function _parserHelper() As Integer
-      Dim position As Integer = 0
-      Dim maxpos As Integer = 0
-      Dim iCalib As List(Of Integer) = New List(Of Integer)()
-      Dim iRaw As Integer = 0
-      Dim iRef As Integer = 0
-      Dim fRaw As Double = 0
-      Dim fRef As Double = 0
-      Me._caltyp = -1
-      Me._scale = -1
-      Me._calpar.Clear()
-      Me._calraw.Clear()
-      Me._calref.Clear()
+      Dim calibStr As String
       REM // Store inverted resolution, to provide better rounding
       If (Me._resolution > 0) Then
         Me._iresol = Math.Round(1.0 / Me._resolution)
       Else
         Me._iresol = 10000
-        Me._resolution = 0.0001
       End If
-      REM // Old format: supported when there is no calibration
-      If (Me._calibrationParam = "" OrElse Me._calibrationParam = "0") Then
-        Me._caltyp = 0
+      REM // Shortcut when there is no calibration parameter
+      calibStr = Me._calibrationParam
+      If (calibStr = "0," OrElse calibStr = "" OrElse calibStr = "0") Then
+        Me._cal = Nothing
         Return 0
       End If
-      If (Me._calibrationParam.IndexOf(",") >= 0) Then
-        REM // Plain text format
-        iCalib = YAPI._decodeFloats(Me._calibrationParam)
-        Me._caltyp = (iCalib(0) \ 1000)
-        If (Me._caltyp > 0) Then
-          If (Me._caltyp < YOCTO_CALIB_TYPE_OFS) Then
-            REM // Unknown calibration type: calibrated value will be provided by the device
-            Me._caltyp = -1
-            Return 0
-          End If
-          Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
-          If (Not (Not (Me._calhdl Is Nothing))) Then
-            REM // Unknown calibration type: calibrated value will be provided by the device
-            Me._caltyp = -1
-            Return 0
-          End If
-        End If
-        REM // New 32 bits text format
-        Me._offset = 0
-        Me._scale = 1000
-        maxpos = iCalib.Count
-        Me._calpar.Clear()
-        position = 1
-        While (position < maxpos)
-          Me._calpar.Add(iCalib(position))
-          position = position + 1
-        End While
-        Me._calraw.Clear()
-        Me._calref.Clear()
-        position = 1
-        While (position + 1 < maxpos)
-          fRaw = iCalib(position)
-          fRaw = fRaw / 1000.0
-          fRef = iCalib(position + 1)
-          fRef = fRef / 1000.0
-          Me._calraw.Add(fRaw)
-          Me._calref.Add(fRef)
-          position = position + 2
-        End While
-      Else
-        REM // Recorder-encoded format, including encoding
-        iCalib = YAPI._decodeWords(Me._calibrationParam)
-        REM // In case of unknown format, calibrated value will be provided by the device
-        If (iCalib.Count < 2) Then
-          Me._caltyp = -1
-          Return 0
-        End If
-        REM // Save variable format (scale for scalar, or decimal exponent)
-        Me._offset = 0
-        Me._scale = 1
-        Me._decexp = 1.0
-        position = iCalib(0)
-        While (position > 0)
-          Me._decexp = Me._decexp * 10
-          position = position - 1
-        End While
-        REM // Shortcut when there is no calibration parameter
-        If (iCalib.Count = 2) Then
-          Me._caltyp = 0
-          Return 0
-        End If
-        Me._caltyp = iCalib(2)
-        Me._calhdl = YAPI._getCalibrationHandler(Me._caltyp)
-        REM // parse calibration points
-        If (Me._caltyp <= 10) Then
-          maxpos = Me._caltyp
-        Else
-          If (Me._caltyp <= 20) Then
-            maxpos = Me._caltyp - 10
-          Else
-            maxpos = 5
-          End If
-        End If
-        maxpos = 3 + 2 * maxpos
-        If (maxpos > iCalib.Count) Then
-          maxpos = iCalib.Count
-        End If
-        Me._calpar.Clear()
-        Me._calraw.Clear()
-        Me._calref.Clear()
-        position = 3
-        While (position + 1 < maxpos)
-          iRaw = iCalib(position)
-          iRef = iCalib(position + 1)
-          Me._calpar.Add(iRaw)
-          Me._calpar.Add(iRef)
-          Me._calraw.Add(YAPI._decimalToDouble(iRaw))
-          Me._calref.Add(YAPI._decimalToDouble(iRef))
-          position = position + 2
-        End While
+      REM // Parse calibration parameters only if they have changed
+      If ((Me._cal Is Nothing) OrElse Not (Me._cal.src = calibStr)) Then
+        Me._parseCalibStr(calibStr)
       End If
       Return 0
     End Function
@@ -10851,12 +10789,13 @@ Module yocto_api
     ''' </returns>
     '''/
     Public Overridable Function isSensorReady() As Boolean
-      If (Not (Me.isOnline())) Then
-        Return False
-      End If
-      If (Not (Me._sensorState = 0)) Then
-        Return False
-      End If
+      Try
+          If (Me.get_sensorState() <> 0) Then
+            Return False
+          End If
+      Catch
+          Return False
+      End Try
       Return True
     End Function
 
@@ -10889,6 +10828,100 @@ Module yocto_api
       hwid = serial + ".dataLogger"
       logger = YDataLogger.FindDataLogger(hwid)
       Return logger
+    End Function
+
+    Public Overridable Function _parseCalibStr(calibStr As String) As Integer
+      Dim iCalib As List(Of Integer) = New List(Of Integer)()
+      Dim caltyp As Integer = 0
+      Dim calhdl As yCalibrationHandler = Nothing
+      Dim maxpos As Integer = 0
+      Dim position As Integer = 0
+      Dim calpar As List(Of Integer) = New List(Of Integer)()
+      Dim calraw As List(Of Double) = New List(Of Double)()
+      Dim calref As List(Of Double) = New List(Of Double)()
+      Dim fRaw As Double = 0
+      Dim fRef As Double = 0
+      Dim iRaw As Integer = 0
+      Dim iRef As Integer = 0
+      If (calibStr.IndexOf(",") >= 0) Then
+        REM // Plain text format
+        iCalib = YAPI._decodeFloats(calibStr)
+        caltyp = (iCalib(0) \ 1000)
+        If (caltyp < YOCTO_CALIB_TYPE_OFS) Then
+          REM // Unknown calibration type: calibrated value will be provided by the device
+          Me._cal = Nothing
+          Return YAPI.SUCCESS
+        End If
+        calhdl = YAPI._getCalibrationHandler(caltyp)
+        If (Not (Not (calhdl Is Nothing))) Then
+          REM // Unknown calibration type: calibrated value will be provided by the device
+          Me._cal = Nothing
+          Return YAPI.SUCCESS
+        End If
+        REM // New 32 bits text format
+        maxpos = iCalib.Count
+        calpar.Clear()
+        position = 1
+        While (position < maxpos)
+          calpar.Add(iCalib(position))
+          position = position + 1
+        End While
+        calraw.Clear()
+        calref.Clear()
+        position = 1
+        While (position + 1 < maxpos)
+          fRaw = iCalib(position)
+          fRaw = fRaw / 1000.0
+          fRef = iCalib(position + 1)
+          fRef = fRef / 1000.0
+          calraw.Add(fRaw)
+          calref.Add(fRef)
+          position = position + 2
+        End While
+      Else
+        REM // Old recorder-encoded format, including encoding
+        iCalib = YAPI._decodeWords(calibStr)
+        If (iCalib.Count <= 2) Then
+          REM // Unknown calibration type: calibrated value will be provided by the device
+          Me._cal = Nothing
+          Return YAPI.SUCCESS
+        End If
+        caltyp = iCalib(2)
+        calhdl = YAPI._getCalibrationHandler(caltyp)
+        If (Not (Not (calhdl Is Nothing))) Then
+          REM // Unknown calibration type: calibrated value will be provided by the device
+          Me._cal = Nothing
+          Return YAPI.SUCCESS
+        End If
+        If (caltyp <= 10) Then
+          maxpos = caltyp
+        Else
+          If (caltyp <= 20) Then
+            maxpos = caltyp - 10
+          Else
+            maxpos = 5
+          End If
+        End If
+        maxpos = 3 + 2 * maxpos
+        If (maxpos > iCalib.Count) Then
+          maxpos = iCalib.Count
+        End If
+        calpar.Clear()
+        calraw.Clear()
+        calref.Clear()
+        position = 3
+        While (position + 1 < maxpos)
+          iRaw = iCalib(position)
+          iRef = iCalib(position + 1)
+          calpar.Add(iRaw)
+          calpar.Add(iRef)
+          calraw.Add(YAPI._decimalToDouble(iRaw))
+          calref.Add(YAPI._decimalToDouble(iRef))
+          position = position + 2
+        End While
+      End If
+      Me._cal = new YCalibCtx(calibStr, calhdl, caltyp, calpar, calraw, calref)
+      Return YAPI.SUCCESS
     End Function
 
     '''*
@@ -11091,24 +11124,23 @@ Module yocto_api
       rawValues.Clear()
       refValues.Clear()
       REM // Load function parameters if not yet loaded
-      If ((Me._scale = 0) OrElse (Me._cacheExpiration <= YAPI.GetTickCount())) Then
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
         If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
           Return YAPI.DEVICE_NOT_FOUND
         End If
       End If
-      If (Me._caltyp < 0) Then
-        Me._throw(YAPI.NOT_SUPPORTED, "Calibration parameters format mismatch. Please upgrade your library or firmware.")
-        Return YAPI.NOT_SUPPORTED
+      If ((Me._cal Is Nothing)) Then
+        Return YAPI.SUCCESS
       End If
       rawValues.Clear()
       refValues.Clear()
       Dim ii_0 As Integer
-      For ii_0 = 0 To Me._calraw.Count - 1
-        rawValues.Add(Me._calraw(ii_0))
+      For ii_0 = 0 To Me._cal.raw.Count - 1
+        rawValues.Add(Me._cal.raw(ii_0))
       Next ii_0
       Dim ii_1 As Integer
-      For ii_1 = 0 To Me._calref.Count - 1
-        refValues.Add(Me._calref(ii_1))
+      For ii_1 = 0 To Me._cal.cal.Count - 1
+        refValues.Add(Me._cal.cal(ii_1))
       Next ii_1
       Return YAPI.SUCCESS
     End Function
@@ -11126,18 +11158,7 @@ Module yocto_api
       If (npt = 0) Then
         Return "0"
       End If
-      REM // Load function parameters if not yet loaded
-      If (Me._scale = 0) Then
-        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
-          Return YAPI.INVALID_STRING
-        End If
-      End If
-      REM // Detect old firmware
-      If ((Me._caltyp < 0) OrElse (Me._scale < 0)) Then
-        Me._throw(YAPI.NOT_SUPPORTED, "Calibration parameters format mismatch. Please upgrade your library or firmware.")
-        Return "0"
-      End If
-      REM // 32-bit fixed-point encoding
+      REM // Encode using newer 32-bit fixed-point method
       res = "" + Convert.ToString(YOCTO_CALIB_TYPE_OFS)
       idx = 0
       While (idx < npt)
@@ -11148,19 +11169,13 @@ Module yocto_api
     End Function
 
     Public Overridable Function _applyCalibration(rawValue As Double) As Double
+      If ((Me._cal Is Nothing)) Then
+        Return rawValue
+      End If
       If (rawValue = CURRENTVALUE_INVALID) Then
         Return CURRENTVALUE_INVALID
       End If
-      If (Me._caltyp = 0) Then
-        Return rawValue
-      End If
-      If (Me._caltyp < 0) Then
-        Return CURRENTVALUE_INVALID
-      End If
-      If (Not (Not (Me._calhdl Is Nothing))) Then
-        Return CURRENTVALUE_INVALID
-      End If
-      Return Me._calhdl(rawValue, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
+      Return Me._cal.hdl(rawValue, Me._cal.typ, Me._cal.par, Me._cal.raw, Me._cal.cal)
     End Function
 
     Public Overridable Function _decodeTimedReport(timestamp As Double, duration As Double, report As List(Of Integer)) As YMeasure
@@ -11180,10 +11195,10 @@ Module yocto_api
       If (duration > 0) Then
         startTime = timestamp - duration
       Else
-        startTime = Me._prevTimedReport
+        startTime = Me._prevTR
       End If
       endTime = timestamp
-      Me._prevTimedReport = endTime
+      Me._prevTR = endTime
       If (startTime = 0) Then
         startTime = endTime
       End If
@@ -11204,10 +11219,8 @@ Module yocto_api
           avgRaw = avgRaw - poww
         End If
         avgVal = avgRaw / 1000.0
-        If (Me._caltyp <> 0) Then
-          If (Not (Me._calhdl Is Nothing)) Then
-            avgVal = Me._calhdl(avgVal, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
-          End If
+        If (Not ((Me._cal Is Nothing))) Then
+          avgVal = Me._cal.hdl(avgVal, Me._cal.typ, Me._cal.par, Me._cal.raw, Me._cal.cal)
         End If
         minVal = avgVal
         maxVal = avgVal
@@ -11253,12 +11266,10 @@ Module yocto_api
         avgVal = avgRaw / 1000.0
         minVal = minRaw / 1000.0
         maxVal = maxRaw / 1000.0
-        If (Me._caltyp <> 0) Then
-          If (Not (Me._calhdl Is Nothing)) Then
-            avgVal = Me._calhdl(avgVal, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
-            minVal = Me._calhdl(minVal, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
-            maxVal = Me._calhdl(maxVal, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
-          End If
+        If (Not ((Me._cal Is Nothing))) Then
+          avgVal = Me._cal.hdl(avgVal, Me._cal.typ, Me._cal.par, Me._cal.raw, Me._cal.cal)
+          minVal = Me._cal.hdl(minVal, Me._cal.typ, Me._cal.par, Me._cal.raw, Me._cal.cal)
+          maxVal = Me._cal.hdl(maxVal, Me._cal.typ, Me._cal.par, Me._cal.raw, Me._cal.cal)
         End If
       End If
       Return New YMeasure(startTime, endTime, minVal, avgVal, maxVal)
@@ -11267,10 +11278,8 @@ Module yocto_api
     Public Overridable Function _decodeVal(w As Integer) As Double
       Dim val As Double = 0
       val = w
-      If (Me._caltyp <> 0) Then
-        If (Not (Me._calhdl Is Nothing)) Then
-          val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
-        End If
+      If (Not ((Me._cal Is Nothing))) Then
+        val = Me._cal.hdl(val, Me._cal.typ, Me._cal.par, Me._cal.raw, Me._cal.cal)
       End If
       Return val
     End Function
@@ -11278,10 +11287,8 @@ Module yocto_api
     Public Overridable Function _decodeAvg(dw As Integer) As Double
       Dim val As Double = 0
       val = dw
-      If (Me._caltyp <> 0) Then
-        If (Not (Me._calhdl Is Nothing)) Then
-          val = Me._calhdl(val, Me._caltyp, Me._calpar, Me._calraw, Me._calref)
-        End If
+      If (Not ((Me._cal Is Nothing))) Then
+        val = Me._cal.hdl(val, Me._cal.typ, Me._cal.par, Me._cal.raw, Me._cal.cal)
       End If
       Return val
     End Function

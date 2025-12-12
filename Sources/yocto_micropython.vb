@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_micropython.vb 67995 2025-07-24 17:06:13Z mvuilleu $
+'  $Id: yocto_micropython.vb 69442 2025-10-16 08:53:14Z mvuilleu $
 '
 '  Implements yFindMicroPython(), the high-level API for MicroPython functions
 '
@@ -68,7 +68,6 @@ Module yocto_micropython
   Public Delegate Sub YMicroPythonValueCallback(ByVal func As YMicroPython, ByVal value As String)
   Public Delegate Sub YMicroPythonTimedReportCallback(ByVal func As YMicroPython, ByVal measure As YMeasure)
   Public Delegate Sub YMicroPythonLogCallback(ByVal obj As YMicroPython, ByVal logline As String)
-  Public Delegate Sub YEventCallback(ByVal func As YMicroPython, ByVal logline As String)
 
   Sub yInternalEventCallback(ByVal func As YMicroPython, ByVal value As String)
     func._internalEventHandler(value)
@@ -464,7 +463,7 @@ Module yocto_micropython
     '''*
     ''' <summary>
     '''   Returns the wait time before running the startup script on power on,
-    '''   between 0.1 second and 25 seconds.
+    '''   measured in seconds.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -472,7 +471,7 @@ Module yocto_micropython
     ''' </summary>
     ''' <returns>
     '''   a floating point number corresponding to the wait time before running the startup script on power on,
-    '''   between 0.1 second and 25 seconds
+    '''   measured in seconds
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YMicroPython.STARTUPDELAY_INVALID</c>.

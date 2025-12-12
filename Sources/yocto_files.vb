@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb 67408 2025-06-12 08:29:48Z seb $
+'* $Id: yocto_files.vb 70518 2025-11-26 16:18:50Z mvuilleu $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -572,14 +572,11 @@ Module yocto_files
       Dim part As Integer = 0
       Dim res As Integer = 0
       sz = (content).Length
-      If (sz = 0) Then
-        res = YAPI._bincrc(content, 0, 0)
-        Return res
-      End If
 
       fsver = Me._getVersion()
       If (fsver < 40) Then
         res = YAPI._bincrc(content, 0, sz)
+        res = (((res) And (&H7fffffff)) - 2 * (((res >> 1)) And (&H40000000)))
         Return res
       End If
       blkcnt = ((sz + 255) \ 256)
@@ -598,6 +595,7 @@ Module yocto_files
         blkidx = blkidx + 1
       End While
       res = ((YAPI._bincrc(meta, 0, 4 * blkcnt)) Xor (CType(&Hffffffff, Integer)))
+      res = (((res) And (&H7fffffff)) - 2 * (((res >> 1)) And (&H40000000)))
       Return res
     End Function
 
