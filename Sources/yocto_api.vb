@@ -820,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H0200
-  Public Const YOCTO_API_BUILD_NO As String = "71340"
+  Public Const YOCTO_API_BUILD_NO As String = "71329"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2442,7 +2442,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return  "2.1.11340 (" + version + ")"
+      Return  "2.1.11329 (" + version + ")"
     End Function
 
 
