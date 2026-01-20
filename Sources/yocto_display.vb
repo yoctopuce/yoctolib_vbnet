@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 63328 2024-11-13 09:35:22Z seb $
+'* $Id: yocto_display.vb 71207 2026-01-07 18:17:59Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -75,16 +75,19 @@ end enum
   Public Const Y_ENABLED_INVALID As Integer = -1
   Public Const Y_STARTUPSEQ_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_AUTOINVERTDELAY_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_ORIENTATION_LEFT As Integer = 0
   Public Const Y_ORIENTATION_UP As Integer = 1
   Public Const Y_ORIENTATION_RIGHT As Integer = 2
   Public Const Y_ORIENTATION_DOWN As Integer = 3
   Public Const Y_ORIENTATION_INVALID As Integer = -1
+  Public Const Y_DISPLAYPANEL_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_DISPLAYTYPE_MONO As Integer = 0
   Public Const Y_DISPLAYTYPE_GRAY As Integer = 1
   Public Const Y_DISPLAYTYPE_RGB As Integer = 2
+  Public Const Y_DISPLAYTYPE_EPAPER As Integer = 3
   Public Const Y_DISPLAYTYPE_INVALID As Integer = -1
   Public Const Y_LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
@@ -930,16 +933,19 @@ end enum
     Public Const ENABLED_INVALID As Integer = -1
     Public Const STARTUPSEQ_INVALID As String = YAPI.INVALID_STRING
     Public Const BRIGHTNESS_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const AUTOINVERTDELAY_INVALID As Integer = YAPI.INVALID_UINT
     Public Const ORIENTATION_LEFT As Integer = 0
     Public Const ORIENTATION_UP As Integer = 1
     Public Const ORIENTATION_RIGHT As Integer = 2
     Public Const ORIENTATION_DOWN As Integer = 3
     Public Const ORIENTATION_INVALID As Integer = -1
+    Public Const DISPLAYPANEL_INVALID As String = YAPI.INVALID_STRING
     Public Const DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DISPLAYTYPE_MONO As Integer = 0
     Public Const DISPLAYTYPE_GRAY As Integer = 1
     Public Const DISPLAYTYPE_RGB As Integer = 2
+    Public Const DISPLAYTYPE_EPAPER As Integer = 3
     Public Const DISPLAYTYPE_INVALID As Integer = -1
     Public Const LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
@@ -951,7 +957,9 @@ end enum
     Protected _enabled As Integer
     Protected _startupSeq As String
     Protected _brightness As Integer
+    Protected _autoInvertDelay As Integer
     Protected _orientation As Integer
+    Protected _displayPanel As String
     Protected _displayWidth As Integer
     Protected _displayHeight As Integer
     Protected _displayType As Integer
@@ -973,7 +981,9 @@ end enum
       _enabled = ENABLED_INVALID
       _startupSeq = STARTUPSEQ_INVALID
       _brightness = BRIGHTNESS_INVALID
+      _autoInvertDelay = AUTOINVERTDELAY_INVALID
       _orientation = ORIENTATION_INVALID
+      _displayPanel = DISPLAYPANEL_INVALID
       _displayWidth = DISPLAYWIDTH_INVALID
       _displayHeight = DISPLAYHEIGHT_INVALID
       _displayType = DISPLAYTYPE_INVALID
@@ -998,8 +1008,14 @@ end enum
       If json_val.has("brightness") Then
         _brightness = CInt(json_val.getLong("brightness"))
       End If
+      If json_val.has("autoInvertDelay") Then
+        _autoInvertDelay = CInt(json_val.getLong("autoInvertDelay"))
+      End If
       If json_val.has("orientation") Then
         _orientation = CInt(json_val.getLong("orientation"))
+      End If
+      If json_val.has("displayPanel") Then
+        _displayPanel = json_val.getString("displayPanel")
       End If
       If json_val.has("displayWidth") Then
         _displayWidth = CInt(json_val.getLong("displayWidth"))
@@ -1193,6 +1209,68 @@ end enum
     End Function
     '''*
     ''' <summary>
+    '''   Returns the interval between automatic display inversions, or 0 if automatic
+    '''   inversion is disabled.
+    ''' <para>
+    '''   Using the automatic inversion mechanism reduces the
+    '''   burn-in that occurs on OLED screens over long periods when the same content
+    '''   remains displayed on the screen.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the interval between automatic display inversions, or 0 if automatic
+    '''   inversion is disabled
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YDisplay.AUTOINVERTDELAY_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_autoInvertDelay() As Integer
+      Dim res As Integer = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return AUTOINVERTDELAY_INVALID
+        End If
+      End If
+      res = Me._autoInvertDelay
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the interval between automatic display inversions.
+    ''' <para>
+    '''   The parameter is the number of seconds, or 0 to disable automatic inversion.
+    '''   Using the automatic inversion mechanism reduces the burn-in that occurs on OLED
+    '''   screens over long periods when the same content remains displayed on the screen.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   an integer corresponding to the interval between automatic display inversions
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_autoInvertDelay(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(newval))
+      Return _setAttr("autoInvertDelay", rest_val)
+    End Function
+    '''*
+    ''' <summary>
     '''   Returns the currently selected display orientation.
     ''' <para>
     ''' </para>
@@ -1247,6 +1325,62 @@ end enum
       Dim rest_val As String
       rest_val = Ltrim(Str(newval))
       Return _setAttr("orientation", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the exact model of the display panel.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a string corresponding to the exact model of the display panel
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YDisplay.DISPLAYPANEL_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_displayPanel() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return DISPLAYPANEL_INVALID
+        End If
+      End If
+      res = Me._displayPanel
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the model of display to match the connected display panel.
+    ''' <para>
+    '''   This function has no effect if the module does not support the selected
+    '''   display panel.
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a string corresponding to the model of display to match the connected display panel
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_displayPanel(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("displayPanel", rest_val)
     End Function
     '''*
     ''' <summary>
@@ -1309,8 +1443,9 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>YDisplay.DISPLAYTYPE_MONO</c>, <c>YDisplay.DISPLAYTYPE_GRAY</c> and
-    '''   <c>YDisplay.DISPLAYTYPE_RGB</c> corresponding to the display type: monochrome, gray levels or full color
+    '''   a value among <c>YDisplay.DISPLAYTYPE_MONO</c>, <c>YDisplay.DISPLAYTYPE_GRAY</c>,
+    '''   <c>YDisplay.DISPLAYTYPE_RGB</c> and <c>YDisplay.DISPLAYTYPE_EPAPER</c> corresponding to the display
+    '''   type: monochrome, gray levels or full color
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YDisplay.DISPLAYTYPE_INVALID</c>.
@@ -1548,6 +1683,71 @@ end enum
       Me.flushLayers()
       Me.resetHiddenLayerFlags()
       Return Me.sendCommand("Z")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Forces an ePaper screen to perform a regenerative update using the slow
+    '''   update method.
+    ''' <para>
+    '''   Periodic use of the slow method (total panel update with
+    '''   multiple inversions) prevents ghosting effects and improves contrast.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function regenerateDisplay() As Integer
+      Return Me.sendCommand("z")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Disables screen refresh for a short period of time.
+    ''' <para>
+    '''   The combination of
+    '''   <c>postponeRefresh</c> and <c>triggerRefresh</c> can be used as an
+    '''   alternative to double-buffering to avoid flickering during display updates.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="duration">
+    '''   duration of deactivation in milliseconds (max. 30 seconds)
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function postponeRefresh(duration As Integer) As Integer
+      Return Me.sendCommand("t" + Convert.ToString(duration))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Trigger an immediate screen refresh.
+    ''' <para>
+    '''   The combination of
+    '''   <c>postponeRefresh</c> and <c>triggerRefresh</c> can be used as an
+    '''   alternative to double-buffering to avoid flickering during display updates.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function triggerRefresh() As Integer
+      Return Me.sendCommand("t0")
     End Function
 
     '''*
@@ -1813,6 +2013,219 @@ end enum
         End While
       End If
       Return Me._allDisplayLayers(layerId)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns a color image with the current content of the display.
+    ''' <para>
+    '''   The image is returned as a binary object, where each byte represents a pixel,
+    '''   from left to right and from top to bottom. The palette used to map byte
+    '''   values to RGB colors is filled into the list provided as argument.
+    '''   In all cases, the first palette entry (value 0) corresponds to the
+    '''   screen default background color.
+    '''   The image dimensions are given by the display width and height.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="palette">
+    '''   a list to be filled with the image palette
+    ''' </param>
+    ''' <returns>
+    '''   a binary object if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns an empty binary object.
+    ''' </para>
+    '''/
+    Public Overridable Function readDisplay(palette As List(Of Integer)) As Byte()
+      Dim zipmap As Byte() = New Byte(){}
+      Dim zipsize As Integer = 0
+      Dim zipwidth As Integer = 0
+      Dim zipheight As Integer = 0
+      Dim ziprotate As Integer = 0
+      Dim zipcolors As Integer = 0
+      Dim zipcol As Integer = 0
+      Dim zipbits As Integer = 0
+      Dim zipmask As Integer = 0
+      Dim srcpos As Integer = 0
+      Dim endrun As Integer = 0
+      Dim srcpat As Integer = 0
+      Dim srcbit As Integer = 0
+      Dim srcval As Integer = 0
+      Dim srcx As Integer = 0
+      Dim srcy As Integer = 0
+      Dim srci As Integer = 0
+      Dim incx As Integer = 0
+      Dim pixmap As Byte() = New Byte(){}
+      Dim pixcount As Integer = 0
+      Dim pixval As Integer = 0
+      Dim pixpos As Integer = 0
+      Dim rotmap As Byte() = New Byte(){}
+      ReDim pixmap(0-1)
+      REM // Check if the display firmware has autoInvertDelay and pixels.bin support
+
+      If (Me.get_autoInvertDelay() < 0) Then
+        REM // Old firmware, use uncompressed GIF output to rebuild pixmap
+        zipmap = Me._download("display.gif")
+        zipsize = (zipmap).Length
+        If (zipsize = 0) Then
+          Return pixmap
+        End If
+        If Not(zipsize >= 32) Then
+          me._throw(YAPI.IO_ERROR, "not a GIF image")
+          return pixmap
+        end if
+        If Not((zipmap(0) = 71) AndAlso (zipmap(2) = 70)) Then
+          me._throw(YAPI.INVALID_ARGUMENT, "not a GIF image")
+          return pixmap
+        end if
+        zipwidth = zipmap(6) + 256 * zipmap(7)
+        zipheight = zipmap(8) + 256 * zipmap(9)
+        palette.Clear()
+        zipcol = zipmap(13) * 65536 + zipmap(14) * 256 + zipmap(15)
+        palette.Add(zipcol)
+        zipcol = zipmap(16) * 65536 + zipmap(17) * 256 + zipmap(18)
+        palette.Add(zipcol)
+        pixcount = zipwidth * zipheight
+        ReDim pixmap(pixcount-1)
+        pixpos = 0
+        srcpos = 30
+        zipsize = zipsize - 2
+        While (srcpos < zipsize)
+          REM // load next run size
+          endrun = srcpos + 1 + zipmap(srcpos)
+          srcpos = srcpos + 1
+          While (srcpos < endrun)
+            srcval = zipmap(srcpos)
+            srcpos = srcpos + 1
+            srcbit = 8
+            While (srcbit <> 0)
+              If (srcbit < 3) Then
+                srcval = srcval + (zipmap(srcpos) << srcbit)
+                srcpos = srcpos + 1
+              End If
+              pixval = ((srcval) And (7))
+              srcval = (srcval >> 3)
+              If Not((pixval > 1) AndAlso (pixval <> 4)) Then
+                me._throw(YAPI.INVALID_ARGUMENT, "unexpected encoding")
+                return pixmap
+              end if
+              pixmap(pixpos) = Convert.ToByte(pixval And &HFF)
+              pixpos = pixpos + 1
+              srcbit = srcbit - 3
+            End While
+          End While
+        End While
+        Return pixmap
+      End If
+      REM // New firmware, use compressed pixels.bin
+      zipmap = Me._download("pixels.bin")
+      zipsize = (zipmap).Length
+      If (zipsize = 0) Then
+        Return pixmap
+      End If
+      If Not(zipsize >= 16) Then
+        me._throw(YAPI.IO_ERROR, "not a pixmap")
+        return pixmap
+      end if
+      If Not((zipmap(0) = 80) AndAlso (zipmap(2) = 88)) Then
+        me._throw(YAPI.INVALID_ARGUMENT, "not a pixmap")
+        return pixmap
+      end if
+      zipwidth = zipmap(4) + 256 * zipmap(5)
+      zipheight = zipmap(6) + 256 * zipmap(7)
+      ziprotate = zipmap(8)
+      zipcolors = zipmap(9)
+      palette.Clear()
+      srcpos = 10
+      srci = 0
+      While (srci < zipcolors)
+        zipcol = zipmap(srcpos) * 65536 + zipmap(srcpos+1) * 256 + zipmap(srcpos+2)
+        palette.Add(zipcol)
+        srcpos = srcpos + 3
+        srci = srci + 1
+      End While
+      zipbits = 1
+      While ((1 << zipbits) < zipcolors)
+        zipbits = zipbits + 1
+      End While
+      zipmask = (1 << zipbits) - 1
+
+      pixcount = zipwidth * zipheight
+      ReDim pixmap(pixcount-1)
+      srcx = 0
+      srcy = 0
+      incx = (8 \ zipbits)
+      srcval = 0
+      While (srcpos < zipsize)
+        REM // load next compression pattern byte
+        srcpat = zipmap(srcpos)
+        srcpos = srcpos + 1
+        srcbit = 7
+        While (srcbit >= 0)
+          REM // get next bitmap byte
+          If (((srcpat) And (128)) <> 0) Then
+            srcval = zipmap(srcpos)
+            srcpos = srcpos + 1
+          End If
+          srcpat = (srcpat << 1)
+          pixpos = srcy * zipwidth + srcx
+          REM // produce 8 pixels (or 4, if bitmap uses 2 bits per pixel)
+          srci = 8 - zipbits
+          While (srci >= 0)
+            pixval = (((srcval >> srci)) And (zipmask))
+            pixmap(pixpos) = Convert.ToByte(pixval And &HFF)
+            pixpos = pixpos + 1
+            srci = srci - zipbits
+          End While
+          srcy = srcy + 1
+          If (srcy >= zipheight) Then
+            srcy = 0
+            srcx = srcx + incx
+            REM // drop last bytes if image is not a multiple of 8
+            If (srcx >= zipwidth) Then
+              srcbit = 0
+            End If
+          End If
+          srcbit = srcbit - 1
+        End While
+      End While
+      REM // rotate pixmap to match display orientation
+      If (ziprotate = 0) Then
+        Return pixmap
+      End If
+      If (((ziprotate) And (2)) <> 0) Then
+        REM // rotate buffer 180 degrees by swapping pixels
+        srcpos = 0
+        pixpos = pixcount - 1
+        While (srcpos < pixpos)
+          pixval = pixmap(srcpos)
+          pixmap(srcpos) = Convert.ToByte(pixmap(pixpos) And &HFF)
+          pixmap(pixpos) = Convert.ToByte(pixval And &HFF)
+          srcpos = srcpos + 1
+          pixpos = pixpos - 1
+        End While
+      End If
+      If (((ziprotate) And (1)) = 0) Then
+        Return pixmap
+      End If
+      REM // rotate 90 ccw: first pixel is bottom left
+      ReDim rotmap(pixcount-1)
+      srcx = 0
+      srcy = zipwidth - 1
+      srcpos = 0
+      While (srcpos < pixcount)
+        pixval = pixmap(srcpos)
+        pixpos = srcy * zipheight + srcx
+        rotmap(pixpos) = Convert.ToByte(pixval And &HFF)
+        srcy = srcy - 1
+        If (srcy < 0) Then
+          srcx = srcx + 1
+          srcy = zipwidth - 1
+        End If
+        srcpos = srcpos + 1
+      End While
+      Return rotmap
     End Function
 
 

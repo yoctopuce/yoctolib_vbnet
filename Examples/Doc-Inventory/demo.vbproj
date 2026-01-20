@@ -276,6 +276,9 @@
     <Compile Include="..\..\Sources\yocto_tvoc.vb">
       <Link>Yoctopuce\{yocto_tvoc.vb}</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_virtualsensor.vb">
+      <Link>Yoctopuce\{yocto_virtualsensor.vb}</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_voc.vb">
       <Link>Yoctopuce\{yocto_voc.vb}</Link>
     </Compile>
