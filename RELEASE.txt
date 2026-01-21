@@ -1,3 +1,7 @@
-VBNetV2 v2.1.11313
+VBNetV2 v2.1.11416
 
--test
+- Update Mbed-TLS lib to 4.0
+- Fix YModule.get_friendlyName()
+- Fix some timeout with YAPI::PreregisterHub
+- Fix redirection handling with IpV6 address
+- Fix rare deadlock when network connection is very unstable
