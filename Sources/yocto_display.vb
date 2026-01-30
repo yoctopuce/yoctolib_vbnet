@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 71207 2026-01-07 18:17:59Z mvuilleu $
+'* $Id: yocto_display.vb 71629 2026-01-29 15:08:26Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -114,9 +114,14 @@ end enum
     REM --- (end of generated code: YDisplayLayer class start)
 
     REM --- (generated code: YDisplayLayer definitions)
+    Public Const NO_INK As Integer = -1
+    Public Const BG_INK As Integer = -2
+    Public Const FG_INK As Integer = -3
     REM --- (end of generated code: YDisplayLayer definitions)
 
     REM --- (generated code: YDisplayLayer attributes declaration)
+    Protected _polyPrevX As Integer
+    Protected _polyPrevY As Integer
     REM --- (end of generated code: YDisplayLayer attributes declaration)
 
 
@@ -168,9 +173,11 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Selects the pen color for all subsequent drawing functions,
-    '''   including text drawing.
+    '''   Selects the color to be used for all subsequent drawing functions,
+    '''   for filling as well as for line and text drawing.
     ''' <para>
+    '''   To select a different fill and outline color, use
+    '''   <c>selectFillColor</c> and <c>selectLineColor</c>.
     '''   The pen color is provided as an RGB value.
     '''   For grayscale or monochrome displays, the value is
     '''   automatically converted to the proper range.
@@ -193,8 +200,10 @@ end enum
     '''*
     ''' <summary>
     '''   Selects the pen gray level for all subsequent drawing functions,
-    '''   including text drawing.
+    '''   for filling as well as for line and text drawing.
     ''' <para>
+    '''   To select a different fill and outline color, use
+    '''   <c>selectFillColor</c> and <c>selectLineColor</c>.
     '''   The gray level is provided as a number between
     '''   0 (black) and 255 (white, or whichever the lightest color is).
     '''   For monochrome displays (without gray levels), any value
@@ -239,19 +248,21 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Enables or disables anti-aliasing for drawing oblique lines and circles.
+    '''   Selects the color to be used for filling rectangular bars,
+    '''   discs and polygons.
     ''' <para>
-    '''   Anti-aliasing provides a smoother aspect when looked from far enough,
-    '''   but it can add fuzziness when the display is looked from very close.
-    '''   At the end of the day, it is your personal choice.
-    '''   Anti-aliasing is enabled by default on grayscale and color displays,
-    '''   but you can disable it if you prefer. This setting has no effect
-    '''   on monochrome displays.
+    '''   The color is provided as an RGB value.
+    '''   For grayscale or monochrome displays, the value is
+    '''   automatically converted to the proper range.
+    '''   You can also use the constants <c>FG_INK</c> to use the
+    '''   default drawing colour, <c>BG_INK</c> to use the default
+    '''   background colour, and <c>NO_INK</c> to disable filling.
     ''' </para>
     ''' </summary>
-    ''' <param name="mode">
-    '''   <c>true</c> to enable anti-aliasing, <c>false</c> to
-    '''   disable it.
+    ''' <param name="color">
+    '''   the desired drawing color, as a 24-bit RGB value,
+    '''   or one of the constants <c>NO_INK</c>, <c>FG_INK</c>
+    '''   or <c>BG_INK</c>
     ''' </param>
     ''' <returns>
     '''   <c>YAPI.SUCCESS</c> if the call succeeds.
@@ -260,6 +271,90 @@ end enum
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
+    Public Overridable Function selectFillColor(color As Integer) As Integer
+      Dim r As Integer = 0
+      Dim g As Integer = 0
+      Dim b As Integer = 0
+      If (color=-1) Then
+        Return Me.command_push("f_")
+      End If
+      If (color=-2) Then
+        Return Me.command_push("f-")
+      End If
+      If (color=-3) Then
+        Return Me.command_push("f.")
+      End If
+      r = (((color >> 20)) And (15))
+      g = (((color >> 12)) And (15))
+      b = (((color >> 4)) And (15))
+      Return Me.command_push("f" + (r).ToString("x") + "" + (g).ToString("x") + "" + (b).ToString("x"))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Selects the color to be used for drawing the outline of rectangular
+    '''   bars, discs and polygons, as well as for drawing lines and text.
+    ''' <para>
+    '''   The color is provided as an RGB value.
+    '''   For grayscale or monochrome displays, the value is
+    '''   automatically converted to the proper range.
+    '''   You can also use the constants <c>FG_INK</c> to use the
+    '''   default drawing colour, <c>BG_INK</c> to use the default
+    '''   background colour, and <c>NO_INK</c> to disable outline drawing.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="color">
+    '''   the desired drawing color, as a 24-bit RGB value,
+    '''   or one of the constants <c>NO_INK</c>, <c>FG_INK</c>
+    '''   or <c>BG_INK</c>
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function selectLineColor(color As Integer) As Integer
+      Dim r As Integer = 0
+      Dim g As Integer = 0
+      Dim b As Integer = 0
+      If (color=-1) Then
+        Return Me.command_push("l_")
+      End If
+      If (color=-2) Then
+        Return Me.command_push("l-")
+      End If
+      If (color=-3) Then
+        Return Me.command_push("l*")
+      End If
+      r = (((color >> 20)) And (15))
+      g = (((color >> 12)) And (15))
+      b = (((color >> 4)) And (15))
+      Return Me.command_push("l" + (r).ToString("x") + "" + (g).ToString("x") + "" + (b).ToString("x"))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Selects the line width for drawing the outline of rectangular
+    '''   bars, discs and polygons, as well as for drawing lines.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="width">
+    '''   the desired line width, in pixels
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function selectLineWidth(width As Integer) As Integer
+      Return Me.command_push("t" + Convert.ToString(width))
+    End Function
+
     Public Overridable Function setAntialiasingMode(mode As Boolean) As Integer
       Return Me.command_push("a" + YAPI._boolToStr(mode))
     End Function
@@ -465,12 +560,11 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Draws a GIF image at the specified position.
+    '''   Draws an image previously uploaded to the device filesystem, at the specified position.
     ''' <para>
-    '''   The GIF image must have been previously
-    '''   uploaded to the device built-in memory. If you experience problems using an image
-    '''   file, check the device logs for any error message such as missing image file or bad
-    '''   image file format.
+    '''   At present time, GIF images are the only supported image format. If you experience
+    '''   problems using an image file, check the device logs for any error message such as
+    '''   missing image file or bad image file format.
     ''' </para>
     ''' </summary>
     ''' <param name="x">
@@ -537,6 +631,36 @@ end enum
 
     '''*
     ''' <summary>
+    '''   Draws a GIF image provided as a binary buffer at the specified position.
+    ''' <para>
+    '''   If the image drawing must be included in an animation sequence, save it
+    '''   in the device filesystem first and use <c>drawImage</c> instead.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="x">
+    '''   the distance from left of layer to the left of the image, in pixels
+    ''' </param>
+    ''' <param name="y">
+    '''   the distance from top of layer to the top of the image, in pixels
+    ''' </param>
+    ''' <param name="gifimage">
+    '''   a binary object with the content of a GIF file
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function drawGIF(x As Integer, y As Integer, gifimage As Byte()) As Integer
+      Dim destname As String
+      destname = "layer" + Convert.ToString(Me._id) + ":G,-1@" + Convert.ToString(x) + "," + Convert.ToString(y)
+      Return Me._display.upload(destname,gifimage)
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Moves the drawing pointer of this layer to the specified position.
     ''' <para>
     ''' </para>
@@ -581,6 +705,79 @@ end enum
     '''/
     Public Overridable Function lineTo(x As Integer, y As Integer) As Integer
       Return Me.command_flush("-" + Convert.ToString(x) + "," + Convert.ToString(y))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Starts drawing a polygon with the first corner at the specified position.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="x">
+    '''   the distance from left of layer, in pixels
+    ''' </param>
+    ''' <param name="y">
+    '''   the distance from top of layer, in pixels
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function polygonStart(x As Integer, y As Integer) As Integer
+      Me._polyPrevX = x
+      Me._polyPrevY = y
+      Return Me.command_push("[" + Convert.ToString(x) + "," + Convert.ToString(y))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Adds a point to the currently open polygon, previously opened using
+    '''   <c>polygonStart</c>.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="x">
+    '''   the distance from left of layer to the new point, in pixels
+    ''' </param>
+    ''' <param name="y">
+    '''   the distance from top of layer to the new point, in pixels
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function polygonAdd(x As Integer, y As Integer) As Integer
+      Dim dx As Integer = 0
+      Dim dy As Integer = 0
+      dx = x - Me._polyPrevX
+      dy = y - Me._polyPrevY
+      Me._polyPrevX = x
+      Me._polyPrevY = y
+      Return Me.command_flush(";" + Convert.ToString(dx) + "," + Convert.ToString(dy))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Close the currently open polygon, fill its content the fill color currently
+    '''   selected for the layer, and draw its outline using the selected line color.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function polygonEnd() As Integer
+      Return Me.command_flush("]")
     End Function
 
     '''*
@@ -1727,7 +1924,7 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function postponeRefresh(duration As Integer) As Integer
-      Return Me.sendCommand("t" + Convert.ToString(duration))
+      Return Me.sendCommand("H" + Convert.ToString(duration))
     End Function
 
     '''*
@@ -1747,7 +1944,7 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function triggerRefresh() As Integer
-      Return Me.sendCommand("t0")
+      Return Me.sendCommand("H0")
     End Function
 
     '''*
