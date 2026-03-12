@@ -53,6 +53,8 @@ Module yocto_orientation
    REM --- (end of YOrientation yapiwrapper)
   REM --- (YOrientation globals)
 
+  Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
+  Public Const Y_ZEROOFFSET_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Delegate Sub YOrientationValueCallback(ByVal func As YOrientation, ByVal value As String)
   Public Delegate Sub YOrientationTimedReportCallback(ByVal func As YOrientation, ByVal measure As YMeasure)
   REM --- (end of YOrientation globals)
@@ -73,9 +75,13 @@ Module yocto_orientation
     REM --- (end of YOrientation class start)
 
     REM --- (YOrientation definitions)
+    Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
+    Public Const ZEROOFFSET_INVALID As Double = YAPI.INVALID_DOUBLE
     REM --- (end of YOrientation definitions)
 
     REM --- (YOrientation attributes declaration)
+    Protected _command As String
+    Protected _zeroOffset As Double
     Protected _valueCallbackOrientation As YOrientationValueCallback
     Protected _timedReportCallbackOrientation As YOrientationTimedReportCallback
     REM --- (end of YOrientation attributes declaration)
@@ -84,6 +90,8 @@ Module yocto_orientation
       MyBase.New(func)
       _classname = "Orientation"
       REM --- (YOrientation attributes initialization)
+      _command = COMMAND_INVALID
+      _zeroOffset = ZEROOFFSET_INVALID
       _valueCallbackOrientation = Nothing
       _timedReportCallbackOrientation = Nothing
       REM --- (end of YOrientation attributes initialization)
@@ -92,12 +100,93 @@ Module yocto_orientation
     REM --- (YOrientation private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
+      End If
+      If json_val.has("zeroOffset") Then
+        _zeroOffset = Math.Round(json_val.getDouble("zeroOffset") / 65.536) / 1000.0
+      End If
       Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YOrientation private methods declaration)
 
     REM --- (YOrientation public methods declaration)
+    Public Function get_command() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return COMMAND_INVALID
+        End If
+      End If
+      res = Me._command
+      Return res
+    End Function
+
+
+    Public Function set_command(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("command", rest_val)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Sets an offset between the orientation reported by the sensor and the actual orientation.
+    ''' <para>
+    '''   This
+    '''   can typically be used  to compensate for mechanical offset. This offset can also be set
+    '''   automatically using the zero() method.
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   a floating point number
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_zeroOffset(ByVal newval As Double) As Integer
+      Dim rest_val As String
+      rest_val = Ltrim(Str(Math.Round(newval * 65536.0)))
+      Return _setAttr("zeroOffset", rest_val)
+    End Function
+    '''*
+    ''' <summary>
+    '''   Returns the Offset between the orientation reported by the sensor and the actual orientation.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a floating point number corresponding to the Offset between the orientation reported by the sensor
+    '''   and the actual orientation
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YOrientation.ZEROOFFSET_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_zeroOffset() As Double
+      Dim res As Double = 0
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return ZEROOFFSET_INVALID
+        End If
+      End If
+      res = Me._zeroOffset
+      Return res
+    End Function
+
     '''*
     ''' <summary>
     '''   Retrieves an orientation sensor for a given identifier.
@@ -162,9 +251,11 @@ Module yocto_orientation
     ''' <summary>
     '''   Registers the callback function that is invoked on every change of advertised value.
     ''' <para>
-    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
-    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
+    '''   The callback is then invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness,
+    '''   remember to call one of these two functions periodically. The callback is called once juste after beeing
+    '''   registered, passing the current advertised value  of the function, provided that it is not an empty string.
+    '''   To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -240,6 +331,131 @@ Module yocto_orientation
         MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
+    End Function
+
+    Public Overridable Function sendCommand(command As String) As Integer
+      Return Me.set_command(command)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reset the sensor's zero to current position by automatically setting a new offset.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function zero() As Integer
+      Return Me.sendCommand("Z")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Modifies the calibration of the MA600A sensor using an array of 32
+    '''   values representing the offset in degrees between the true values and
+    '''   those measured regularly every 11.25 degrees starting from zero.
+    ''' <para>
+    '''   The calibration
+    '''   is applied immediately and is stored permanently in the MA600A sensor.
+    '''   Before calculating the offset values, remember to clear any previous
+    '''   calibration using the <c>clearCalibration</c> function and set
+    '''   the zero offset  to 0. After a calibration change, the sensor will stop
+    '''   measurements for about one second.
+    '''   Do not confuse this function with the generic <c>calibrateFromPoints</c> function,
+    '''   which works at the YSensor level and is not necessarily well suited to
+    '''   a sensor returning circular values.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="offsetValues">
+    '''   array of 32 floating point values in the [-11.25..+11.25] range
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function set_calibration(offsetValues As List(Of Double)) As Integer
+      Dim res As String
+      Dim npt As Integer = 0
+      Dim idx As Integer = 0
+      Dim corr As Integer = 0
+      npt = offsetValues.Count
+      If (npt <> 32) Then
+        Me._throw(YAPI.INVALID_ARGUMENT, "Invalid calibration parameters (32 expected)")
+        Return YAPI.INVALID_ARGUMENT
+      End If
+      res = "C"
+      idx = 0
+      While (idx < npt)
+        corr = CType(Math.Round(offsetValues(idx) * 128 / 11.25), Integer)
+        If ((corr < -128) OrElse (corr > 127)) Then
+          Me._throw(YAPI.INVALID_ARGUMENT, "Calibration parameter exceeds permitted range (+/-11.25)")
+          Return YAPI.INVALID_ARGUMENT
+        End If
+        If (corr < 0) Then
+          corr = corr + 256
+        End If
+        res = "" + res + "" + (corr).ToString("x02")
+        idx = idx + 1
+      End While
+      Return Me.sendCommand(res)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Retrieves offset correction data points previously entered using the method
+    '''   <c>set_calibration</c>.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="offsetValues">
+    '''   array of 32 floating point numbers, that will be filled by the
+    '''   function with the offset values for the correction points.
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function get_Calibration(offsetValues As List(Of Double)) As Integer
+      Return 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Cancels any calibration set with <c>set_calibration</c>.
+    ''' <para>
+    '''   This function
+    '''   is equivalent to calling <c>set_calibration</c> with only zeros.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function clearCalibration() As Integer
+      Return Me.sendCommand("-")
     End Function
 
 

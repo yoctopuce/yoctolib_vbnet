@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_messagebox.vb 68482 2025-08-21 10:07:30Z mvuilleu $
+'* $Id: yocto_messagebox.vb 72410 2026-03-11 07:18:41Z mvuilleu $
 '*
 '* Implements yFindMessageBox(), the high-level API for MessageBox functions
 '*
@@ -70,6 +70,7 @@ Module yocto_messagebox
     Protected _mbox As YMessageBox
     Protected _slot As Integer
     Protected _deliv As Boolean
+    Protected _isnew As Boolean
     Protected _smsc As String
     Protected _mref As Integer
     Protected _orig As String
@@ -128,16 +129,16 @@ Module yocto_messagebox
       Return Me._mref
     End Function
 
-    Public Overridable Function get_sender() As String
-      Return Me._orig
+    Public Overridable Function get_protocolId() As Integer
+      Return Me._pid
     End Function
 
     Public Overridable Function get_recipient() As String
       Return Me._dest
     End Function
 
-    Public Overridable Function get_protocolId() As Integer
-      Return Me._pid
+    Public Overridable Function isNew() As Boolean
+      Return Me._isnew
     End Function
 
     Public Overridable Function isReceived() As Boolean
@@ -156,11 +157,7 @@ Module yocto_messagebox
     End Function
 
     Public Overridable Function get_dcs() As Integer
-      Return ((Me._mclass) Or (((Me._alphab << 2))))
-    End Function
-
-    Public Overridable Function get_timestamp() As String
-      Return Me._stamp
+      Return ((Me._mclass) Or ((Me._alphab << 2)))
     End Function
 
     Public Overridable Function get_userDataHeader() As Byte()
@@ -173,9 +170,51 @@ Module yocto_messagebox
 
     '''*
     ''' <summary>
-    '''   Returns the content of the message.
+    '''   Returns true iff the message is a "Flash" SMS (class 0 message).
+    ''' <para>
+    '''   Flash messages
+    '''   are displayed on the handset immediately and usually not saved on the SIM card.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a boolean.
+    ''' </returns>
+    '''/
+    Public Overridable Function isFlashMessage() As Boolean
+      Return Me.get_msgClass() = 0
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the reported message timestamp.
     ''' <para>
     ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   the timestamp as a text string.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_timestamp() As String
+      Return Me._stamp
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the reported message sender.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a text string.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_sender() As String
+      Return Me._orig
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the content of the message as a text string.
     ''' <para>
     ''' </para>
     ''' </summary>
@@ -206,6 +245,16 @@ Module yocto_messagebox
       Return YAPI.DefaultEncoding.GetString(Me._udata)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Returns the content of the message, as a list of integer unicode values.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a list of integers.
+    ''' </returns>
+    '''/
     Public Overridable Function get_unicodeData() As List(Of Integer)
       Dim res As List(Of Integer) = New List(Of Integer)()
       Dim unisize As Integer = 0
@@ -291,6 +340,11 @@ Module yocto_messagebox
       Return YAPI.SUCCESS
     End Function
 
+    Public Overridable Function set_new(val As Boolean) As Integer
+      Me._isnew = val
+      Return YAPI.SUCCESS
+    End Function
+
     Public Overridable Function set_smsc(val As String) As Integer
       Me._smsc = val
       Me._npdu = 0
@@ -338,7 +392,7 @@ Module yocto_messagebox
     End Function
 
     Public Overridable Function set_dcs(val As Integer) As Integer
-      Me._alphab = ((((val >> 2))) And (3))
+      Me._alphab = (((val >> 2)) And (3))
       Me._mclass = ((val) And (16+3))
       Me._npdu = 0
       Return YAPI.SUCCESS
@@ -391,7 +445,7 @@ Module yocto_messagebox
 
     '''*
     ''' <summary>
-    '''   Add a regular text to the SMS.
+    '''   Adds regular text to the SMS.
     ''' <para>
     '''   This function support messages
     '''   of more than 160 characters. ISO-latin accented characters
@@ -466,7 +520,7 @@ Module yocto_messagebox
 
     '''*
     ''' <summary>
-    '''   Add a unicode text to the SMS.
+    '''   Adds unicode characters to the SMS.
     ''' <para>
     '''   This function support messages
     '''   of more than 160 characters, using SMS concatenation.
@@ -475,7 +529,7 @@ Module yocto_messagebox
     ''' </para>
     ''' </summary>
     ''' <param name="val">
-    '''   an array of special unicode characters
+    '''   a list of unicode characters provided as integers
     ''' </param>
     ''' <returns>
     '''   <c>YAPI.SUCCESS</c> when the call succeeds.
@@ -516,11 +570,11 @@ Module yocto_messagebox
         uni = val(i)
         If (uni >= 65536) Then
           surrogate = uni - 65536
-          uni = ((((surrogate >> 10)) And (1023))) + 55296
+          uni = (((surrogate >> 10)) And (1023)) + 55296
           udata(udatalen) = Convert.ToByte((uni >> 8) And &HFF)
           udata(udatalen+1) = Convert.ToByte(((uni) And (255)) And &HFF)
           udatalen = udatalen + 2
-          uni = (((surrogate) And (1023))) + 56320
+          uni = ((surrogate) And (1023)) + 56320
         End If
         udata(udatalen) = Convert.ToByte((uni >> 8) And &HFF)
         udata(udatalen+1) = Convert.ToByte(((uni) And (255)) And &HFF)
@@ -686,7 +740,7 @@ Module yocto_messagebox
           Else
             byt = addr(ofs+rpos)
             rpos = rpos + 1
-            gsm7(i) = Convert.ToByte(((carry) Or (((((byt << nbits))) And (127)))) And &HFF)
+            gsm7(i) = Convert.ToByte(((carry) Or ((((byt << nbits)) And (127)))) And &HFF)
             carry = (byt >> (7 - nbits))
             nbits = nbits + 1
           End If
@@ -934,7 +988,7 @@ Module yocto_messagebox
             nbits = 7
           Else
             thi_b = Me._udata(i)
-            res(wpos) = Convert.ToByte(((carry) Or (((((thi_b << nbits))) And (255)))) And &HFF)
+            res(wpos) = Convert.ToByte(((carry) Or ((((thi_b << nbits)) And (255)))) And &HFF)
             wpos = wpos + 1
             nbits = nbits - 1
             carry = (thi_b >> (7 - nbits))
@@ -1174,8 +1228,8 @@ Module yocto_messagebox
         rpos = rpos + 1
         Me._dest = Me.decodeAddress(pdu, rpos, addrlen)
         Me._orig = ""
-        If ((((pdutyp) And (16))) <> 0) Then
-          If ((((pdutyp) And (8))) <> 0) Then
+        If (((pdutyp) And (16)) <> 0) Then
+          If (((pdutyp) And (8)) <> 0) Then
             tslen = 7
           Else
             tslen= 1
@@ -1184,12 +1238,12 @@ Module yocto_messagebox
           tslen = 0
         End If
       End If
-      rpos = rpos + (((addrlen+3) >> 1))
+      rpos = rpos + ((addrlen+3) >> 1)
       Me._pid = pdu(rpos)
       rpos = rpos + 1
       dcs = pdu(rpos)
       rpos = rpos + 1
-      Me._alphab = ((((dcs >> 2))) And (3))
+      Me._alphab = (((dcs >> 2)) And (3))
       Me._mclass = ((dcs) And (16+3))
       Me._stamp = Me.decodeTimeStamp(pdu, rpos, tslen)
       rpos = rpos + tslen
@@ -1239,7 +1293,7 @@ Module yocto_messagebox
           Else
             thi_b = pdu(rpos)
             rpos = rpos + 1
-            Me._udata(i) = Convert.ToByte(((carry) Or (((((thi_b << nbits))) And (127)))) And &HFF)
+            Me._udata(i) = Convert.ToByte(((carry) Or ((((thi_b << nbits)) And (127)))) And &HFF)
             carry = (thi_b >> (7 - nbits))
             nbits = nbits + 1
           End If
@@ -1283,19 +1337,36 @@ Module yocto_messagebox
       If (Me._npdu = 0) Then
         Me.generatePdu()
       End If
-      If (Me._npdu = 1) Then
-        Return Me._mbox._upload("sendSMS", Me._pdu)
+      If (Me._npdu > 1) Then
+        REM // send multiple PDUs using recursive call
+        retcode = YAPI.SUCCESS
+        i = 0
+        While ((i < Me._npdu) AndAlso (retcode = YAPI.SUCCESS))
+          pdu = Me._parts(i)
+          retcode= pdu.send()
+          i = i + 1
+        End While
+        Return retcode
       End If
-      retcode = YAPI.SUCCESS
-      i = 0
-      While ((i < Me._npdu) AndAlso (retcode = YAPI.SUCCESS))
-        pdu = Me._parts(i)
-        retcode= pdu.send()
-        i = i + 1
-      End While
-      Return retcode
+      REM // send a single PDU
+      Return Me._mbox.sendPDU(Me._pdu)
     End Function
 
+    '''*
+    ''' <summary>
+    '''   Delete the SMS from the SIM card.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
     Public Overridable Function deleteFromSIM() As Integer
       Dim i As Integer = 0
       Dim retcode As Integer = 0
@@ -1342,6 +1413,11 @@ Module yocto_messagebox
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YMessageBoxValueCallback(ByVal func As YMessageBox, ByVal value As String)
   Public Delegate Sub YMessageBoxTimedReportCallback(ByVal func As YMessageBox, ByVal measure As YMeasure)
+  Public Delegate Sub YSmsCallback(ByVal func As YMessageBox, ByVal s As YSms)
+
+  Sub yInternalEventCallback(ByVal func As YMessageBox, ByVal value As String)
+    func._internalEventHandler(value)
+  End Sub
   REM --- (end of generated code: YMessageBox globals)
 
   REM --- (generated code: YMessageBox class start)
@@ -1377,6 +1453,7 @@ Module yocto_messagebox
     Protected _obey As String
     Protected _command As String
     Protected _valueCallbackMessageBox As YMessageBoxValueCallback
+    Protected _smsCallback As YSmsCallback
     Protected _nextMsgRef As Integer
     Protected _prevBitmapStr As String
     Protected _pdus As List(Of YSms)
@@ -1752,9 +1829,11 @@ Module yocto_messagebox
     ''' <summary>
     '''   Registers the callback function that is invoked on every change of advertised value.
     ''' <para>
-    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
-    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
+    '''   The callback is then invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness,
+    '''   remember to call one of these two functions periodically. The callback is called once juste after beeing
+    '''   registered, passing the current advertised value  of the function, provided that it is not an empty string.
+    '''   To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -1801,7 +1880,6 @@ Module yocto_messagebox
     Public Overridable Function clearSIMSlot(slot As Integer) As Integer
       Dim retry As Integer = 0
       Dim idx As Integer = 0
-      Dim res As String
       Dim bitmapStr As String
       Dim int_res As Integer = 0
       Dim newBitmap As Byte() = New Byte(){}
@@ -1814,8 +1892,8 @@ Module yocto_messagebox
         newBitmap = YAPI._hexStrToBin(bitmapStr)
         idx = (slot >> 3)
         If (idx < (newBitmap).Length) Then
-          bitVal = (1 << (((slot) And (7))))
-          If ((((newBitmap(idx)) And (bitVal))) <> 0) Then
+          bitVal = (1 << ((slot) And (7)))
+          If (((newBitmap(idx)) And (bitVal)) <> 0) Then
             Me._prevBitmapStr = ""
             int_res = Me.set_command("DS" + Convert.ToString(slot))
             If (int_res < 0) Then
@@ -1827,70 +1905,57 @@ Module yocto_messagebox
         Else
           Return YAPI.INVALID_ARGUMENT
         End If
-        res = Me._AT("")
+        Me._download("at.txt?cmd=")
         retry = retry - 1
       End While
       Return YAPI.IO_ERROR
     End Function
 
-    Public Overridable Function _AT(cmd As String) As String
-      Dim chrPos As Integer = 0
-      Dim cmdLen As Integer = 0
-      Dim waitMore As Integer = 0
-      Dim res As String
+    Public Overridable Function sendPDU(pdu As Byte()) As Integer
+      Dim i As Integer = 0
       Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
       Dim buffstr As String
-      Dim buffstrlen As Integer = 0
-      Dim idx As Integer = 0
-      Dim suffixlen As Integer = 0
-      REM // copied form the YCellular class
-      REM // quote dangerous characters used in AT commands
-      cmdLen = (cmd).Length
-      chrPos = cmd.IndexOf("#")
-      While (chrPos >= 0)
-        cmd = "" + (cmd).Substring(0, chrPos) + "" + Chr(37) + "23" + (cmd).Substring(chrPos+1, cmdLen-chrPos-1)
-        cmdLen = cmdLen + 2
-        chrPos = cmd.IndexOf("#")
-      End While
-      chrPos = cmd.IndexOf("+")
-      While (chrPos >= 0)
-        cmd = "" + (cmd).Substring(0, chrPos) + "" + Chr(37) + "2B" + (cmd).Substring(chrPos+1, cmdLen-chrPos-1)
-        cmdLen = cmdLen + 2
-        chrPos = cmd.IndexOf("+")
-      End While
-      chrPos = cmd.IndexOf("=")
-      While (chrPos >= 0)
-        cmd = "" + (cmd).Substring(0, chrPos) + "" + Chr(37) + "3D" + (cmd).Substring(chrPos+1, cmdLen-chrPos-1)
-        cmdLen = cmdLen + 2
-        chrPos = cmd.IndexOf("=")
-      End While
-      cmd = "at.txt?cmd=" + cmd
+      Dim res As String
+      Dim waitMore As Integer = 0
+      Dim cmd As String
+
+      buff = Me._uploadEx("sendSMS", pdu)
+      If ((buff).Length < 2) Then
+        Return YAPI.SUCCESS
+      End If
+      If (buff(0) <> 64) Then
+        Return YAPI.SUCCESS
+      End If
+      REM // new firmware provides a way to check result of SMS send command
       res = ""
-      REM // max 2 minutes (each iteration may take up to 5 seconds if waiting)
-      waitMore = 24
+      bufflen = (buff).Length
+      buffstr = YAPI.DefaultEncoding.GetString(buff)
+      i = 0
+      waitMore = 10
       While (waitMore > 0)
+        cmd = "at.txt?cmd=" + (buffstr).Substring(i, bufflen - i)
         buff = Me._download(cmd)
         bufflen = (buff).Length
         buffstr = YAPI.DefaultEncoding.GetString(buff)
-        buffstrlen = (buffstr).Length
-        idx = bufflen - 1
-        While ((idx > 0) AndAlso (buff(idx) <> 64) AndAlso (buff(idx) <> 10) AndAlso (buff(idx) <> 13))
-          idx = idx - 1
+        i = bufflen - 1
+        While ((i > 0) AndAlso (buff(i) <> 64) AndAlso (buff(i) <> 10) AndAlso (buff(i) <> 13))
+          i = i - 1
         End While
-        If (buff(idx) = 64) Then
+        If ((i >= 0) AndAlso (buff(i) = 64)) Then
           REM // continuation detected
-          suffixlen = bufflen - idx
-          cmd = "at.txt?cmd=" + (buffstr).Substring(buffstrlen - suffixlen, suffixlen)
-          buffstr = (buffstr).Substring(0, buffstrlen - suffixlen)
           waitMore = waitMore - 1
         Else
           REM // request complete
           waitMore = 0
         End If
-        res = "" + res + "" + buffstr
+        res = "" + res + "" + (buffstr).Substring(0, i)
       End While
-      Return res
+      If Not(res.IndexOf("OK") >= 0) Then
+        me._throw(YAPI.NOT_SUPPORTED, "Failed to send SMS")
+        return YAPI.NOT_SUPPORTED
+      end if
+      Return YAPI.SUCCESS
     End Function
 
     Public Overridable Function fetchPdu(slot As Integer) As YSms
@@ -1898,12 +1963,21 @@ Module yocto_messagebox
       Dim arrPdu As List(Of Byte()) = New List(Of Byte())()
       Dim hexPdu As String
       Dim sms As YSms
-
-      binPdu = Me._download("sms.json?pos=" + Convert.ToString(slot) + "&len=1")
-      arrPdu = Me._json_get_array(binPdu)
-      hexPdu = Me._decode_json_string(arrPdu(0))
       sms = New YSms(Me)
       sms.set_slot(slot)
+
+      binPdu = Me._download("sms.json?pos=" + Convert.ToString(slot) + "&len=1")
+      If ((binPdu).Length<8) Then
+        REM // Retry in case SIM was busy
+        YAPI.Sleep(250, Nothing)
+        binPdu = Me._download("sms.json?pos=" + Convert.ToString(slot) + "&len=1")
+        If Not((binPdu).Length>=8) Then
+          me._throw(YAPI.IO_ERROR, "unable to retrieve SMS")
+          return sms
+        end if
+      End If
+      arrPdu = Me._json_get_array(binPdu)
+      hexPdu = Me._decode_json_string(arrPdu(0))
       sms.parsePdu(YAPI._hexStrToBin(hexPdu))
       Return sms
     End Function
@@ -2243,18 +2317,17 @@ Module yocto_messagebox
 
     Public Overridable Function checkNewMessages() As Integer
       Dim bitmapStr As String
-      Dim prevBitmap As Byte() = New Byte(){}
       Dim newBitmap As Byte() = New Byte(){}
       Dim slot As Integer = 0
       Dim nslots As Integer = 0
       Dim pduIdx As Integer = 0
       Dim idx As Integer = 0
       Dim bitVal As Integer = 0
-      Dim prevBit As Integer = 0
       Dim i As Integer = 0
       Dim nsig As Integer = 0
       Dim cnt As Integer = 0
       Dim sig As String
+      Dim isnew As Boolean
       Dim newArr As List(Of YSms) = New List(Of YSms)()
       Dim newMsg As List(Of YSms) = New List(Of YSms)()
       Dim newAgg As List(Of YSms) = New List(Of YSms)()
@@ -2265,9 +2338,8 @@ Module yocto_messagebox
       If (bitmapStr = Me._prevBitmapStr) Then
         Return YAPI.SUCCESS
       End If
-      prevBitmap = YAPI._hexStrToBin(Me._prevBitmapStr)
-      newBitmap = YAPI._hexStrToBin(bitmapStr)
       Me._prevBitmapStr = bitmapStr
+      newBitmap = YAPI._hexStrToBin(bitmapStr)
       nslots = 8*(newBitmap).Length
       newArr.Clear()
       newMsg.Clear()
@@ -2280,8 +2352,10 @@ Module yocto_messagebox
         slot = sms.get_slot()
         idx = (slot >> 3)
         If (idx < (newBitmap).Length) Then
-          bitVal = (1 << (((slot) And (7))))
-          If ((((newBitmap(idx)) And (bitVal))) <> 0) Then
+          bitVal = (1 << ((slot) And (7)))
+          If (((newBitmap(idx)) And (bitVal)) <> 0) Then
+            newBitmap(idx) = Convert.ToByte(((newBitmap(idx)) Xor (bitVal)) And &HFF)
+            sms.set_new(False)
             newArr.Add(sms)
             If (sms.get_concatCount() = 0) Then
               newMsg.Add(sms)
@@ -2307,30 +2381,25 @@ Module yocto_messagebox
       slot = 0
       While (slot < nslots)
         idx = (slot >> 3)
-        bitVal = (1 << (((slot) And (7))))
-        prevBit = 0
-        If (idx < (prevBitmap).Length) Then
-          prevBit = ((prevBitmap(idx)) And (bitVal))
-        End If
-        If ((((newBitmap(idx)) And (bitVal))) <> 0) Then
-          If (prevBit = 0) Then
-            sms = Me.fetchPdu(slot)
-            newArr.Add(sms)
-            If (sms.get_concatCount() = 0) Then
-              newMsg.Add(sms)
-            Else
-              sig = sms.get_concatSignature()
-              i = 0
-              While ((i < nsig) AndAlso ((sig).Length > 0))
-                If (signatures(i) = sig) Then
-                  sig = ""
-                End If
-                i = i + 1
-              End While
-              If ((sig).Length > 0) Then
-                signatures.Add(sig)
-                nsig = nsig + 1
+        bitVal = (1 << ((slot) And (7)))
+        If (((newBitmap(idx)) And (bitVal)) <> 0) Then
+          sms = Me.fetchPdu(slot)
+          sms.set_new(True)
+          newArr.Add(sms)
+          If (sms.get_concatCount() = 0) Then
+            newMsg.Add(sms)
+          Else
+            sig = sms.get_concatSignature()
+            i = 0
+            While ((i < nsig) AndAlso ((sig).Length > 0))
+              If (signatures(i) = sig) Then
+                sig = ""
               End If
+              i = i + 1
+            End While
+            If ((sig).Length > 0) Then
+              signatures.Add(sig)
+              nsig = nsig + 1
             End If
           End If
         End If
@@ -2345,6 +2414,7 @@ Module yocto_messagebox
         sig = signatures(i)
         cnt = 0
         pduIdx = 0
+        isnew = True
         While (pduIdx < Me._pdus.Count)
           sms = Me._pdus(pduIdx)
           If (sms.get_concatCount() > 0) Then
@@ -2353,6 +2423,7 @@ Module yocto_messagebox
                 cnt = sms.get_concatCount()
                 newAgg.Clear()
               End If
+              isnew = sms.isNew()
               newAgg.Add(sms)
             End If
           End If
@@ -2361,6 +2432,7 @@ Module yocto_messagebox
         If ((cnt > 0) AndAlso (newAgg.Count = cnt)) Then
           sms = New YSms(Me)
           sms.set_parts(newAgg)
+          sms.set_new(isnew)
           newMsg.Add(sms)
         End If
         i = i + 1
@@ -2511,6 +2583,59 @@ Module yocto_messagebox
     Public Overridable Function get_messages() As List(Of YSms)
       Me.checkNewMessages()
       Return Me._messages
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Registers a callback function to be called each time that a new SMS is received.
+    ''' <para>
+    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered.
+    '''   For good responsiveness, remember to call one of these two functions periodically.
+    '''   To unregister a callback, pass a Nothing pointer as argument.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="callback">
+    '''   the callback function to call, or a Nothing pointer.
+    '''   The callback function should take four arguments:
+    '''   the <c>YMessageBox</c> object that emitted the event, and
+    '''   the <c>YSms</c> object containing the received message.
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </param>
+    '''/
+    Public Overridable Function registerSmsCallback(callback As YSmsCallback) As Integer
+      Me._smsCallback = CType(Nothing, YSmsCallback)
+      If (Not (callback Is Nothing)) Then
+        Me.registerValueCallback(AddressOf yInternalEventCallback)
+      Else
+        Me.registerValueCallback(CType(Nothing, YMessageBoxValueCallback))
+      End If
+      Me._smsCallback = callback
+      Return 0
+    End Function
+
+    Public Overridable Function _internalEventHandler(cbVal As String) As Integer
+      Dim arrLen As Integer = 0
+      Dim arrPos As Integer = 0
+      Dim messages As List(Of YSms) = New List(Of YSms)()
+      Dim sms As YSms
+
+      messages = Me.get_messages()
+      REM // invoke callback for all new messages
+      arrLen = messages.Count
+      arrPos = 0
+      While (arrPos < arrLen)
+        sms = messages(arrPos)
+        If (sms.isNew()) Then
+          If (Not (Me._smsCallback Is Nothing)) Then
+            Me._smsCallback(Me, sms)
+          End If
+        End If
+        arrPos = arrPos + 1
+      End While
+      Return YAPI.SUCCESS
     End Function
 
 

@@ -53,6 +53,7 @@ Module yocto_counter
    REM --- (end of YCounter yapiwrapper)
   REM --- (YCounter globals)
 
+  Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YCounterValueCallback(ByVal func As YCounter, ByVal value As String)
   Public Delegate Sub YCounterTimedReportCallback(ByVal func As YCounter, ByVal measure As YMeasure)
   REM --- (end of YCounter globals)
@@ -73,9 +74,11 @@ Module yocto_counter
     REM --- (end of YCounter class start)
 
     REM --- (YCounter definitions)
+    Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YCounter definitions)
 
     REM --- (YCounter attributes declaration)
+    Protected _command As String
     Protected _valueCallbackCounter As YCounterValueCallback
     Protected _timedReportCallbackCounter As YCounterTimedReportCallback
     REM --- (end of YCounter attributes declaration)
@@ -84,6 +87,7 @@ Module yocto_counter
       MyBase.New(func)
       _classname = "Counter"
       REM --- (YCounter attributes initialization)
+      _command = COMMAND_INVALID
       _valueCallbackCounter = Nothing
       _timedReportCallbackCounter = Nothing
       REM --- (end of YCounter attributes initialization)
@@ -92,12 +96,32 @@ Module yocto_counter
     REM --- (YCounter private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("command") Then
+        _command = json_val.getString("command")
+      End If
       Return MyBase._parseAttr(json_val)
     End Function
 
     REM --- (end of YCounter private methods declaration)
 
     REM --- (YCounter public methods declaration)
+    Public Function get_command() As String
+      Dim res As String
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return COMMAND_INVALID
+        End If
+      End If
+      res = Me._command
+      Return res
+    End Function
+
+
+    Public Function set_command(ByVal newval As String) As Integer
+      Dim rest_val As String
+      rest_val = newval
+      Return _setAttr("command", rest_val)
+    End Function
     '''*
     ''' <summary>
     '''   Retrieves a counter for a given identifier.
@@ -162,9 +186,11 @@ Module yocto_counter
     ''' <summary>
     '''   Registers the callback function that is invoked on every change of advertised value.
     ''' <para>
-    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
-    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
+    '''   The callback is then invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness,
+    '''   remember to call one of these two functions periodically. The callback is called once juste after beeing
+    '''   registered, passing the current advertised value  of the function, provided that it is not an empty string.
+    '''   To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -240,6 +266,27 @@ Module yocto_counter
         MyBase._invokeTimedReportCallback(value)
       End If
       Return 0
+    End Function
+
+    Public Overridable Function sendCommand(command As String) As Integer
+      Return Me.set_command(command)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reset the counter to zero.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function zero() As Integer
+      Return Me.sendCommand("Z")
     End Function
 
 

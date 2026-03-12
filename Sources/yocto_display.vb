@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 71629 2026-01-29 15:08:26Z mvuilleu $
+'* $Id: yocto_display.vb 72057 2026-02-17 09:44:53Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -85,9 +85,9 @@ end enum
   Public Const Y_DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_DISPLAYTYPE_MONO As Integer = 0
-  Public Const Y_DISPLAYTYPE_GRAY As Integer = 1
-  Public Const Y_DISPLAYTYPE_RGB As Integer = 2
-  Public Const Y_DISPLAYTYPE_EPAPER As Integer = 3
+  Public Const Y_DISPLAYTYPE_EPAPER_BW As Integer = 1
+  Public Const Y_DISPLAYTYPE_EPAPER_BWR As Integer = 2
+  Public Const Y_DISPLAYTYPE_EPAPER_BWRY As Integer = 3
   Public Const Y_DISPLAYTYPE_INVALID As Integer = -1
   Public Const Y_LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
@@ -1140,9 +1140,9 @@ end enum
     Public Const DISPLAYWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DISPLAYHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
     Public Const DISPLAYTYPE_MONO As Integer = 0
-    Public Const DISPLAYTYPE_GRAY As Integer = 1
-    Public Const DISPLAYTYPE_RGB As Integer = 2
-    Public Const DISPLAYTYPE_EPAPER As Integer = 3
+    Public Const DISPLAYTYPE_EPAPER_BW As Integer = 1
+    Public Const DISPLAYTYPE_EPAPER_BWR As Integer = 2
+    Public Const DISPLAYTYPE_EPAPER_BWRY As Integer = 3
     Public Const DISPLAYTYPE_INVALID As Integer = -1
     Public Const LAYERWIDTH_INVALID As Integer = YAPI.INVALID_UINT
     Public Const LAYERHEIGHT_INVALID As Integer = YAPI.INVALID_UINT
@@ -1633,16 +1633,16 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Returns the display type: monochrome, gray levels or full color.
+    '''   Returns the display type: monochrome OLED, black and white ePaper, color ePaper, etc.
     ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   a value among <c>YDisplay.DISPLAYTYPE_MONO</c>, <c>YDisplay.DISPLAYTYPE_GRAY</c>,
-    '''   <c>YDisplay.DISPLAYTYPE_RGB</c> and <c>YDisplay.DISPLAYTYPE_EPAPER</c> corresponding to the display
-    '''   type: monochrome, gray levels or full color
+    '''   a value among <c>YDisplay.DISPLAYTYPE_MONO</c>, <c>YDisplay.DISPLAYTYPE_EPAPER_BW</c>,
+    '''   <c>YDisplay.DISPLAYTYPE_EPAPER_BWR</c> and <c>YDisplay.DISPLAYTYPE_EPAPER_BWRY</c> corresponding to
+    '''   the display type: monochrome OLED, black and white ePaper, color ePaper, etc
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YDisplay.DISPLAYTYPE_INVALID</c>.
@@ -1818,9 +1818,11 @@ end enum
     ''' <summary>
     '''   Registers the callback function that is invoked on every change of advertised value.
     ''' <para>
-    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
-    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
+    '''   The callback is then invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness,
+    '''   remember to call one of these two functions periodically. The callback is called once juste after beeing
+    '''   registered, passing the current advertised value  of the function, provided that it is not an empty string.
+    '''   To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -2252,7 +2254,6 @@ end enum
       Dim srcx As Integer = 0
       Dim srcy As Integer = 0
       Dim srci As Integer = 0
-      Dim incx As Integer = 0
       Dim pixmap As Byte() = New Byte(){}
       Dim pixcount As Integer = 0
       Dim pixval As Integer = 0
@@ -2352,7 +2353,6 @@ end enum
       ReDim pixmap(pixcount-1)
       srcx = 0
       srcy = 0
-      incx = (8 \ zipbits)
       srcval = 0
       While (srcpos < zipsize)
         REM // load next compression pattern byte
@@ -2364,11 +2364,15 @@ end enum
           If (((srcpat) And (128)) <> 0) Then
             srcval = zipmap(srcpos)
             srcpos = srcpos + 1
+            If (zipbits > 1) Then
+              srcval = (srcval << 8) + zipmap(srcpos)
+              srcpos = srcpos + 1
+            End If
           End If
           srcpat = (srcpat << 1)
           pixpos = srcy * zipwidth + srcx
-          REM // produce 8 pixels (or 4, if bitmap uses 2 bits per pixel)
-          srci = 8 - zipbits
+          REM // produce 8 pixels
+          srci = 7 * zipbits
           While (srci >= 0)
             pixval = (((srcval >> srci)) And (zipmask))
             pixmap(pixpos) = Convert.ToByte(pixval And &HFF)
@@ -2378,7 +2382,7 @@ end enum
           srcy = srcy + 1
           If (srcy >= zipheight) Then
             srcy = 0
-            srcx = srcx + incx
+            srcx = srcx + 8
             REM // drop last bytes if image is not a multiple of 8
             If (srcx >= zipwidth) Then
               srcbit = 0

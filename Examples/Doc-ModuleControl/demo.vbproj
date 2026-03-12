@@ -81,6 +81,9 @@
     <Compile Include="..\..\Sources\yocto_anbutton.vb">
       <Link>Yoctopuce\{yocto_anbutton.vb}</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_angularspeed.vb">
+      <Link>Yoctopuce\{yocto_angularspeed.vb}</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_arithmeticsensor.vb">
       <Link>Yoctopuce\{yocto_arithmeticsensor.vb}</Link>
     </Compile>
@@ -113,6 +116,9 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_compass.vb">
       <Link>Yoctopuce\{yocto_compass.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_counter.vb">
+      <Link>Yoctopuce\{yocto_counter.vb}</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_current.vb">
       <Link>Yoctopuce\{yocto_current.vb}</Link>
@@ -198,6 +204,9 @@
     <Compile Include="..\..\Sources\yocto_network.vb">
       <Link>Yoctopuce\{yocto_network.vb}</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_orientation.vb">
+      <Link>Yoctopuce\{yocto_orientation.vb}</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_oscontrol.vb">
       <Link>Yoctopuce\{yocto_oscontrol.vb}</Link>
     </Compile>
@@ -254,6 +263,12 @@
     </Compile>
     <Compile Include="..\..\Sources\yocto_servo.vb">
       <Link>Yoctopuce\{yocto_servo.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_soundlevel.vb">
+      <Link>Yoctopuce\{yocto_soundlevel.vb}</Link>
+    </Compile>
+    <Compile Include="..\..\Sources\yocto_soundspectrum.vb">
+      <Link>Yoctopuce\{yocto_soundspectrum.vb}</Link>
     </Compile>
     <Compile Include="..\..\Sources\yocto_spectralchannel.vb">
       <Link>Yoctopuce\{yocto_spectralchannel.vb}</Link>

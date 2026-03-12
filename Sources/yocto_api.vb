@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 70666 2025-12-09 10:26:00Z seb $
+'* $Id: yocto_api.vb 72344 2026-03-09 14:01:56Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -820,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H0200
-  Public Const YOCTO_API_BUILD_NO As String = "71632"
+  Public Const YOCTO_API_BUILD_NO As String = "72413"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2442,7 +2442,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return  "2.1.11632 (" + version + ")"
+      Return  "2.1.12413 (" + version + ")"
     End Function
 
 
@@ -6574,9 +6574,11 @@ Module yocto_api
     ''' <summary>
     '''   Registers the callback function that is invoked on every change of advertised value.
     ''' <para>
-    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
-    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
+    '''   The callback is then invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness,
+    '''   remember to call one of these two functions periodically. The callback is called once juste after beeing
+    '''   registered, passing the current advertised value  of the function, provided that it is not an empty string.
+    '''   To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -6819,8 +6821,8 @@ Module yocto_api
     '''   <c>SERIAL</c>     is the serial number of the module if the module is connected or <c>"unresolved"</c>, and
     '''   <c>FUNCTIONID</c> is  the hardware identifier of the function if the module is connected.
     '''   For example, this method returns <c>Relay(MyCustomName.relay1)=RELAYLO1-123456.relay1</c> if the
-    '''   module is already connected or <c>Relay(BadCustomeName.relay1)=unresolved</c> if the module has
-    '''   not yet been connected. This method does not trigger any USB or TCP transaction and can therefore be used in
+    '''   module is connected or <c>Relay(BadCustomeName.relay1)=unresolved</c> if the module is
+    '''   not connected. This method does not trigger any USB or TCP transaction and can therefore be used in
     '''   a debugger.
     ''' </para>
     ''' <para>
@@ -8402,9 +8404,11 @@ Module yocto_api
     ''' <summary>
     '''   Registers the callback function that is invoked on every change of advertised value.
     ''' <para>
-    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
-    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
+    '''   The callback is then invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness,
+    '''   remember to call one of these two functions periodically. The callback is called once juste after beeing
+    '''   registered, passing the current advertised value  of the function, provided that it is not an empty string.
+    '''   To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -10711,9 +10715,11 @@ Module yocto_api
     ''' <summary>
     '''   Registers the callback function that is invoked on every change of advertised value.
     ''' <para>
-    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
-    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
+    '''   The callback is then invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness,
+    '''   remember to call one of these two functions periodically. The callback is called once juste after beeing
+    '''   registered, passing the current advertised value  of the function, provided that it is not an empty string.
+    '''   To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -11913,9 +11919,11 @@ Module yocto_api
     ''' <summary>
     '''   Registers the callback function that is invoked on every change of advertised value.
     ''' <para>
-    '''   The callback is invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
-    '''   This provides control over the time when the callback is triggered. For good responsiveness, remember to call
-    '''   one of these two functions periodically. To unregister a callback, pass a Nothing pointer as argument.
+    '''   The callback is then invoked only during the execution of <c>ySleep</c> or <c>yHandleEvents</c>.
+    '''   This provides control over the time when the callback is triggered. For good responsiveness,
+    '''   remember to call one of these two functions periodically. The callback is called once juste after beeing
+    '''   registered, passing the current advertised value  of the function, provided that it is not an empty string.
+    '''   To unregister a callback, pass a Nothing pointer as argument.
     ''' </para>
     ''' <para>
     ''' </para>
