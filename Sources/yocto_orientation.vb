@@ -53,6 +53,9 @@ Module yocto_orientation
    REM --- (end of YOrientation yapiwrapper)
   REM --- (YOrientation globals)
 
+  Public Const Y_COUNTERCLOCKWISE_FALSE As Integer = 0
+  Public Const Y_COUNTERCLOCKWISE_TRUE As Integer = 1
+  Public Const Y_COUNTERCLOCKWISE_INVALID As Integer = -1
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_ZEROOFFSET_INVALID As Double = YAPI.INVALID_DOUBLE
   Public Delegate Sub YOrientationValueCallback(ByVal func As YOrientation, ByVal value As String)
@@ -75,11 +78,15 @@ Module yocto_orientation
     REM --- (end of YOrientation class start)
 
     REM --- (YOrientation definitions)
+    Public Const COUNTERCLOCKWISE_FALSE As Integer = 0
+    Public Const COUNTERCLOCKWISE_TRUE As Integer = 1
+    Public Const COUNTERCLOCKWISE_INVALID As Integer = -1
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     Public Const ZEROOFFSET_INVALID As Double = YAPI.INVALID_DOUBLE
     REM --- (end of YOrientation definitions)
 
     REM --- (YOrientation attributes declaration)
+    Protected _counterClockwise As Integer
     Protected _command As String
     Protected _zeroOffset As Double
     Protected _valueCallbackOrientation As YOrientationValueCallback
@@ -90,6 +97,7 @@ Module yocto_orientation
       MyBase.New(func)
       _classname = "Orientation"
       REM --- (YOrientation attributes initialization)
+      _counterClockwise = COUNTERCLOCKWISE_INVALID
       _command = COMMAND_INVALID
       _zeroOffset = ZEROOFFSET_INVALID
       _valueCallbackOrientation = Nothing
@@ -100,6 +108,9 @@ Module yocto_orientation
     REM --- (YOrientation private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("counterClockwise") Then
+        If (json_val.getInt("counterClockwise") > 0) Then _counterClockwise = 1 Else _counterClockwise = 0
+      End If
       If json_val.has("command") Then
         _command = json_val.getString("command")
       End If
@@ -112,6 +123,61 @@ Module yocto_orientation
     REM --- (end of YOrientation private methods declaration)
 
     REM --- (YOrientation public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns a value indicating whether the sensor is operating in a counterclockwise direction.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YOrientation.COUNTERCLOCKWISE_FALSE</c> or <c>YOrientation.COUNTERCLOCKWISE_TRUE</c>,
+    '''   according to a value indicating whether the sensor is operating in a counterclockwise direction
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YOrientation.COUNTERCLOCKWISE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_counterClockwise() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return COUNTERCLOCKWISE_INVALID
+        End If
+      End If
+      res = Me._counterClockwise
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Defines the operating direction of the sensor.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the
+    '''   modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YOrientation.COUNTERCLOCKWISE_FALSE</c> or <c>YOrientation.COUNTERCLOCKWISE_TRUE</c>
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_counterClockwise(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("counterClockwise", rest_val)
+    End Function
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -138,7 +204,6 @@ Module yocto_orientation
     '''   can typically be used  to compensate for mechanical offset. This offset can also be set
     '''   automatically using the zero() method.
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
-    '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -346,10 +411,8 @@ Module yocto_orientation
     ''' </summary>
     ''' <returns>
     '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
+    ''' </returns>
     '''/
     Public Overridable Function zero() As Integer
       Return Me.sendCommand("Z")

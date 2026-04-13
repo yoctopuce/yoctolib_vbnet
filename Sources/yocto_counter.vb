@@ -53,6 +53,9 @@ Module yocto_counter
    REM --- (end of YCounter yapiwrapper)
   REM --- (YCounter globals)
 
+  Public Const Y_DECIMALMODE_FALSE As Integer = 0
+  Public Const Y_DECIMALMODE_TRUE As Integer = 1
+  Public Const Y_DECIMALMODE_INVALID As Integer = -1
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YCounterValueCallback(ByVal func As YCounter, ByVal value As String)
   Public Delegate Sub YCounterTimedReportCallback(ByVal func As YCounter, ByVal measure As YMeasure)
@@ -74,10 +77,14 @@ Module yocto_counter
     REM --- (end of YCounter class start)
 
     REM --- (YCounter definitions)
+    Public Const DECIMALMODE_FALSE As Integer = 0
+    Public Const DECIMALMODE_TRUE As Integer = 1
+    Public Const DECIMALMODE_INVALID As Integer = -1
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YCounter definitions)
 
     REM --- (YCounter attributes declaration)
+    Protected _decimalMode As Integer
     Protected _command As String
     Protected _valueCallbackCounter As YCounterValueCallback
     Protected _timedReportCallbackCounter As YCounterTimedReportCallback
@@ -87,6 +94,7 @@ Module yocto_counter
       MyBase.New(func)
       _classname = "Counter"
       REM --- (YCounter attributes initialization)
+      _decimalMode = DECIMALMODE_INVALID
       _command = COMMAND_INVALID
       _valueCallbackCounter = Nothing
       _timedReportCallbackCounter = Nothing
@@ -96,6 +104,9 @@ Module yocto_counter
     REM --- (YCounter private methods declaration)
 
     Protected Overrides Function _parseAttr(ByRef json_val As YJSONObject) As Integer
+      If json_val.has("decimalMode") Then
+        If (json_val.getInt("decimalMode") > 0) Then _decimalMode = 1 Else _decimalMode = 0
+      End If
       If json_val.has("command") Then
         _command = json_val.getString("command")
       End If
@@ -105,6 +116,61 @@ Module yocto_counter
     REM --- (end of YCounter private methods declaration)
 
     REM --- (YCounter public methods declaration)
+    '''*
+    ''' <summary>
+    '''   Returns a value indicating if the senseur compute whole or fractional values.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   either <c>YCounter.DECIMALMODE_FALSE</c> or <c>YCounter.DECIMALMODE_TRUE</c>, according to a value
+    '''   indicating if the senseur compute whole or fractional values
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YCounter.DECIMALMODE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_decimalMode() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return DECIMALMODE_INVALID
+        End If
+      End If
+      res = Me._decimalMode
+      Return res
+    End Function
+
+
+    '''*
+    ''' <summary>
+    '''   Changes the sensor's operating mode so that it computes integer or decimal values.
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c> method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="newval">
+    '''   either <c>YCounter.DECIMALMODE_FALSE</c> or <c>YCounter.DECIMALMODE_TRUE</c>, according to the
+    '''   sensor's operating mode so that it computes integer or decimal values
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Function set_decimalMode(ByVal newval As Integer) As Integer
+      Dim rest_val As String
+      If (newval > 0) Then rest_val = "1" Else rest_val = "0"
+      Return _setAttr("decimalMode", rest_val)
+    End Function
     Public Function get_command() As String
       Dim res As String
       If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
@@ -279,7 +345,10 @@ Module yocto_counter
     ''' </para>
     ''' </summary>
     ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds. Please note that this function only resets
+    '''   the integer part of the counter. In <c>CONTINUOUS</c> mode, the decimal part is calculated
+    '''   from the angle measured by the sensor. To set the decimal part of the sensor to zero,
+    '''   the origin of the sensor must be changed with the <c>YOrientation.zero()</c>.
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
