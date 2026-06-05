@@ -76,6 +76,12 @@ Module yocto_rfidreader
     Public Const IEC_14443_NTAG_215 As Integer = 8
     Public Const IEC_14443_NTAG_216 As Integer = 9
     Public Const IEC_14443_NTAG_424_DNA As Integer = 10
+    Public Const IEC_15693_ST25DV As Integer = 11
+    Public Const IEC_15693_ST25TV As Integer = 12
+    Public Const IEC_15693_TAGIT_HFI As Integer = 13
+    Public Const IEC_15693_MB89R As Integer = 14
+    Public Const IEC_15693_ICODE_DNA As Integer = 15
+    Public Const IEC_15693_ICODE_SLI As Integer = 16
     REM --- (end of generated code: YRfidTagInfo definitions)
 
     REM --- (generated code: YRfidTagInfo attributes declaration)
@@ -260,6 +266,25 @@ Module yocto_rfidreader
       If (tagType = IEC_14443_NTAG_424_DNA) Then
         typeStr = "NTAG 424 DNA"
       End If
+      If (tagType = IEC_15693_ST25DV) Then
+        typeStr = "ST25DVxx"
+      End If
+      If (tagType = IEC_15693_ST25TV) Then
+        typeStr = "ST25TVxx"
+      End If
+      If (tagType = IEC_15693_TAGIT_HFI) Then
+        typeStr = "TI TAGIT HFI"
+      End If
+      If (tagType = IEC_15693_MB89R) Then
+        typeStr = "MB89Rxx"
+      End If
+      If (tagType = IEC_15693_ICODE_DNA) Then
+        typeStr = "ICODE DNA"
+      End If
+      If (tagType = IEC_15693_ICODE_SLI) Then
+        typeStr = "ICODE SLI"
+      End If
+
       Me._tagId = tagId
       Me._tagType = tagType
       Me._typeStr = typeStr
@@ -313,6 +338,13 @@ Module yocto_rfidreader
     Public Const NO_RFID_KEY As Integer = 0
     Public Const MIFARE_KEY_A As Integer = 1
     Public Const MIFARE_KEY_B As Integer = 2
+    Public Const ST25DV_CONFIG_PWD As Integer = 3
+    Public Const ST25DV_PWD1 As Integer = 4
+    Public Const ST25DV_PWD2 As Integer = 5
+    Public Const ST25DV_PWD3 As Integer = 6
+    Public Const ST25TV_CONFIG_PWD As Integer = 7
+    Public Const ST25TV_PWD1 As Integer = 8
+    Public Const ST25TV_PWD2 As Integer = 9
     REM --- (end of generated code: YRfidOptions definitions)
 
     REM --- (generated code: YRfidOptions attributes declaration)
@@ -608,6 +640,14 @@ Module yocto_rfidreader
     Public Const INVALID_SIZE As Integer = -154
     Public Const BAD_PASSWORD_FORMAT As Integer = -155
     Public Const RADIO_IS_OFF As Integer = -156
+    Public Const NOT_AVAILABLE_ON_THIS_TAG As Integer = -157
+    Public Const PASSWORD_FEATURE_NOT_SUPPORTED As Integer = -158
+    Public Const BAD_PASSWORD_LENGTH As Integer = -159
+    Public Const BAD_PASSWORD_TYPE As Integer = -160
+    Public Const BAD_PASSWORD As Integer = -161
+    Public Const PASSWORD_REQUIRED As Integer = -162
+    Public Const MULTIWRITE_NOT_SUPPORTED As Integer = -163
+    Public Const MULTIREAD_NOT_SUPPORTED As Integer = -164
     REM --- (end of generated code: YRfidStatus definitions)
 
     REM --- (generated code: YRfidStatus attributes declaration)
@@ -805,7 +845,7 @@ Module yocto_rfidreader
           errMsg = "Block / byte is already locked and thus cannot be locked again."
         End If
         If (errCode = BLOCK_LOCKED) Then
-          errMsg = "Block / byte is locked and its content cannot be changed"
+          errMsg = "Block / byte is either locked and its content cannot be changed or operation might require a password."
         End If
         If (errCode = BLOCK_NOT_SUCESSFULLY_PROGRAMMED) Then
           errMsg = "Block was not successfully programmed"
@@ -1064,6 +1104,30 @@ Module yocto_rfidreader
         End If
         If (errCode = RADIO_IS_OFF) Then
           errMsg = "Radio is OFF (refreshRate=0)."
+        End If
+        If (errCode = NOT_AVAILABLE_ON_THIS_TAG) Then
+          errMsg = "Tag does not provide this feature."
+        End If
+        If (errCode = PASSWORD_FEATURE_NOT_SUPPORTED) Then
+          errMsg = "Password feature not supported this tag."
+        End If
+        If (errCode = BAD_PASSWORD_LENGTH) Then
+          errMsg = "Incorrect password length"
+        End If
+        If (errCode = BAD_PASSWORD_TYPE) Then
+          errMsg = "Bad password type."
+        End If
+        If (errCode = BAD_PASSWORD) Then
+          errMsg = "Bad password."
+        End If
+        If (errCode = PASSWORD_REQUIRED) Then
+          errMsg = "Operation requires a password"
+        End If
+        If (errCode = MULTIWRITE_NOT_SUPPORTED) Then
+          errMsg = "Multi block write unavailable on this tag."
+        End If
+        If (errCode = MULTIREAD_NOT_SUPPORTED) Then
+          errMsg = "Multi block read unavailable on this tag."
         End If
         If (errBlk >= 0) Then
           errMsg = "" + errMsg + " (block " + Convert.ToString(errBlk) + ")"
@@ -1512,7 +1576,13 @@ Module yocto_rfidreader
     ''' <para>
     '''   This operation is definitive and irreversible.
     '''   Depending on the tag type and block index, adjascent blocks may become
-    '''   read-only as well, based on the locking granularity.
+    '''   read-only as well, based on the locking granularity.  Note that some tags
+    '''   may allow only a few blocks to be locked, for instance ST25DVxxx  tags
+    '''   allows a lock on block 0 and 1 only.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' <para>
     ''' </para>
     ''' <para>
     ''' </para>
@@ -2189,6 +2259,164 @@ Module yocto_rfidreader
         res = status.get_yapiError()
       End If
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reads a byte from the Tag configuration (ISO 15693 ST25DVxx only).
+    ''' <para>
+    '''   This function is actually a call to the 0xA0 RFID command and is specific to
+    '''   ST25DVxx tags. Check ST25DVxx datasheet for more information about
+    '''   the data organisation of ST25DVxx tags configuration.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="tagId">
+    '''   identifier of the tag to use
+    ''' </param>
+    ''' <param name="addr">
+    '''   offset of the byte in the tag configuation
+    ''' </param>
+    ''' <para>
+    ''' </para>
+    ''' <param name="options">
+    '''   an <c>YRfidOptions</c> object with the optional
+    '''   command execution parameters, such as security key
+    '''   if required
+    ''' </param>
+    ''' <param name="status">
+    '''   an <c>RfidStatus</c> object that will contain
+    '''   the detailled status of the operation
+    ''' </param>
+    ''' <returns>
+    '''   the requested byte value (0...255)
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code. When it
+    '''   happens, you can get more information from the <c>status</c> object.
+    ''' </para>
+    '''/
+    Public Overridable Function tagGetConfigByte(tagId As String, addr As Integer, options As YRfidOptions, ByRef status As YRfidStatus) As Integer
+      Dim optstr As String
+      Dim url As String
+      Dim json As Byte() = New Byte(){}
+      Dim res As Integer = 0
+      optstr = options.imm_getParams()
+      url = "rfid.json?a=gcfg&t=" + tagId + "&b=" + Convert.ToString(addr) + "" + optstr
+
+      json = Me._download(url)
+      Me._chkerror(tagId, json, status)
+      If (status.get_yapiError() = YAPI.SUCCESS) Then
+        res = YAPI._atoi(Me._json_get_key(json, "res"))
+      Else
+        res = status.get_yapiError()
+      End If
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes a byte in the tag's configuration (ISO 15693 ST25DVxx only).
+    ''' <para>
+    '''   Warning: modifing the tag configation may alter its behavior in a non-reversible way.
+    '''   This operation requires the CONFIG_PWD password to be set in the options,
+    '''   default value is "0000000000000000" (16 zeros). This function is actually
+    '''   a call to the 0xA1 RFID command and is specific to ST25DVxx tags. Check
+    '''   ST25DVxx datasheet for more information about the data organisation
+    '''   of ST25DVxx tags configuration.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="tagId">
+    '''   identifier of the tag to use
+    ''' </param>
+    ''' <param name="addr">
+    '''   address of the byte to write
+    ''' </param>
+    ''' <param name="value">
+    '''   the value to write (0...255)
+    ''' </param>
+    ''' <param name="options">
+    '''   an <c>YRfidOptions</c> object with the optional
+    '''   command execution parameters, such as security key
+    '''   if required
+    ''' </param>
+    ''' <param name="status">
+    '''   an <c>RfidStatus</c> object that will contain
+    '''   the detailled status of the operation
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code. When it
+    '''   happens, you can get more information from the <c>status</c> object.
+    ''' </para>
+    '''/
+    Public Overridable Function tagSetConfigByte(tagId As String, addr As Integer, value As Integer, options As YRfidOptions, ByRef status As YRfidStatus) As Integer
+      Dim optstr As String
+      Dim url As String
+      Dim json As Byte() = New Byte(){}
+      optstr = options.imm_getParams()
+      url = "rfid.json?a=scfg&t=" + tagId + "&b=" + Convert.ToString(addr) + "&v=" + Convert.ToString(value) + "" + optstr
+
+      json = Me._download(url)
+      Return Me._chkerror(tagId, json, status)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Set a password that will be required to access the tag  (ISO 15693 ST25DVxx only).
+    ''' <para>
+    '''   The password must be a string of characters representing 8 bytes in hexadecimal.
+    '''   There are several types of password for the same tag; please consult your tags
+    '''   documentation to understand their respective applications. Once the password
+    '''   has been configured, operations requiring this password must be initiated with
+    '''   the password defined in the <c>KeyType</c> and <c>HexKey</c> fields of the
+    '''   <c>options</c> parameter for the operations in question. It is not necessarily
+    '''   required to consistently provide the same password for every operation during the
+    '''   same session with a tag.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="tagId">
+    '''   identifier of the tag to use
+    ''' </param>
+    ''' <param name="passwordType">
+    '''   type of password to be set (YRfidOptions.ST25D_CONFIG_PWD,YRfidOptions.ST25D_PWD1,YRfidOptions.ST25D_PWD2..)
+    ''' </param>
+    ''' <param name="password">
+    '''   the password (16 characters hex string encoding 8 bytes)
+    ''' </param>
+    ''' <param name="options">
+    '''   an <c>YRfidOptions</c> object with the optional
+    '''   command execution parameters, such as security key
+    '''   if required
+    ''' </param>
+    ''' <param name="status">
+    '''   an <c>RfidStatus</c> object that will contain
+    '''   the detailled status of the operation
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code. When it
+    '''   happens, you can get more information from the <c>status</c> object.
+    ''' </para>
+    '''/
+    Public Overridable Function tagSetPassword(tagId As String, passwordType As Integer, password As String, options As YRfidOptions, ByRef status As YRfidStatus) As Integer
+      Dim optstr As String
+      Dim url As String
+      Dim json As Byte() = New Byte(){}
+      optstr = options.imm_getParams()
+      url = "rfid.json?a=spwd&t=" + tagId + "&b=" + Convert.ToString(passwordType) + "&p=" + password + "" + optstr
+
+      json = Me._download(url)
+      Return Me._chkerror(tagId, json, status)
     End Function
 
     '''*

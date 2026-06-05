@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 72057 2026-02-17 09:44:53Z mvuilleu $
+'* $Id: yocto_display.vb 74504 2026-06-01 14:50:23Z seb $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -70,6 +70,13 @@ end enum
   REM --- (end of generated code: YDisplayLayer globals)
   REM --- (generated code: YDisplay globals)
 
+ Public Enum  Y_DISPLAYSTATE
+  FAILURE = 0
+  OFF = 1
+  POWERING = 2
+  IDLE = 3
+  REFRESHING = 4
+end enum
   Public Const Y_ENABLED_FALSE As Integer = 0
   Public Const Y_ENABLED_TRUE As Integer = 1
   Public Const Y_ENABLED_INVALID As Integer = -1
@@ -120,6 +127,8 @@ end enum
     REM --- (end of generated code: YDisplayLayer definitions)
 
     REM --- (generated code: YDisplayLayer attributes declaration)
+    Protected _cmdbuff As String
+    Protected _hidden As Boolean
     Protected _polyPrevX As Integer
     Protected _polyPrevY As Integer
     REM --- (end of generated code: YDisplayLayer attributes declaration)
@@ -130,6 +139,53 @@ end enum
     REM --- (end of generated code: YDisplayLayer private methods declaration)
 
     REM --- (generated code: YDisplayLayer public methods declaration)
+    Public Overridable Function must_be_flushed() As Boolean
+      Return (Me._cmdbuff).Length > 0
+    End Function
+
+    Public Overridable Function resetHiddenFlag() As Integer
+      Me._hidden = False
+      Return YAPI.SUCCESS
+    End Function
+
+    Public Overridable Function flush_now() As Integer
+      Dim res As Integer = 0
+      res = YAPI.SUCCESS
+      If ((Me._cmdbuff).Length > 0) Then
+        res = Me._display.sendCommand(Me._cmdbuff)
+        Me._cmdbuff = ""
+      End If
+      Return res
+    End Function
+
+    Public Overridable Function command_push(cmd As String) As Integer
+      Dim res As Integer = 0
+      res = YAPI.SUCCESS
+      If ((Me._cmdbuff).Length + (cmd).Length >= 100) Then
+        REM // force flush before, to prevent overflow
+        Me.flush_now()
+      End If
+      If ((Me._cmdbuff).Length = 0) Then
+        REM // always prepend layer ID first
+        Me._cmdbuff = (Me._id).ToString()
+      End If
+      Me._cmdbuff = Me._cmdbuff + cmd
+      Return res
+    End Function
+
+    Public Overridable Function command_flush(cmd As String) As Integer
+      Dim res As Integer = 0
+
+      res = Me.command_push(cmd)
+      If (Me._hidden) Then
+        Return res
+      End If
+      If (Me._display.isFrozen()) Then
+        Return res
+      End If
+      Return Me.flush_now()
+    End Function
+
     '''*
     ''' <summary>
     '''   Reverts the layer to its initial state (fully transparent, default settings).
@@ -1048,47 +1104,23 @@ end enum
       Return Me._display.get_layerHeight()
     End Function
 
-    Public Overridable Function resetHiddenFlag() As Integer
-      Me._hidden = False
-      Return YAPI.SUCCESS
-    End Function
-
 
 
     REM --- (end of generated code: YDisplayLayer public methods declaration)
 
-    Private _cmdbuff As String = ""
     Private _display As YDisplay = Nothing
     Private _id As Integer = -1
-    Private _hidden As Boolean = False
-
-
-    Public Function flush_now() As Integer
-      Dim res As Integer = YAPI.SUCCESS
-      If (_cmdbuff <> "") Then
-        res = _display.sendcommand(_cmdbuff)
-        _cmdbuff = ""
-      End If
-      Return res
-    End Function
-
-    Private Function command_push(cmd As String) As Integer
-      Dim res As Integer = YAPI.SUCCESS
-      If (_cmdbuff.Length + cmd.Length >= 100) Then res = flush_now()
-      If (_cmdbuff = "") Then _cmdbuff = _id.ToString()
-      _cmdbuff = _cmdbuff + cmd
-      Return YAPI.SUCCESS
-    End Function
-
-    Private Function command_flush(cmd As String) As Integer
-      Dim res As Integer = command_push(cmd)
-      If Not (_hidden) Then res = flush_now()
-      Return res
-    End Function
 
     Public Sub New(parent As YDisplay, id As Integer)
       Me._display = parent
       Me._id = id
+      Me._cmdbuff = ""
+      REM --- (generated code: YDisplayLayer attributes initialization)
+      _cmdbuff = ""
+      _hidden = false
+      _polyPrevX = 0
+      _polyPrevY = 0
+      REM --- (end of generated code: YDisplayLayer attributes initialization)
     End Sub
 
   End Class
@@ -1166,13 +1198,13 @@ end enum
     Protected _command As String
     Protected _valueCallbackDisplay As YDisplayValueCallback
     Protected _allDisplayLayers As List(Of YDisplayLayer)
-    REM --- (end of generated code: YDisplay attributes declaration)
-
+    Protected _frozenUntil As Long
     Protected _recording As Boolean
     Protected _sequence As String
+    REM --- (end of generated code: YDisplay attributes declaration)
 
     Public Sub New(ByVal func As String)
-      MyBase.new(func)
+      MyBase.New(func)
       _className = "Display"
       REM --- (generated code: YDisplay attributes initialization)
       _enabled = ENABLED_INVALID
@@ -1190,6 +1222,7 @@ end enum
       _command = COMMAND_INVALID
       _valueCallbackDisplay = Nothing
       _allDisplayLayers = New List(Of YDisplayLayer)()
+      _frozenUntil = 0
       REM --- (end of generated code: YDisplay attributes initialization)
     End Sub
 
@@ -1861,6 +1894,43 @@ end enum
       Return 0
     End Function
 
+    Public Overridable Function sendCommand(cmd As String) As Integer
+      If (Not (Me._recording)) Then
+        Return Me.set_command(cmd)
+      End If
+      Me._sequence = "" + Me._sequence + "" + cmd + "" + vbLf + ""
+      Return YAPI.SUCCESS
+    End Function
+
+    Public Overridable Function flushLayers() As Integer
+      Dim ii_0 As Integer
+      For ii_0 = 0 To Me._allDisplayLayers.Count - 1
+        If (Me._allDisplayLayers(ii_0).must_be_flushed()) Then
+          Me._allDisplayLayers(ii_0).flush_now()
+        End If
+      Next ii_0
+      Return YAPI.SUCCESS
+    End Function
+
+    Public Overridable Function resetHiddenLayerFlags() As Integer
+      Dim ii_0 As Integer
+      For ii_0 = 0 To Me._allDisplayLayers.Count - 1
+        Me._allDisplayLayers(ii_0).resetHiddenFlag()
+      Next ii_0
+      Return YAPI.SUCCESS
+    End Function
+
+    Public Overridable Function isFrozen() As Boolean
+      If (Me._frozenUntil = 0) Then
+        Return False
+      End If
+      If (Me._frozenUntil <= YAPI.GetTickCount()) Then
+        Me._frozenUntil = 0
+        Return False
+      End If
+      Return True
+    End Function
+
     '''*
     ''' <summary>
     '''   Clears the display screen and resets all display layers to their default state.
@@ -1908,6 +1978,62 @@ end enum
 
     '''*
     ''' <summary>
+    '''   Returns the current state of an ePaper display, specifically to
+    '''   determine whether an update is in progress or whether a
+    '''   configuration issue has been detected.
+    ''' <para>
+    '''   If a display configuration
+    '''   error has been detected, the error message can be retrieved.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="errmsg">
+    '''   a string passed by reference to receive the error message.
+    ''' </param>
+    ''' <returns>
+    '''   a value among the enumeration <c>YDisplay.DISPLAYSTATE</c>
+    '''   (<c>YDisplay.DISPLAYSTATE_FAILURE</c>, <c>YDisplay.DISPLAYSTATE_OFF</c>,
+    '''   <c>YDisplay.DISPLAYSTATE_POWERING</c>, <c>YDisplay.DISPLAYSTATE_IDLE</c>,
+    '''   <c>YDisplay.DISPLAYSTATE_REFRESHING</c>)
+    '''   corresponding to the current display state.
+    ''' </returns>
+    '''/
+    Public Overridable Function get_ePaperState(ByRef errmsg As String) As Y_DISPLAYSTATE
+      Dim json As Byte() = New Byte(){}
+      Dim dispError As String
+      Dim dispState As Integer = 0
+
+      If (Me.get_displayType() = DISPLAYTYPE_MONO) Then
+        errmsg = "Not an ePaper display"
+        Return CType(0, Y_DISPLAYSTATE)
+      End If
+      json = Me._download("disp.json")
+      If ((json).Length = 0) Then
+        errmsg = Me.get_errorMessage()
+        Return CType(0, Y_DISPLAYSTATE)
+      Else
+        dispError = Me._json_get_string(Me._get_json_path(json, "err"))
+        errmsg = dispError
+        If ((dispError).Length > 0) Then
+          Return CType(0, Y_DISPLAYSTATE)
+        End If
+        dispState = YAPI._atoi(Me._json_get_key(json, "state"))
+        If (dispState > 10) Then
+          Return CType(4, Y_DISPLAYSTATE)
+        End If
+        If (dispState = 10) Then
+          Return CType(3, Y_DISPLAYSTATE)
+        End If
+        If (dispState > 0) Then
+          Return CType(2, Y_DISPLAYSTATE)
+        End If
+      End If
+      Return CType(1, Y_DISPLAYSTATE)
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Disables screen refresh for a short period of time.
     ''' <para>
     '''   The combination of
@@ -1926,6 +2052,7 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function postponeRefresh(duration As Integer) As Integer
+      Me._frozenUntil = YAPI.GetTickCount() + duration
       Return Me.sendCommand("H" + Convert.ToString(duration))
     End Function
 
@@ -1946,6 +2073,8 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function triggerRefresh() As Integer
+      Me._frozenUntil = 0
+      Me.flushLayers()
       Return Me.sendCommand("H0")
     End Function
 
@@ -2115,6 +2244,7 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function upload(pathname As String, content As Byte()) As Integer
+      Me.flushLayers()
       Return Me._upload(pathname, content)
     End Function
 
@@ -2498,34 +2628,6 @@ end enum
     End Function
 
     REM --- (end of generated code: YDisplay public methods declaration)
-
-    Private Function flushLayers() As Integer
-      Dim i As Integer
-            If (_allDisplayLayers.Count > 0) Then
-                For i = 0 To _allDisplayLayers.Count - 1
-                    _allDisplayLayers(i).flush_now()
-                Next i
-            End If
-            Return YAPI.SUCCESS
-        End Function
-
-        Private Sub resetHiddenLayerFlags()
-            Dim i As Integer
-            If (_allDisplayLayers.Count > 0) Then
-                For i = 0 To _allDisplayLayers.Count - 1
-                    _allDisplayLayers(i).resetHiddenFlag()
-                Next i
-            End If
-        End Sub
-
-    Public Function sendCommand(ByVal cmd As String) As Integer
-      If Not (_recording) Then
-        Return Me.set_command(cmd)
-      End If
-      _sequence = _sequence + cmd + Chr(13)
-      Return YAPI.SUCCESS
-    End Function
-
 
   End Class
 

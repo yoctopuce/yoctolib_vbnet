@@ -679,6 +679,94 @@ Module yocto_colorledcluster
 
     '''*
     ''' <summary>
+    '''   Changes the color displayed by the last LED and shifts all currently displayed colors
+    '''   toward the beginning of the RGB LED string.
+    ''' <para>
+    '''   The new color is encoded as follows: 0xRRGGBB.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="rgbValue">
+    '''   new color.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function shl_rgb(rgbValue As Integer) As Integer
+      Return Me.sendCommand("<R" + (rgbValue).ToString("x"))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the color displayed by the first LED and shifts all currently displayed colors
+    '''   toward the end of the RGB LED string.
+    ''' <para>
+    '''   The new color is encoded as follows: 0xRRGGBB.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="rgbValue">
+    '''   new color.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function shr_rgb(rgbValue As Integer) As Integer
+      Return Me.sendCommand(">R" + (rgbValue).ToString("x"))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the color displayed by the last LED and shifts all currently displayed colors
+    '''   toward the beginning of the RGB LED string.
+    ''' <para>
+    '''   The new color is encoded as follows: 0xHHSSLL.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="hslValue">
+    '''   new color.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function shl_hsl(hslValue As Integer) As Integer
+      Return Me.sendCommand("<H" + (hslValue).ToString("x"))
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the color displayed by the first LED and shifts all currently displayed colors
+    '''   toward the end of the RGB LED string.
+    ''' <para>
+    '''   The new color is encoded as follows: 0xHHSSLL.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="hslValue">
+    '''   new color.
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> when the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function shr_hsl(hslValue As Integer) As Integer
+      Return Me.sendCommand(">H" + (hslValue).ToString("x"))
+    End Function
+
+    '''*
+    ''' <summary>
     '''   Adds an RGB transition to a sequence.
     ''' <para>
     '''   A sequence is a transition list, which can

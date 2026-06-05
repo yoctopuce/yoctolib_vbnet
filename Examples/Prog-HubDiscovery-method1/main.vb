@@ -1,78 +1,60 @@
 ﻿Module Module1
+  Private KnownHubs As New HashSet(Of String)()
 
-  Sub anButtonValueChangeCallBack(ByVal fct As YAnButton, ByVal value As String)
-    Console.WriteLine(fct.get_hardwareId() + ": " + value + " (new value)")
-  End Sub
+  Private Sub HubDiscovered(serial As String, url As String)
+    ' The callback can be called multiple times for the same hub
+    ' (discovery is based on periodic broadcast), so we use a set to avoid duplicates
+    If KnownHubs.Contains(serial) Then Return
 
-  Sub sensorValueChangeCallBack(ByVal fct As YSensor, ByVal value As String)
-    Console.WriteLine(fct.get_hardwareId() + ": " + value + " " + fct.get_unit() + " (new value)")
-  End Sub
+    Console.WriteLine("hub found: " & serial & " (" & url & ")")
 
-  Sub sensorTimedReportCallBack(ByVal fct As YSensor, ByVal measure As YMeasure)
-    Console.WriteLine(fct.get_hardwareId() + ": " + measure.get_averageValue().ToString() + " " + fct.get_unit() + " (timed report)")
-  End Sub
+    ' Add the hub to the set to avoid reprocessing
+    KnownHubs.Add(serial)
 
-  Sub deviceArrival(ByVal m As YModule)
-    Dim serial, hardwareId As String
-    Dim fctcount, i As Integer
-    Dim anButton As YAnButton
-    Dim sensor As YSensor
+    ' Connect to the hub
+    Dim msg As String = ""
+    Dim res As Integer = YAPI.RegisterHub(url, msg)
+    If res <> YAPI.SUCCESS Then
+      ' Ignore hubs with authentication
+      Console.WriteLine("  Ignore hub " & serial & " (" & msg & ")")
+      Return
+    End If
 
-    serial = m.get_serialNumber()
-    Console.WriteLine("Device Arrival : " + serial)
+    ' Find the hub module
+    Dim hub As YModule = YModule.FindModule(serial)
 
-    REM // First solution: look for a specific type of function (eg. anButton)
-    fctcount = m.functionCount()
-    For i = 0 To fctcount - 1
-      hardwareId = serial + "." + m.functionId(i)
-      If hardwareId.IndexOf("anButton") >= 0 Then
-        Console.WriteLine("- " + hardwareId)
-        anButton = YAnButton.FindAnButton(hardwareId)
-        anButton.registerValueCallback(AddressOf anButtonValueChangeCallBack)
+    ' Iterate over all functions on the module and find the ports
+    Dim fctCount As Integer = hub.functionCount()
+    For i As Integer = 0 To fctCount - 1
+      ' Retrieve the hardware name of the ith function
+      Dim fctHwdName As String = hub.functionId(i)
+      If fctHwdName.Length > 7 AndAlso fctHwdName.Substring(0, 7) = "hubPort" Then
+        ' The port logical name is always the serial# of the connected device
+        Dim deviceid As String = hub.functionName(i)
+        Console.WriteLine("  " & fctHwdName & " : " & deviceid)
       End If
     Next
 
-    REM // Alternate solution: register any kind of sensor on the device
-    sensor = YSensor.FirstSensor()
-    While sensor IsNot Nothing
-      If sensor.get_module().get_serialNumber() = serial Then
-        hardwareId = sensor.get_hardwareId()
-        Console.WriteLine("- " + hardwareId)
-        sensor.registerValueCallback(AddressOf sensorValueChangeCallBack)
-        sensor.registerTimedReportCallback(AddressOf sensorTimedReportCallBack)
-      End If
-      sensor = sensor.nextSensor()
-    End While
-
-  End Sub
-
-  Sub deviceRemoval(ByVal m As YModule)
-    Console.WriteLine("Device removal : " + m.get_serialNumber())
+    ' Disconnect from the hub
+    YAPI.UnregisterHub(url)
   End Sub
 
   Sub Main()
     Dim errmsg As String = ""
 
-    REM Init API before first call
-    If (YAPI.InitAPI(0, errmsg) <> YAPI_SUCCESS) Then
-      Console.WriteLine("InitAPI error: " + errmsg)
-      End
-    End If
+    REM create a dictionnary
+    KnownHubs.Clear()
 
-    YAPI.RegisterDeviceArrivalCallback(AddressOf deviceArrival)
-    YAPI.RegisterDeviceRemovalCallback(AddressOf deviceRemoval)
+    Console.WriteLine("Waiting for hubs to signal themselves...")
 
-    If (YAPI.RegisterHub("usb", errmsg) <> YAPI_SUCCESS) Then
-      Console.WriteLine("RegisterHub error : " + errmsg)
-      End
-    End If
+    REM register the callback HubDiscovered will be
+    REM invoked each time a hub signals its presence
+    YAPI.RegisterHubDiscoveryCallback(AddressOf HubDiscovered)
 
-    Console.WriteLine("Hit Ctrl-C to Stop ")
-
-    While (True)
-      YAPI.UpdateDeviceList(errmsg) REM traps plug/unplug events
-      YAPI.Sleep(500, errmsg) REM   rem traps others events
-    End While
+    REM wait for 30 seconds, doing nothing.
+    For i = 1 To 30
+      YAPI.UpdateDeviceList(errmsg)
+      YAPI.Sleep(1000, errmsg)
+    Next
   End Sub
-
 End Module

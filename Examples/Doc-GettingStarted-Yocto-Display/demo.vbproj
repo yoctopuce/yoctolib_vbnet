@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -87,19 +87,20 @@
     <Compile Include="..\..\Sources\yocto_api.vb">
       <Link>Yoctopuce\{yocto_api.vb}</Link>
     </Compile>
-  
-    <Compile Include="Properties\AssemblyInfo.vb" />  
+    <Compile Include="Properties\AssemblyInfo.vb" />
   </ItemGroup>
   <ItemGroup>
-
-        <Content Include="..\..\Sources\dll\amd64\yapi.dll">
+    <Content Include="..\..\Sources\dll\amd64\yapi.dll">
       <Link>amd64\yapi.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\Sources\dll\yapi.dll">
       <Link>yapi.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>  
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="My Project\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

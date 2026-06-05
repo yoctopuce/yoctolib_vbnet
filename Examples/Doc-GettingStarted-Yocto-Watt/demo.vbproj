@@ -75,6 +75,9 @@
     <Compile Include="..\..\Sources\yocto_current.vb">
       <Link>Yoctopuce\{yocto_current.vb}</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_inputcapture.vb">
+      <Link>Yoctopuce\{yocto_inputcapture.vb}</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_power.vb">
       <Link>Yoctopuce\{yocto_power.vb}</Link>
     </Compile>

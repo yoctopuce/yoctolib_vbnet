@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: main.vb 65694 2025-04-09 08:11:25Z tiago $
+'  $Id: main.vb 72789 2026-04-17 09:19:02Z seb $
 '
 '  An example that shows how to use a  Yocto-Spectral
 '
@@ -11,6 +11,7 @@
 '      https://www.yoctopuce.com/EN/doc/reference/yoctolib-vbnet-EN.html
 '
 ' *********************************************************************
+
 Imports System
 Imports System.Threading
 Module Module1
