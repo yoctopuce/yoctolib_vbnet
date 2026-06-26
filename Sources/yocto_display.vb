@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 74504 2026-06-01 14:50:23Z seb $
+'* $Id: yocto_display.vb 74722 2026-06-12 12:57:01Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -1117,7 +1117,7 @@ end enum
       Me._cmdbuff = ""
       REM --- (generated code: YDisplayLayer attributes initialization)
       _cmdbuff = ""
-      _hidden = false
+      _hidden = False
       _polyPrevX = 0
       _polyPrevY = 0
       REM --- (end of generated code: YDisplayLayer attributes initialization)
