@@ -88,6 +88,7 @@ Module yocto_rfidreader
     Protected _tagId As String
     Protected _tagType As Integer
     Protected _typeStr As String
+    Protected _nfcType As Integer
     Protected _size As Integer
     Protected _usable As Integer
     Protected _blksize As Integer
@@ -99,6 +100,7 @@ Module yocto_rfidreader
       MyBase.New()
       REM --- (generated code: YRfidTagInfo attributes initialization)
       _tagType = 0
+      _nfcType = 0
       _size = 0
       _usable = 0
       _blksize = 0
@@ -153,6 +155,21 @@ Module yocto_rfidreader
     '''/
     Public Overridable Function get_tagTypeStr() As String
       Return Me._typeStr
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the type of NFC type usable on the RFID tag, between 1 and 5.
+    ''' <para>
+    '''   If no known NFC type is know for the RFID tag, returns zero.
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   an integer corresponding to the RFID tag type
+    ''' </returns>
+    '''/
+    Public Overridable Function get_tagNFCtype() As Integer
+      Return Me._nfcType
     End Function
 
     '''*
@@ -235,6 +252,7 @@ Module yocto_rfidreader
 
     Public Overridable Sub imm_init(tagId As String, tagType As Integer, size As Integer, usable As Integer, blksize As Integer, fblk As Integer, lblk As Integer)
       Dim typeStr As String
+      Dim nfcType As Integer = 0
       typeStr = "unknown"
       If (tagType = IEC_15693) Then
         typeStr = "IEC 15693"
@@ -284,9 +302,19 @@ Module yocto_rfidreader
       If (tagType = IEC_15693_ICODE_SLI) Then
         typeStr = "ICODE SLI"
       End If
-
+      nfcType = 0
+      If ((tagType = IEC_14443_MIFARE_ULTRALIGHT) OrElse (tagType = IEC_14443_MIFARE_CLASSIC1K) OrElse (tagType = IEC_14443_MIFARE_CLASSIC4K) OrElse (tagType = IEC_14443_NTAG_213) OrElse (tagType = IEC_14443_NTAG_215) OrElse (tagType = IEC_14443_NTAG_216) OrElse (tagType = IEC_14443_NTAG_424_DNA)) Then
+        nfcType = 2
+      End If
+      If (tagType = IEC_14443_MIFARE_DESFIRE) Then
+        nfcType = 4
+      End If
+      If ((tagType = IEC_15693) OrElse (tagType = IEC_15693_ST25DV) OrElse (tagType = IEC_15693_ST25TV) OrElse (tagType = IEC_15693_TAGIT_HFI) OrElse (tagType = IEC_15693_MB89R) OrElse (tagType = IEC_15693_ICODE_DNA) OrElse (tagType = IEC_15693_ICODE_SLI)) Then
+        nfcType = 5
+      End If
       Me._tagId = tagId
       Me._tagType = tagType
+      Me._nfcType = nfcType
       Me._typeStr = typeStr
       Me._size = size
       Me._usable = usable
@@ -2215,6 +2243,336 @@ Module yocto_rfidreader
       buff = YAPI.DefaultEncoding.GetBytes(text)
 
       Return Me.tagWriteBin(tagId, firstBlock, buff, options, status)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Writes data provided as a binary object to an RFID tag, using NFC
+    '''   compatible encoding.
+    ''' <para>
+    '''   The function will automatically create a NFC Capability Container,
+    '''   and encapsulate the content with the required NDEF header corresponding
+    '''   to the given content type.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="tagId">
+    '''   identifier of the tag to use
+    ''' </param>
+    ''' <param name="ndefType">
+    '''   the content type, either "U" for a URL, or a
+    '''   generic MIME type like "text/vcard"
+    ''' </param>
+    ''' <param name="payload">
+    '''   the payload of the NDEF record
+    ''' </param>
+    ''' <param name="options">
+    '''   an <c>YRfidOptions</c> object with the optional
+    '''   command execution parameters, such as security key
+    '''   if required
+    ''' </param>
+    ''' <param name="status">
+    '''   an <c>RfidStatus</c> object that will contain
+    '''   the detailled status of the operation
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code. When it
+    '''   happens, you can get more information from the <c>status</c> object.
+    ''' </para>
+    '''/
+    Public Overridable Function tagWriteBinNFC(tagId As String, ndefType As String, payload As Byte(), options As YRfidOptions, ByRef status As YRfidStatus) As Integer
+      Dim tagInfo As YRfidTagInfo
+      Dim nfcType As Integer = 0
+      Dim usableSize As Integer = 0
+      Dim nfcBlocks As Integer = 0
+      Dim ccLen As Integer = 0
+      Dim typeLen As Integer = 0
+      Dim payloadLen As Integer = 0
+      Dim srBit As Integer = 0
+      Dim ndefLen As Integer = 0
+      Dim tlvHdrLen As Integer = 0
+      Dim totalLen As Integer = 0
+      Dim absPos As Integer = 0
+      Dim idx As Integer = 0
+      Dim binType As Byte() = New Byte(){}
+      Dim buff As Byte() = New Byte(){}
+
+      tagInfo = Me.get_tagInfo(tagId, status)
+      REM // for now, we only allow NFC Type 5 (T5T)
+      nfcType = tagInfo.get_tagNFCtype()
+      If Not(nfcType = 5) Then
+        me._throw(YAPI.INVALID_ARGUMENT, "no NFC support for this tag")
+        return YAPI.INVALID_ARGUMENT
+      end if
+      usableSize = tagInfo.get_tagUsableSize()
+      ccLen = 4
+      nfcBlocks = ((usableSize - ccLen) \ 8)
+      If (nfcBlocks > 255) Then
+        If (nfcType = 5) Then
+          ccLen = 8
+          nfcBlocks = ((usableSize - ccLen) \ 8)
+        Else
+          nfcBlocks = 255
+        End If
+      End If
+      binType = YAPI.DefaultEncoding.GetBytes(ndefType)
+      typeLen = (binType).Length
+      payloadLen = (payload).Length
+      REM // compute the total length of the NDEF record
+      ndefLen = 3 + typeLen + payloadLen
+      srBit = &H10
+      If (payloadLen > 255) Then
+        ndefLen = ndefLen + 3
+        srBit = 0
+      End If
+      REM // compute the total length of the TLV record
+      tlvHdrLen = 2
+      If (ndefLen > 254) Then
+        tlvHdrLen = 4
+      End If
+      REM // make sure the content fits on the tag
+      If Not((tlvHdrLen + ndefLen + 1) <= (8 * nfcBlocks)) Then
+        me._throw(YAPI.INVALID_ARGUMENT, "content is too large")
+        return YAPI.INVALID_ARGUMENT
+      end if
+      totalLen = ccLen + tlvHdrLen + ndefLen + 1
+      ReDim buff(totalLen-1)
+      REM // CC header
+      If (ccLen = 4) Then
+        buff(0) = Convert.ToByte(&HE1 And &HFF)
+        If (nfcType = 5) Then
+          buff(1) = Convert.ToByte(&H40 And &HFF)
+        Else
+          buff(1) = Convert.ToByte(&H10 And &HFF)
+        End If
+        buff(2) = Convert.ToByte(nfcBlocks And &HFF)
+        buff(3) = Convert.ToByte(&H00 And &HFF)
+      Else
+        buff(0) = Convert.ToByte(&HE2 And &HFF)
+        buff(1) = Convert.ToByte(&H40 And &HFF)
+        buff(2) = Convert.ToByte(&H00 And &HFF)
+        buff(3) = Convert.ToByte(&H01 And &HFF)
+        buff(4) = Convert.ToByte(&H00 And &HFF)
+        buff(5) = Convert.ToByte(&H00 And &HFF)
+        buff(6) = Convert.ToByte((nfcBlocks \ 256) And &HFF)
+        buff(7) = Convert.ToByte(((nfcBlocks) And (255)) And &HFF)
+      End If
+      REM // TLV header
+      buff(ccLen) = Convert.ToByte(3 And &HFF)
+      If (tlvHdrLen = 2) Then
+        buff(ccLen + 1) = Convert.ToByte(ndefLen And &HFF)
+      Else
+        buff(ccLen + 1) = Convert.ToByte(&Hff And &HFF)
+        buff(ccLen + 2) = Convert.ToByte((ndefLen \ 256) And &HFF)
+        buff(ccLen + 3) = Convert.ToByte(((ndefLen) And (255)) And &HFF)
+      End If
+      absPos = ccLen + tlvHdrLen
+      REM // NDEF record
+      If (typeLen <= 3) Then
+        REM // NFC Forum type
+        buff(absPos) = Convert.ToByte(&HC1 + srBit And &HFF)
+      Else
+        REM // MIME type
+        buff(absPos) = Convert.ToByte(&HC2 + srBit And &HFF)
+      End If
+      If (srBit > 0) Then
+        buff(absPos + 1) = Convert.ToByte(typeLen And &HFF)
+        buff(absPos + 2) = Convert.ToByte(payloadLen And &HFF)
+        absPos = absPos + 3
+      Else
+        buff(absPos + 1) = Convert.ToByte(typeLen And &HFF)
+        buff(absPos + 2) = Convert.ToByte(0 And &HFF)
+        buff(absPos + 3) = Convert.ToByte(0 And &HFF)
+        buff(absPos + 4) = Convert.ToByte((payloadLen \ 256) And &HFF)
+        buff(absPos + 5) = Convert.ToByte(((payloadLen) And (255)) And &HFF)
+        absPos = absPos + 6
+      End If
+      idx = 0
+      While (idx < typeLen)
+        buff(absPos + idx) = Convert.ToByte(binType(idx) And &HFF)
+        idx = idx + 1
+      End While
+      absPos = absPos + typeLen
+      idx = 0
+      While (idx < payloadLen)
+        buff(absPos + idx) = Convert.ToByte(payload(idx) And &HFF)
+        idx = idx + 1
+      End While
+      absPos = absPos + payloadLen
+      REM // TLV trailer
+      buff(absPos) = Convert.ToByte(&Hfe And &HFF)
+      idx = tagInfo.get_tagFirstBlock()
+      Return Me.tagWriteBin(tagId, idx, buff, options, status)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Writes an URL to an RFID tag using NFC compatible encoding, so that
+    '''   mobile phones with NFC support automatically offer to open
+    '''   the URL when reading the tag.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="tagId">
+    '''   identifier of the tag to use
+    ''' </param>
+    ''' <param name="url">
+    '''   the URL to write on the tag
+    ''' </param>
+    ''' <param name="options">
+    '''   an <c>YRfidOptions</c> object with the optional
+    '''   command execution parameters, such as security key
+    '''   if required
+    ''' </param>
+    ''' <param name="status">
+    '''   an <c>RfidStatus</c> object that will contain
+    '''   the detailled status of the operation
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code. When it
+    '''   happens, you can get more information from the <c>status</c> object.
+    ''' </para>
+    '''/
+    Public Overridable Function tagWriteUrlNFC(tagId As String, url As String, options As YRfidOptions, ByRef status As YRfidStatus) As Integer
+      Dim prefix As Integer = 0
+      Dim binUrl As Byte() = New Byte(){}
+      prefix = 0
+      If ((url).Substring(0, 8) = "https://") Then
+        prefix = 4
+        url = (url).Substring(8, (url).Length - 8)
+      Else
+        If ((url).Substring(0, 8) = "http://") Then
+          prefix = 3
+          url = (url).Substring(7, (url).Length - 7)
+        End If
+      End If
+      If ((url).Substring(0, 8) = "www.") Then
+        prefix = prefix - 2
+        url = (url).Substring(4, (url).Length - 4)
+      End If
+      binUrl = YAPI.DefaultEncoding.GetBytes("_" + url)
+      binUrl(0) = Convert.ToByte(prefix And &HFF)
+      Return Me.tagWriteBinNFC(tagId, "U", binUrl, options, status)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Writes WiFi settings to an RFID tag using NFC compatible encoding, so that
+    '''   mobile phones with NFC support automatically offer to connect to this WiFi
+    '''   network.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="tagId">
+    '''   identifier of the tag to use
+    ''' </param>
+    ''' <param name="ssid">
+    '''   the SSID of the WiFi network to connect to
+    ''' </param>
+    ''' <param name="auth">
+    '''   the network authentication type (currently always "WPA2")
+    ''' </param>
+    ''' <param name="secret">
+    '''   the network password
+    ''' </param>
+    ''' <param name="options">
+    '''   an <c>YRfidOptions</c> object with the optional
+    '''   command execution parameters, such as security key
+    '''   if required
+    ''' </param>
+    ''' <param name="status">
+    '''   an <c>RfidStatus</c> object that will contain
+    '''   the detailled status of the operation
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code. When it
+    '''   happens, you can get more information from the <c>status</c> object.
+    ''' </para>
+    '''/
+    Public Overridable Function tagWriteWifiConfigNFC(tagId As String, ssid As String, auth As String, secret As String, options As YRfidOptions, ByRef status As YRfidStatus) As Integer
+      Dim ssidBin As Byte() = New Byte(){}
+      Dim ssidLen As Integer = 0
+      Dim secretBin As Byte() = New Byte(){}
+      Dim secretLen As Integer = 0
+      Dim payloadLen As Integer = 0
+      Dim payload As Byte() = New Byte(){}
+      Dim idx As Integer = 0
+      ssidBin = YAPI.DefaultEncoding.GetBytes(ssid)
+      ssidLen = (ssidBin).Length
+      secretBin = YAPI.DefaultEncoding.GetBytes(secret)
+      secretLen = (secretBin).Length
+      payloadLen = ssidLen + secretLen + 39
+      ReDim payload(payloadLen-1)
+      REM // Credential header
+      payload(0) = Convert.ToByte(&H10 And &HFF)
+      payload(1) = Convert.ToByte(&H0e And &HFF)
+      payload(2) = Convert.ToByte(0 And &HFF)
+      payload(3) = Convert.ToByte(payloadLen - 4 And &HFF)
+      REM // Network index
+      payload(4) = Convert.ToByte(&H10 And &HFF)
+      payload(5) = Convert.ToByte(&H26 And &HFF)
+      payload(6) = Convert.ToByte(0 And &HFF)
+      payload(7) = Convert.ToByte(1 And &HFF)
+      payload(8) = Convert.ToByte(1 And &HFF)
+      REM // SSID
+      payload(9) = Convert.ToByte(&H10 And &HFF)
+      payload(10) = Convert.ToByte(&H45 And &HFF)
+      payload(11) = Convert.ToByte(0 And &HFF)
+      payload(12) = Convert.ToByte(ssidLen And &HFF)
+      idx = 0
+      While (idx < ssidLen)
+        payload(13 + idx) = Convert.ToByte(ssidBin(idx) And &HFF)
+        idx = idx + 1
+      End While
+      REM // Auth: WPA2-Personal
+      payload(13 + ssidLen) = Convert.ToByte(&H10 And &HFF)
+      payload(14 + ssidLen) = Convert.ToByte(&H03 And &HFF)
+      payload(15 + ssidLen) = Convert.ToByte(0 And &HFF)
+      payload(16 + ssidLen) = Convert.ToByte(2 And &HFF)
+      payload(17 + ssidLen) = Convert.ToByte(0 And &HFF)
+      payload(18 + ssidLen) = Convert.ToByte(32 And &HFF)
+      REM // Encryption: AES
+      payload(19 + ssidLen) = Convert.ToByte(&H10 And &HFF)
+      payload(20 + ssidLen) = Convert.ToByte(&H0f And &HFF)
+      payload(21 + ssidLen) = Convert.ToByte(0 And &HFF)
+      payload(22 + ssidLen) = Convert.ToByte(2 And &HFF)
+      payload(23 + ssidLen) = Convert.ToByte(0 And &HFF)
+      payload(24 + ssidLen) = Convert.ToByte(8 And &HFF)
+      REM // Network key
+      payload(25 + ssidLen) = Convert.ToByte(&H10 And &HFF)
+      payload(26 + ssidLen) = Convert.ToByte(&H27 And &HFF)
+      payload(27 + ssidLen) = Convert.ToByte(0 And &HFF)
+      payload(28 + ssidLen) = Convert.ToByte(secretLen And &HFF)
+      idx = 0
+      While (idx < secretLen)
+        payload(29 + ssidLen + idx) = Convert.ToByte(secretBin(idx) And &HFF)
+        idx = idx + 1
+      End While
+      REM // MAC broadcast
+      payload(29 + ssidLen + secretLen) = Convert.ToByte(&H10 And &HFF)
+      payload(30 + ssidLen + secretLen) = Convert.ToByte(&H20 And &HFF)
+      payload(31 + ssidLen + secretLen) = Convert.ToByte(0 And &HFF)
+      payload(32 + ssidLen + secretLen) = Convert.ToByte(6 And &HFF)
+      idx = 0
+      While (idx < 6)
+        payload(33 + ssidLen + secretLen + idx) = Convert.ToByte(&Hff And &HFF)
+        idx = idx + 1
+      End While
+      Return Me.tagWriteBinNFC(tagId, "application/vnd.wfa.wsc", payload, options, status)
     End Function
 
     '''*

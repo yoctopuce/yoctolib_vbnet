@@ -75,6 +75,9 @@
     <Compile Include="..\..\Sources\yocto_accelerometer.vb">
       <Link>Yoctopuce\{yocto_accelerometer.vb}</Link>
     </Compile>
+    <Compile Include="..\..\Sources\yocto_airquality.vb">
+      <Link>Yoctopuce\{yocto_airquality.vb}</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_altitude.vb">
       <Link>Yoctopuce\{yocto_altitude.vb}</Link>
     </Compile>

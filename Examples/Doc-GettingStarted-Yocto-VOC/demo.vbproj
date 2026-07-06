@@ -72,6 +72,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="main.vb" />
+    <Compile Include="..\..\Sources\yocto_airquality.vb">
+      <Link>Yoctopuce\{yocto_airquality.vb}</Link>
+    </Compile>
     <Compile Include="..\..\Sources\yocto_humidity.vb">
       <Link>Yoctopuce\{yocto_humidity.vb}</Link>
     </Compile>
