@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 72057 2026-02-17 09:44:53Z mvuilleu $
+'* $Id: yocto_serialport.vb 75309 2026-07-29 08:23:04Z seb $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -2027,22 +2027,27 @@ Module yocto_serialport
         REM // first simulated event, use it only to initialize reference values
         Me._eventPos = 0
       End If
+      msglen = 0
+      Try
+          url = "rxmsg.json?pos=" + Convert.ToString(Me._eventPos) + "&maxw=0&t=0"
+          msgbin = Me._download(url)
+          msgarr = Me._json_get_array(msgbin)
+          msglen = msgarr.Count
+          If (msglen = 0) Then
+            Return YAPI.SUCCESS
+          End If
+          REM // last element of array is the new position
+          msglen = msglen - 1
+          If (Not (Not (Me._eventCallback Is Nothing))) Then
+            REM // first simulated event, use it only to initialize reference values
+            Me._eventPos = Me._decode_json_int(msgarr(msglen))
+            Return YAPI.SUCCESS
+          End If
+          Me._eventPos = Me._decode_json_int(msgarr(msglen))
+      Catch
+          Return YAPI.IO_ERROR
+      End Try
 
-      url = "rxmsg.json?pos=" + Convert.ToString(Me._eventPos) + "&maxw=0&t=0"
-      msgbin = Me._download(url)
-      msgarr = Me._json_get_array(msgbin)
-      msglen = msgarr.Count
-      If (msglen = 0) Then
-        Return YAPI.SUCCESS
-      End If
-      REM // last element of array is the new position
-      msglen = msglen - 1
-      If (Not (Not (Me._eventCallback Is Nothing))) Then
-        REM // first simulated event, use it only to initialize reference values
-        Me._eventPos = Me._decode_json_int(msgarr(msglen))
-        Return YAPI.SUCCESS
-      End If
-      Me._eventPos = Me._decode_json_int(msgarr(msglen))
       idx = 0
       While (idx < msglen)
         Me._eventCallback(Me, New YSnoopingRecord(YAPI.DefaultEncoding.GetString(msgarr(idx))))

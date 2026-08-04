@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 74722 2026-06-12 12:57:01Z mvuilleu $
+'* $Id: yocto_display.vb 75351 2026-08-02 19:45:07Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -820,7 +820,7 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Close the currently open polygon, fill its content the fill color currently
+    '''   Closes the currently open polygon, fill its content the fill color currently
     '''   selected for the layer, and draw its outline using the selected line color.
     ''' <para>
     ''' </para>
@@ -1357,7 +1357,7 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Changes the name of the sequence to play when the displayed is powered on.
+    '''   Changes the name of the sequence to play when the display is powered on.
     ''' <para>
     '''   Remember to call the <c>saveToFlash()</c> method of the module if the
     '''   modification must be kept.
@@ -1366,7 +1366,7 @@ end enum
     ''' </para>
     ''' </summary>
     ''' <param name="newval">
-    '''   a string corresponding to the name of the sequence to play when the displayed is powered on
+    '''   a string corresponding to the name of the sequence to play when the display is powered on
     ''' </param>
     ''' <para>
     ''' </para>
@@ -1553,8 +1553,11 @@ end enum
     '''/
     Public Function set_orientation(ByVal newval As Integer) As Integer
       Dim rest_val As String
+      Dim res As Integer
       rest_val = Ltrim(Str(newval))
-      Return _setAttr("orientation", rest_val)
+      res = _setAttr("orientation", rest_val)
+      _clearLazyCache()
+      Return res
     End Function
     '''*
     ''' <summary>
@@ -1609,8 +1612,11 @@ end enum
     '''/
     Public Function set_displayPanel(ByVal newval As String) As Integer
       Dim rest_val As String
+      Dim res As Integer
       rest_val = newval
-      Return _setAttr("displayPanel", rest_val)
+      res = _setAttr("displayPanel", rest_val)
+      _clearLazyCache()
+      Return res
     End Function
     '''*
     ''' <summary>
@@ -1666,7 +1672,7 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Returns the display type: monochrome OLED, black and white ePaper, color ePaper, etc.
+    '''   Returns the display type: monochrome OLED, black and white ePaper, color ePaper, and so on.
     ''' <para>
     ''' </para>
     ''' <para>
@@ -1675,7 +1681,7 @@ end enum
     ''' <returns>
     '''   a value among <c>YDisplay.DISPLAYTYPE_MONO</c>, <c>YDisplay.DISPLAYTYPE_EPAPER_BW</c>,
     '''   <c>YDisplay.DISPLAYTYPE_EPAPER_BWR</c> and <c>YDisplay.DISPLAYTYPE_EPAPER_BWRY</c> corresponding to
-    '''   the display type: monochrome OLED, black and white ePaper, color ePaper, etc
+    '''   the display type: monochrome OLED, black and white ePaper, color ePaper, and so on
     ''' </returns>
     ''' <para>
     '''   On failure, throws an exception or returns <c>YDisplay.DISPLAYTYPE_INVALID</c>.
@@ -1935,7 +1941,7 @@ end enum
     ''' <summary>
     '''   Clears the display screen and resets all display layers to their default state.
     ''' <para>
-    '''   Using this function in a sequence will kill the sequence play-back. Don't use that
+    '''   Using this function in a sequence will kill the sequence play-back. Do not use that
     '''   function to reset the display at sequence start-up.
     ''' </para>
     ''' <para>
@@ -2058,7 +2064,7 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Trigger an immediate screen refresh.
+    '''   Triggers an immediate screen refresh.
     ''' <para>
     '''   The combination of
     '''   <c>postponeRefresh</c> and <c>triggerRefresh</c> can be used as an

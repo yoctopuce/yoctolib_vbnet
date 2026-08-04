@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 72344 2026-03-09 14:01:56Z seb $
+'* $Id: yocto_api.vb 75365 2026-08-03 13:07:55Z seb $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -820,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H0200
-  Public Const YOCTO_API_BUILD_NO As String = "75129"
+  Public Const YOCTO_API_BUILD_NO As String = "75391"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2442,7 +2442,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return  "2.1.15129 (" + version + ")"
+      Return  "2.1.15391 (" + version + ")"
     End Function
 
 
@@ -7318,6 +7318,13 @@ Module yocto_api
       End If
     End Sub
 
+
+    Public Sub _clearLazyCache()
+      clearCache()
+      _cacheExpiration = 0
+    End Sub
+
+
     '''*
     ''' <summary>
     '''   Gets the <c>YModule</c> object for the device on which the function is located.
@@ -8496,7 +8503,15 @@ Module yocto_api
     ''' </para>
     '''/
     Public Overridable Function revertFromFlash() As Integer
-      Return Me.set_persistentSettings(PERSISTENTSETTINGS_LOADED)
+      Dim res As Integer = 0
+
+      res = Me.set_persistentSettings(PERSISTENTSETTINGS_LOADED)
+      If Not(res=YAPI.SUCCESS) Then
+        me._throw(res, "unable to trigger revert settings")
+        return res
+      end if
+      Me._clearLazyCache()
+      Return res
     End Function
 
     '''*
