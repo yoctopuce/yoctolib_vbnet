@@ -53,7 +53,7 @@ Module yocto_carbondioxide
    REM --- (end of YCarbonDioxide yapiwrapper)
   REM --- (YCarbonDioxide globals)
 
-  Public Const Y_ABCPERIOD_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_ABCPERIOD_INVALID As Integer = YAPI.INVALID_INT
   Public Const Y_COMMAND_INVALID As String = YAPI.INVALID_STRING
   Public Delegate Sub YCarbonDioxideValueCallback(ByVal func As YCarbonDioxide, ByVal value As String)
   Public Delegate Sub YCarbonDioxideTimedReportCallback(ByVal func As YCarbonDioxide, ByVal measure As YMeasure)
@@ -76,7 +76,7 @@ Module yocto_carbondioxide
     REM --- (end of YCarbonDioxide class start)
 
     REM --- (YCarbonDioxide definitions)
-    Public Const ABCPERIOD_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const ABCPERIOD_INVALID As Integer = YAPI.INVALID_INT
     Public Const COMMAND_INVALID As String = YAPI.INVALID_STRING
     REM --- (end of YCarbonDioxide definitions)
 
@@ -359,7 +359,7 @@ Module yocto_carbondioxide
     ''' </para>
     '''/
     Public Overridable Function triggerForcedCalibration(refVal As Double) As Integer
-      Return Me.set_command("F" + Convert.ToString(CType(Math.Round(1000*refVal), Integer)) + "C")
+      Return Me.set_command("F" + Convert.ToString(CType(Math.Round(refVal), Integer)) + "C")
     End Function
 
     '''*

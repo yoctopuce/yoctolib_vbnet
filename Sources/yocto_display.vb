@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb 75351 2026-08-02 19:45:07Z mvuilleu $
+'* $Id: yocto_display.vb 75637 2026-08-20 16:54:40Z mvuilleu $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -70,12 +70,48 @@ end enum
   REM --- (end of generated code: YDisplayLayer globals)
   REM --- (generated code: YDisplay globals)
 
+ Public Enum  Y_FASTREFRESH
+  WHENEVER_POSSIBLE = 0
+  WHENEVER_SUPPORTED = 1
+  NEVER = 2
+  INVALID = 3
+end enum
+ Public Enum  Y_REGENERATE
+  ON_REQUEST_ONLY = 0
+  EVERY_DAY = 1
+  EVERY_12H = 2
+  EVERY_6H = 3
+  EVERY_3H = 4
+  EVERY_2H = 5
+  EVERY_HOUR = 6
+  EVERY_30MIN = 7
+  EVERY_15MIN = 8
+  EVERY_480 = 9
+  EVERY_432 = 10
+  EVERY_360 = 11
+  EVERY_288 = 12
+  EVERY_240 = 13
+  EVERY_192 = 14
+  EVERY_144 = 15
+  EVERY_96 = 16
+  EVERY_48 = 17
+  EVERY_36 = 18
+  EVERY_24 = 19
+  EVERY_12 = 20
+  EVERY_10 = 21
+  EVERY_8 = 22
+  EVERY_6 = 23
+  EVERY_4 = 24
+  ALWAYS = 25
+  INVALID = 26
+end enum
  Public Enum  Y_DISPLAYSTATE
   FAILURE = 0
   OFF = 1
   POWERING = 2
   IDLE = 3
   REFRESHING = 4
+  INVALID = 5
 end enum
   Public Const Y_ENABLED_FALSE As Integer = 0
   Public Const Y_ENABLED_TRUE As Integer = 1
@@ -161,7 +197,7 @@ end enum
     Public Overridable Function command_push(cmd As String) As Integer
       Dim res As Integer = 0
       res = YAPI.SUCCESS
-      If ((Me._cmdbuff).Length + (cmd).Length >= 100) Then
+      If ((Me._cmdbuff).Length + (cmd).Length >= 64) Then
         REM // force flush before, to prevent overflow
         Me.flush_now()
       End If
@@ -611,6 +647,18 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function drawText(x As Integer, y As Integer, anchor As Y_ALIGN, text As String) As Integer
+      Dim textlen As Integer = 0
+      Dim destname As String
+      textlen = (text).Length
+      If (textlen > 60) Then
+        If (textlen > 1000) Then
+          Me._display._throw(YAPI.INVALID_ARGUMENT, "text too large (max 1000 characters)")
+          Return YAPI.INVALID_ARGUMENT
+        End If
+        Me._display.flushLayers()
+        destname = "layer" + Convert.ToString(Me._id) + ":T" + Convert.ToString(x) + "," + Convert.ToString(y) + "," + Convert.ToString(anchor) + ","
+        Return Me._display.upload(destname,YAPI.DefaultEncoding.GetBytes(text))
+      End If
       Return Me.command_flush("T" + Convert.ToString(x) + "," + Convert.ToString(y) + "," + Convert.ToString(anchor) + "," + text + "" + Chr(27))
     End Function
 
@@ -645,48 +693,6 @@ end enum
 
     '''*
     ''' <summary>
-    '''   Draws a bitmap at the specified position.
-    ''' <para>
-    '''   The bitmap is provided as a binary object,
-    '''   where each pixel maps to a bit, from left to right and from top to bottom.
-    '''   The most significant bit of each byte maps to the leftmost pixel, and the least
-    '''   significant bit maps to the rightmost pixel. Bits set to 1 are drawn using the
-    '''   layer selected pen color. Bits set to 0 are drawn using the specified background
-    '''   gray level, unless -1 is specified, in which case they are not drawn at all
-    '''   (as if transparent).
-    ''' </para>
-    ''' </summary>
-    ''' <param name="x">
-    '''   the distance from left of layer to the left of the bitmap, in pixels
-    ''' </param>
-    ''' <param name="y">
-    '''   the distance from top of layer to the top of the bitmap, in pixels
-    ''' </param>
-    ''' <param name="w">
-    '''   the width of the bitmap, in pixels
-    ''' </param>
-    ''' <param name="bitmap">
-    '''   a binary object
-    ''' </param>
-    ''' <param name="bgcol">
-    '''   the background gray level to use for zero bits (0 = black,
-    '''   255 = white), or -1 to leave the pixels unchanged
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
-    '''/
-    Public Overridable Function drawBitmap(x As Integer, y As Integer, w As Integer, bitmap As Byte(), bgcol As Integer) As Integer
-      Dim destname As String
-      destname = "layer" + Convert.ToString(Me._id) + ":" + Convert.ToString(w) + "," + Convert.ToString(bgcol) + "@" + Convert.ToString(x) + "," + Convert.ToString(y)
-      Return Me._display.upload(destname,bitmap)
-    End Function
-
-    '''*
-    ''' <summary>
     '''   Draws a GIF image provided as a binary buffer at the specified position.
     ''' <para>
     '''   If the image drawing must be included in an animation sequence, save it
@@ -711,8 +717,119 @@ end enum
     '''/
     Public Overridable Function drawGIF(x As Integer, y As Integer, gifimage As Byte()) As Integer
       Dim destname As String
+      Me._display.flushLayers()
       destname = "layer" + Convert.ToString(Me._id) + ":G,-1@" + Convert.ToString(x) + "," + Convert.ToString(y)
       Return Me._display.upload(destname,gifimage)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Draws a bitmap at the specified position.
+    ''' <para>
+    '''   The bitmap is provided as a binary object,
+    '''   where each pixel maps to a bit, from left to right and from top to bottom.
+    '''   The most significant bit of each byte maps to the leftmost pixel, and the least
+    '''   significant bit maps to the rightmost pixel. Bits set to 1 are drawn using the
+    '''   layer selected pen color. Bits set to 0 are drawn using the specified background
+    '''   color, unless <c>NO_INK</c> (-1) is specified, in which case they are not
+    '''   drawn at all (as if transparent).
+    ''' </para>
+    ''' </summary>
+    ''' <param name="x">
+    '''   the distance from left of layer to the left of the bitmap, in pixels
+    ''' </param>
+    ''' <param name="y">
+    '''   the distance from top of layer to the top of the bitmap, in pixels
+    ''' </param>
+    ''' <param name="w">
+    '''   the width of the bitmap, in pixels
+    ''' </param>
+    ''' <param name="bitmap">
+    '''   a binary object
+    ''' </param>
+    ''' <param name="bgcol">
+    '''   the RGB background color to use for zero bits, as a 24-bit RGB value,
+    '''   or one of the constants <c>NO_INK</c>, <c>FG_INK</c> or <c>BG_INK</c>
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function drawBitmap(x As Integer, y As Integer, w As Integer, bitmap As Byte(), bgcol As Integer) As Integer
+      Dim destname As String
+      Dim r As Integer = 0
+      Dim g As Integer = 0
+      Dim b As Integer = 0
+      Dim rgbcol As String
+      If ((w < 0) OrElse (w > 512)) Then
+        Me._display._throw(YAPI.INVALID_ARGUMENT, "bitmap width must be in range 1..512")
+        Return YAPI.INVALID_ARGUMENT
+      End If
+      Me._display.flushLayers()
+      If (bgcol <= 255) Then
+        If (bgcol >= -1) Then
+          REM // backward-compatible behaviour (gray level)
+          rgbcol = "" + Convert.ToString(bgcol)
+        Else
+          REM // background color or foreground color
+          If (bgcol <= -3) Then
+            rgbcol = "#."
+          Else
+            rgbcol = "#-"
+          End If
+        End If
+      Else
+        REM // RGB color
+        r = (((bgcol >> 20)) And (15))
+        g = (((bgcol >> 12)) And (15))
+        b = (((bgcol >> 4)) And (15))
+        rgbcol = "#" + (r).ToString("x") + "" + (g).ToString("x") + "" + (b).ToString("x")
+      End If
+      destname = "layer" + Convert.ToString(Me._id) + ":" + Convert.ToString(w) + "," + rgbcol + "@" + Convert.ToString(x) + "," + Convert.ToString(y)
+      Return Me._display.upload(destname,bitmap)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Draws a color pixmap at the specified position.
+    ''' <para>
+    '''   The pixmap is provided as a binary
+    '''   object, where each byte maps to one pixel. The 24 bit RGB value corresponding to each
+    '''   byte value is defined in the palette provided as extra argument.
+    '''   The palette maximal size is 8, and it is recommended to use the smallest possible
+    '''   palette size to optimize the size of data to be sent to the display.
+    '''   The height of the pixmap is implicitely given by the pixmap buffer size.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="x">
+    '''   the distance from left of layer to the left of the pixmap, in pixels
+    ''' </param>
+    ''' <param name="y">
+    '''   the distance from top of layer to the top of the pixmap, in pixels
+    ''' </param>
+    ''' <param name="w">
+    '''   the width of the pixmap, in pixels
+    ''' </param>
+    ''' <param name="pixmap">
+    '''   a binary buffer where each byte maps to one pixel
+    ''' </param>
+    ''' <param name="palette">
+    '''   an array of 24-bit RGB values, defining the color for each byte value in pixmap
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function drawPixmap(x As Integer, y As Integer, w As Integer, pixmap As Byte(), palette As List(Of Integer)) As Integer
+      Dim gifimage As Byte() = New Byte(){}
+      gifimage = Me._display.gifEncode(pixmap, palette, w, False)
+      Return Me.drawGIF(x, y, gifimage)
     End Function
 
     '''*
@@ -857,6 +974,18 @@ end enum
     ''' </para>
     '''/
     Public Overridable Function consoleOut(text As String) As Integer
+      Dim textlen As Integer = 0
+      Dim destname As String
+      textlen = (text).Length
+      If (textlen > 60) Then
+        If (textlen > 1000) Then
+          Me._display._throw(YAPI.INVALID_ARGUMENT, "text too large (max 1000 characters)")
+          Return YAPI.INVALID_ARGUMENT
+        End If
+        Me._display.flushLayers()
+        destname = "layer" + Convert.ToString(Me._id) + ":!"
+        Return Me._display.upload(destname,YAPI.DefaultEncoding.GetBytes(text))
+      End If
       Return Me.command_flush("!" + text + "" + Chr(27))
     End Function
 
@@ -1503,6 +1632,9 @@ end enum
     ''' <summary>
     '''   Returns the currently selected display orientation.
     ''' <para>
+    '''   The orientation is defined as the side of the screen where the
+    '''   USB connector (for OLED displays) or the ribbon cable (for ePaper panels) is located when the
+    '''   display is up straight.
     ''' </para>
     ''' <para>
     ''' </para>
@@ -1532,7 +1664,9 @@ end enum
     ''' <summary>
     '''   Changes the display orientation.
     ''' <para>
-    '''   Remember to call the <c>saveToFlash()</c>
+    '''   he orientation is defined as the side of the screen where the
+    '''   USB connector (for OLED displays) or the ribbon cable (for ePaper panels) is located when the
+    '''   display is up straight. Remember to call the <c>saveToFlash()</c>
     '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
@@ -1591,8 +1725,7 @@ end enum
     '''   Changes the model of display to match the connected display panel.
     ''' <para>
     '''   This function has no effect if the module does not support the selected
-    '''   display panel.
-    '''   Remember to call the <c>saveToFlash()</c>
+    '''   display panel. Remember to call the <c>saveToFlash()</c>
     '''   method of the module if the modification must be kept.
     ''' </para>
     ''' <para>
@@ -1935,6 +2068,148 @@ end enum
         Return False
       End If
       Return True
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the fast refresh usage policy in use (ePaper displays only).
+    ''' <para>
+    '''   This setting is combined with the regenerate policy to determine when the screen
+    '''   should be updated using a fast update versus or regenerated using a slower,
+    '''   flickering full refresh.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among the <c>YDisplay.FASTREFRESH</c> enumeration
+    '''   (<c>YDisplay.FASTREFRESH_WHENEVER_POSSIBLE</c>,
+    '''   <c>YDisplay.FASTREFRESH_WHENEVER_SUPPORTED</c>,
+    '''   <c>YDisplay.FASTREFRESH_NEVER</c>).
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YDisplay.FASTREFRESH_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Overridable Function get_fastRefreshPolicy() As Y_FASTREFRESH
+      Dim combined As Integer = 0
+      Dim fmod As Integer = 0
+      combined = Me.get_brightness()
+      If (combined < 0) Then
+        Return Y_FASTREFRESH.INVALID
+      End If
+      fmod = (combined \ 25)
+      If (fmod >= 2) Then
+        fmod = fmod - 2
+      End If
+      Return CType(fmod, Y_FASTREFRESH)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the display regeneration minimal frequency (ePaper displays only).
+    ''' <para>
+    '''   This setting is combined with the fast refresh usage policy to determine
+    '''   when the screen should be updated using a fast update versus or regenerated
+    '''   using a slower, flickering full refresh. To change the display regeneration minimal
+    '''   frequency, use methode <c>set_fastRefreshPolicy()</c>.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among the <c>YDisplay.REGENERATE</c> enumeration
+    '''   (<c>YDisplay.REGENERATE_ON_REQUEST_ONLY</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_DAY</c>, <c>YDisplay.REGENERATE_EVERY_12H</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_6H</c>, <c>YDisplay.REGENERATE_EVERY_3H</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_2H</c>, <c>YDisplay.REGENERATE_EVERY_HOUR</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_30MIN</c>, <c>YDisplay.REGENERATE_EVERY_15MIN</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_480</c>, <c>YDisplay.REGENERATE_EVERY_432</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_360</c>, <c>YDisplay.REGENERATE_EVERY_288</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_240</c>, <c>YDisplay.REGENERATE_EVERY_192</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_144</c>, <c>YDisplay.REGENERATE_EVERY_96</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_48</c>, <c>YDisplay.REGENERATE_EVERY_36</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_24</c>, <c>YDisplay.REGENERATE_EVERY_12</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_10</c>, <c>YDisplay.REGENERATE_EVERY_8</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_6</c>, <c>YDisplay.REGENERATE_EVERY_4</c>,
+    '''   <c>YDisplay.REGENERATE_ALWAYS</c>).
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YDisplay.REGENERATE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Overridable Function get_regeneratePolicy() As Y_REGENERATE
+      Dim combined As Integer = 0
+      Dim fval As Integer = 0
+      combined= Me.get_brightness()
+      If (combined < 0) Then
+        Return Y_REGENERATE.INVALID
+      End If
+      If (combined >= 100) Then
+        fval = 25
+      Else
+        fval = (combined Mod 25)
+      End If
+      Return CType(fval, Y_REGENERATE)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Changes the fast refresh usage policy and display regeneration minimal frequency
+    '''   (ePaper displays only).
+    ''' <para>
+    '''   These settings jointly determine when the screen should be
+    '''   updated using a fast update versus or regenerated using a slower, flickering full
+    '''   refresh.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="fastRefresh">
+    '''   a value among the <c>YDisplay.FASTREFRESH</c> enumeration
+    '''   (<c>YDisplay.FASTREFRESH_WHENEVER_POSSIBLE</c>,
+    '''   <c>YDisplay.FASTREFRESH_WHENEVER_SUPPORTED</c>,
+    '''   <c>YDisplay.FASTREFRESH_NEVER</c>),
+    '''   corresponding to the policy for using fast refresh.
+    ''' </param>
+    ''' <param name="regenerate">
+    '''   a value among the enumeration <c>YRefFrame.REGENERATE</c>
+    '''   (<c>YDisplay.REGENERATE_ON_REQUEST_ONLY</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_DAY</c>, <c>YDisplay.REGENERATE_EVERY_12H</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_6H</c>, <c>YDisplay.REGENERATE_EVERY_3H</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_2H</c>, <c>YDisplay.REGENERATE_EVERY_HOUR</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_30MIN</c>, <c>YDisplay.REGENERATE_EVERY_15MIN</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_480</c>, <c>YDisplay.REGENERATE_EVERY_432</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_360</c>, <c>YDisplay.REGENERATE_EVERY_288</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_240</c>, <c>YDisplay.REGENERATE_EVERY_192</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_144</c>, <c>YDisplay.REGENERATE_EVERY_96</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_48</c>, <c>YDisplay.REGENERATE_EVERY_36</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_24</c>, <c>YDisplay.REGENERATE_EVERY_12</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_10</c>, <c>YDisplay.REGENERATE_EVERY_8</c>,
+    '''   <c>YDisplay.REGENERATE_EVERY_6</c>, <c>YDisplay.REGENERATE_EVERY_4</c>,
+    '''   <c>YDisplay.REGENERATE_ALWAYS</c>),
+    '''   corresponding to the display minimal regeneration frequency.
+    ''' </param>
+    ''' <para>
+    '''   Remember to call the <c>saveToFlash()</c>
+    '''   method of the module if the modification must be kept.
+    ''' </para>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function set_fastRefreshPolicy(fastRefresh As Y_FASTREFRESH, regenerate As Y_REGENERATE) As Integer
+      Dim combined As Integer = 0
+      Dim fmod As Integer = 0
+      Dim fval As Integer = 0
+      fmod = fastRefresh
+      fval = regenerate
+      If ((fval = 25) OrElse (fmod = 2)) Then
+        combined = 100
+      Else
+        combined = 50 + fmod * 25 + fval
+      End If
+      Return Me.set_brightness(combined)
     End Function
 
     '''*
@@ -2563,6 +2838,207 @@ end enum
         srcpos = srcpos + 1
       End While
       Return rotmap
+    End Function
+
+    Public Overridable Function gifEncode(pixmap As Byte(), palette As List(Of Integer), w As Integer, shortHdr As Boolean) As Byte()
+      Dim minCodeSize As Integer = 0
+      Dim LZW_CLRCODE As Integer = 0
+      Dim LZW_ENDCODE As Integer = 0
+      Dim LZW_1STCODE As Integer = 0
+      Dim codeSize As Integer = 0
+      Dim maxCode As Integer = 0
+      Dim codes As List(Of Integer) = New List(Of Integer)()
+      Dim nCodes As Integer = 0
+      Dim pixmapSize As Integer = 0
+      Dim dataStream As Byte() = New Byte(){}
+      Dim blockStart As Integer = 0
+      Dim blockEnd As Integer = 0
+      Dim prevCode As Integer = 0
+      Dim pixPos As Integer = 0
+      Dim wrBits As Integer = 0
+      Dim wrBitCnt As Integer = 0
+      Dim outPos As Integer = 0
+      Dim nextVal As Integer = 0
+      Dim i As Integer = 0
+      Dim hdrSize As Integer = 0
+      Dim res As Byte() = New Byte(){}
+      Dim h As Integer = 0
+
+      If (palette.Count > 8) Then
+        Me._throw(YAPI.INVALID_ARGUMENT, "Palette should have no more than 8 colors")
+        ReDim res(0-1)
+        Return res
+      End If
+      If (palette.Count <= 4) Then
+        minCodeSize = 2
+      Else
+        minCodeSize = 3
+      End If
+      LZW_CLRCODE = (1 << minCodeSize)
+      LZW_ENDCODE = LZW_CLRCODE + 1
+      LZW_1STCODE = LZW_ENDCODE + 1
+      codeSize = minCodeSize + 1
+      maxCode = (1 << codeSize) - 1 - LZW_1STCODE
+      codes.Clear()
+      nCodes = 0
+      pixmapSize = (pixmap).Length
+      ReDim dataStream(((2 * pixmapSize) \ 3) + 8-1)
+      outPos = 0
+      wrBits = LZW_CLRCODE
+      wrBitCnt = 3
+      REM // prefetch first byte
+      prevCode = pixmap(0)
+      pixPos = 1
+      While (pixPos < pixmapSize + 3)
+        blockStart = outPos
+        outPos = blockStart + 1
+        blockEnd = blockStart + 256
+        REM // flush any carry-over output byte from previous data sub-block
+        While (wrBitCnt >= 8)
+          dataStream(outPos) = Convert.ToByte(((wrBits) And (&Hff)) And &HFF)
+          outPos = outPos + 1
+          wrBits = (wrBits >> 8)
+          wrBitCnt = wrBitCnt - 8
+        End While
+        While ((outPos < blockEnd) AndAlso (pixPos < pixmapSize))
+          REM // search for an existing code matching the running input segment
+          REM // printf("[%d] ", rdBits >> 12)
+          nextVal = ((prevCode) Or ((pixmap(pixPos) << 12)))
+          pixPos = pixPos + 1
+          If (prevCode < LZW_1STCODE) Then
+            i = 0
+          Else
+            i = prevCode - LZW_ENDCODE
+          End If
+          While ((i < nCodes) AndAlso (codes(i) <> nextVal))
+            i = i + 1
+          End While
+          If (i >= nCodes) Then
+            REM // not found, emit prevCode and create new code
+            wrBits = ((wrBits) Or ((prevCode << wrBitCnt)))
+            wrBitCnt = wrBitCnt + codeSize
+            If (nCodes <= maxCode) Then
+              REM //fprintf(stderr, "#%d: #%d + %d\n", nextCode, nextVal & 63, nextVal >> 6)
+              codes.Add(nextVal)
+              nCodes = nCodes + 1
+            Else
+              codeSize = codeSize + 1
+              If (codeSize <= 12) Then
+                REM //fprintf(stderr, "#%d: #%d + %d\n", nextCode, nextVal & 63, nextVal >> 6)
+                codes.Add(nextVal)
+                nCodes = nCodes + 1
+              Else
+                wrBits = ((wrBits) Or ((LZW_CLRCODE << wrBitCnt)))
+                wrBitCnt = wrBitCnt + codeSize
+                codes.Clear()
+                nCodes = 0
+                codeSize = minCodeSize + 1
+              End If
+              maxCode = (1 << codeSize) - 1 - LZW_1STCODE
+            End If
+            REM // flush one (or two) codes to output stream
+            While ((wrBitCnt >= 8) AndAlso (outPos < blockEnd))
+              dataStream(outPos) = Convert.ToByte(((wrBits) And (&Hff)) And &HFF)
+              outPos = outPos + 1
+              wrBits = (wrBits >> 8)
+              wrBitCnt = wrBitCnt - 8
+            End While
+            prevCode = (nextVal >> 12)
+          Else
+            prevCode = i + LZW_1STCODE
+          End If
+        End While
+        If (pixPos >= pixmapSize) Then
+          If ((outPos < blockEnd) AndAlso (pixPos = pixmapSize)) Then
+            REM // append code for last run
+            wrBits = ((wrBits) Or ((prevCode << wrBitCnt)))
+            wrBitCnt = wrBitCnt + codeSize
+            While ((wrBitCnt >= 8) AndAlso (outPos < blockEnd))
+              dataStream(outPos) = Convert.ToByte(((wrBits) And (&Hff)) And &HFF)
+              outPos = outPos + 1
+              wrBits = (wrBits >> 8)
+              wrBitCnt = wrBitCnt - 8
+            End While
+            pixPos = pixPos + 1
+          End If
+          If ((outPos < blockEnd) AndAlso (pixPos = pixmapSize + 1)) Then
+            REM // append end code
+            wrBits = ((wrBits) Or ((LZW_ENDCODE << wrBitCnt)))
+            wrBitCnt = wrBitCnt + codeSize
+            While ((wrBitCnt >= 8) AndAlso (outPos < blockEnd))
+              dataStream(outPos) = Convert.ToByte(((wrBits) And (&Hff)) And &HFF)
+              outPos = outPos + 1
+              wrBits = (wrBits >> 8)
+              wrBitCnt = wrBitCnt - 8
+            End While
+            pixPos = pixPos + 1
+          End If
+          If ((outPos < blockEnd) AndAlso (pixPos = pixmapSize + 2)) Then
+            REM // flush last 0-7 bits
+            If (wrBitCnt > 0) Then
+              dataStream(outPos) = Convert.ToByte(((wrBits) And (&Hff)) And &HFF)
+              outPos = outPos + 1
+              wrBitCnt = 0
+            End If
+            pixPos = pixPos + 1
+          End If
+        End If
+        dataStream(blockStart) = Convert.ToByte(outPos - (blockStart + 1) And &HFF)
+      End While
+      blockEnd = outPos
+      REM // Now write final buffer
+      hdrSize = 24 + LZW_CLRCODE * 3
+      ReDim res(hdrSize + outPos + 2-1)
+      REM // GIF89a header
+      res(&H00) = Convert.ToByte(&H47 And &HFF)
+      res(&H01) = Convert.ToByte(&H49 And &HFF)
+      res(&H02) = Convert.ToByte(&H46 And &HFF)
+      res(&H03) = Convert.ToByte(&H38 And &HFF)
+      res(&H04) = Convert.ToByte(&H39 And &HFF)
+      res(&H05) = Convert.ToByte(&H61 And &HFF)
+      REM // Logical screen descriptor
+      h = (((pixmap).Length) \ w)
+      res(&H06) = Convert.ToByte(((w) And (&Hff)) And &HFF)
+      res(&H07) = Convert.ToByte((w >> 8) And &HFF)
+      res(&H08) = Convert.ToByte(((h) And (&Hff)) And &HFF)
+      res(&H09) = Convert.ToByte((h >> 8) And &HFF)
+      res(&H0a) = Convert.ToByte(&Hf0 + minCodeSize - 1 And &HFF)
+      res(&H0b) = Convert.ToByte(0 And &HFF)
+      res(&H0c) = Convert.ToByte(0 And &HFF)
+      REM // Palette
+      outPos = &H0d
+      i = 0
+      While (i < LZW_CLRCODE)
+        If (i < palette.Count) Then
+          wrBits = palette(i)
+          res(outPos) = Convert.ToByte((((wrBits >> 16)) And (&Hff)) And &HFF)
+          res(outPos + 1) = Convert.ToByte((((wrBits >> 8)) And (&Hff)) And &HFF)
+          res(outPos + 2) = Convert.ToByte(((wrBits) And (&Hff)) And &HFF)
+        End If
+        outPos = outPos + 3
+        i = i + 1
+      End While
+      REM // Image descriptor
+      res(outPos) = Convert.ToByte(&H2c And &HFF)
+      res(outPos + 5) = Convert.ToByte(((w) And (&Hff)) And &HFF)
+      res(outPos + 6) = Convert.ToByte((w >> 8) And &HFF)
+      res(outPos + 7) = Convert.ToByte(((h) And (&Hff)) And &HFF)
+      res(outPos + 8) = Convert.ToByte((h >> 8) And &HFF)
+      outPos = outPos + 10
+      REM // Prepare to append Image data
+      res(outPos) = Convert.ToByte(minCodeSize And &HFF)
+      i = 0
+      While (i < blockEnd)
+        outPos = outPos + 1
+        res(outPos) = Convert.ToByte(dataStream(i) And &HFF)
+        i = i + 1
+      End While
+      REM // Append zero-block and trailer
+      outPos = outPos + 1
+      res(outPos) = Convert.ToByte(0 And &HFF)
+      outPos = outPos + 1
+      res(outPos) = Convert.ToByte(&H3b And &HFF)
+      Return res
     End Function
 
 
