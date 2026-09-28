@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: svn_id $
+'  $Id: yocto_groundspeed.vb version 2.1.16087 (build 76087) $
 '
 '  Implements yFindGroundSpeed(), the high-level API for GroundSpeed functions
 '

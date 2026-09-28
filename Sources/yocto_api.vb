@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb 75365 2026-08-03 13:07:55Z seb $
+'* $Id: yocto_api.vb version 2.1.16087 (build 76087) $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -820,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H0200
-  Public Const YOCTO_API_BUILD_NO As String = "75681"
+  Public Const YOCTO_API_BUILD_NO As String = "76087"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -2442,7 +2442,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return  "2.1.15681 (" + version + ")"
+      Return  "2.1.16087 (" + version + ")"
     End Function
 
 

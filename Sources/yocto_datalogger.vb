@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_datalogger.vb 28126 2017-07-25 07:53:42Z seb $
+'* $Id: yocto_datalogger.vb version 2.1.16087 (build 76087) $
 '*
 '* High-level programming interface, common to all modules
 '*

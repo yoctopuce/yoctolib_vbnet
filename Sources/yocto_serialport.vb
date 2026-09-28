@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_serialport.vb 75535 2026-08-14 13:51:52Z mvuilleu $
+'* $Id: yocto_serialport.vb version 2.1.16087 (build 76087) $
 '*
 '* Implements yFindSerialPort(), the high-level API for SerialPort functions
 '*
@@ -262,9 +262,14 @@ Module yocto_serialport
     Protected _eventCallback As YSnoopingCallback
     Protected _xyproto As String
     Protected _xyfname As String
+    Protected _xyfattr As String
     Protected _xyfdata As Byte()
     Protected _xytotal As Integer
-    Protected _xysent As Integer
+    Protected _xyblock As Byte()
+    Protected _xyavail As Integer
+    Protected _xyready As Integer
+    Protected _xyacked As Integer
+    Protected _xyclose As Boolean
     REM --- (end of generated code: YSerialPort attributes declaration)
 
     Public Sub New(ByVal func As String)
@@ -292,7 +297,10 @@ Module yocto_serialport
       _eventPos = 0
       _xyfdata = New Byte(){}
       _xytotal = 0
-      _xysent = 0
+      _xyblock = New Byte(){}
+      _xyavail = 0
+      _xyready = 0
+      _xyacked = 0
       REM --- (end of generated code: YSerialPort attributes initialization)
     End Sub
 
@@ -2783,95 +2791,175 @@ Module yocto_serialport
       Return res
     End Function
 
-    Public Overridable Function _xymodemQueue(proto As String, fname As String, buff As Byte(), timeoutSec As Integer) As Integer
+    Public Overridable Function _xymodemQueue(proto As String, buff As Byte(), fname As String, attributes As String, closeBatch As Boolean) As Integer
+      Dim datablock As Byte() = New Byte(){}
+
       If ((Me._xyproto).Length > 0) Then
         Me._throw(YAPI.DEVICE_BUSY, "file transfer already in progress")
         Return YAPI.DEVICE_BUSY
       End If
+      ReDim datablock(1024-1)
       Me._xyproto = proto
       Me._xyfname = fname
+      Me._xyfattr = attributes
       Me._xyfdata = buff
       Me._xytotal = (buff).Length
-      Me._xysent = 0
-      Return Me._xymodemProcess(timeoutSec)
+      Me._xyblock = datablock
+      Me._xyavail = 4096
+      Me._xyready = 0
+      Me._xyacked = 0
+      Me._xyclose = closeBatch
+      Return Me._xymodemProcess(proto)
     End Function
 
-    Public Overridable Function _xymodemProcess(timeoutSec As Integer) As Integer
-      Dim proto As String
+    Public Overridable Function _xymodemProcess(proto As String) As Integer
+      Dim maxblocks As Integer = 0
       Dim blksize As Integer = 0
-      Dim cnt As Integer = 0
       Dim datablock As Byte() = New Byte(){}
+      Dim cnt As Integer = 0
       Dim namesuffix As String
       Dim fullproto As String
       Dim json As Byte() = New Byte(){}
       Dim jsonStr As String
       Dim errStr As String
-      Dim sentBytes As Integer = 0
+      Dim state As String
       Dim empty As Byte() = New Byte(){}
-      proto = Me._xyproto
-      If ((proto).Length = 0) Then
+      If ((Me._xyproto).Length = 0) Then
         Me._throw(YAPI.INVALID_ARGUMENT, "no file transfer in progress")
         Return YAPI.INVALID_ARGUMENT
       End If
-      REM // create a data block up to 1k
-      blksize = Me._xytotal - Me._xysent
-      If (blksize > 1024) Then
-        blksize = 1024
+      If ((proto).Length > 6) Then
+        proto = (proto).Substring(0, 6)
       End If
-      ReDim datablock(blksize-1)
-      cnt = 0
-      While (cnt < blksize)
-        datablock(cnt) = Convert.ToByte(Me._xyfdata(Me._xysent + cnt) And &HFF)
-        cnt = cnt + 1
-      End While
-      namesuffix = ""
-      If (Me._xysent = 0) Then
-        If ((proto).Substring(0, 6) = "ymodem") Then
-          namesuffix = ":" + Me._xyfname
+      If (Not ((Me._xyproto).Substring(0, 6) = proto)) Then
+        Me._throw(YAPI.INVALID_ARGUMENT, "file transfer protocol mismatch")
+        Return YAPI.INVALID_ARGUMENT
+      End If
+      If (Me._xyready = 0) Then
+        If (proto = "ymodem") Then
+          If ((Me._xyfattr).Length = 0) Then
+            namesuffix = ":" + Me._xyfname + " " + Convert.ToString(Me._xytotal)
+          Else
+            namesuffix = ":" + Me._xyfname + " " + Convert.ToString(Me._xytotal) + " " + Me._xyfattr
+          End If
+        Else
+          namesuffix = ""
         End If
       Else
         namesuffix = "+"
       End If
-      If (Me._xytotal > Me._xysent + blksize) Then
-        fullproto = "" + proto + "-t" + Convert.ToString(timeoutSec) + "-m" + namesuffix
-      Else
-        fullproto = "" + proto + "-t" + Convert.ToString(timeoutSec) + "" + namesuffix
+      maxblocks = 5
+      While ((Me._xyready < Me._xytotal) AndAlso (Me._xyavail >= 1040) AndAlso (maxblocks > 0))
+        REM // create a data block up to 1k
+        maxblocks = maxblocks - 1
+        blksize = Me._xytotal - Me._xyready
+        If (blksize >= 1024) Then
+          blksize = 1024
+          datablock = Me._xyblock
+        Else
+          ReDim datablock(blksize-1)
+        End If
+        cnt = 0
+        While (cnt < blksize)
+          datablock(cnt) = Convert.ToByte(Me._xyfdata(Me._xyready + cnt) And &HFF)
+          cnt = cnt + 1
+        End While
+        If (Me._xytotal > Me._xyready + blksize) Then
+          fullproto = "" + Me._xyproto + "-m" + namesuffix
+        Else
+          fullproto = "" + Me._xyproto + "" + namesuffix
+        End If
+        REM // backup _xyproto and clear it, to drop transfer in case of exception
+        proto = Me._xyproto
+        Me._xyproto = ""
+        json = Me._uploadEx(fullproto, datablock)
+        If ((json).Length = 0) Then
+          Me._throw(YAPI.IO_ERROR, "failed to receive result from device")
+          Return YAPI.IO_ERROR
+        End If
+        jsonStr = YAPI.DefaultEncoding.GetString(json)
+        If ((jsonStr).Substring(2, 3) = "err") Then
+          REM // will get error message and full status from json URL below
+          maxblocks = 0
+        Else
+          Me._xyready = Me._xyready + blksize
+          Me._xyavail = YAPI._atoi(Me._json_get_key(json, "rts"))
+          namesuffix = "+"
+        End If
+        Me._xyproto = proto
+      End While
+      If ((Me._xyready = Me._xytotal) AndAlso (Me._xyavail >= 262) AndAlso (maxblocks > 0)) Then
+        Me._xyready = Me._xyready + 1
+        If (Me._xyclose) Then
+          REM // schedule transfer of NUL file to end YModem batch
+          ReDim empty(0-1)
+          Me._uploadEx("ymodem:", empty)
+        End If
       End If
-
-      REM // backup _xyproto and clear it, to drop transfer in case of exception
-      Me._xyproto = ""
-      json = Me._uploadEx(fullproto, datablock)
-      If ((json).Length = 0) Then
-        Me._throw(YAPI.IO_ERROR, "failed to receive result from device")
-        Return YAPI.IO_ERROR
+      YAPI.Sleep(100, Nothing)
+      json = Me._download("" + (proto).Substring(0, 6) + ".json")
+      state = (Me._json_get_key(json, "st")).Substring(0, 2)
+      Me._xyavail = YAPI._atoi(Me._json_get_key(json, "rts"))
+      Me._xyacked = YAPI._atoi(Me._json_get_key(json, "ack"))
+      REM // Only report 100% or an error when the state machine has reached a final state
+      REM // But we must detect individual file completion within a multi-file batch transfer
+      If (Not (Me._xyclose) AndAlso state = "BR" AndAlso (Me._xyacked > 1024)) Then
+        state = "ZZ"
       End If
-      jsonStr = YAPI.DefaultEncoding.GetString(json)
-      errStr = Me._json_get_key(json, "err")
-      If ((errStr).Length > 0) Then
-        Me._throw(YAPI.IO_ERROR, errStr)
-        Return YAPI.IO_ERROR
-      End If
-      sentBytes = YAPI._atoi(Me._json_get_key(json, "sent"))
-      If (sentBytes >= Me._xytotal) Then
-        REM // done, free binary buffer
+      If (state = "ZZ") Then
+        REM // transfer completed, free binary buffer
         ReDim empty(0-1)
+        Me._xyproto = ""
         Me._xyfdata = empty
+        Me._xyblock = empty
+        REM // if transfer did not end successfully, report error
+        errStr = Me._json_get_key(json, "err")
+        If ((errStr).Length > 0) Then
+          Me._throw(YAPI.IO_ERROR, errStr)
+          Return YAPI.IO_ERROR
+        End If
         Return 100
       End If
-      Me._xyproto = proto
-      Me._xysent = sentBytes
-      Return ((100 * sentBytes) \ Me._xytotal)
+      REM // Stay at 0% unless receiver receives at least one header block
+      If (Me._xyacked = 0) Then
+        Return 0
+      End If
+      REM // Move to 1-99% as progress unfolds
+      cnt = Me._xytotal
+      If (proto = "ymodem") Then
+        cnt = cnt + 256
+      End If
+      cnt = 1 + ((99 * Me._xyacked) \ cnt)
+      If (cnt > 99) Then
+        cnt = 99
+      End If
+      Return cnt
+    End Function
+
+    Public Overridable Function _xymodemAbort() As Integer
+      Dim empty As Byte() = New Byte(){}
+      Dim res As Integer = 0
+      ReDim empty(0-1)
+      Me._xyproto = ""
+      Me._xyfname = ""
+      Me._xyfdata = empty
+      Me._xyblock = empty
+
+      res = Me._upload("xmodem!", empty)
+      REM // give some extra time for the state machine to abort
+      YAPI.Sleep(10, Nothing)
+      Return res
     End Function
 
     '''*
     ''' <summary>
     '''   Initiates a buffer transmit to the serial port using the standard XMODEM protocol.
     ''' <para>
-    '''   The function will block until the XMODEM receiver triggers the transfer,
-    '''   up to the specified timeout.
-    '''   Once the transfer is started, the function returns the current percentage
-    '''   of completion. The caller should then invoke method
-    '''   <c>xmodemUploadMore()</c> until it returns 100 (percent).
+    '''   The function will return almost immediately, but the transfer only starts when
+    '''   the XMODEM receiver requests it. A few kilobytes of data are buffered within the
+    '''   device, ready to be sent, but the caller should repeatedly invoke method
+    '''   <c>xmodemUploadMore()</c> until it returns 100 (percent) to ensure that the
+    '''   file transfer completes.
     ''' </para>
     ''' </summary>
     ''' <param name="buff">
@@ -2880,6 +2968,10 @@ Module yocto_serialport
     ''' <param name="timeoutSec">
     '''   the timeout before aborting send (e.g. 60 sec)
     ''' </param>
+    ''' <param name="use1kBlocks">
+    '''   whether to use 1KB data blocks for faster transfer
+    '''   (relatively standard XMODEM protocol extension)
+    ''' </param>
     ''' <returns>
     '''   an integer in the range 0 to 100 (percentage of completion),
     '''   or a negative error code in case of failure.
@@ -2888,22 +2980,26 @@ Module yocto_serialport
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function xmodemUpload(buff As Byte(), timeoutSec As Integer) As Integer
-      Return Me._xymodemQueue("xmodem", "", buff, timeoutSec)
+    Public Overridable Function xmodemUpload(buff As Byte(), timeoutSec As Integer, use1kBlocks As Boolean) As Integer
+      Dim proto As String
+      If (use1kBlocks) Then
+        proto = "xmodem-1k-t" + Convert.ToString(timeoutSec)
+      Else
+        proto = "xmodem-t" + Convert.ToString(timeoutSec)
+      End If
+
+      Return Me._xymodemQueue(proto, buff, "", "", False)
     End Function
 
     '''*
     ''' <summary>
-    '''   Continues a standard XMODEM upload previously started with <c>xmodemUpload</c>.
+    '''   Continues a XMODEM upload previously started with <c>xmodemUpload</c>.
     ''' <para>
     '''   The function will block until the data sent has been acknowledged by receiver,
     '''   up to the specified timeout, and return the current percentage of completion.
     '''   It should be called continuously until it returns the 100 (percent).
     ''' </para>
     ''' </summary>
-    ''' <param name="timeoutSec">
-    '''   the timeout before aborting send (e.g. 60 sec)
-    ''' </param>
     ''' <returns>
     '''   an integer in the range 0 to 100 (percentage of completion),
     '''   or a negative error code in case of failure.
@@ -2912,81 +3008,49 @@ Module yocto_serialport
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function xmodemUploadMore(timeoutSec As Integer) As Integer
-      Return Me._xymodemProcess(timeoutSec)
+    Public Overridable Function xmodemUploadMore() As Integer
+      Return Me._xymodemProcess("xmodem")
     End Function
 
     '''*
     ''' <summary>
-    '''   Initiates a buffer transmit to the serial port using the standard XMODEM-1k protocol.
-    ''' <para>
-    '''   The function will block until the XMODEM receiver triggers the transfer,
-    '''   up to the specified timeout.
-    '''   Once the transfer is started, the function returns the current percentage
-    '''   of completion. The caller should then invoke method
-    '''   <c>xmodem1kUploadMore()</c> until it returns 100 (percent).
-    ''' </para>
-    ''' </summary>
-    ''' <param name="buff">
-    '''   the binary buffer to send
-    ''' </param>
-    ''' <param name="timeoutSec">
-    '''   the timeout before aborting send (e.g. 60 sec)
-    ''' </param>
-    ''' <returns>
-    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
-    ''' </returns>
+    '''   Abort any XMODEM or YMODEM data transfer previously started.
     ''' <para>
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
-    '''/
-    Public Overridable Function xmodem1kUpload(buff As Byte(), timeoutSec As Integer) As Integer
-      Return Me._xymodemQueue("xmodem-1k", "", buff, timeoutSec)
-    End Function
-
-    '''*
-    ''' <summary>
-    '''   Continues a XMODEM-1k upload previously started with <c>xmodem1kUpload</c>.
-    ''' <para>
-    '''   The function will block until the data sent has been acknowledged by receiver,
-    '''   up to the specified timeout, and return the current percentage of completion.
-    '''   It should be called continuously until it returns the 100 (percent).
-    ''' </para>
     ''' </summary>
-    ''' <param name="timeoutSec">
-    '''   the timeout before aborting send (e.g. 60 sec)
-    ''' </param>
-    ''' <returns>
-    '''   an integer in the range 0 to 100 (percentage of completion),
-    '''   or a negative error code in case of failure.
-    ''' </returns>
-    ''' <para>
-    '''   On failure, throws an exception or returns a negative error code.
-    ''' </para>
     '''/
-    Public Overridable Function xmodem1kUploadMore(timeoutSec As Integer) As Integer
-      Return Me._xymodemProcess(timeoutSec)
+    Public Overridable Function xmodemAbort() As Integer
+      Return Me._xymodemAbort()
     End Function
 
     '''*
     ''' <summary>
     '''   Initiates a buffer transmit to the serial port using the standard YMODEM protocol.
     ''' <para>
-    '''   The function will block until the YMODEM receiver triggers the transfer,
-    '''   up to the specified timeout.
-    '''   Once the transfer is started, the function returns the current percentage
-    '''   of completion. The caller should then invoke method
-    '''   <c>ymodemUploadMore()</c> until it returns 100 (percent).
+    '''   The function will return almost immediately, but the transfer only starts when
+    '''   the XMODEM receiver requests it. A few kilobytes of data are buffered within the
+    '''   device, ready to be sent, but the caller should repeatedly invoke method
+    '''   <c>xmodemUploadMore()</c> until it returns 100 (percent) to ensure that the
+    '''   file transfer completes.
     ''' </para>
     ''' </summary>
-    ''' <param name="filename">
-    '''   the filename associated with the data in the buffer
-    ''' </param>
     ''' <param name="buff">
     '''   the binary buffer to send
     ''' </param>
     ''' <param name="timeoutSec">
     '''   the timeout before aborting send (e.g. 60 sec)
+    ''' </param>
+    ''' <param name="filename">
+    '''   the filename associated with the data in the buffer
+    ''' </param>
+    ''' <param name="attributes">
+    '''   optional file attributes (eg. modif date timestamp in octal form),
+    '''   or an empty string if no further attribute is required
+    ''' </param>
+    ''' <param name="lastFile">
+    '''   <c>TRUE</c> to end the YMODEM batch session after this file,
+    '''   or <c>FALSE</c> if more files will be sent in the same batch session
     ''' </param>
     ''' <returns>
     '''   <c>YAPI.SUCCESS</c> if the call succeeds.
@@ -2995,8 +3059,11 @@ Module yocto_serialport
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function ymodemUpload(filename As String, buff As Byte(), timeoutSec As Integer) As Integer
-      Return Me._xymodemQueue("ymodem", filename, buff, timeoutSec)
+    Public Overridable Function ymodemUpload(buff As Byte(), timeoutSec As Integer, filename As String, attributes As String, lastFile As Boolean) As Integer
+      Dim proto As String
+      proto = "ymodem-t" + Convert.ToString(timeoutSec)
+
+      Return Me._xymodemQueue(proto, buff, filename, attributes, lastFile)
     End Function
 
     '''*
@@ -3008,9 +3075,6 @@ Module yocto_serialport
     '''   It should be called continuously until it returns the 100 (percent).
     ''' </para>
     ''' </summary>
-    ''' <param name="timeoutSec">
-    '''   the timeout before aborting send (e.g. 60 sec)
-    ''' </param>
     ''' <returns>
     '''   an integer in the range 0 to 100 (percentage of completion),
     '''   or a negative error code in case of failure.
@@ -3019,8 +3083,20 @@ Module yocto_serialport
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function ymodemUploadMore(timeoutSec As Integer) As Integer
-      Return Me._xymodemProcess(timeoutSec)
+    Public Overridable Function ymodemUploadMore() As Integer
+      Return Me._xymodemProcess("ymodem")
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Abort any XMODEM or YMODEM data transfer previously started.
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    ''' </summary>
+    '''/
+    Public Overridable Function ymodemAbort() As Integer
+      Return Me._xymodemAbort()
     End Function
 
 

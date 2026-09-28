@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_i2cport.vb 52943 2023-01-26 15:46:47Z mvuilleu $
+'  $Id: yocto_inputcapture.vb version 2.1.16087 (build 76087) $
 '
 '  Implements yFindI2cPort(), the high-level API for I2cPort functions
 '
