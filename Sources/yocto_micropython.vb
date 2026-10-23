@@ -1,6 +1,6 @@
 ' ********************************************************************
 '
-'  $Id: yocto_micropython.vb version 2.1.16087 (build 76087) $
+'  $Id:yocto_micropython.vb version 2.1.16635 (build 76635) $
 '
 '  Implements yFindMicroPython(), the high-level API for MicroPython functions
 '
@@ -58,6 +58,14 @@ Module yocto_micropython
   Public Const Y_HEAPFRAG_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_XHEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
   Public Const Y_STACKUSAGE_INVALID As Integer = YAPI.INVALID_UINT
+  Public Const Y_VMSTATE_UNAVAILABLE As Integer = 0
+  Public Const Y_VMSTATE_RESET As Integer = 1
+  Public Const Y_VMSTATE_PENDING As Integer = 2
+  Public Const Y_VMSTATE_RUNNING As Integer = 3
+  Public Const Y_VMSTATE_PAUSED As Integer = 4
+  Public Const Y_VMSTATE_IDLE As Integer = 5
+  Public Const Y_VMSTATE_ERROR As Integer = 6
+  Public Const Y_VMSTATE_INVALID As Integer = -1
   Public Const Y_CURRENTSCRIPT_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_STARTUPSCRIPT_INVALID As String = YAPI.INVALID_STRING
   Public Const Y_STARTUPDELAY_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -94,6 +102,14 @@ Module yocto_micropython
     Public Const HEAPFRAG_INVALID As Integer = YAPI.INVALID_UINT
     Public Const XHEAPUSAGE_INVALID As Integer = YAPI.INVALID_UINT
     Public Const STACKUSAGE_INVALID As Integer = YAPI.INVALID_UINT
+    Public Const VMSTATE_UNAVAILABLE As Integer = 0
+    Public Const VMSTATE_RESET As Integer = 1
+    Public Const VMSTATE_PENDING As Integer = 2
+    Public Const VMSTATE_RUNNING As Integer = 3
+    Public Const VMSTATE_PAUSED As Integer = 4
+    Public Const VMSTATE_IDLE As Integer = 5
+    Public Const VMSTATE_ERROR As Integer = 6
+    Public Const VMSTATE_INVALID As Integer = -1
     Public Const CURRENTSCRIPT_INVALID As String = YAPI.INVALID_STRING
     Public Const STARTUPSCRIPT_INVALID As String = YAPI.INVALID_STRING
     Public Const STARTUPDELAY_INVALID As Double = YAPI.INVALID_DOUBLE
@@ -109,6 +125,7 @@ Module yocto_micropython
     Protected _heapFrag As Integer
     Protected _xheapUsage As Integer
     Protected _stackUsage As Integer
+    Protected _vmState As Integer
     Protected _currentScript As String
     Protected _startupScript As String
     Protected _startupDelay As Double
@@ -131,6 +148,7 @@ Module yocto_micropython
       _heapFrag = HEAPFRAG_INVALID
       _xheapUsage = XHEAPUSAGE_INVALID
       _stackUsage = STACKUSAGE_INVALID
+      _vmState = VMSTATE_INVALID
       _currentScript = CURRENTSCRIPT_INVALID
       _startupScript = STARTUPSCRIPT_INVALID
       _startupDelay = STARTUPDELAY_INVALID
@@ -159,6 +177,9 @@ Module yocto_micropython
       End If
       If json_val.has("stackUsage") Then
         _stackUsage = CInt(json_val.getLong("stackUsage"))
+      End If
+      If json_val.has("vmState") Then
+        _vmState = CInt(json_val.getLong("vmState"))
       End If
       If json_val.has("currentScript") Then
         _currentScript = json_val.getString("currentScript")
@@ -316,6 +337,35 @@ Module yocto_micropython
         End If
       End If
       res = Me._stackUsage
+      Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns the current state of the virtual machine.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <returns>
+    '''   a value among <c>YMicroPython.VMSTATE_UNAVAILABLE</c>, <c>YMicroPython.VMSTATE_RESET</c>,
+    '''   <c>YMicroPython.VMSTATE_PENDING</c>, <c>YMicroPython.VMSTATE_RUNNING</c>,
+    '''   <c>YMicroPython.VMSTATE_PAUSED</c>, <c>YMicroPython.VMSTATE_IDLE</c> and
+    '''   <c>YMicroPython.VMSTATE_ERROR</c> corresponding to the current state of the virtual machine
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns <c>YMicroPython.VMSTATE_INVALID</c>.
+    ''' </para>
+    '''/
+    Public Function get_vmState() As Integer
+      Dim res As Integer
+      If (Me._cacheExpiration <= YAPI.GetTickCount()) Then
+        If (Me.load(YAPI._yapiContext.GetCacheValidity()) <> YAPI.SUCCESS) Then
+          Return VMSTATE_INVALID
+        End If
+      End If
+      res = Me._vmState
       Return res
     End Function
 
@@ -668,11 +718,106 @@ Module yocto_micropython
 
     '''*
     ''' <summary>
-    '''   Submit MicroPython code for execution in the interpreter.
+    '''   Submit a short expression to MicroPython interpreter, and return
+    '''   the output produced by its evaluation.
+    ''' <para>
+    ''' </para>
+    ''' <para>
+    '''   There is no implicit reset of the MicroPython virtual machine
+    '''   with this function: all global symbols defined by code that
+    '''   has run since last reset can be accessed freely. But if the
+    '''   interpreter is not at rest when the function is invoked, the
+    '''   call will fail.
+    ''' </para>
+    ''' <para>
+    '''   Use method <c>reset()</c> if you need to start
+    '''   from a fresh environment before starting the evaluation.
+    ''' </para>
+    ''' <para>
+    '''   The expression is limited to about 120 ASCII characters.
+    '''   If you need to evaluate more complex code, use the <c>exec()</c>
+    '''   method to define it as a function, check for exec completion
+    '''   using <c>get_vmState()</c> and then use <c>eval()</c>
+    '''   actually run that function and capture its output.
+    ''' </para>
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="pythonExpr">
+    '''   Short Python expression to be evaluated
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function eval(pythonExpr As String) As String
+      Dim state As String
+      Dim content As Byte() = New Byte(){}
+      Dim endPos As Integer = 0
+      Dim lenLen As Integer = 0
+      Dim lenStr As String
+      Dim res As Integer = 0
+      Dim url As String
+      Dim contentStr As String
+      REM // Make sure the VM is ready to handle the evaluation
+
+      state = (Me.get_advertisedValue()).Substring(0, 1)
+      If Not("zix".IndexOf(state) >= 0) Then
+        me._throw(YAPI.DEVICE_BUSY, "MicroPython VM is not at rest")
+        return ""
+      end if
+      REM // Retrieve current MicroPython console position (avoid transmitting current content if possible)
+      content = Me._download("mpy.txt?pos=2111222333")
+      endPos = (content).Length - 1
+      While ((endPos >= 0) AndAlso (content(endPos) <> 64))
+        endPos = endPos - 1
+      End While
+      If Not(endPos > 0) Then
+        me._throw(YAPI.IO_ERROR, "failed to download MicroPython logs")
+        return ""
+      end if
+      lenLen = (content).Length - endPos - 1
+      lenStr = System.Text.Encoding.UTF8.GetString(content, endPos + 1, lenLen)
+      REM // trigger the evaluation
+      res = Me.set_command("?" + pythonExpr)
+      If Not(res = YAPI.SUCCESS) Then
+        me._throw(res, "failed to trigger evaluation")
+        return ""
+      end if
+      REM // wait for the evaluation to complete
+      state = (Me.get_advertisedValue()).Substring(0, 1)
+      While ("ix".IndexOf(state) < 0)
+        YAPI.Sleep(50, Nothing)
+        state = (Me.get_advertisedValue()).Substring(0, 1)
+      End While
+      REM // download the logs after the evaluation
+      url = "mpy.txt?pos=" + lenStr
+      content = Me._download(url)
+      endPos = (content).Length - 1
+      While ((endPos >= 0) AndAlso (content(endPos) <> 64))
+        endPos = endPos - 1
+      End While
+      If Not(endPos > 0) Then
+        me._throw(YAPI.IO_ERROR, "failed to download MicroPython logs")
+        return ""
+      end if
+      contentStr = System.Text.Encoding.UTF8.GetString(content, 0, endPos - 1)
+      Return contentStr
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Submit Python code for execution in the MicroPython interpreter.
     ''' <para>
     '''   If the MicroPython interpreter is busy, this function will
     '''   block until it becomes available. The code is then uploaded,
-    '''   compiled and executed on the fly, without beeing stored on the device filesystem.
+    '''   compiled unless it is already a MicroPython precompiled file,
+    '''   and executed on the fly, without beeing stored on the device
+    '''   filesystem. This method does not wait for the completion
+    '''   if the code execution.
     ''' </para>
     ''' <para>
     '''   There is no implicit reset of the MicroPython interpreter with
@@ -687,10 +832,11 @@ Module yocto_micropython
     ''' </para>
     ''' </summary>
     ''' <param name="codeName">
-    '''   name of the code file (used for error reporting only)
+    '''   name of the code buffer, with a <c>.py</c> extension
+    '''   for source code and a <c>.mpy</c> extension for a precompiled file.
     ''' </param>
     ''' <param name="mpyCode">
-    '''   MicroPython code to compile and execute
+    '''   binary buffer containing MicroPython code to execute
     ''' </param>
     ''' <returns>
     '''   <c>YAPI.SUCCESS</c> if the call succeeds.
@@ -699,11 +845,11 @@ Module yocto_micropython
     '''   On failure, throws an exception or returns a negative error code.
     ''' </para>
     '''/
-    Public Overridable Function eval(codeName As String, mpyCode As String) As Integer
+    Public Overridable Function exec(codeName As String, mpyCode As Byte()) As Integer
       Dim fullname As String
       Dim res As Integer = 0
       fullname = "mpy:" + codeName
-      res = Me._upload(fullname, YAPI.DefaultEncoding.GetBytes(mpyCode))
+      res = Me._upload(fullname, mpyCode)
       Return res
     End Function
 
@@ -737,6 +883,35 @@ Module yocto_micropython
         state = (Me.get_advertisedValue()).Substring(0, 1)
       End While
       Return YAPI.SUCCESS
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Reset the MicroPython interpreter to its initial state, and start the specified
+    '''   program, which must have been previously uploaded to the device.
+    ''' <para>
+    ''' </para>
+    ''' </summary>
+    ''' <param name="codeFileName">
+    '''   filename of the MicroPython code to run
+    ''' </param>
+    ''' <returns>
+    '''   <c>YAPI.SUCCESS</c> if the call succeeds.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function run(codeFileName As String) As Integer
+      Dim currentScript As String
+
+      currentScript = Me.get_currentScript()
+      If (currentScript = codeFileName) Then
+        REM // set_currentScript does nothing when the script name is unchanged,
+        REM // so in this case we need to force a VM reset
+        Me.set_command("Z")
+      End If
+      Return Me.set_currentScript(codeFileName)
     End Function
 
     '''*
@@ -776,15 +951,13 @@ Module yocto_micropython
     Public Overridable Function get_lastLogs() As String
       Dim buff As Byte() = New Byte(){}
       Dim bufflen As Integer = 0
-      Dim res As String
 
       buff = Me._download("mpy.txt")
       bufflen = (buff).Length - 1
       While ((bufflen > 0) AndAlso (buff(bufflen) <> 64))
         bufflen = bufflen - 1
       End While
-      res = (YAPI.DefaultEncoding.GetString(buff)).Substring(0, bufflen)
-      Return res
+      Return System.Text.Encoding.UTF8.GetString(buff, 0, bufflen)
     End Function
 
     '''*
@@ -832,11 +1005,10 @@ Module yocto_micropython
       Dim url As String
       Dim content As Byte() = New Byte(){}
       Dim endPos As Integer = 0
-      Dim contentStr As String
-      Dim msgArr As List(Of String) = New List(Of String)()
-      Dim arrLen As Integer = 0
+      Dim lenLen As Integer = 0
       Dim lenStr As String
-      Dim arrPos As Integer = 0
+      Dim msgPos As Integer = 0
+      Dim msgEnd As Integer = 0
       Dim logMsg As String
       REM // detect possible power cycle of the reader to clear event pointer
       cbPos = Convert.ToInt32((cbVal).Substring(1, (cbVal).Length-1), 16)
@@ -860,17 +1032,17 @@ Module yocto_micropython
       End If
 
       content = Me._download(url)
-      contentStr = YAPI.DefaultEncoding.GetString(content)
       REM // look for new position indicator at end of logs
       endPos = (content).Length - 1
       While ((endPos >= 0) AndAlso (content(endPos) <> 64))
         endPos = endPos - 1
       End While
       If Not(endPos > 0) Then
-        me._throw(YAPI.IO_ERROR, "fail to download micropython logs")
+        me._throw(YAPI.IO_ERROR, "fail to download MicroPython logs")
         return YAPI.IO_ERROR
       end if
-      lenStr = (contentStr).Substring(endPos+1, (contentStr).Length-(endPos+1))
+      lenLen = (content).Length - endPos - 1
+      lenStr = System.Text.Encoding.UTF8.GetString(content, endPos + 1, lenLen)
       REM // update processed event position pointer
       Me._logPos = YAPI._atoi(lenStr)
       If (Me._isFirstCb) Then
@@ -878,31 +1050,44 @@ Module yocto_micropython
         Me._isFirstCb = False
         Return YAPI.SUCCESS
       End If
-      REM // now generate callbacks for each complete log line
       endPos = endPos - 1
       If Not(content(endPos) = 10) Then
-        me._throw(YAPI.IO_ERROR, "fail to download micropython logs")
+        me._throw(YAPI.IO_ERROR, "fail to download MicroPython logs")
         return YAPI.IO_ERROR
       end if
-      contentStr = (contentStr).Substring(0, endPos)
-      msgArr = New List(Of String)(contentStr.Split(vbLf.ToCharArray()))
-      arrLen = msgArr.Count - 1
-      If (arrLen > 0) Then
-        logMsg = "" + Me._prevPartialLog + "" + msgArr(0)
+      If (endPos = 0) Then
+        Return YAPI.SUCCESS
+      End If
+      REM // now generate callbacks for each complete log line
+      msgPos = 0
+      msgEnd = 0
+      While ((msgEnd < endPos) AndAlso (content(msgEnd) <> 10))
+        msgEnd = msgEnd + 1
+      End While
+      logMsg = System.Text.Encoding.UTF8.GetString(content, msgPos, msgEnd - msgPos)
+      logMsg = "" + Me._prevPartialLog + "" + logMsg
+      If (msgEnd < endPos) Then
         If (Not (Me._logCallback Is Nothing)) Then
           Me._logCallback(Me, logMsg)
         End If
-        Me._prevPartialLog = ""
-        arrPos = 1
-        While (arrPos < arrLen)
-          logMsg = msgArr(arrPos)
+      Else
+        Me._prevPartialLog = logMsg
+      End If
+      While (msgEnd < endPos)
+        msgPos = msgEnd + 1
+        msgEnd = msgPos
+        While ((msgEnd < endPos) AndAlso (content(msgEnd) <> 10))
+          msgEnd = msgEnd + 1
+        End While
+        logMsg = System.Text.Encoding.UTF8.GetString(content, msgPos, msgEnd - msgPos)
+        If (msgEnd < endPos) Then
           If (Not (Me._logCallback Is Nothing)) Then
             Me._logCallback(Me, logMsg)
           End If
-          arrPos = arrPos + 1
-        End While
-      End If
-      Me._prevPartialLog = "" + Me._prevPartialLog + "" + msgArr(arrLen)
+        Else
+          Me._prevPartialLog = logMsg
+        End If
+      End While
       Return YAPI.SUCCESS
     End Function
 

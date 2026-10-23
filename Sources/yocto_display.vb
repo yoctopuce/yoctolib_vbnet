@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_display.vb version 2.1.16087 (build 76087) $
+'* $Id:yocto_display.vb version 2.1.16635 (build 76635) $
 '*
 '* Implements yFindDisplay(), the high-level API for Display functions
 '*
@@ -66,6 +66,16 @@ Module yocto_display
   CENTER_RIGHT = 13
   BASELINE_RIGHT = 14
   BOTTOM_RIGHT = 15
+end enum
+ Public Enum  Y_QRMODE
+  UPCASE_ECCL = 0
+  UPCASE_ECCM = 1
+  UPCASE_ECCQ = 2
+  UPCASE_ECCH = 3
+  BYTES_ECCL = 4
+  BYTES_ECCM = 5
+  BYTES_ECCQ = 6
+  BYTES_ECCH = 7
 end enum
   REM --- (end of generated code: YDisplayLayer globals)
   REM --- (generated code: YDisplay globals)
@@ -720,6 +730,73 @@ end enum
       Me._display.flushLayers()
       destname = "layer" + Convert.ToString(Me._id) + ":G,-1@" + Convert.ToString(x) + "," + Convert.ToString(y)
       Return Me._display.upload(destname,gifimage)
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Displays a QR code at the specified position on the layer.
+    ''' <para>
+    '''   You can choose from several
+    '''   QR code representation modes, depending on the desired content type (restricted alphabet
+    '''   vs. all characters) and the error correction level (ECC level, which can be Low, Medium,
+    '''   Quartile, or High). A code with a full character set and a higher error correction level is
+    '''   larger than a code with a limited character set and a low error correction level. You can
+    '''   precalculate the size of the QR code before displaying it by calling this function with
+    '''   a zoom factor of zero.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="x">
+    '''   the distance in pixels from the left edge of the layer to the left edge of the QR code
+    ''' </param>
+    ''' <param name="y">
+    '''   the distance in pixels from the top edge of the layer to the top edge of the QR code
+    ''' </param>
+    ''' <param name="mode">
+    '''   the QR code encoding mode, selected from the enumeration <c>YDisplayLayer.QRMODE</c>:
+    '''   <c>YDisplayLayer.QRMODE_BYTES_ECCH</c>, <c>YDisplayLayer.QRMODE_BYTES_ECCQ</c>,
+    '''   <c>YDisplayLayer.QRMODE_BYTES_ECCM</c>, <c>YDisplayLayer.QRMODE_BYTES_ECCL</c>,
+    '''   <c>YDisplayLayer.QRMODE_UPCASE_ECCH</c>, <c>YDisplayLayer.QRMODE_UPCASE_ECCQ</c>,
+    '''   <c>YDisplayLayer.QRMODE_UPCASE_ECCM</c>, <c>YDisplayLayer.QRMODE_UPCASE_ECCL</c>.
+    ''' </param>
+    ''' <param name="zoom">
+    '''   the magnification factor, between 0 (not displayed) and 16
+    '''   (each point of the QR code is represented by 16x16 pixels on the screen).
+    ''' </param>
+    ''' <param name="text">
+    '''   the text to encode in the QR code
+    ''' </param>
+    ''' <returns>
+    '''   the size of one side of the QR code in pixels if successful.
+    ''' </returns>
+    ''' <para>
+    '''   On failure, throws an exception or returns a negative error code.
+    ''' </para>
+    '''/
+    Public Overridable Function drawQRCode(x As Integer, y As Integer, mode As Y_QRMODE, zoom As Integer, text As String) As Integer
+      Dim content As Byte() = New Byte(){}
+      Dim contentLen As Integer = 0
+      Dim destname As String
+      Dim json As Byte() = New Byte(){}
+      Dim qrSize As Integer = 0
+      content = YAPI.DefaultEncoding.GetBytes(text)
+      contentLen = (content).Length
+      If (zoom = 0) Then
+        REM // no need to send actual content for computing QR code size
+        ReDim content(0-1)
+      End If
+      Me._display.flushLayers()
+      destname = "layer" + Convert.ToString(Me._id) + ":Q" + Convert.ToString(mode) + "*" + Convert.ToString(zoom) + "," + Convert.ToString(contentLen) + "@" + Convert.ToString(x) + "," + Convert.ToString(y)
+      json = Me._display._uploadEx(destname,content)
+      If ((json).Length = 0) Then
+        Me._display._throw(YAPI.IO_ERROR, "failed to receive size")
+        Return YAPI.IO_ERROR
+      End If
+      qrSize = YAPI._atoi(Me._display._json_get_key(json, "size"))
+      If (qrSize >= 999) Then
+        Me._display._throw(YAPI.INVALID_ARGUMENT, "text is too large")
+        Return YAPI.INVALID_ARGUMENT
+      End If
+      Return qrSize
     End Function
 
     '''*
@@ -1724,6 +1801,7 @@ end enum
     ''' <summary>
     '''   Changes the model of display to match the connected display panel.
     ''' <para>
+    '''   Value examples:  "E2_266_KS0_C1" , "E2_290_QS_0F22 , "E2_370_KS_0C1", "E2_417_KS_0D0" etc..
     '''   This function has no effect if the module does not support the selected
     '''   display panel. Remember to call the <c>saveToFlash()</c>
     '''   method of the module if the modification must be kept.

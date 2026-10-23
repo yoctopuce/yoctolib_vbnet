@@ -1,6 +1,6 @@
 '*********************************************************************
 '*
-'* $Id: yocto_files.vb version 2.1.16087 (build 76087) $
+'* $Id:yocto_files.vb version 2.1.16635 (build 76635) $
 '*
 '* Implements yFindFiles(), the high-level API for Files functions
 '*
@@ -486,6 +486,19 @@ Module yocto_files
     ''' </para>
     '''/
     Public Overridable Function download(pathname As String) As Byte()
+      Dim idx As Integer = 0
+      Dim plen As Integer = 0
+      Dim res As Byte() = New Byte(){}
+      plen = (pathname).Length
+      idx = 0
+      While ((idx < plen) AndAlso (pathname).Substring(idx, 1) = "/")
+        idx = idx + 1
+      End While
+      If ((idx < plen) AndAlso (pathname).Substring(idx, 1) = ".") Then
+        Me._throw(YAPI.INVALID_ARGUMENT, "Remote file access forbidden")
+        ReDim res(0-1)
+        Return res
+      End If
       Return Me._download(pathname)
     End Function
 
@@ -599,6 +612,50 @@ Module yocto_files
       res = ((YAPI._bincrc(meta, 0, 4 * blkcnt)) Xor (CType(&Hffffffff, Integer)))
       res = (((res) And (&H7fffffff)) - 2 * (((res >> 1)) And (&H40000000)))
       Return res
+    End Function
+
+    '''*
+    ''' <summary>
+    '''   Returns true if the path given as argument meets the requirements
+    '''   for use on a Yoctopuce device.
+    ''' <para>
+    '''   This method checks for the
+    '''   maximum file name length, total path length and forbidden
+    '''   characters.
+    ''' </para>
+    ''' </summary>
+    ''' <param name="path">
+    '''   a string representing a path
+    ''' </param>
+    ''' <returns>
+    '''   a boolean
+    ''' </returns>
+    '''/
+    Public Overridable Function isValidPath(path As String) As Boolean
+      Dim parts As List(Of String) = New List(Of String)()
+      Dim pathLen As Integer = 0
+      Dim i As Integer = 0
+      Dim allowedChars As String
+      pathLen = (path).Length
+      If (pathLen > 250) Then
+        Return False
+      End If
+      parts = New List(Of String)(path.Split(New Char() {"/"c}))
+      Dim ii_0 As Integer
+      For ii_0 = 0 To parts.Count - 1
+        If ((parts(ii_0)).Length > 31) Then
+          Return False
+        End If
+      Next ii_0
+      allowedChars = "abcdefghijklmnopqrstuvwxyz./ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789_-[]()@"
+      i = 0
+      While (i < pathLen)
+        If (allowedChars.IndexOf((path).Substring(i, 1)) < 0) Then
+          Return False
+        End If
+        i = i + 1
+      End While
+      Return True
     End Function
 
 

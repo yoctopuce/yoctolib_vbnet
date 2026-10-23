@@ -1,6 +1,6 @@
 '/********************************************************************
 '*
-'* $Id: yocto_api.vb version 2.1.16087 (build 76087) $
+'* $Id:yocto_api.vb version 2.1.16635 (build 76635) $
 '*
 '* High-level programming interface, common to all modules
 '*
@@ -820,7 +820,7 @@ Module yocto_api
 
   Public Const YOCTO_API_VERSION_STR As String = "2.0"
   Public Const YOCTO_API_VERSION_BCD As Integer = &H0200
-  Public Const YOCTO_API_BUILD_NO As String = "76087"
+  Public Const YOCTO_API_BUILD_NO As String = "76635"
 
   Public Const YOCTO_DEFAULT_PORT As Integer = 4444
   Public Const YOCTO_VENDORID As Integer = &H24E0
@@ -1313,10 +1313,9 @@ Module yocto_api
     ''' <summary>
     '''   Returns the path to the dynamic YAPI library.
     ''' <para>
-    '''   This function is useful for debugging problems loading the
-    '''   dynamic library YAPI. This function is supported by the C#, Python and VB languages. The other
-    '''   libraries return an
-    '''   empty string.
+    '''   This function is useful for debugging
+    '''   problems loading the dynamic library YAPI. This function is supported by the C#,
+    '''   Python and VB languages. The other libraries return an empty string.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -2197,10 +2196,9 @@ Module yocto_api
     ''' <summary>
     '''   Returns the path to the dynamic YAPI library.
     ''' <para>
-    '''   This function is useful for debugging problems loading the
-    '''   dynamic library YAPI. This function is supported by the C#, Python and VB languages. The other
-    '''   libraries return an
-    '''   empty string.
+    '''   This function is useful for debugging
+    '''   problems loading the dynamic library YAPI. This function is supported by the C#,
+    '''   Python and VB languages. The other libraries return an empty string.
     ''' </para>
     ''' </summary>
     ''' <returns>
@@ -2442,7 +2440,7 @@ Module yocto_api
       Dim version As String = ""
       Dim apidate As String = ""
       yapiGetAPIVersion(version, apidate)
-      Return  "2.1.16087 (" + version + ")"
+      Return  "2.1.16635 (" + version + ")"
     End Function
 
 
@@ -7099,7 +7097,7 @@ Module yocto_api
     End Function
 
 
-    Protected Function _json_get_key(ByVal data As Byte(), ByVal key As String) As String
+    Public Function _json_get_key(ByVal data As Byte(), ByVal key As String) As String
       Dim obj As New YJSONObject(YAPI.DefaultEncoding.GetString(data))
       obj.parse()
       If obj.has(key) Then
@@ -8844,7 +8842,7 @@ Module yocto_api
         Dim ii_1 As Integer
         For ii_1 = 0 To filelist.Count - 1
           name = Me._json_get_key(filelist(ii_1), "name")
-          If (((name).Length > 0) AndAlso Not (name = "startupConf.json")) Then
+          If (((name).Length > 0) AndAlso Not (name = "startupConf.json") AndAlso Not ((name).Substring(0, 1) = ".")) Then
             If ((name).Substring((name).Length-1, 1) = "/") Then
               file_data = ""
             Else
@@ -13436,6 +13434,9 @@ Module yocto_api
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiSetHubIntAttr", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiSetHubIntAttr(ByVal hubref As Integer, ByVal attrname As StringBuilder, ByVal value As Integer) As Integer
+  End Function
+  <DllImport("yapi.dll", EntryPoint:="yapiUtf8Decode", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
+  Private Function _yapiUtf8Decode(ByVal utf8_buffer As StringBuilder, ByVal inputPos As Integer, ByVal inputLen As Integer, ByVal output As StringBuilder) As Integer
   End Function
   <DllImport("yapi.dll", EntryPoint:="yapiSetTrustedCertificatesList", CharSet:=CharSet.Ansi, CallingConvention:=CallingConvention.Cdecl)>
   Private Function _yapiSetTrustedCertificatesList(ByVal certificatePath As StringBuilder, ByVal errmsg As StringBuilder) As Integer
